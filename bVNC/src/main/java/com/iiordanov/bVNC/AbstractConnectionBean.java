@@ -4,6 +4,7 @@
 package com.iiordanov.bVNC;
 
 import static com.undatech.opaque.RemoteClientLibConstants.GET_FILE_TIMEOUT;
+import static com.undatech.opaque.RemoteClientLibConstants.MAX_CONFIG_FILE_SIZE_BYTES;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -1794,7 +1795,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
                             URL url = new URL(data.toString());
                             File file = new File(tempConfigFile);
                             URLConnection ucon = url.openConnection();
-                            FileUtils.outputToFile(ucon.getInputStream(), file);
+                            FileUtils.outputToFile(ucon.getInputStream(), file, MAX_CONFIG_FILE_SIZE_BYTES);
 
                             synchronized (waitOn) {
                                 waitOn.notify();
@@ -1827,7 +1828,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
                 FileUtils.deleteFile(tempConfigFile);
 
                 try {
-                    FileUtils.outputToFile(context.getContentResolver().openInputStream(data), new File(tempConfigFile));
+                    FileUtils.outputToFile(context.getContentResolver().openInputStream(data), new File(tempConfigFile), MAX_CONFIG_FILE_SIZE_BYTES);
                     configFileName = tempConfigFile;
                 } catch (IOException e) {
                     Log.e(TAG, "Could not write temp file: IOException.");

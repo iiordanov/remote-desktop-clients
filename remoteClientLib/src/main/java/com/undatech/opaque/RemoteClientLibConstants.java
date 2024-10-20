@@ -86,6 +86,7 @@ public class RemoteClientLibConstants {
     public static final String ACTION_USB_PERMISSION = "com.undatech.opaque.USB_PERMISSION";
     public static final String DEFAULT_SETTINGS_FILE = "defaultSettings";
     public static final int URL_BUFFER_SIZE = 3000;
+    public static final int MAX_CONFIG_FILE_SIZE_BYTES = 30000;
     public static final int GET_FILE_TIMEOUT = 17000;
     public static final String PVE_DEFAULT_REALM = "pam";
     public static final int LOGCAT_MAX_LINES = 500;

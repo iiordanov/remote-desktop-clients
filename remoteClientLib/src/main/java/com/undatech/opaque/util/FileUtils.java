@@ -47,20 +47,26 @@ public class FileUtils {
      * @param file
      * @throws IOException
      */
-    public static void outputToFile(InputStream is, File file) throws IOException {
+    public static boolean outputToFile(InputStream is, File file, int maxBytes) throws IOException {
         BufferedInputStream bis = new BufferedInputStream(is);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
         byte[] data = new byte[RemoteClientLibConstants.URL_BUFFER_SIZE];
         int current = 0;
+        int total = 0;
 
         while ((current = bis.read(data, 0, data.length)) != -1) {
             buffer.write(data, 0, current);
+            total += current;
+            if (total > maxBytes) {
+                return false;
+            }
         }
 
         FileOutputStream fos = new FileOutputStream(file);
         fos.write(buffer.toByteArray());
         fos.close();
+        return true;
     }
 
     public static InputStream getInputStreamFromUri(ContentResolver resolver, Uri uri) {
