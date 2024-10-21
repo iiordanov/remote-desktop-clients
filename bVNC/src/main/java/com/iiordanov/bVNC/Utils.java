@@ -277,25 +277,19 @@ public class Utils {
         return packageName.toLowerCase().contains("opaque");
     }
 
-    public static String getStringConfigAttribute(Context context, String configDataKey, String configDataKeyChild, String childAttribute) throws IOException, NullPointerException {
+    public static String getStringConfigAttribute(Map<String, Map> configData, String configDataKey, String configDataKeyChild, String childAttribute) throws NullPointerException {
         try {
-            CustomClientConfigFileReader configFileReader = new CustomClientConfigFileReader(
-                    context.getAssets().open(Utils.pName(context) + ".yaml"));
-            Map<String, Map> configData = configFileReader.getConfigData();
             String attr = (String) ((Map) configData.get(configDataKey).get(configDataKeyChild)).get(childAttribute);
             return attr;
         }
-        catch (IOException | NullPointerException e) {
+        catch (NullPointerException e) {
             throw e;
         }
     }
 
-    public static void setVisibilityForViewElementsViaConfig(Context context, String configDataKey, View view) throws IOException, NullPointerException {
+    public static void setVisibilityForViewElementsViaConfig(Context context, Map<String, Map> configData, String configDataKey, View view) throws NullPointerException {
         try {
             String packageName = Utils.pName(context);
-            CustomClientConfigFileReader configFileReader = new CustomClientConfigFileReader(
-                    context.getAssets().open(packageName + ".yaml"));
-            Map<String, Map> configData = configFileReader.getConfigData();
             Map<String, Integer> visibility = (Map<String, Integer>) configData.get(configDataKey).get("visibility");
 
             for (String s : visibility.keySet()) {
@@ -304,7 +298,7 @@ public class Utils {
                 viewElement.setVisibility(visibility.get(s));
             }
         }
-        catch (IOException | NullPointerException e) {
+        catch (NullPointerException e) {
             throw e;
         }
     }

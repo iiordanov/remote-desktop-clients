@@ -27,11 +27,10 @@ import android.widget.Button
 import android.widget.TableLayout
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.Utils
 import com.undatech.remoteClientUi.R
 import java.io.IOException
-import java.lang.Exception
-import java.lang.NullPointerException
 
 class RateOrShareFragment : DialogFragment() {
     private var layout: TableLayout? = null
@@ -70,7 +69,15 @@ class RateOrShareFragment : DialogFragment() {
     fun setTitle() {
         if (Utils.isCustom(context)){
             try {
-                dialog?.setTitle(getString(requireContext().resources.getIdentifier(Utils.getStringConfigAttribute(context, TAG.replaceFirstChar { it.lowercase() }, "title", "key"), "string", Utils.pName(context))))
+                dialog?.setTitle(
+                    getString(
+                        requireContext().resources.getIdentifier(
+                            Utils.getStringConfigAttribute(App.configFileReader.configData, TAG.replaceFirstChar { it.lowercase() }, "title", "key"),
+                            "string",
+                            Utils.pName(context)
+                        )
+                    )
+                )
                 return
             }
             catch (e: Exception) {
@@ -83,7 +90,7 @@ class RateOrShareFragment : DialogFragment() {
     fun setVisibilityOfElements(v: View) {
         if (Utils.isCustom(context)){
             try {
-                Utils.setVisibilityForViewElementsViaConfig(context, TAG.replaceFirstChar { it.lowercase() }, v)
+                Utils.setVisibilityForViewElementsViaConfig(context, App.configFileReader.configData, TAG.replaceFirstChar { it.lowercase() }, v)
             }
             catch (e: Exception) {
                 isCustomException(e)
@@ -93,9 +100,6 @@ class RateOrShareFragment : DialogFragment() {
 
     fun isCustomException(e: Exception) {
         when (e) {
-            is IOException -> {
-                Log.e(TAG, "Error opening config file from assets.")
-            }
             is NullPointerException -> {
                 Log.e(TAG, "Error referencing attribute in config file.")
             }
