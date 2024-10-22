@@ -47,8 +47,9 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
     private boolean needInitPan;
 
     public TouchInputHandlerSingleHanded(RemoteCanvasActivity activity, RemoteCanvas canvas,
-                                         InputCarriable remoteInput, boolean debugLogging) {
-        super(activity, canvas, remoteInput, debugLogging);
+                                         InputCarriable remoteInput, boolean debugLogging,
+                                         int swipeSpeed) {
+        super(activity, canvas, remoteInput, debugLogging, swipeSpeed);
         initializeButtons();
     }
 

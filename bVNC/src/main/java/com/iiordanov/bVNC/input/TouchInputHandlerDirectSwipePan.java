@@ -33,8 +33,9 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
     static final String TAG = "InputHandlerDirectSwipePan";
 
     public TouchInputHandlerDirectSwipePan(RemoteCanvasActivity activity, RemoteCanvas canvas,
-                                           InputCarriable remoteInput, boolean debugLogging) {
-        super(activity, canvas, remoteInput, debugLogging);
+                                           InputCarriable remoteInput, boolean debugLogging,
+                                           int swipeSpeed) {
+        super(activity, canvas, remoteInput, debugLogging, swipeSpeed);
     }
 
     /*

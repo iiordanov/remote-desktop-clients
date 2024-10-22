@@ -33,8 +33,9 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
     static final String TAG = "InputHandlerDirectDragPan";
 
     public TouchInputHandlerDirectDragPan(RemoteCanvasActivity activity, RemoteCanvas canvas,
-                                          InputCarriable remoteInput, boolean debugLogging) {
-        super(activity, canvas, remoteInput, debugLogging);
+                                          InputCarriable remoteInput, boolean debugLogging,
+                                          int swipeSpeed) {
+        super(activity, canvas, remoteInput, debugLogging, swipeSpeed);
     }
 
     /*

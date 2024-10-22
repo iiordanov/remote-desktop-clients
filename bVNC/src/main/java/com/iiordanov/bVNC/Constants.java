@@ -186,6 +186,7 @@ public class Constants {
     public static final String doNotShowDesktopThumbnails = "doNotShowDesktopThumbnails";
     public static final String showOnlyConnectionNicknames = "showOnlyConnectionNicknames";
     public static final String softwareKeyboardType = "softwareKeyboardType";
+    public static final String scrollSensitivity = "scrollSensitivity";
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;
     public static final int usbDevicePermissionTimeout = 15000;
