@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.aSPICE"
     android:installLocation="auto"
-    android:versionCode="115570"
-    android:versionName="v5.5.7">
+    android:versionCode="115580"
+    android:versionName="v5.5.8">
 
     <uses-feature
         android:name="android.hardware.usb.host"
