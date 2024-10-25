@@ -7,6 +7,7 @@ import static com.undatech.opaque.RemoteClientLibConstants.GET_FILE_TIMEOUT;
 import static com.undatech.opaque.RemoteClientLibConstants.MAX_CONFIG_FILE_SIZE_BYTES;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -1911,8 +1912,11 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         Bundle extras = i.getExtras();
 
         if (extras != null) {
-            Log.d(TAG, "Loading values from serialized connection");
-            connection.populateFromContentValues(extras.getParcelable(Utils.getConnectionString(context)));
+            ContentValues values = extras.getParcelable(Utils.getConnectionString(context));
+            if (values != null) {
+                Log.d(TAG, "Loading values from serialized connection");
+                connection.populateFromContentValues(values);
+            }
             connection.load(context);
         }
         return connection;
