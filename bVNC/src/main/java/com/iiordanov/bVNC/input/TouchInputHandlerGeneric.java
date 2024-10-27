@@ -40,7 +40,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         implements TouchInputHandler, ScaleGestureDetector.OnScaleGestureListener {
     private static final String TAG = "InputHandlerGeneric";
     protected final boolean debugLogging;
-    final int maxSwipeSpeed = 7;
+    int maxSwipeSpeed = 1;
     // If swipe events are registered once every baseSwipeTime miliseconds, then
     // swipeSpeed will be one. If more often, swipe-speed goes up, if less, down.
     final long baseSwipeTime = 400;
@@ -106,11 +106,12 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     Queue<Float> distYQueue;
 
     TouchInputHandlerGeneric(RemoteCanvasActivity activity, RemoteCanvas canvas, InputCarriable remoteInput,
-                             boolean debugLogging) {
+                             boolean debugLogging, int swipeSpeed) {
         this.activity = activity;
         this.canvas = canvas;
         this.remoteInput = remoteInput;
         this.debugLogging = debugLogging;
+        this.maxSwipeSpeed = swipeSpeed;
 
         // TODO: Implement this
         useDpadAsArrows = true; //activity.getUseDpadAsArrows();

@@ -907,4 +907,5 @@ Below that is where you configure your connection.
     <string name="no_application_to_handle_vpn">This connection is set to launch VPN via an external app. You need to install an app like Morpheusly to launch it.</string>
     <string name="vnc_viewer_started">VNC Viewer started</string>
     <string name="enable_gateway">Enable Gateway</string>
+    <string name="scroll_speed">Touch Scroll Speed</string>
 </resources>

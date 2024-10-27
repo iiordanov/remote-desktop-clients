@@ -1092,13 +1092,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             if (inputModeIds[i] == id) {
                 if (inputModeHandlers[i] == null) {
                     if (id == R.id.itemInputTouchPanZoomMouse) {
-                        inputModeHandlers[i] = new TouchInputHandlerDirectSwipePan(this, canvas, remoteConnection, App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerDirectSwipePan(this, canvas, remoteConnection, App.debugLog, getScrollSensitivitySetting());
                     } else if (id == R.id.itemInputDragPanZoomMouse) {
-                        inputModeHandlers[i] = new TouchInputHandlerDirectDragPan(this, canvas, remoteConnection, App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerDirectDragPan(this, canvas, remoteConnection, App.debugLog, getScrollSensitivitySetting());
                     } else if (id == R.id.itemInputTouchpad) {
-                        inputModeHandlers[i] = new TouchInputHandlerTouchpad(this, canvas, remoteConnection, App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerTouchpad(this, canvas, remoteConnection, App.debugLog, getScrollSensitivitySetting());
                     } else if (id == R.id.itemInputSingleHanded) {
-                        inputModeHandlers[i] = new TouchInputHandlerSingleHanded(this, canvas, remoteConnection, App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerSingleHanded(this, canvas, remoteConnection, App.debugLog, getScrollSensitivitySetting());
                     } else {
                         throw new IllegalStateException("Unexpected value: " + id);
                     }
@@ -1130,6 +1130,11 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 return id;
         }
         return R.id.itemInputTouchPanZoomMouse;
+    }
+
+    int getScrollSensitivitySetting() {
+        // SeekBar starts at 0, so add 1 to not have 0 sensitivity
+        return Utils.querySharedPreferencesInt(this, Constants.scrollSpeed, Constants.DEFAULT_SCROLL_SPEED) + 1;
     }
 
     @Override
