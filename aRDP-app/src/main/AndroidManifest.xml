@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.aRDP"
     android:installLocation="auto"
-    android:versionCode="115570"
-    android:versionName="v5.5.7">
+    android:versionCode="115580"
+    android:versionName="v5.5.8">
 
     <uses-permission tools:node="removeAll" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -88,10 +88,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-
-                <data android:mimeType="*/*" />
-
                 <data android:mimeType="application/rdp"/>
+                <data android:mimeType="application/x-rdp"/>
                 <data android:scheme="file"/>
                 <data android:scheme="content"/>
                 <data android:pathPattern=".*\\.rdp"/>
