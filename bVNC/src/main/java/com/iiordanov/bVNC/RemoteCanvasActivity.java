@@ -1134,7 +1134,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     int getScrollSensitivitySetting() {
         // SeekBar starts at 0, so add 1 to not have 0 sensitivity
-        return Utils.querySharedPreferencesInt(this, Constants.scrollSensitivity, 6) + 1;
+        return Utils.querySharedPreferencesInt(this, Constants.scrollSpeed, Constants.DEFAULT_SCROLL_SPEED) + 1;
     }
 
     @Override

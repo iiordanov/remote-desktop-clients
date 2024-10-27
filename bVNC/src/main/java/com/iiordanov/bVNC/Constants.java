@@ -186,7 +186,7 @@ public class Constants {
     public static final String doNotShowDesktopThumbnails = "doNotShowDesktopThumbnails";
     public static final String showOnlyConnectionNicknames = "showOnlyConnectionNicknames";
     public static final String softwareKeyboardType = "softwareKeyboardType";
-    public static final String scrollSensitivity = "scrollSensitivity";
+    public static final String scrollSpeed = "scrollSpeed";
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;
     public static final int usbDevicePermissionTimeout = 15000;
@@ -198,6 +198,7 @@ public class Constants {
     public static final int CURSOR_FORCE_LOCAL = 1;
     public static final int CURSOR_FORCE_DISABLE = 2;
     public static volatile int DEFAULT_PROTOCOL_PORT = 5900;
+    public static final int DEFAULT_SCROLL_SPEED = 6;
 
     public static final String DEFAULT_VPN_URI_SCHEME = "vpn";
     /**

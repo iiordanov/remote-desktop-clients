@@ -37,6 +37,6 @@
     <SeekBarPreference
         android:defaultValue="6"
         android:max="9"
-        android:key="scrollSensitivity"
-        android:title="@string/scroll_sensitivity" />
+        android:key="scrollSpeed"
+        android:title="@string/scroll_speed" />
 </PreferenceScreen>
