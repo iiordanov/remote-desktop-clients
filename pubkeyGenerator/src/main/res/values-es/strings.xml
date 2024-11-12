@@ -19,7 +19,7 @@
     <string name="touch_prompt">"Toque este cuadro para recopilar aleatoriedad: %1$d%% hecho"</string>
     <string name="touch_hint">"Para garantizar la aleatoriedad durante la generación de claves, mueva el dedo al azar sobre el cuadro de abajo."</string>
     <string name="menu_settings">"Ajustes"</string>
-    <string name="error_importing">"No se pudo recuperar el par de claves del archivo. Los formatos admitidos son clave RSA cifrada/no cifrada en formato PEM o clave RSA/DSA no cifrada en formato PKCS8. Se sabe que las claves generadas con 'ssh-keygen -t rsa -m PEM' funcionan."</string>
+    <string name="error_importing">"Error al importar. Generar con 'ssh-keygen -t ecdsa -m PKCS8'"</string>
     <string name="error_reading_file">"No se pudo leer el archivo especificado. Asegúrese de que esté presente en su directorio de descargas. El nombre de archivo especificado es: "</string>
     <string name="error_decrypting">"No se pudo descifrar PEM. Está cifrado, pero se especificó una passphrase incorrecta. Especifique la passphrase correcta en el campo correspondiente y vuelva a importar."</string>
     <string name="success_importing">"Clave importada correctamente del archivo."</string>

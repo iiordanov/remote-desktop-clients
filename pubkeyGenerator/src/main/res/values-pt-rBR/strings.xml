@@ -19,7 +19,7 @@
     <string name="touch_prompt">"Toque nesta caixa para realizar a aleatoriedade: %1$d%% done"</string>
     <string name="touch_hint">"A fim de garantir a aleatoriedade durante a geração da chave, mova seu dedo aleatoriamente sobre a caixa abaixo."</string>
     <string name="menu_settings">"Configurações"</string>
-    <string name="error_importing">"Falha na recuperação de pares de chave do arquivo. O formato suportado é chave RSA criptografada/não criptografada em formato PEM ou chave RSA/DSA não criptografada em formato PKCS8. Chaves geradas com 'ssh-keygen -t rsa -m PEM' são conhecidas por funcionarem."</string>
+    <string name="error_importing">"Falha na recuperação. Geram com 'ssh-keygen -t ecdsa -m PKCS8'"</string>
     <string name="error_reading_file">"Falha na leitura do arquivo especificado. Por favor, certifique-se de que ele esteja presente em sua pasta de Download. O nome do arquivo especificado é: "</string>
     <string name="error_decrypting">"Falha em descriptografar o PEM. É criptografado, no entanto foi especificada uma senha errada. Por favor, especifique a senha correta no campo apropriado, e importe novamente."</string>
     <string name="success_importing">"Chave importada do arquivo com sucesso."</string>

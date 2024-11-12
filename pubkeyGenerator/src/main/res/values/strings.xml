@@ -19,7 +19,7 @@
     <string name="touch_prompt">"Touch this box to gather randomness: %1$d%% done"</string>
     <string name="touch_hint">"In order to ensure randomness during the key generation, move your finger randomly over the box below."</string>
     <string name="menu_settings">"Settings"</string>
-    <string name="error_importing">"Failed to recover key-pair from file. Supported formats are encrypted/unencrypted RSA key in PEM format or unencrypted RSA/DSA key in PKCS8 format. Keys generated with 'ssh-keygen -t rsa -m PEM' are known to work."</string>
+    <string name="error_importing">"Failed to import. Generate with 'ssh-keygen -t ecdsa -m PKCS8'"</string>
     <string name="error_reading_file">"Failed to read specified file. Please ensure it is present in your Download directory. The file name specified: "</string>
     <string name="error_decrypting">"Failed to decrypt PEM. It is encrypted, but wrong passphrase was specified. Please specify correct passphrase in the appropriate field, and import again."</string>
     <string name="success_importing">"Successfully imported key from file."</string>
@@ -30,4 +30,5 @@
     <string name="enter_filename">"Please enter file name."</string>
     <string name="error_writing_file">"Failed to write file: "</string>
     <string name="success_writing_file">"Successfully wrote public key to file: "</string>
+    <string name="copy_private_to_clipboard">Copy Private</string>
 </resources>

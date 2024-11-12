@@ -35,9 +35,9 @@ import java.security.spec.X509EncodedKeySpec;
 public class PubkeyBean extends AbstractBean {
     public static final String BEAN_NAME = "pubkey";
 
-    private static final String KEY_TYPE_RSA = "RSA";
-
-    private static final String KEY_TYPE_DSA = "DSA";
+    private static final String KEY_TYPE_ECDSA = PubkeyDatabase.KEY_TYPE_ECDSA;
+    private static final String KEY_TYPE_RSA = PubkeyDatabase.KEY_TYPE_RSA;
+    private static final String KEY_TYPE_DSA = PubkeyDatabase.KEY_TYPE_DSA;
 
     /* Database fields */
     private long id;
@@ -125,6 +125,11 @@ public class PubkeyBean extends AbstractBean {
                 publicKey = decodePublicKeyAs(pubKeySpec, KEY_TYPE_DSA);
                 if (publicKey != null) {
                     type = KEY_TYPE_DSA;
+                } else {
+                    publicKey = decodePublicKeyAs(pubKeySpec, KEY_TYPE_ECDSA);
+                    if (publicKey != null) {
+                        type = KEY_TYPE_ECDSA;
+                    }
                 }
             }
         }

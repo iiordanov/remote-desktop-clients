@@ -17,6 +17,10 @@
 
 package com.iiordanov.pubkeygenerator;
 
+import static com.iiordanov.pubkeygenerator.PubkeyDatabase.KEY_TYPE_DSA;
+import static com.iiordanov.pubkeygenerator.PubkeyDatabase.KEY_TYPE_ECDSA;
+import static com.iiordanov.pubkeygenerator.PubkeyDatabase.KEY_TYPE_RSA;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -24,7 +28,11 @@ import com.trilead.ssh2.crypto.Base64;
 import com.trilead.ssh2.crypto.PEMDecoder;
 import com.trilead.ssh2.crypto.PEMStructure;
 import com.trilead.ssh2.signature.DSASHA1Verify;
+import com.trilead.ssh2.signature.ECDSASHA2Verify;
 import com.trilead.ssh2.signature.RSASHA1Verify;
+
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+import org.bouncycastle.math.ec.ECPoint;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -43,6 +51,7 @@ import java.security.SecureRandom;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.DSAPublicKeySpec;
@@ -165,36 +174,52 @@ public class PubkeyUtils {
 
     public static KeyPair recoverKeyPair(byte[] encoded) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
         KeySpec privKeySpec = new PKCS8EncodedKeySpec(encoded);
-        KeySpec pubKeySpec;
-
-        PrivateKey priv;
-        PublicKey pub;
-        KeyFactory kf;
+        KeyPair keyPair;
         try {
-            kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_RSA, new org.bouncycastle.jce.provider.BouncyCastleProvider());
-            priv = kf.generatePrivate(privKeySpec);
-
-            pubKeySpec = new RSAPublicKeySpec(((RSAPrivateCrtKey) priv)
-                    .getModulus(), ((RSAPrivateCrtKey) priv)
-                    .getPublicExponent());
-
-            pub = kf.generatePublic(pubKeySpec);
-        } catch (ClassCastException e) {
-            kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_DSA, new org.bouncycastle.jce.provider.BouncyCastleProvider());
-            priv = kf.generatePrivate(privKeySpec);
-
-            DSAParams params = ((DSAPrivateKey) priv).getParams();
-
-            // Calculate public key Y
-            BigInteger y = params.getG().modPow(((DSAPrivateKey) priv).getX(),
-                    params.getP());
-
-            pubKeySpec = new DSAPublicKeySpec(y, params.getP(), params.getQ(),
-                    params.getG());
-
-            pub = kf.generatePublic(pubKeySpec);
+            keyPair = getRsaKeyPair(privKeySpec);
+        } catch (Exception e) {
+            try {
+                keyPair = getDsaKeyPair(privKeySpec);
+            } catch (Exception e2) {
+                keyPair = getEcdsaKeyPair(privKeySpec);
+            }
         }
+        return keyPair;
+    }
 
+    private static KeyPair getEcdsaKeyPair(KeySpec privKeySpec) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        KeyFactory kf = KeyFactory.getInstance(KEY_TYPE_ECDSA, new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        PrivateKey priv = kf.generatePrivate(privKeySpec);
+        BigInteger d = ((BCECPrivateKey) priv).getD();
+        org.bouncycastle.jce.spec.ECParameterSpec ecSpec =
+                ((BCECPrivateKey) priv).getParameters();
+        ECPoint Q = ((BCECPrivateKey) priv).getParameters().getG().multiply(d);
+        org.bouncycastle.jce.spec.ECPublicKeySpec pubSpec = new
+                org.bouncycastle.jce.spec.ECPublicKeySpec(Q, ecSpec);
+        PublicKey pub = kf.generatePublic(pubSpec);
+        return new KeyPair(pub, priv);
+    }
+
+    private static KeyPair getDsaKeyPair(KeySpec privKeySpec) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        KeyFactory kf = KeyFactory.getInstance(KEY_TYPE_DSA, new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        PrivateKey priv = kf.generatePrivate(privKeySpec);
+        DSAParams params = ((DSAPrivateKey) priv).getParams();
+        // Calculate public key Y
+        BigInteger y = params.getG().modPow(((DSAPrivateKey) priv).getX(),
+                params.getP());
+        KeySpec pubKeySpec = new DSAPublicKeySpec(y, params.getP(), params.getQ(),
+                params.getG());
+        PublicKey pub = kf.generatePublic(pubKeySpec);
+        return new KeyPair(pub, priv);
+    }
+
+    private static KeyPair getRsaKeyPair(KeySpec privKeySpec) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        KeyFactory kf = KeyFactory.getInstance(KEY_TYPE_RSA, new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        PrivateKey priv = kf.generatePrivate(privKeySpec);
+        KeySpec pubKeySpec = new RSAPublicKeySpec(((RSAPrivateCrtKey) priv)
+                .getModulus(), ((RSAPrivateCrtKey) priv)
+                .getPublicExponent());
+        PublicKey pub = kf.generatePublic(pubKeySpec);
         return new KeyPair(pub, priv);
     }
 
@@ -249,7 +274,7 @@ public class PubkeyUtils {
                         android.util.Base64.DEFAULT));
             }
         } catch (Exception e) {
-            Log.i(TAG, "Either key is not encrypted and we were given passphrase, or the passphrase is wrong," +
+            Log.i(TAG, "Either key is not encrypted and we were given passphrase, or the passphrase is wrong, " +
                     "or the key is corrupt.");
             e.printStackTrace();
             return null;
@@ -274,8 +299,11 @@ public class PubkeyUtils {
             String data = "ssh-dss ";
             data += String.valueOf(Base64.encode(DSASHA1Verify.get().encodePublicKey(pk)));
             return data + " " + nickname;
+        } else if (pk instanceof ECPublicKey) {
+            String data = "ecdsa-sha2-nistp521 ";
+            data += String.valueOf(Base64.encode(ECDSASHA2Verify.ECDSASHA2NISTP521Verify.get().encodePublicKey(pk)));
+            return data + " " + nickname;
         }
-
         throw new InvalidKeyException("Unknown key type");
     }
 

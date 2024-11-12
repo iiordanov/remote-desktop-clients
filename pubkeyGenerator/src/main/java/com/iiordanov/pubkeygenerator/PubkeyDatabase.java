@@ -48,7 +48,8 @@ public class PubkeyDatabase extends RobustSQLiteOpenHelper {
     public final static String FIELD_PUBKEY_CONFIRMUSE = "confirmuse";
     public final static String FIELD_PUBKEY_LIFETIME = "lifetime";
 
-    public final static String KEY_TYPE_RSA = "RSA",
+    public final static String KEY_TYPE_ECDSA = "EC",
+            KEY_TYPE_RSA = "RSA",
             KEY_TYPE_DSA = "DSA",
             KEY_TYPE_IMPORTED = "IMPORTED";
 

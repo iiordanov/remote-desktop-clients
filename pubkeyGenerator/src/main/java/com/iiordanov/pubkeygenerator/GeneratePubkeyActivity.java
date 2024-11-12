@@ -18,6 +18,10 @@
 
 package com.iiordanov.pubkeygenerator;
 
+import static com.iiordanov.pubkeygenerator.PubkeyDatabase.KEY_TYPE_DSA;
+import static com.iiordanov.pubkeygenerator.PubkeyDatabase.KEY_TYPE_ECDSA;
+import static com.iiordanov.pubkeygenerator.PubkeyDatabase.KEY_TYPE_RSA;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -57,6 +61,9 @@ import java.security.SecureRandom;
 public class GeneratePubkeyActivity extends Activity implements OnEntropyGatheredListener {
     public final static String TAG = "GeneratePubkeyActivity";
 
+    final static int DEFAULT_BITS_ECDSA = 521;
+    final static int MAX_BITS_ECDSA = 521;
+
     final static int MIN_BITS_RSA = 768;
     final static int DEFAULT_BITS_RSA = 2048;
     final static int MAX_BITS_RSA = 4096;
@@ -75,13 +82,14 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
     private Button share;
     private Button decrypt;
     private Button copy;
+    private Button copyPriv;
     private Button save;
     private Dialog entropyDialog;
     private ProgressDialog progress;
     private EditText password1;
-    private String keyType = PubkeyDatabase.KEY_TYPE_RSA;
-    private int minBits = MIN_BITS_RSA;
-    private int bits = DEFAULT_BITS_RSA;
+    private String keyType = KEY_TYPE_ECDSA;
+    private int minBits = DEFAULT_BITS_ECDSA;
+    private int bits = DEFAULT_BITS_ECDSA;
     private byte[] entropy;
     // Variables we use to receive (from calling activity)
     // and recover all key-pair related information.
@@ -104,6 +112,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
     };
     private KeyPair kp = null;
     private String publicKeySSHFormat;
+    private String privateKeySSHFormat;
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -145,7 +154,9 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
         keyTypeGroup = (RadioGroup) findViewById(R.id.key_type);
 
         bitsText = (EditText) findViewById(R.id.bits);
+        bitsText.setText(String.valueOf(DEFAULT_BITS_ECDSA));
         bitsSlider = (SeekBar) findViewById(R.id.bits_slider);
+        bitsSlider.setEnabled(false);
 
         password1 = (EditText) findViewById(R.id.password);
 
@@ -153,6 +164,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
         share = (Button) findViewById(R.id.share);
         decrypt = (Button) findViewById(R.id.decrypt);
         copy = (Button) findViewById(R.id.copy);
+        copyPriv = (Button) findViewById(R.id.copyPriv);
         save = (Button) findViewById(R.id.save);
         importKey = (Button) findViewById(R.id.importKey);
 
@@ -173,27 +185,20 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if (checkedId == R.id.rsa) {
+                    keyType = KEY_TYPE_RSA;
                     minBits = MIN_BITS_RSA;
 
-                    bitsSlider.setEnabled(true);
-                    bitsSlider.setProgress(DEFAULT_BITS_RSA);
-                    bitsSlider.setMax(MAX_BITS_RSA - minBits);
-
-                    bitsText.setText(String.valueOf(DEFAULT_BITS_RSA));
-                    bitsText.setEnabled(true);
-
-                    keyType = PubkeyDatabase.KEY_TYPE_RSA;
+                    setValuesForKeyType(true, DEFAULT_BITS_RSA, MAX_BITS_RSA - minBits);
                 } else if (checkedId == R.id.dsa) {
+                    keyType = KEY_TYPE_DSA;
                     minBits = MIN_BITS_DSA;
 
-                    bitsSlider.setEnabled(true);
-                    bitsSlider.setProgress(DEFAULT_BITS_DSA);
-                    bitsSlider.setMax(MAX_BITS_DSA - minBits);
+                    setValuesForKeyType(true, DEFAULT_BITS_DSA, MAX_BITS_DSA - minBits);
+                } else if (checkedId == R.id.ecdsa) {
+                    keyType = KEY_TYPE_ECDSA;
+                    minBits = 0;
 
-                    bitsText.setText(String.valueOf(DEFAULT_BITS_DSA));
-                    bitsText.setEnabled(true);
-
-                    keyType = PubkeyDatabase.KEY_TYPE_DSA;
+                    setValuesForKeyType(false, DEFAULT_BITS_ECDSA, MAX_BITS_ECDSA);
                 }
             }
         });
@@ -203,13 +208,16 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
             public void onProgressChanged(SeekBar seekBar, int progress,
                                           boolean fromTouch) {
                 // Stay evenly divisible by 8 because it looks nicer to have
-                // 2048 than 2043 bits.
+                // 2048 than 2043 bits, except for Elliptic Curves
 
-                int leftover = progress % 8;
                 int ourProgress = progress;
 
-                if (leftover > 0)
-                    ourProgress += 8 - leftover;
+                if (!KEY_TYPE_ECDSA.equals(keyType)) {
+                    int leftover = progress % 8;
+                    if (leftover > 0) {
+                        ourProgress += 8 - leftover;
+                    }
+                }
 
                 bits = minBits + ourProgress;
                 bitsText.setText(String.valueOf(bits));
@@ -278,6 +286,14 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
             }
         });
 
+        copyPriv.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                hideSoftKeyboard(view);
+                cm.setText(privateKeySSHFormat);
+                Toast.makeText(getBaseContext(), getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         save.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
                 hideSoftKeyboard(view);
@@ -306,6 +322,15 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
         });
     }
 
+    private void setValuesForKeyType(boolean enabled, int defaultBitsEcdsa, int maxBitsEcdsa) {
+        bitsSlider.setEnabled(enabled);
+        bitsSlider.setProgress(defaultBitsEcdsa);
+        bitsSlider.setMax(maxBitsEcdsa);
+
+        bitsText.setText(String.valueOf(defaultBitsEcdsa));
+        bitsText.setEnabled(true);
+    }
+
     /**
      * Hides the soft keyboard.
      */
@@ -328,6 +353,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
             } else {
                 try {
                     publicKeySSHFormat = PubkeyUtils.convertToOpenSSHFormat(kp.getPublic(), null);
+                    privateKeySSHFormat = "-----BEGIN PRIVATE KEY-----\n" + Base64.encodeToString(kp.getPrivate().getEncoded(), Base64.DEFAULT) + "\n-----END PRIVATE KEY-----";
                 } catch (Exception e) {
                     e.printStackTrace();
                     success = false;
@@ -429,6 +455,8 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
         Log.d(TAG, "public: " + PubkeyUtils.formatKey(pub));
         sshPrivKey = Base64.encodeToString(PubkeyUtils.getEncodedPrivate(priv, secret), Base64.DEFAULT);
         sshPubKey = Base64.encodeToString(PubkeyUtils.getEncodedPublic(pub), Base64.DEFAULT);
+        Log.d(TAG, "sshPrivKey: " + sshPrivKey);
+        Log.d(TAG, "sshPubKey: " + sshPubKey);
 
         // Send the generated data back to the calling activity.
         Intent databackIntent = new Intent();
@@ -457,7 +485,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
                             convertToBase64AndSendIntent(pair);
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Log.e(TAG, "Failed to decode key.");
+                            Log.e(TAG, "Failed to import key.");
                             Toast.makeText(getBaseContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                             return;
                         }

@@ -80,14 +80,19 @@
                 android:id="@+id/key_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checkedButton="@+id/rsa"
+                android:checkedButton="@+id/ecdsa"
                 android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/ecdsa"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ECDSA" />
 
                 <RadioButton
                     android:id="@+id/rsa"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="30dip"
                     android:text="RSA" />
 
                 <RadioButton
@@ -111,8 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:inputType="number"
-                android:singleLine="true"
-                android:text="2048" />
+                android:singleLine="true" />
         </TableRow>
 
         <SeekBar
@@ -136,6 +140,13 @@
             android:layout_height="wrap_content"
             android:enabled="false"
             android:text="@string/copy" />
+
+        <Button
+            android:id="@+id/copyPriv"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:text="@string/copy_private_to_clipboard" />
 
         <Button
             android:id="@+id/save"
