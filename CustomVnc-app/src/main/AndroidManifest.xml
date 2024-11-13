@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.CUSTOM_VNC_APP_PACKAGE_NAME"
     android:installLocation="auto"
-    android:versionCode="115590"
-    android:versionName="v5.5.9">
+    android:versionCode="115600"
+    android:versionName="v5.6.0">
 
     <uses-permission tools:node="removeAll" />
     <uses-permission android:name="android.permission.INTERNET" />
