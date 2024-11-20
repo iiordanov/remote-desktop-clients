@@ -1476,4 +1476,12 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
     public void setEnableGfxH264(boolean enableGfxH264) {
     }
 
+    @Override
+    public int getDesktopScalePercentage() {
+        return 0;
+    }
+
+    @Override
+    public void setDesktopScalePercentage(int desktopScalePercentage) {
+    }
 }

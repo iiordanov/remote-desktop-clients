@@ -54,7 +54,8 @@ public class Database extends SQLiteOpenHelper {
     static final int DBV_2_1_8 = 507;
     static final int DBV_2_1_9 = 521;
     static final int DBV_2_2_0 = 525;
-    static final int CURRVERS = DBV_2_2_0;
+    static final int DBV_2_2_1 = 561;
+    static final int CURRVERS = DBV_2_2_1;
     private static final String dbName = "VncDatabase";
     private static String password = "";
 
@@ -432,6 +433,15 @@ public class Database extends SQLiteOpenHelper {
                             + " BOOLEAN DEFAULT FALSE"
             );
             oldVersion = DBV_2_2_0;
+        }
+        if (oldVersion == DBV_2_2_0) {
+            Log.i(TAG, "Doing upgrade from 515 to 561");
+            db.execSQL(
+                    "ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                            + AbstractConnectionBean.GEN_FIELD_DESKTOPSCALEPERCENTAGE + " INTEGER DEFAULT "
+                            + Constants.DEFAULT_DESKTOP_SCALE_PERCENTAGE
+            );
+            oldVersion = DBV_2_2_1;
         }
     }
 

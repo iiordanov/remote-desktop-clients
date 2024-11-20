@@ -908,4 +908,5 @@ Below that is where you configure your connection.
     <string name="vnc_viewer_started">VNC Viewer started</string>
     <string name="enable_gateway">Enable Gateway</string>
     <string name="scroll_speed">Touch Scroll Speed</string>
+    <string name="desktop_scale_percentage">Custom Scaling Percentage</string>
 </resources>

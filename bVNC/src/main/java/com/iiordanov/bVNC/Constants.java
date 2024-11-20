@@ -197,6 +197,9 @@ public class Constants {
     public static final int CURSOR_AUTO = 0;
     public static final int CURSOR_FORCE_LOCAL = 1;
     public static final int CURSOR_FORCE_DISABLE = 2;
+    public static final int DEFAULT_DESKTOP_SCALE_PERCENTAGE = 100;
+    public static final int MIN_DESKTOP_SCALE_PERCENTAGE = 100;
+    public static final int MAX_DESKTOP_SCALE_PERCENTAGE = 300;
     public static volatile int DEFAULT_PROTOCOL_PORT = 5900;
     public static final int DEFAULT_SCROLL_SPEED = 6;
 

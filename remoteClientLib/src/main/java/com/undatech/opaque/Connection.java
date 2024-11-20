@@ -474,4 +474,8 @@ public interface Connection {
     public boolean getKeepRdpGatewayPassword();
 
     public void setKeepRdpGatewayPassword(boolean keepRdpGatewayPassword);
+
+    public int getDesktopScalePercentage();
+
+    public void setDesktopScalePercentage(int desktopScalePercentage);
 }

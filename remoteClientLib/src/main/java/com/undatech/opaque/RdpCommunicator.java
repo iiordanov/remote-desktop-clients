@@ -299,7 +299,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
             boolean menuAnimations, boolean theming, boolean redirectSdCard,
             boolean consoleMode, int redirectSound, boolean enableRecording,
             boolean enableRemoteFx, boolean enableGfx, boolean enableGfxH264,
-            int colors
+            int colors, int desktopScalePercentage
     ) {
         // Set a writable data directory
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
@@ -324,7 +324,8 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
         // Set screen settings to native res if instructed to, or if height or width are too small.
         BookmarkBase.ScreenSettings screenSettings = bookmark.getActiveScreenSettings();
-        setResolutionAndColor(remoteWidth, remoteHeight, colors, screenSettings);
+        screenSettings.setDesktopScalePercentage(desktopScalePercentage);
+        setScreenPreferences(remoteWidth, remoteHeight, colors, screenSettings);
 
         // Set performance flags.
         BookmarkBase.PerformanceFlags performanceFlags = bookmark.getPerformanceFlags();
@@ -433,7 +434,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         android.util.Log.d(TAG, "OnSettingsChanged called, wxh: " + width + "x" + height);
         BookmarkBase.ScreenSettings settings = session.getBookmark().getActiveScreenSettings();
         if (settings.getWidth() != width || settings.getHeight() != height) {
-            setResolutionAndColor(width, height, bpp, settings);
+            setScreenPreferences(width, height, bpp, settings);
             connection.setRdpResType(RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
             connection.setRdpWidth(width);
             connection.setRdpHeight(height);
@@ -446,10 +447,11 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         viewable.reallocateDrawable(width, height);
     }
 
-    private static void setResolutionAndColor(int width, int height, int bpp, BookmarkBase.ScreenSettings settings) {
+    private static void setScreenPreferences(int width, int height, int bpp, BookmarkBase.ScreenSettings settings) {
         settings.setWidth(width);
         settings.setHeight(height);
         settings.setColors(bpp);
+        settings.setDesktopScalePercentage(settings.getDesktopScalePercentage());
     }
 
     //////////////////////////////////////////////////////////////////////////////////

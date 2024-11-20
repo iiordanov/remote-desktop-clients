@@ -19,6 +19,9 @@
 
 package com.iiordanov.bVNC;
 
+import static com.iiordanov.bVNC.Constants.MAX_DESKTOP_SCALE_PERCENTAGE;
+import static com.iiordanov.bVNC.Constants.MIN_DESKTOP_SCALE_PERCENTAGE;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -28,7 +31,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
@@ -71,6 +76,8 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxPreferSendingUnicode;
     private Spinner spinnerRdpColor;
     private List<String> rdpColorArray;
+    private SeekBar desktopScaleSeekBar;
+    private TextView desktopScaleProgressTextView;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -90,6 +97,33 @@ public class aRDP extends MainConfiguration {
     }
 
     private void initializeAdvancedSettings() {
+        desktopScaleSeekBar = findViewById(R.id.desktopScaleSeekBar);
+        desktopScaleProgressTextView = findViewById(R.id.desktopScaleProgressTextView);
+        desktopScaleSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (seekBar.getProgress() < MIN_DESKTOP_SCALE_PERCENTAGE) {
+                    seekBar.setProgress(MIN_DESKTOP_SCALE_PERCENTAGE);
+                }
+                if (seekBar.getProgress() > MAX_DESKTOP_SCALE_PERCENTAGE) {
+                    seekBar.setProgress(MAX_DESKTOP_SCALE_PERCENTAGE);
+                }
+                int val = (seekBar.getProgress() * (seekBar.getWidth() - 2 * seekBar.getThumbOffset())) / seekBar.getMax();
+                desktopScaleProgressTextView.setText(seekBar.getProgress() + "%");
+                desktopScaleProgressTextView.setX(seekBar.getX() + val + (float) seekBar.getThumbOffset() / 2);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         groupRemoteSoundType = findViewById(R.id.groupRemoteSoundType);
         groupRemoteSoundType.setOnCheckedChangeListener((radioGroup, selection) -> {
             if (Utils.isFree(aRDP.this) && selection != R.id.radioRemoteSoundDisabled) {
@@ -146,7 +180,7 @@ public class aRDP extends MainConfiguration {
         layoutRdpGatewaySettings = findViewById(R.id.layoutRdpGatewaySettings);
         rdpGatewayEnabled = findViewById(R.id.rdpGatewayEnabled);
         rdpGatewayEnabled.setOnClickListener(v -> {
-            layoutRdpGatewaySettings.setVisibility(((ToggleButton)v).isChecked() ? View.VISIBLE : View.GONE);
+            layoutRdpGatewaySettings.setVisibility(((ToggleButton) v).isChecked() ? View.VISIBLE : View.GONE);
         });
         rdpGatewayHostname = findViewById(R.id.rdpGatewayHostname);
         rdpGatewayPort = findViewById(R.id.rdpGatewayPort);
@@ -193,6 +227,7 @@ public class aRDP extends MainConfiguration {
     }
 
     private void updateAdvancedSettingsViewsFromSelected() {
+        desktopScaleSeekBar.setProgress(selected.getDesktopScalePercentage());
         checkboxEnableRecording.setChecked(selected.getEnableRecording());
         checkboxConsoleMode.setChecked(selected.getConsoleMode());
         checkboxRedirectSdCard.setChecked(selected.getRedirectSdCard());
@@ -238,6 +273,7 @@ public class aRDP extends MainConfiguration {
     }
 
     private void updateSelectedAdvancedSettingsFromViews() {
+        selected.setDesktopScalePercentage(desktopScaleSeekBar.getProgress());
         setRemoteSoundTypeFromView(groupRemoteSoundType);
         selected.setEnableRecording(checkboxEnableRecording.isChecked());
         selected.setConsoleMode(checkboxConsoleMode.isChecked());

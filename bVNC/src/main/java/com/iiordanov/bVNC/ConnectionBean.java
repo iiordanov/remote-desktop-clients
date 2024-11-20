@@ -176,6 +176,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setUseLastPositionToolbarMoved(false);
 
         setRdpGatewayPort(Constants.DEFAULT_RDP_GATEWAY_PORT);
+        setDesktopScalePercentage(Constants.DEFAULT_DESKTOP_SCALE_PERCENTAGE);
     }
 
     /**

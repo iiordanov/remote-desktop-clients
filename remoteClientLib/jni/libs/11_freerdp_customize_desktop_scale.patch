@@ -1,0 +1,77 @@
+diff --git a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/domain/BookmarkBase.java b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/domain/BookmarkBase.java
+index 5b64ed3a6..2e0fe2191 100644
+--- a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/domain/BookmarkBase.java
++++ b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/domain/BookmarkBase.java
+@@ -572,6 +572,7 @@ public class BookmarkBase implements Parcelable, Cloneable
+ 		private int colors;
+ 		private int width;
+ 		private int height;
++		private int desktopScalePercentage;
+ 
+ 		public ScreenSettings()
+ 		{
+@@ -622,6 +623,11 @@ public class BookmarkBase implements Parcelable, Cloneable
+ 					resolution = AUTOMATIC;
+ 					break;
+ 			}
++
++			if ((desktopScalePercentage < 100) || (desktopScalePercentage > 500))
++			{
++				desktopScalePercentage = 100;
++			}
+ 		}
+ 
+ 		private void init()
+@@ -751,6 +757,16 @@ public class BookmarkBase implements Parcelable, Cloneable
+ 			out.writeInt(colors);
+ 			out.writeInt(width);
+ 			out.writeInt(height);
++			out.writeInt(desktopScalePercentage);
++		}
++
++		public int getDesktopScalePercentage() {
++			validate();
++			return desktopScalePercentage;
++		}
++
++		public void setDesktopScalePercentage(int desktopScalePercentage) {
++			this.desktopScalePercentage = desktopScalePercentage;
+ 		}
+ 	}
+ 
+diff --git a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
+index 317582373..fc89b4737 100644
+--- a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
++++ b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
+@@ -13,9 +13,10 @@ package com.freerdp.freerdpcore.services;
+ import android.content.Context;
+ import android.graphics.Bitmap;
+ import android.net.Uri;
+-import androidx.collection.LongSparseArray;
+ import android.util.Log;
+ 
++import androidx.collection.LongSparseArray;
++
+ import com.freerdp.freerdpcore.application.GlobalApp;
+ import com.freerdp.freerdpcore.application.SessionState;
+ import com.freerdp.freerdpcore.domain.BookmarkBase;
+@@ -24,9 +25,7 @@ import com.freerdp.freerdpcore.presentation.ApplicationSettingsActivity;
+ 
+ import java.io.File;
+ import java.util.ArrayList;
+-import java.util.List;
+ import java.util.Objects;
+-import java.util.regex.MatchResult;
+ import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
+ 
+@@ -386,6 +385,9 @@ public class LibFreeRDP
+ 			args.add("/microphone");
+ 		}
+ 
++		args.add("/scale-device:100");
++		args.add("/scale-desktop:" + screenSettings.getDesktopScalePercentage());
++
+ 		//args.add("/cert-ignore");
+ 		args.add("/log-level:" + debug.getDebugLevel());
+ 		String[] arrayArgs = args.toArray(new String[args.size()]);

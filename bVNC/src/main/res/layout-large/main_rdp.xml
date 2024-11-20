@@ -483,6 +483,23 @@
                     android:textAppearance="?android:attr/textAppearanceLarge" />
             </LinearLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/desktop_scale_percentage"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView
+                android:id="@+id/desktopScaleProgressTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+            <SeekBar
+                android:id="@+id/desktopScaleSeekBar"
+                android:max="300"
+                android:title="@string/desktop_scale_percentage"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"/>
+
             <CheckBox
                 android:id="@+id/checkboxPreferSendingUnicode"
                 android:layout_width="wrap_content"
