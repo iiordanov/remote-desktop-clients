@@ -483,12 +483,14 @@ build() {
         popd
         rsync -avP recipes/ cerbero/recipes/
 
-        sed -i "s/version = '1.1.1.*'/version = '${openssl_ver}'/" cerbero/recipes/openssl.recipe
+        sed -i "s/version = '.*'/version = '${openssl_ver}'/" cerbero/recipes/openssl.recipe
+        sed -i "s/ftp.openssl.org\/source/github.com\/openssl\/openssl\/releases\/download\/OpenSSL_$(echo ${openssl_ver} | sed 's/\./_/g')/" cerbero/recipes/openssl.recipe
         sed -i "s/0b7a3e5e59c34827fe0c3a74b7ec8baef302b98fa80088d7f9153aa16fa76bd1/cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8/" cerbero/recipes/openssl.recipe
 
         echo "Running cerbero build for $1 in $(pwd)"
         cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
-          gstreamer-1.0 glib glib-networking libxml2 pixman libsoup openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0 spiceglue
+          libjpeg-turbo pyparsing tiff gstreamer-1.0 glib glib-networking libxml2 pixman libsoup openssl \
+          cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0 spiceglue
 
         echo "Copying spice-gtk header files that it does not install automatically"
         SPICEDIR=$(ls -d1 cerbero/build/sources/android_universal/${gstarch}/spice-gtk-* | tail -n 1)
@@ -633,9 +635,13 @@ build_freerdp() {
         export OPENH264_NDK=$(install_ndk ../../ ${freerdp_openh264_ndk_version})
         echo "Android NDK version for FreeRDP ${ndk_version} is installed at ${ANDROID_NDK}"
         echo "Installing cmake ${freerdp_cmake_version} for FreeRDP build compatibility"
-        export CMAKE_PATH=$(install_cmake ../../ ${freerdp_cmake_version})/bin
+        export CMAKE_DIR=$(install_cmake ../../ ${freerdp_cmake_version})
+        export CMAKE_PATH=${CMAKE_DIR}/bin
         export PATH=${CMAKE_PATH}:${PATH}
         export CMAKE_PROGRAM=${CMAKE_PATH}/cmake
+
+        rm -rf "${ANDROID_SDK}"/cmake
+        cp -a "${CMAKE_DIR}" "${ANDROID_SDK}"/cmake
         ./scripts/android-build-freerdp.sh
 
         # Prepare the FreeRDPCore project for use as a library

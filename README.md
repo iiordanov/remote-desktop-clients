@@ -51,10 +51,8 @@ Make sure you're running the commands below from the root of the project.
 Ensure ANDROID_SDK is set to the path to your SDK.
 
 ```bash
-export ANDROID_SDK=${HOME}/Android/Sdk
 echo "USER_UID=$(id -u)" > docker/.env
 echo "USER_GID=$(id -g)" >> docker/.env
-echo "ANDROID_SDK=${ANDROID_SDK}" >> docker/.env
 echo "CURRENT_WORKING_DIR=$(pwd)" >> docker/.env
 docker-compose -f docker/docker-compose.yml up
 ```
@@ -64,7 +62,7 @@ docker-compose -f docker/docker-compose.yml up
 Building from scratch and working in Android Studio.
 
   - Install some packages. On Ubuntu:
-        apt install gnome-common gobject-introspection nasm gtk-doc-tools
+        apt install gnome-common gobject-introspection nasm gtk-doc-tools python-is-python3
 
   - On Linux, install Android Studio
   - Install Android SDK from Tools -> SDK Tools
@@ -87,7 +85,7 @@ Building from scratch and working in Android Studio.
 
     - Accept all licenses (repeat if you see an error during build)
 
-              ${ANDROID_SDK}/tools/bin/sdkmanager --licenses
+              ${ANDROID_SDK}/cmdline-tools/bin/sdkmanager --licenses
 
     - Then, run the build script which takes hours to run. E.g.:
 
