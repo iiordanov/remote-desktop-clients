@@ -469,7 +469,8 @@ build() {
         then
             pushd cerbero
             git checkout ${gstreamer_ver}
-            patch -p1 < ../cerbero-disable-assrender.patch
+            #patch -p1 < ../cerbero-disable-assrender.patch
+            patch -p1 < ../cerbero-config-rust.patch
             popd
             cerbero/cerbero-uninstalled bootstrap
             echo "allow_parallel_build = True" >>  cerbero/config/cross-android-universal.cbc
@@ -481,21 +482,27 @@ build() {
         pushd recipes
         git pull
         popd
-        rsync -avP recipes/ cerbero/recipes/
 
+        # TODO: Remove openh264 from our recipes if cerbero builds without mods to the recipe on all platforms
+        rsync -avP --exclude openh264* --exclude .git recipes/ cerbero/recipes/
+        pushd cerbero
+            git checkout recipes/openssl.recipe
+        popd
         sed -i "s/version = '.*'/version = '${openssl_ver}'/" cerbero/recipes/openssl.recipe
-        sed -i "s/ftp.openssl.org\/source/github.com\/openssl\/openssl\/releases\/download\/OpenSSL_$(echo ${openssl_ver} | sed 's/\./_/g')/" cerbero/recipes/openssl.recipe
-        sed -i "s/0b7a3e5e59c34827fe0c3a74b7ec8baef302b98fa80088d7f9153aa16fa76bd1/cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8/" cerbero/recipes/openssl.recipe
+        sed -i "s|url = .*|url = 'https://github.com/openssl/openssl/releases/download/openssl-${openssl_ver}/openssl-${openssl_ver}.tar.gz'|" cerbero/recipes/openssl.recipe
+        sed -i "s|.*openssl/000.*||" cerbero/recipes/openssl.recipe
+        sed -i "s|# MSVC and UWP support|'openssl/0001-Mark-OPENSSL_armcap_P-hidden-in-arm-asm.patch'|" cerbero/recipes/openssl.recipe
+        sed -i "s/'LICENSE'/'LICENSE.txt'/" cerbero/recipes/openssl.recipe
+        sed -i "s/tarball_checksum = '.*'/tarball_checksum = '${openssl_hash}'/" cerbero/recipes/openssl.recipe
+        sed -i "s/allow_parallel_build = False/allow_parallel_build = True/" cerbero/recipes/openssl.recipe
 
         echo "Running cerbero build for $1 in $(pwd)"
+
         cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
-          libjpeg-turbo pyparsing tiff gstreamer-1.0 glib glib-networking libxml2 pixman libsoup openssl \
+          gnustl libjpeg-turbo pyparsing tiff gstreamer-1.0 glib glib-networking libxml2 pixman libsoup openssl \
           cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0 spiceglue
 
-        echo "Copying spice-gtk header files that it does not install automatically"
-        SPICEDIR=$(ls -d1 cerbero/build/sources/android_universal/${gstarch}/spice-gtk-* | tail -n 1)
-
-        # Workaround for non-existent lib-pthread.la dpendency snaking its way into some of the libraries.
+        # Workaround for non-existent lib-pthread.la dpendency sneaking its way into some of the libraries.
         sed -i 's/[^ ]*lib-pthread.la//' cerbero/build/dist/android_universal/*/lib/*la
 
         # Prepare gstreamer for current architecture
@@ -505,8 +512,10 @@ build() {
             ls -ld "${gst}"
         fi
 
-
-        for f in ${SPICEDIR}/config.h ${SPICEDIR}/_builddir/subprojects/spice-common/common ${SPICEDIR}/_builddir/config.h ${SPICEDIR}/tools/*.h ${SPICEDIR}/src/*.h ${SPICEDIR}/spice-common/common ${SPICEDIR}/subprojects/spice-common/common
+        # TODO: This needs to be moved entirely to the spice-gtk recipe.
+        echo "Copying spice-gtk header files that it does not install automatically"
+        SPICEDIR=$(ls -d1 cerbero/build/sources/android_universal/${gstarch}/spice-gtk-* | tail -n 1)
+        for f in ${SPICEDIR}/b/config.h ${SPICEDIR}/b/subprojects/spice-common/common ${SPICEDIR}/_builddir/config.h ${SPICEDIR}/_builddir/subprojects/spice-common/common ${SPICEDIR}/tools/*.h ${SPICEDIR}/src/*.h ${SPICEDIR}/spice-common/common ${SPICEDIR}/subprojects/spice-common/common
         do
             rsync -a $f ${gst}/include/spice-1/ || true
         done
@@ -612,10 +621,10 @@ build_freerdp() {
                -e 's/WITH_JPEG=.*/WITH_JPEG=1/'\
                -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
                -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.1.1/'\
-               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=openssl-1.1.1w/'\
+               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=openssl-'${openssl_ver}'/'\
                -e 's/NDK_TARGET=26/NDK_TARGET=21/'\
-               -e 's/453afa66dacb560bc5fd0468aabee90c483741571bca820a39a1c07f0362dc32/af173e90fce65f80722fa894e1af0d6b07572292e76de7b65273df4c0a8be678/'\
-               -e 's/d7939ce614029cdff0b6c20f0e2e5703158a489a72b2507b8bd51bf8c8fd10ca/cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8/'\
+               -e 's/OPENH264_HASH=.*/OPENH264_HASH=af173e90fce65f80722fa894e1af0d6b07572292e76de7b65273df4c0a8be678/'\
+               -e 's/OPENSSL_HASH=.*/OPENSSL_HASH='${openssl_hash}'/'\
                -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/"\
                 ./scripts/android-build.conf
 

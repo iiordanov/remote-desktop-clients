@@ -106,14 +106,15 @@ then
   pushd ../remoteClientLib/jni/libs
   echo "Automatically installing Android NDK"
   export ANDROID_NDK=$(install_ndk ./ ${ndk_version})
-  ./build-deps.sh -j 8 build $PRJ
+  ./build-deps.sh -j 16 build $PRJ
   popd
 
   if echo $PRJ | grep -qi "SPICE\|Opaque\|libs\|remoteClientLib"
   then
     pushd ../remoteClientLib
     export NDK_LIBS_OUT=./src/main/jniLibs
-    ${ANDROID_NDK}/ndk-build -j 2
+
+    ${ANDROID_NDK}/ndk-build -j 4
 
     echo "Adding any custom certificate authority files in $(pwd)/certificate_authorities/ to certificate bundle from gstreamer."
     if [ -n "$(ls certificate_authorities/)" ]

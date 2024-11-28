@@ -5,8 +5,13 @@ install_ndk() {
     pushd ${DIR} >&/dev/null
     if [ ! -e android-ndk-${VER} ]
     then
-        wget -c https://dl.google.com/android/repository/android-ndk-${VER}-linux-x86_64.zip  >&/dev/null
-        unzip android-ndk-${VER}-linux-x86_64.zip >&/dev/null
+        if wget --quiet -c https://dl.google.com/android/repository/android-ndk-${VER}-linux-x86_64.zip
+        then
+            unzip android-ndk-${VER}-linux-x86_64.zip >&/dev/null
+        else
+            wget --quiet -c https://dl.google.com/android/repository/android-ndk-${VER}-linux.zip
+            unzip android-ndk-${VER}-linux.zip >&/dev/null
+        fi
     fi
     popd >&/dev/null
     echo $(realpath ${DIR}/android-ndk-${VER})

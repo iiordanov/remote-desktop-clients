@@ -130,7 +130,8 @@ LOCAL_CFLAGS 	:=  $(LOCAL_CPPFLAGS) \
                    -Wall -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wl,--no-undefined \
                    -O3 -funroll-loops
 
-LOCAL_LDFLAGS   += -fuse-ld=bfd
+# Workaround for older NDK r18b that breaks builds with newer NDKs like r25c
+#LOCAL_LDFLAGS   += -fuse-ld=bfd
 
 LOCAL_EXPORT_CFLAGS += $(LOCAL_CFLAGS)
 LOCAL_EXPORT_LDLIBS += $(LOCAL_LDLIBS)

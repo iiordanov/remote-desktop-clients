@@ -1,0 +1,15 @@
+diff --git a/cerbero/config.py b/cerbero/config.py
+index 4adacfda..96fb3a6f 100644
+--- a/cerbero/config.py
++++ b/cerbero/config.py
+@@ -1046,8 +1046,8 @@ class Config(object):
+         else:
+             targets = self.arch_config.keys()
+         triples = []
+-        for target_arch in targets:
+-            triple = self.rust_triple(target_arch, self.target_platform, self.variants.visualstudio)
++        for target in RUST_TRIPLE_MAPPING.keys():
++            triple = RUST_TRIPLE_MAPPING[target]
+             triples.append(triple)
+         return triples
+ 
