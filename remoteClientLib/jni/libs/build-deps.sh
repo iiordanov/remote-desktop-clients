@@ -489,12 +489,20 @@ build() {
             git checkout recipes/openssl.recipe
         popd
         sed -i "s/version = '.*'/version = '${openssl_ver}'/" cerbero/recipes/openssl.recipe
-        sed -i "s|url = .*|url = 'https://github.com/openssl/openssl/releases/download/openssl-${openssl_ver}/openssl-${openssl_ver}.tar.gz'|" cerbero/recipes/openssl.recipe
-        sed -i "s|.*openssl/000.*||" cerbero/recipes/openssl.recipe
-        sed -i "s|# MSVC and UWP support|'openssl/0001-Mark-OPENSSL_armcap_P-hidden-in-arm-asm.patch'|" cerbero/recipes/openssl.recipe
-        sed -i "s/'LICENSE'/'LICENSE.txt'/" cerbero/recipes/openssl.recipe
+
+        openssl_download_prefix="OpenSSL_"
+        openssl_ver_array=($(echo ${openssl_ver} | grep -o .))
+        if [ "" -gt 1 ]
+        then
+            openssl_download_prefix="openssl-"
+            sed -i "s|.*openssl/000.*||" cerbero/recipes/openssl.recipe
+            sed -i "s|# MSVC and UWP support|'openssl/0001-Mark-OPENSSL_armcap_P-hidden-in-arm-asm.patch'|" cerbero/recipes/openssl.recipe
+            sed -i "s/'LICENSE'/'LICENSE.txt'/" cerbero/recipes/openssl.recipe
+            sed -i "s/allow_parallel_build = False/allow_parallel_build = True/" cerbero/recipes/openssl.recipe
+        fi
+
+        sed -i "s|url = .*|url = 'https://github.com/openssl/openssl/releases/download/${openssl_download_prefix}${openssl_ver}/openssl-${openssl_ver}.tar.gz'|" cerbero/recipes/openssl.recipe
         sed -i "s/tarball_checksum = '.*'/tarball_checksum = '${openssl_hash}'/" cerbero/recipes/openssl.recipe
-        sed -i "s/allow_parallel_build = False/allow_parallel_build = True/" cerbero/recipes/openssl.recipe
 
         echo "Running cerbero build for $1 in $(pwd)"
 
