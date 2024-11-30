@@ -434,29 +434,15 @@ setup() {
                 --api "${android_api}" \
                 --arch "${arch}" \
                 --install-dir "${toolchain}"
-#                --deprecated-headers \
     fi
     if ! [ -e "${toolchain}/bin/${build_host}-gcc" ] ; then
         echo "Couldn't configure compiler."
         exit 1
     fi
     PATH="${toolchain}/bin:${origpath}"
-    git clone ${setuptools_url} -b ${setuptools_ver} || true
-    pushd setuptools
-    python bootstrap.py
-    python setup.py install
-    popd
 }
 
-build() {
-    # Build binaries
-    # $1 = ABI
-    local package pkgstr origroot
-
-    # Set up build environment
-    setup "$1"
-    fetch configsub
-
+build_cerbero() {
     if [ -f CERBERO_BUILT_${1} ]
     then
         echo ; echo
@@ -490,18 +476,18 @@ build() {
         popd
         sed -i "s/version = '.*'/version = '${openssl_ver}'/" cerbero/recipes/openssl.recipe
 
-        openssl_download_prefix="OpenSSL_"
+        openssl_download_prefix="OpenSSL_$(echo ${openssl_ver} | sed 's/\./_/g')"
         openssl_ver_array=($(echo ${openssl_ver} | grep -o .))
         if [ "" -gt 1 ]
         then
-            openssl_download_prefix="openssl-"
+            openssl_download_prefix="openssl-${openssl_ver}"
             sed -i "s|.*openssl/000.*||" cerbero/recipes/openssl.recipe
             sed -i "s|# MSVC and UWP support|'openssl/0001-Mark-OPENSSL_armcap_P-hidden-in-arm-asm.patch'|" cerbero/recipes/openssl.recipe
             sed -i "s/'LICENSE'/'LICENSE.txt'/" cerbero/recipes/openssl.recipe
             sed -i "s/allow_parallel_build = False/allow_parallel_build = True/" cerbero/recipes/openssl.recipe
         fi
 
-        sed -i "s|url = .*|url = 'https://github.com/openssl/openssl/releases/download/${openssl_download_prefix}${openssl_ver}/openssl-${openssl_ver}.tar.gz'|" cerbero/recipes/openssl.recipe
+        sed -i "s|url = .*|url = 'https://github.com/openssl/openssl/releases/download/${openssl_download_prefix}/openssl-${openssl_ver}.tar.gz'|" cerbero/recipes/openssl.recipe
         sed -i "s/tarball_checksum = '.*'/tarball_checksum = '${openssl_hash}'/" cerbero/recipes/openssl.recipe
 
         echo "Running cerbero build for $1 in $(pwd)"
@@ -528,6 +514,19 @@ build() {
         done
         touch CERBERO_BUILT_${1}
     fi
+}
+
+build() {
+    # Build binaries
+    # $1 = ABI
+    local package pkgstr origroot
+
+    # Set up build environment
+    setup "$1"
+    fetch configsub
+
+    # Build gstreamer with cerbero
+    build_cerbero "$1"
 
     # Build
     for package in $packages
@@ -555,27 +554,6 @@ clean() {
         echo "Cleaning..."
         rm -rf deps
     fi
-}
-
-updates() {
-    # Report new releases of software packages
-    local package url curver newver
-    for package in $packages gstreamer
-    do
-        url="$(expand ${package}_upurl)"
-        if [ -z "$url" ] ; then
-            continue
-        fi
-        curver="$(expand ${package}_ver)"
-        newver=$(wget -q -O- "$url" | \
-                sed -nr "s%.*$(expand ${package}_upregex).*%\\1%p" | \
-                sort -uV | \
-                tail -n 1)
-
-        if [ "${curver}" != "${newver}" ] ; then
-            printf "%-15s %10s  => %10s\n" "${package}" "${curver}" "${newver}"
-        fi
-    done
 }
 
 fail_handler() {
@@ -632,8 +610,8 @@ build_freerdp() {
                -e 's/NDK_TARGET=26/NDK_TARGET=21/'\
                -e 's/OPENSSL_HASH=.*/OPENSSL_HASH='${openssl_hash}'/'\
                -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/"\
-               -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.5.0/'\
-               -e 's/OPENH264_HASH=.*/OPENH264_HASH=94c8ca364db990047ec4ec3481b04ce0d791e62561ef5601443011bdc00825e3/'\
+               -e 's/OPENH264_TAG=.*/OPENH264_TAG='${freerdp_openh264_version}'/'\
+               -e 's/OPENH264_HASH=.*/OPENH264_HASH='${freerdp_openh264_hash}'/'\
                 ./scripts/android-build.conf
 
         for f in ${basedir}/../*_freerdp_*.patch
