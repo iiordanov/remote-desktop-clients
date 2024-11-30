@@ -505,7 +505,6 @@ build() {
         sed -i "s/tarball_checksum = '.*'/tarball_checksum = '${openssl_hash}'/" cerbero/recipes/openssl.recipe
 
         echo "Running cerbero build for $1 in $(pwd)"
-
         cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
           gnustl libjpeg-turbo pyparsing tiff gstreamer-1.0 glib glib-networking libxml2 pixman libsoup openssl \
           cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0 spiceglue
@@ -625,15 +624,16 @@ build_freerdp() {
         git reset --hard
 
         # Patch the config
+
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
                -e 's/WITH_JPEG=.*/WITH_JPEG=1/'\
                -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
-               -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.1.1/'\
                -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=openssl-'${openssl_ver}'/'\
                -e 's/NDK_TARGET=26/NDK_TARGET=21/'\
-               -e 's/OPENH264_HASH=.*/OPENH264_HASH=af173e90fce65f80722fa894e1af0d6b07572292e76de7b65273df4c0a8be678/'\
                -e 's/OPENSSL_HASH=.*/OPENSSL_HASH='${openssl_hash}'/'\
                -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/"\
+               -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.5.0/'\
+               -e 's/OPENH264_HASH=.*/OPENH264_HASH=94c8ca364db990047ec4ec3481b04ce0d791e62561ef5601443011bdc00825e3/'\
                 ./scripts/android-build.conf
 
         for f in ${basedir}/../*_freerdp_*.patch

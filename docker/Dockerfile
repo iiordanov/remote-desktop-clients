@@ -19,6 +19,9 @@ apt install -yy gnome-common gobject-introspection nasm openjdk-17-jdk build-ess
  libncurses6 libtinfo6 ninja-build python3*-venv python3-six python3-pyparsing \
   && apt clean && apt autoclean
 
+# Older spice-gtk versions required an older pyparsing because their test for its existence was loading it as a module
+#RUN pip3 install --break-system-packages pyparsing==2.4.7
+
 RUN ln -sf /usr/lib/x86_64-linux-gnu/libncurses.so.6 /usr/lib/x86_64-linux-gnu/libncurses.so.5
 RUN ln -sf /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /usr/lib/x86_64-linux-gnu/libtinfo.so.5
 
