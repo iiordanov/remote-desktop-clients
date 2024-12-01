@@ -1,3 +1,5 @@
+v5.6.3
+- Upgrade of upstream libraries from gstreamer 1.24.9 including spice-gtk 0.42
 v5.5.7
 - Stability improvements 
 v5.4.8

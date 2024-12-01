@@ -1,5 +1,5 @@
-v5.6.2
-- Test
+v5.6.3
+- Upgrade of upstream libraries from gstreamer 1.24.9
 v5.6.1
 - Custom Desktop Scaling support
 v5.6.0
