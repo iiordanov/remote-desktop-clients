@@ -13,7 +13,7 @@ function clean_libs () {
   dir=$2
   for f in $(find $dir -type f -name \*.so)
   do
-    if ! echo $f | egrep -q "$filter"
+    if test "$filter" == "" || ! echo $f | egrep -q "$filter"
     then
       rm -f $f
     fi
@@ -138,16 +138,15 @@ freerdp_libs_dir=../remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/
 freerdp_libs_link=../remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/src/main/libs
 if echo $PRJ | grep -iq "VNC"
 then
-  clean_libs "sqlcipher" libs/
-  clean_libs "sqlcipher" ../remoteClientLib/libs/
-  clean_libs "sqlcipher" ../remoteClientLib/src/main/jniLibs/
+  clean_libs "" libs/
+  clean_libs "" ../remoteClientLib/src/main/jniLibs/
   [ -d ${freerdp_libs_dir} ] && rm -rf ${freerdp_libs_dir}.DISABLED && mv ${freerdp_libs_dir} ${freerdp_libs_dir}.DISABLED
   rm -rf ${freerdp_libs_link}
 elif echo $PRJ | grep -iq "RDP"
 then
-  clean_libs "sqlcipher" libs/
-  clean_libs "sqlcipher" ../remoteClientLib/libs/
-  clean_libs "sqlcipher" ../remoteClientLib/src/main/jniLibs/
+  RDP_DO_NOT_CLEAN_LIBS_FILTER="libc\+\+_shared"
+  clean_libs "${RDP_DO_NOT_CLEAN_LIBS_FILTER}" libs/
+  clean_libs "${RDP_DO_NOT_CLEAN_LIBS_FILTER}" ../remoteClientLib/src/main/jniLibs/
   [ -d ${freerdp_libs_dir}.DISABLED ] && rm -rf ${freerdp_libs_dir} && mv ${freerdp_libs_dir}.DISABLED ${freerdp_libs_dir}
   rm -rf ${freerdp_libs_link}
   ln -s jniLibs ${freerdp_libs_link}
