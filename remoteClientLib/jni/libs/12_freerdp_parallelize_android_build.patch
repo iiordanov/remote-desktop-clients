@@ -1,0 +1,13 @@
+diff --git a/scripts/android-build-freerdp.sh b/scripts/android-build-freerdp.sh
+index 0caab58f3..1b69496d5 100755
+--- a/scripts/android-build-freerdp.sh
++++ b/scripts/android-build-freerdp.sh
+@@ -183,7 +183,7 @@ do
+ 			-DCMAKE_INSTALL_LIBDIR=. \
+ 			$SRC_DIR
+ 		echo $(pwd)
+-		common_run $CMAKE_PROGRAM --build . --target install
++		common_run $CMAKE_PROGRAM --build . --target install -j 16
+ 	fi
+ done
+ 
