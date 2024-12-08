@@ -1,3 +1,5 @@
+v5.6.4
+- Upgrade of FreeRDP library to 2.11.7
 v5.6.3
 - Upgrade of upstream libraries from gstreamer 1.24.9
 v5.6.1
