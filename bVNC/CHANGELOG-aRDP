@@ -1,3 +1,5 @@
+v5.6.5
+- Fix for declared supported RDP file mime types
 v5.6.4
 - Upgrade of FreeRDP library to 2.11.7
 v5.6.3
