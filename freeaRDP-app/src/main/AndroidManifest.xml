@@ -86,8 +86,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:mimeType="*/*" />
                 <data android:mimeType="application/rdp"/>
+                <data android:mimeType="application/x-rdp"/>
                 <data android:scheme="file"/>
                 <data android:scheme="content"/>
                 <data android:pathPattern=".*\\.rdp"/>
