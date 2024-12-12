@@ -68,6 +68,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
 import com.iiordanov.bVNC.dialogs.MetaKeyDialog;
+import com.iiordanov.bVNC.input.IgnoringMouseInputListener;
 import com.iiordanov.bVNC.input.MetaKeyBean;
 import com.iiordanov.bVNC.input.Panner;
 import com.iiordanov.bVNC.input.RemoteCanvasHandler;
@@ -158,6 +159,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     public RemoteClientsInputListener inputListener;
     private ImageButton keyboardIconForAndroidTv;
     float keyboardIconForAndroidTvX = Float.MAX_VALUE;
+    IgnoringMouseInputListener ignoringMouseInputListener = new IgnoringMouseInputListener();
 
     OnTouchViewMover toolbarMover;
     ActionBarPositionSaver toolbarPositionSaver = new ActionBarPositionSaver();
@@ -405,6 +407,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
         toolbar = (RemoteToolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
+        toolbar.setOnGenericMotionListener(ignoringMouseInputListener);
         toolbar.getBackground().setAlpha(64);
         toolbar.setLayoutParams(params);
         setSupportActionBar(toolbar);
@@ -569,203 +572,92 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     private void initializeOnScreenKeys() {
         layoutKeys = (RelativeLayout) findViewById(R.id.layoutKeys);
         layoutArrowKeys = (LinearLayout) findViewById(R.id.layoutArrowKeys);
-
-        // Define action of tab key and meta keys.
+        // Define action of tab key and modifier keys.
         keyTab = (ImageButton) findViewById(R.id.keyTab);
-        keyTab.setOnTouchListener((arg0, e) -> {
-            RemoteKeyboard k = remoteConnection.getKeyboard();
-            int key = KeyEvent.KEYCODE_TAB;
-            if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
-                keyTab.setImageResource(R.drawable.tabon);
-                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                return true;
-            } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                keyTab.setImageResource(R.drawable.taboff);
-                resetOnScreenKeys(0);
-                k.stopRepeatingKeyEvent();
-                return true;
-            }
-            return false;
-        });
-
+        keyTab.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyTab, R.drawable.tabon, R.drawable.taboff, KeyEvent.KEYCODE_TAB));
+        keyTab.setOnGenericMotionListener(ignoringMouseInputListener);
         keyEsc = (ImageButton) findViewById(R.id.keyEsc);
-        keyEsc.setOnTouchListener((arg0, e) -> {
-            RemoteKeyboard k = remoteConnection.getKeyboard();
-            int key = 111; /* KEYCODE_ESCAPE */
-            if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
-                keyEsc.setImageResource(R.drawable.escon);
-                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                return true;
-            } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                keyEsc.setImageResource(R.drawable.escoff);
-                resetOnScreenKeys(0);
-                k.stopRepeatingKeyEvent();
-                return true;
-            }
-            return false;
-        });
-
+        keyEsc.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyEsc, R.drawable.escon, R.drawable.escoff, 111 /* KEYCODE_ESCAPE */));
+        keyEsc.setOnGenericMotionListener(ignoringMouseInputListener);
         keyCtrl = (ImageButton) findViewById(R.id.keyCtrl);
-        keyCtrl.setOnClickListener(arg0 -> {
-            boolean on = remoteConnection.getKeyboard().onScreenCtrlToggle();
-            keyCtrlToggled = false;
-            if (on)
-                keyCtrl.setImageResource(R.drawable.ctrlon);
-            else
-                keyCtrl.setImageResource(R.drawable.ctrloff);
-        });
-
-        keyCtrl.setOnLongClickListener(arg0 -> {
-            sendShortVibration();
-            boolean on = remoteConnection.getKeyboard().onScreenCtrlToggle();
-            keyCtrlToggled = true;
-            if (on)
-                keyCtrl.setImageResource(R.drawable.ctrlon);
-            else
-                keyCtrl.setImageResource(R.drawable.ctrloff);
-            return true;
-        });
-
+        keyCtrl.setOnClickListener(arg0 -> toggleCtrl(false, remoteConnection.getKeyboard().onScreenCtrlToggle()));
+        keyCtrl.setOnLongClickListener(arg0 -> toggleCtrl(true, remoteConnection.getKeyboard().onScreenCtrlToggle()));
+        keyCtrl.setOnGenericMotionListener(ignoringMouseInputListener);
         keySuper = (ImageButton) findViewById(R.id.keySuper);
-        keySuper.setOnClickListener(arg0 -> {
-            boolean on = remoteConnection.getKeyboard().onScreenSuperToggle();
-            keySuperToggled = false;
-            if (on)
-                keySuper.setImageResource(R.drawable.superon);
-            else
-                keySuper.setImageResource(R.drawable.superoff);
-        });
-
-        keySuper.setOnLongClickListener(arg0 -> {
-            sendShortVibration();
-            boolean on = remoteConnection.getKeyboard().onScreenSuperToggle();
-            keySuperToggled = true;
-            if (on)
-                keySuper.setImageResource(R.drawable.superon);
-            else
-                keySuper.setImageResource(R.drawable.superoff);
-            return true;
-        });
-
+        keySuper.setOnClickListener(arg0 -> toggleSuper(false, remoteConnection.getKeyboard().onScreenSuperToggle()));
+        keySuper.setOnLongClickListener(arg0 -> toggleSuper(true, remoteConnection.getKeyboard().onScreenSuperToggle()));
+        keySuper.setOnGenericMotionListener(ignoringMouseInputListener);
         keyAlt = (ImageButton) findViewById(R.id.keyAlt);
-        keyAlt.setOnClickListener(arg0 -> {
-            boolean on = remoteConnection.getKeyboard().onScreenAltToggle();
-            keyAltToggled = false;
-            if (on)
-                keyAlt.setImageResource(R.drawable.alton);
-            else
-                keyAlt.setImageResource(R.drawable.altoff);
-        });
-
-        keyAlt.setOnLongClickListener(arg0 -> {
-            sendShortVibration();
-            boolean on = remoteConnection.getKeyboard().onScreenAltToggle();
-            keyAltToggled = true;
-            if (on)
-                keyAlt.setImageResource(R.drawable.alton);
-            else
-                keyAlt.setImageResource(R.drawable.altoff);
-            return true;
-        });
-
+        keyAlt.setOnClickListener(arg0 -> toggleAlt(false, remoteConnection.getKeyboard().onScreenAltToggle()));
+        keyAlt.setOnLongClickListener(arg0 -> toggleAlt(true, remoteConnection.getKeyboard().onScreenAltToggle()));
+        keyAlt.setOnGenericMotionListener(ignoringMouseInputListener);
         keyShift = (ImageButton) findViewById(R.id.keyShift);
-        keyShift.setOnClickListener(arg0 -> {
-            boolean on = remoteConnection.getKeyboard().onScreenShiftToggle();
-            keyShiftToggled = false;
-            if (on)
-                keyShift.setImageResource(R.drawable.shifton);
-            else
-                keyShift.setImageResource(R.drawable.shiftoff);
-        });
-
-        keyShift.setOnLongClickListener(arg0 -> {
-            sendShortVibration();
-            boolean on = remoteConnection.getKeyboard().onScreenShiftToggle();
-            keyShiftToggled = true;
-            if (on)
-                keyShift.setImageResource(R.drawable.shifton);
-            else
-                keyShift.setImageResource(R.drawable.shiftoff);
-            return true;
-        });
-
-        // TODO: Evaluate whether I should instead be using:
-        // remoteConnection.sendMetaKey(MetaKeyBean.keyArrowLeft);
-
+        keyShift.setOnClickListener(arg0 -> toggleShift(false, remoteConnection.getKeyboard().onScreenShiftToggle()));
+        keyShift.setOnLongClickListener(arg0 -> toggleShift(true, remoteConnection.getKeyboard().onScreenShiftToggle()));
+        keyShift.setOnGenericMotionListener(ignoringMouseInputListener);
         // Define action of arrow keys.
         keyUp = (ImageButton) findViewById(R.id.keyUpArrow);
-        keyUp.setOnTouchListener((arg0, e) -> {
-            RemoteKeyboard k = remoteConnection.getKeyboard();
-            int key = KeyEvent.KEYCODE_DPAD_UP;
-            if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                sendShortVibration();
-                keyUp.setImageResource(R.drawable.upon);
-                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                return true;
-            } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                keyUp.setImageResource(R.drawable.upoff);
-                resetOnScreenKeys(0);
-                k.stopRepeatingKeyEvent();
-                return true;
-            }
-            return false;
-        });
-
+        keyUp.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyUp, R.drawable.upon, R.drawable.upoff, KeyEvent.KEYCODE_DPAD_UP));
+        keyUp.setOnGenericMotionListener(ignoringMouseInputListener);
         keyDown = (ImageButton) findViewById(R.id.keyDownArrow);
-        keyDown.setOnTouchListener((arg0, e) -> {
-            RemoteKeyboard k = remoteConnection.getKeyboard();
-            int key = KeyEvent.KEYCODE_DPAD_DOWN;
-            if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                sendShortVibration();
-                keyDown.setImageResource(R.drawable.downon);
-                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                return true;
-            } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                keyDown.setImageResource(R.drawable.downoff);
-                resetOnScreenKeys(0);
-                k.stopRepeatingKeyEvent();
-                return true;
-            }
-            return false;
-        });
-
+        keyDown.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyDown, R.drawable.downon, R.drawable.downoff, KeyEvent.KEYCODE_DPAD_DOWN));
+        keyDown.setOnGenericMotionListener(ignoringMouseInputListener);
         keyLeft = (ImageButton) findViewById(R.id.keyLeftArrow);
-        keyLeft.setOnTouchListener((arg0, e) -> {
-            RemoteKeyboard k = remoteConnection.getKeyboard();
-            int key = KeyEvent.KEYCODE_DPAD_LEFT;
-            if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                sendShortVibration();
-                keyLeft.setImageResource(R.drawable.lefton);
-                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                return true;
-            } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                keyLeft.setImageResource(R.drawable.leftoff);
-                resetOnScreenKeys(0);
-                k.stopRepeatingKeyEvent();
-                return true;
-            }
-            return false;
-        });
-
+        keyLeft.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyLeft, R.drawable.lefton, R.drawable.leftoff, KeyEvent.KEYCODE_DPAD_LEFT));
+        keyLeft.setOnGenericMotionListener(ignoringMouseInputListener);
         keyRight = (ImageButton) findViewById(R.id.keyRightArrow);
-        keyRight.setOnTouchListener((arg0, e) -> {
-            RemoteKeyboard k = remoteConnection.getKeyboard();
-            int key = KeyEvent.KEYCODE_DPAD_RIGHT;
-            if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                sendShortVibration();
-                keyRight.setImageResource(R.drawable.righton);
-                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                return true;
-            } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                keyRight.setImageResource(R.drawable.rightoff);
-                resetOnScreenKeys(0);
-                k.stopRepeatingKeyEvent();
-                return true;
-            }
-            return false;
-        });
+        keyRight.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyRight, R.drawable.righton, R.drawable.rightoff, KeyEvent.KEYCODE_DPAD_RIGHT));
+        keyRight.setOnGenericMotionListener(ignoringMouseInputListener);
+    }
+
+    private boolean repeatableKeyAction(MotionEvent e, ImageButton button, int onRes, int offRes, int keyCode) {
+        RemoteKeyboard k = remoteConnection.getKeyboard();
+        if (e.getAction() == MotionEvent.ACTION_DOWN) {
+            sendShortVibration();
+            button.setImageResource(onRes);
+            k.repeatKeyEvent(keyCode, new KeyEvent(e.getAction(), keyCode));
+            return true;
+        } else if (e.getAction() == MotionEvent.ACTION_UP) {
+            button.setImageResource(offRes);
+            resetOnScreenKeys(0);
+            k.stopRepeatingKeyEvent();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean toggleSuper(boolean toggled, boolean isOn) {
+        keySuperToggled = toggled;
+        return toggleButtonImage(isOn, toggled, keySuper, R.drawable.superon, R.drawable.superoff);
+    }
+
+    private boolean toggleShift(boolean toggled, boolean isOn) {
+        keyShiftToggled = toggled;
+        return toggleButtonImage(isOn, toggled, keyShift, R.drawable.shifton, R.drawable.shiftoff);
+    }
+
+    private boolean toggleAlt(boolean toggled, boolean isOn) {
+        keyAltToggled = toggled;
+        return toggleButtonImage(isOn, toggled, keyAlt, R.drawable.alton, R.drawable.altoff);
+    }
+
+    private boolean toggleCtrl(boolean toggled, boolean isOn) {
+        keyCtrlToggled = toggled;
+        return toggleButtonImage(isOn, toggled, keyCtrl, R.drawable.ctrlon, R.drawable.ctrloff);
+    }
+
+    private boolean toggleButtonImage(
+            boolean isOn, boolean isToggled, ImageButton button, int onResource, int offResource
+    ) {
+        if (isToggled) {
+            sendShortVibration();
+        }
+        if (isOn) {
+            button.setImageResource(onResource);
+        } else {
+            button.setImageResource(offResource);
+        }
+        return true;
     }
 
     /**
