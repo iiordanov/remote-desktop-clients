@@ -1,3 +1,5 @@
+v5.6.6
+- Bugfix for mouse clicks on on-screen keys and toolbar being passed to remote
 v5.6.3
 - Upgrade of upstream libraries from gstreamer 1.24.9 including spice-gtk 0.42
 v5.6.0
