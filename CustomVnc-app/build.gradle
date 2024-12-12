@@ -28,6 +28,7 @@ android {
     lintOptions {
         disable "Instantiatable"
     }
+    namespace 'com.iiordanov.CUSTOM_VNC_APP_PACKAGE_NAME'
 }
 
 dependencies {

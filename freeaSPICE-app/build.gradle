@@ -24,6 +24,7 @@ android {
     lintOptions {
         disable "Instantiatable"
     }
+    namespace 'com.iiordanov.freeaSPICE'
 }
 
 dependencies {
