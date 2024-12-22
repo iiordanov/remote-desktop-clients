@@ -171,7 +171,7 @@ public class SpiceCommunicator extends RfbConnectable {
     private void registerReceiversForUsbDevices(Context context) {
         if (usbEnabled) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                context.registerReceiver(usbPermissionRequestedReceiver, new IntentFilter(ACTION_USB_PERMISSION), Context.RECEIVER_NOT_EXPORTED);
+                context.registerReceiver(usbPermissionRequestedReceiver, new IntentFilter(ACTION_USB_PERMISSION), Context.RECEIVER_EXPORTED);
             } else {
                 context.registerReceiver(usbPermissionRequestedReceiver, new IntentFilter(ACTION_USB_PERMISSION));
             }

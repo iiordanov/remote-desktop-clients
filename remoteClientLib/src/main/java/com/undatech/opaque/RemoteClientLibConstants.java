@@ -83,7 +83,7 @@ public class RemoteClientLibConstants {
     public static final int EXPORT_SETTINGS_REQUEST_CODE = 4;
     public static final int LAUNCH_CONNECTION_REQUEST_CODE = 5;
     public static final String DEFAULT_LAYOUT_MAP = "English (US)";
-    public static final String ACTION_USB_PERMISSION = "com.undatech.opaque.USB_PERMISSION";
+    public static final String ACTION_USB_PERMISSION = "com.iiordanov.USB_PERMISSION";
     public static final String DEFAULT_SETTINGS_FILE = "defaultSettings";
     public static final int URL_BUFFER_SIZE = 3000;
     public static final int MAX_CONFIG_FILE_SIZE_BYTES = 30000;
