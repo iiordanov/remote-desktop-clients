@@ -478,7 +478,7 @@ build_cerbero() {
 
         openssl_download_prefix="OpenSSL_$(echo ${openssl_ver} | sed 's/\./_/g')"
         openssl_ver_array=($(echo ${openssl_ver} | grep -o .))
-        if [ "" -gt 1 ]
+        if [ "${openssl_ver_array[0]}" -gt 1 ]
         then
             openssl_download_prefix="openssl-${openssl_ver}"
             sed -i "s|.*openssl/000.*||" cerbero/recipes/openssl.recipe
@@ -492,8 +492,7 @@ build_cerbero() {
 
         echo "Running cerbero build for $1 in $(pwd)"
         cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
-          gnustl libjpeg-turbo pyparsing tiff gstreamer-1.0 glib glib-networking libxml2 pixman libsoup openssl \
-          cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0 spiceglue
+            gstreamer-1.0 gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0 spiceglue
 
         # Workaround for non-existent lib-pthread.la dpendency sneaking its way into some of the libraries.
         sed -i 's/[^ ]*lib-pthread.la//' cerbero/build/dist/android_universal/*/lib/*la
