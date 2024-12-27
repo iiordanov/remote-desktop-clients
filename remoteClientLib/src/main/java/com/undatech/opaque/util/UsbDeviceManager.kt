@@ -72,6 +72,8 @@ class UsbDeviceManager(val context: Context, val usbEnabled: Boolean) {
         if (d != null) {
             val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                PendingIntent.FLAG_MUTABLE
             } else {
                 0
             };
