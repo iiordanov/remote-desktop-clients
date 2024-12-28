@@ -123,6 +123,8 @@ void spice_clipboard_selection_request_handler(
 
 
 void spice_clipboard_selection_grab(SpiceMainChannel* channel, const guchar* text, size_t size) {
+    __android_log_write(ANDROID_LOG_INFO, "android-spice",
+                        "spice_clipboard_selection_grab");
     clipboard->length = MIN(size, clipboard->available - 1);
     strncpy(clipboard->buffer, (const char *)text, clipboard->length);
     guint32 clipboard_types[] = { VD_AGENT_CLIPBOARD_UTF8_TEXT };

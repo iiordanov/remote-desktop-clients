@@ -63,6 +63,8 @@ import java.util.Timer;
 
 abstract public class RemoteConnection implements PointerInputHandler, KeyInputHandler, InputCarriable {
     private final static String TAG = "RemoteConnection";
+    public static final int CLIPBOARD_INITIAL_DELAY = 0;
+    public static final int CLIPBOARD_CHECK_PERIOD = 500;
 
     // Connection parameters
     public Connection connection;
@@ -155,10 +157,9 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
         if (clipboardMonitor != null) {
             clipboardMonitorTimer = new Timer();
             try {
-                clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
+                clipboardMonitorTimer.schedule(clipboardMonitor, CLIPBOARD_INITIAL_DELAY, CLIPBOARD_CHECK_PERIOD);
             } catch (NullPointerException e) {
-                e.printStackTrace();
-                Log.d(TAG, "Ignored NullPointerException while initializing clipboard monitor");
+                Log.d(TAG, "Ignored NullPointerException while initializing clipboard monitor: " + Log.getStackTraceString(e));
             }
         }
     }

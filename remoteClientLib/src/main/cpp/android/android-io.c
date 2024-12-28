@@ -94,6 +94,7 @@ Java_com_undatech_opaque_SpiceCommunicator_SpiceRequestResolution(JNIEnv* env, j
     __android_log_write(ANDROID_LOG_INFO, "android-io", "SpiceRequestResolution");
     SpiceDisplay* display = global_display;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    g_return_if_fail(SPICE_IS_MAIN_CHANNEL(d->main));
 
     spice_main_channel_update_display_enabled(d->main, get_display_id(display), TRUE, FALSE);
     spice_main_channel_update_display(d->main, get_display_id(display), 0, 0, x, y, TRUE);
@@ -186,9 +187,17 @@ Java_com_undatech_opaque_SpiceCommunicator_SpiceClientCutText(JNIEnv *env, jobje
     SpiceDisplay* display = global_display;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     g_return_if_fail(SPICE_IS_MAIN_CHANNEL(d->main));
-
+    if (d == NULL || d->main == NULL) {
+        return;
+    }
     size_t size = (*env)->GetStringUTFLength(env, text);
+    if (size == 0) {
+        return;
+    }
     const guchar *convertedText = (const guchar*)(*env)->GetStringUTFChars(env, text, NULL);
+    if (convertedText == NULL) {
+        return;
+    }
     spice_clipboard_selection_grab(d->main, convertedText, size);
     g_free((gpointer)convertedText);
 }

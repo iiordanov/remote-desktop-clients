@@ -57,6 +57,8 @@ public class SpiceCommunicator extends RfbConnectable {
     final static int LWIN = 347;
     final static int RWIN = 348;
     private final static String TAG = "SpiceCommunicator";
+    public static final int INITIAL_REQUEST_RESOLUTION_DELAY = 2000;
+    public static final int CLIPBOARD_DELAY = 0;
     private static SpiceCommunicator myself = null;
 
     static {
@@ -401,9 +403,9 @@ public class SpiceCommunicator extends RfbConnectable {
     }
 
     public void writeClientCutText(String text) {
-        Log.i(TAG, "writeClientCutText");
+        Log.i(TAG, "writeClientCutText: clipboard");
         if (isInNormalProtocol()) {
-            SpiceClientCutText(text);
+            handler.postDelayed(() -> SpiceClientCutText(text), CLIPBOARD_DELAY);
         }
     }
 
@@ -537,16 +539,13 @@ public class SpiceCommunicator extends RfbConnectable {
 
         canvas.reallocateDrawable(width, height);
 
-        setIsInNormalProtocol(true);
         handler.sendEmptyMessage(RemoteClientLibConstants.SPICE_CONNECT_SUCCESS);
 
         if (isRequestingNewDisplayResolution) {
-            requestResolution(canvas.getDesiredWidth(), canvas.getDesiredHeight());
-            handler.postDelayed(new Runnable() {
-                public void run() {
-                    requestResolution(canvas.getDesiredWidth(), canvas.getDesiredHeight());
-                }
-            }, 2000);
+            handler.postDelayed(() -> {
+                setIsInNormalProtocol(true);
+                requestResolution(canvas.getDesiredWidth(), canvas.getDesiredHeight());
+            }, INITIAL_REQUEST_RESOLUTION_DELAY);
         }
         usbDeviceManager.getUsbDevicePermissions();
     }
