@@ -310,7 +310,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             try {
                 setModes();
             } catch (NullPointerException e) {
-                Log.d(TAG, "Ignored Exception while running setModes");
+                Log.d(TAG, "Ignored NullPointerException while running setModes: " + Log.getStackTraceString(e));
             }
         };
         Runnable hideKeyboardAndExtraKeys = () -> {
@@ -747,8 +747,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         try {
             COLORMODEL cm = COLORMODEL.valueOf(connection.getColorModel());
             remoteConnection.setColorModel(cm);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+        } catch (NullPointerException | IllegalArgumentException e) {
+            Log.w(TAG, "Could not set color model");
         }
         canvas.setFocusableInTouchMode(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
