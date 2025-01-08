@@ -14,4 +14,28 @@
     <string name="pref_keyboard_type_TYPE_NULL_value">0</string>
     <string name="pref_keyboard_type_VISIBLE_PASSWORD_value">145</string>
     <string name="pref_keyboard_type_TYPE_CLASS_TEXT_value">1</string>
+
+    <string-array name="defaultInputMethodValues">
+        <item>TOUCH_ZOOM_MODE</item>          <!-- Must match TouchInputHandlerDirectSwipePan.ID -->
+        <item>TOUCH_ZOOM_MODE_DRAG_PAN</item> <!-- Must match TouchInputHandlerDirectDragPan.ID -->
+        <item>TOUCHPAD_MODE</item>            <!-- Must match TouchInputHandlerTouchpad.ID -->
+        <item>SINGLE_HANDED_MODE</item>       <!-- Must match TouchInputHandlerSingleHanded.ID -->
+    </string-array>
+    <string-array name="defaultInputMethodEntries">
+        <item>@string/input_method_direct_swipe_pan</item>
+        <item>@string/input_method_direct_drag_pan</item>
+        <item>@string/input_method_touchpad</item>
+        <item>@string/input_method_single_handed</item>
+    </string-array>
+
+    <string-array name="defaultScalingValues">
+        <item>MATRIX</item> <!-- Must match ScaleType.MATRIX -->
+        <item>FIT_CENTER</item> <!-- Must match ScaleType.FIT_CENTER -->
+        <item>CENTER</item> <!-- Must match ScaleType.CENTER -->
+    </string-array>
+    <string-array name="defaultScalingEntries">
+        <item>@string/scaling_zoomable</item>
+        <item>@string/fit_to_screen</item>
+        <item>@string/one_to_one</item>
+    </string-array>
 </resources>

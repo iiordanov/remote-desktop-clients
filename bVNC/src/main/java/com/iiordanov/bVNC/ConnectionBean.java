@@ -67,6 +67,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
     public ConnectionBean(Context context) {
         String inputMode = TouchInputHandlerDirectSwipePan.ID;
+        ScaleType scaling = ScaleType.MATRIX;
         boolean preferSendingUnicode = false;
         boolean useDpadAsArrows = true;
         if (context == null) {
@@ -75,8 +76,8 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
         if (context != null) {
             useDpadAsArrows = !GeneralUtils.isTv(context);
-            inputMode = Utils.querySharedPreferenceString(context, Constants.defaultInputMethodTag,
-                    TouchInputHandlerDirectSwipePan.ID);
+            inputMode = getDefaultInputMode(context);
+            scaling = getDefaultScaling(context);
             preferSendingUnicode = Utils.querySharedPreferenceBoolean(context, Constants.preferSendingUnicode);
         } else {
             Log.e(TAG, "Failed to query defaults from shared preferences, context is null.");
@@ -125,7 +126,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setCertSubject("");
         setColorModel(COLORMODEL.C24bit.nameString());
         setPrefEncoding(RfbProto.EncodingTight);
-        setScaleMode(ScaleType.MATRIX);
+        setScaleMode(scaling);
         setInputMode(inputMode);
         setUseDpadAsArrows(useDpadAsArrows);
         setRotateDpad(false);
@@ -177,6 +178,23 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
         setRdpGatewayPort(Constants.DEFAULT_RDP_GATEWAY_PORT);
         setDesktopScalePercentage(Constants.DEFAULT_DESKTOP_SCALE_PERCENTAGE);
+    }
+
+    private static String getDefaultInputMode(Context context) {
+        String inputMode;
+        inputMode = Utils.querySharedPreferenceString(context, Constants.defaultInputMethodTag,
+                TouchInputHandlerDirectSwipePan.ID);
+        return inputMode;
+    }
+
+    private static ScaleType getDefaultScaling(Context context) {
+        String scaling;
+        scaling = Utils.querySharedPreferenceString(
+                context,
+                Constants.defaultScalingTag,
+                ScaleType.MATRIX.toString()
+        );
+        return ScaleType.valueOf(scaling);
     }
 
     /**

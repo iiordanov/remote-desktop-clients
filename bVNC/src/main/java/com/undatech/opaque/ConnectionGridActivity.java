@@ -385,7 +385,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.grid_view_activity_actions, menu);
-        inflater.inflate(R.menu.input_mode_menu_item, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
