@@ -39,18 +39,24 @@
         android:max="9"
         android:key="scrollSpeed"
         android:title="@string/scroll_speed" />
-    <!--input_methods android:key must match Constants.defaultInputMethodTag -->
-    <ListPreference
-        android:title="@string/input_methods"
-        android:key="defaultInputMethod"
-        android:defaultValue="TOUCH_ZOOM_MODE"
-        android:entries="@array/defaultInputMethodEntries"
-        android:entryValues="@array/defaultInputMethodValues" />
-    <!--scaling android:key must match Constants.defaultScalingTag -->
-    <ListPreference
-        android:title="@string/scaling"
-        android:key="defaultScaling"
-        android:defaultValue="MATRIX"
-        android:entries="@array/defaultScalingEntries"
-        android:entryValues="@array/defaultScalingValues" />
+    <PreferenceCategory android:title="@string/applies_to_new_connections_only">
+        <!--input_methods android:key must match Constants.defaultInputMethodTag -->
+        <ListPreference
+            android:title="@string/input_methods"
+            android:key="defaultInputMethod"
+            android:defaultValue="TOUCH_ZOOM_MODE"
+            android:entries="@array/defaultInputMethodEntries"
+            android:entryValues="@array/defaultInputMethodValues" />
+        <!--scaling android:key must match Constants.defaultScalingTag -->
+        <ListPreference
+            android:title="@string/scaling"
+            android:key="defaultScaling"
+            android:defaultValue="MATRIX"
+            android:entries="@array/defaultScalingEntries"
+            android:entryValues="@array/defaultScalingValues" />
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="positionToolbarLastUsed"
+            android:title="@string/position_toolbar_last_used" />
+    </PreferenceCategory>
 </PreferenceScreen>
