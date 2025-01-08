@@ -1,3 +1,5 @@
+v5.7.2
+- Ability to set default scaling mode
 v5.6.8
 - Upgrade of upstream libraries from gstreamer 1.24.10
 v5.6.6
