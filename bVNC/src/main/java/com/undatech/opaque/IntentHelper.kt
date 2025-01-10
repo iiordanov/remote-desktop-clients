@@ -16,12 +16,12 @@ class IntentHelper {
     ): Intent {
         var intent = getIntentForRemoteCanvasActivity(packageContext)
         if (Utils.isOpaque(packageContext)) {
-            val cs = connectionLoader.connectionsById[runtimeId] as ConnectionSettings?
-            cs!!.loadFromSharedPreferences(appContext)
+            val cs = connectionLoader.connectionsById[runtimeId] as ConnectionSettings
+            cs.loadFromSharedPreferences(appContext)
             intent.putExtra(Constants.opaqueConnectionSettingsClassPath, cs)
         } else {
-            val conn = connectionLoader.connectionsById[runtimeId] as ConnectionBean?
-            if (conn!!.requiresVpn) {
+            val conn = connectionLoader.connectionsById[runtimeId] as ConnectionBean
+            if (conn.requiresVpn) {
                 intent = getUriIntentForVpnClient(packageContext, conn)
             } else {
                 intent.putExtra(Utils.getConnectionString(appContext), conn.Gen_getValues())

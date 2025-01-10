@@ -30,7 +30,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
@@ -40,6 +39,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Utils;
 import com.undatech.remoteClientUi.R;
@@ -48,19 +49,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ConnectionSetupActivity extends Activity {
-    private static String TAG = "ConnectionSetupActivity";
+    private static final String TAG = "ConnectionSetupActivity";
 
     private EditText hostname = null;
     private EditText vmname = null;
     private EditText user = null;
     private EditText password = null;
     private CheckBox keepPass = null;
-    private Button advancedSettingsButton = null;
 
     private Context appContext = null;
     private ConnectionSettings currentConnection = null;
     private String currentSelectedConnection = null;
-    private String connectionsList = null;
     private String[] connectionsArray = null;
     private boolean newConnection = false;
     private Spinner spinnerConnectionType;
@@ -71,30 +70,27 @@ public class ConnectionSetupActivity extends Activity {
         appContext = getApplicationContext();
         setContentView(R.layout.connection_setup_activity);
 
-        hostname = (EditText) findViewById(R.id.hostname);
-        vmname = (EditText) findViewById(R.id.vmname);
-        user = (EditText) findViewById(R.id.user);
-        password = (EditText) findViewById(R.id.password);
-        keepPass = (CheckBox) findViewById(R.id.checkboxKeepPassword);
+        hostname = findViewById(R.id.hostname);
+        vmname = findViewById(R.id.vmname);
+        user = findViewById(R.id.user);
+        password = findViewById(R.id.password);
+        keepPass = findViewById(R.id.checkboxKeepPassword);
 
         // Define what happens when one taps the Advanced Settings button.
-        advancedSettingsButton = (Button) findViewById(R.id.advancedSettingsButton);
-        advancedSettingsButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                saveSelectedPreferences(false);
+        Button advancedSettingsButton = findViewById(R.id.advancedSettingsButton);
+        advancedSettingsButton.setOnClickListener(arg0 -> {
+            saveSelectedPreferences(false);
 
-                Intent intent = new Intent(ConnectionSetupActivity.this, AdvancedSettingsActivity.class);
-                intent.putExtra(Constants.opaqueConnectionSettingsClassPath, currentConnection);
-                startActivityForResult(intent, RemoteClientLibConstants.ADVANCED_SETTINGS_REQUEST_CODE);
-            }
+            Intent intent = new Intent(ConnectionSetupActivity.this, AdvancedSettingsActivity.class);
+            intent.putExtra(Constants.opaqueConnectionSettingsClassPath, currentConnection);
+            startActivityForResult(intent, RemoteClientLibConstants.ADVANCED_SETTINGS_REQUEST_CODE);
         });
 
         // Load any existing list of connection preferences.
         loadConnections();
 
         Intent i = getIntent();
-        currentSelectedConnection = (String) i.getStringExtra("com.undatech.opaque.connectionToEdit");
+        currentSelectedConnection = i.getStringExtra("com.undatech.opaque.connectionToEdit");
         Log.d(TAG, "currentSelectedConnection set to: " + currentSelectedConnection);
 
         // If no currentSelectedConnection was passed in, then generate one.
@@ -103,13 +99,13 @@ public class ConnectionSetupActivity extends Activity {
             newConnection = true;
         }
 
-        spinnerConnectionType = (Spinner) findViewById(R.id.spinnerConnectionType);
+        spinnerConnectionType = findViewById(R.id.spinnerConnectionType);
         spinnerConnectionType.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (view != null) {
                     Log.d(TAG, "Selected connection type: " +
-                            Integer.toString(position) + " " + ((TextView) view).getText());
+                            position + " " + ((TextView) view).getText());
                 }
             }
 
@@ -134,20 +130,19 @@ public class ConnectionSetupActivity extends Activity {
     /**
      * Returns the string representation of N+1 where N is the largest value
      * in the array "numbers" when converted to an integer.
-     * @return
      */
     private String nextLargestNumber(String[] numbers) {
         int maxValue = 0;
         if (numbers != null) {
             for (String num : numbers) {
-                int currValue = 0;
+                int currValue;
                 try {
                     currValue = Integer.parseInt(num);
                     if (currValue >= maxValue) {
                         maxValue = currValue + 1;
                     }
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "NumberFormatException: " + Log.getStackTraceString(e));
                 }
             }
         }
@@ -158,12 +153,11 @@ public class ConnectionSetupActivity extends Activity {
     /**
      * Loads the space-separated string representing the saved connections, splits them,
      * also setting the appropriate member variables.
-     * @return
      */
     private void loadConnections() {
         SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-        connectionsList = sp.getString("connections", null);
-        if (connectionsList != null && !connectionsList.trim().equals("")) {
+        String connectionsList = sp.getString("connections", null);
+        if (connectionsList != null && !connectionsList.trim().isEmpty()) {
             connectionsArray = connectionsList.split(" ");
         }
     }
@@ -177,17 +171,17 @@ public class ConnectionSetupActivity extends Activity {
         if (newConnection) {
             newConnection = false;
 
-            String newListOfConnections = new String(currentSelectedConnection);
+            StringBuilder newListOfConnections = new StringBuilder(currentSelectedConnection);
             if (connectionsArray != null) {
-                for (int i = 0; i < connectionsArray.length; i++) {
-                    newListOfConnections += " " + connectionsArray[i];
+                for (String s : connectionsArray) {
+                    newListOfConnections.append(" ").append(s);
                 }
             }
 
             Log.d(TAG, "Saving list of connections: " + newListOfConnections);
             SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
             Editor editor = sp.edit();
-            editor.putString("connections", newListOfConnections.trim());
+            editor.putString("connections", newListOfConnections.toString().trim());
             editor.apply();
 
             // Reload the list of connections from preferences for consistency.
@@ -203,16 +197,16 @@ public class ConnectionSetupActivity extends Activity {
         Log.i(TAG, "onActivityResult");
 
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case (RemoteClientLibConstants.ADVANCED_SETTINGS_REQUEST_CODE):
-                if (resultCode == Activity.RESULT_OK) {
-                    Bundle b = data.getExtras();
+        if (requestCode == RemoteClientLibConstants.ADVANCED_SETTINGS_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                Bundle b = data.getExtras();
+                if (b != null) {
                     currentConnection = (ConnectionSettings) b.get(Constants.opaqueConnectionSettingsClassPath);
                     saveSelectedPreferences(false);
-                } else {
-                    Log.i(TAG, "Error during AdvancedSettingsActivity.");
                 }
-                break;
+            } else {
+                Log.i(TAG, "Error during AdvancedSettingsActivity.");
+            }
         }
     }
 
@@ -245,7 +239,7 @@ public class ConnectionSetupActivity extends Activity {
         String h = hostname.getText().toString();
 
         // Only if a username and a hostname were entered, save the connection to list of connections.
-        if (saveInList && !(u.equals("") || h.equals(""))) {
+        if (saveInList && !(u.isEmpty() || h.isEmpty())) {
             saveConnections();
         }
 
@@ -274,16 +268,6 @@ public class ConnectionSetupActivity extends Activity {
         updateViewsFromPreferences();
     }
 
-    /**
-     * Automatically linked with android:onClick to the toggleSslStrict button.
-     * @param view
-     */
-    public void toggleConnectionType(View view) {
-        view.cancelLongPress();
-        //ToggleButton s = (ToggleButton) view;
-        //currentConnection.setSslStrict(s.isChecked());  
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.connection_setup_activity_actions, menu);
@@ -291,8 +275,7 @@ public class ConnectionSetupActivity extends Activity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        int itemID = menuItem.getItemId();
+    public boolean onOptionsItemSelected(@NonNull MenuItem menuItem) {
         return true;
     }
 
@@ -323,7 +306,7 @@ public class ConnectionSetupActivity extends Activity {
         String h = hostname.getText().toString();
 
         // Only if a username and a hostname were entered, save the connection.
-        if (!(u.equals("") || h.equals(""))) {
+        if (!(u.isEmpty() || h.isEmpty())) {
             saveSelectedPreferences(true);
             finish();
             // Otherwise, let the user know that at least a user and hostname are required.

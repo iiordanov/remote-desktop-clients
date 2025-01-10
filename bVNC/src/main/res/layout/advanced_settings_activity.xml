@@ -230,6 +230,28 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/layoutDpadAsArrows"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dip">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="4"
+                    android:text="@string/dpad_as_arrows"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <ToggleButton
+                    android:id="@+id/dpadAsArrows"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="dpadAsArrows" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/layoutAppliesForNewConnections"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"

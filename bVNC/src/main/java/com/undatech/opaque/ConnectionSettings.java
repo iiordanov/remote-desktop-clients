@@ -87,6 +87,8 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
     private int useLastPositionToolbarY;
     private boolean useLastPositionToolbarMoved = false;
 
+    private boolean useDpadAsArrows = true;
+
     public ConnectionSettings(String filename) {
         super();
         this.filename = filename;
@@ -95,12 +97,8 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
     /**
      * Exports preferences to a file.
      *
-     * @param context
      * @param connections  space separated list of connections
      * @param outputStream output stream to save to
-     * @return the full path to the file saved.
-     * @throws JSONException
-     * @throws IOException
      */
     public static void exportPrefsToFile(
             Context context, String connections, OutputStream outputStream
@@ -129,17 +127,14 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
     /**
      * Imports preferences from a file.
      *
-     * @param context
      * @return connection list as a space separated string
-     * @throws IOException
-     * @throws JSONException
      */
     public static String importPrefsFromFile(Context context, Reader r) throws IOException, JSONException {
         Log.d(TAG, "Importing settings");
         BufferedReader reader = new BufferedReader(r);
-        String connections = "";
+        StringBuilder connections = new StringBuilder();
         StringBuilder sb = new StringBuilder();
-        String line = null;
+        String line;
         while ((line = reader.readLine()) != null) {
             sb.append(line);
         }
@@ -162,22 +157,22 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
                 if (value instanceof String) {
                     editor.putString(key, (String) value);
                 } else if (value instanceof Integer) {
-                    editor.putInt(key, (int) ((Integer) value));
+                    editor.putInt(key,((Integer) value));
                 } else if (value instanceof Boolean) {
-                    editor.putBoolean(key, (boolean) ((Boolean) value));
+                    editor.putBoolean(key, ((Boolean) value));
                 } else if (value instanceof Float) {
-                    editor.putFloat(key, (float) ((Float) value));
+                    editor.putFloat(key, ((Float) value));
                 } else if (value instanceof Long) {
-                    editor.putLong(key, (long) ((Long) value));
+                    editor.putLong(key, ((Long) value));
                 }
             }
             if (!file.equals(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE)) {
-                connections += " " + file;
+                connections.append(" ").append(file);
             }
             editor.apply();
         }
 
-        return connections.trim();
+        return connections.toString().trim();
     }
 
     public static void importSettingsFromJsonToSharedPrefs(InputStream fin, Context context) {
@@ -189,11 +184,9 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
             editor.putString("connections", connections);
             editor.apply();
         } catch (JSONException e) {
-            Log.e(TAG, "JSON Exception while importing settings " + e.getLocalizedMessage());
-            e.printStackTrace();
+            Log.e(TAG, "JSON Exception while importing settings " + e.getLocalizedMessage() + " " + Log.getStackTraceString(e));
         } catch (IOException e) {
-            Log.e(TAG, "IO Exception while importing settings " + e.getLocalizedMessage());
-            e.printStackTrace();
+            Log.e(TAG, "IO Exception while importing settings " + e.getLocalizedMessage() + " " + Log.getStackTraceString(e));
         }
     }
 
@@ -203,11 +196,9 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
         try {
             ConnectionSettings.exportPrefsToFile(context, connections, outputStream);
         } catch (JSONException e) {
-            Log.e(TAG, "JSON Exception while exporting settings " + e.getLocalizedMessage());
-            e.printStackTrace();
+            Log.e(TAG, "JSON Exception while exporting settings " + e.getLocalizedMessage() + " " + Log.getStackTraceString(e));
         } catch (IOException e) {
-            Log.e(TAG, "IO Exception while exporting settings " + e.getLocalizedMessage());
-            e.printStackTrace();
+            Log.e(TAG, "IO Exception while exporting settings " + e.getLocalizedMessage() + " " + Log.getStackTraceString(e));
         }
     }
 
@@ -675,6 +666,7 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
         } else {
             editor.putBoolean("useLastPositionToolbarMoved", false);
         }
+        editor.putBoolean("useDpadAsArrows", useDpadAsArrows);
         editor.apply();
         // Make sure the CA gets saved to a file if necessary.
         ovirtCaFile = saveCaToFile(context, ovirtCaData);
@@ -767,12 +759,12 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
 
     @Override
     public boolean getUseDpadAsArrows() {
-        return false;
+        return useDpadAsArrows;
     }
 
     @Override
     public void setUseDpadAsArrows(boolean useDpadAsArrows) {
-
+        this.useDpadAsArrows = useDpadAsArrows;
     }
 
     @Override
@@ -885,6 +877,7 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
         useLastPositionToolbarX = sp.getInt("useLastPositionToolbarX", 0);
         useLastPositionToolbarY = sp.getInt("useLastPositionToolbarY", 0);
         useLastPositionToolbarMoved = sp.getBoolean("useLastPositionToolbarMoved", false);
+        useDpadAsArrows = sp.getBoolean("useDpadAsArrows", true);
         // Make sure the CAs get saved to files if necessary.
         ovirtCaFile = saveCaToFile(context, ovirtCaData);
     }
@@ -894,15 +887,13 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
      * if it was saved or it already exists. Returns "" if caCertData is empty or an error
      * occurred.
      *
-     * @param caCertData
-     * @return
      */
     public String saveCaToFile(Context context, String caCertData) {
-        String fileName = "";
+        String fileName;
         // Write out CA to file if it doesn't exist.
         try {
             // Write out a unique file containing the cert and return the path.
-            fileName = context.getFilesDir() + "/ca" + Integer.toString(caCertData.hashCode()) + ".crt";
+            fileName = context.getFilesDir() + "/ca" + caCertData.hashCode() + ".crt";
             File file = new File(fileName);
             if (!file.exists()) {
                 Log.d(TAG, "Writing out CA to file: " + fileName);

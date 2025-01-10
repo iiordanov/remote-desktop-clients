@@ -19,11 +19,13 @@
 
 package com.undatech.opaque;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -50,28 +52,16 @@ import java.util.List;
 
 
 public class AdvancedSettingsActivity extends FragmentActivity implements ManageCustomCaFragment.OnFragmentDismissedListener {
-    private static String TAG = "AdvancedSettingsActivity";
+    private static final String TAG = "AdvancedSettingsActivit";
 
     private ConnectionSettings currentConnection;
-    private ToggleButton toggleAudioPlayback;
-    private ToggleButton toggleAutoRotation;
-    private ToggleButton toggleAutoRequestDisplayResolution;
-    private ToggleButton toggleCustomDisplayResolution;
-    private ToggleButton toggleSslStrict;
-    private ToggleButton toggleUsbEnabled;
-    private ToggleButton toggleUsingCustomOvirtCa;
-    private ToggleButton toggleUseLastPositionToolbar;
+
     private Button buttonManageOvirtCa;
     private Spinner layoutMapSpinner;
-    private LinearLayout layoutManageOvirtCa;
-    private LinearLayout layoutToggleUsingCustomOvirtCa;
     private LinearLayout layoutCustomRemoteResolution;
     private LinearLayout layoutToggleCustomRemoteResolution;
-    private LinearLayout layoutUseLastPositionToolbar;
-    private TextView textUseLastPositionToolbar;
-    private EditText rdpWidth;
-    private EditText rdpHeight;
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -80,36 +70,39 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         Intent i = getIntent();
         currentConnection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
 
-        toggleAudioPlayback = (ToggleButton) findViewById(R.id.toggleAudioPlayback);
+        ToggleButton toggleAudioPlayback = findViewById(R.id.toggleAudioPlayback);
         toggleAudioPlayback.setChecked(currentConnection.isAudioPlaybackEnabled());
 
-        toggleUsbEnabled = (ToggleButton) findViewById(R.id.toggleUsbEnabled);
+        ToggleButton toggleUsbEnabled = findViewById(R.id.toggleUsbEnabled);
         toggleUsbEnabled.setChecked(currentConnection.isUsbEnabled());
 
-        toggleAutoRotation = (ToggleButton) findViewById(R.id.toggleAutoRotation);
+        ToggleButton toggleAutoRotation = findViewById(R.id.toggleAutoRotation);
         toggleAutoRotation.setChecked(currentConnection.isRotationEnabled());
 
-        toggleAutoRequestDisplayResolution = (ToggleButton) findViewById(R.id.toggleAutoRequestDisplayResolution);
+        ToggleButton toggleAutoRequestDisplayResolution = findViewById(R.id.toggleAutoRequestDisplayResolution);
         toggleAutoRequestDisplayResolution.setChecked(currentConnection.isRequestingNewDisplayResolution());
 
-        toggleCustomDisplayResolution = (ToggleButton) findViewById(R.id.toggleCustomDisplayResolution);
+        ToggleButton toggleCustomDisplayResolution = findViewById(R.id.toggleCustomDisplayResolution);
         toggleCustomDisplayResolution.setChecked(currentConnection.getRdpResType() == RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
 
-        toggleSslStrict = (ToggleButton) findViewById(R.id.toggleSslStrict);
+        ToggleButton toggleSslStrict = findViewById(R.id.toggleSslStrict);
         toggleSslStrict.setChecked(currentConnection.isSslStrict());
 
-        layoutManageOvirtCa = (LinearLayout) findViewById(R.id.layoutManageOvirtCa);
-        layoutToggleUsingCustomOvirtCa = (LinearLayout) findViewById(R.id.layoutToggleUsingCustomOvirtCa);
-        toggleUsingCustomOvirtCa = (ToggleButton) findViewById(R.id.toggleUsingCustomOvirtCa);
+        LinearLayout layoutManageOvirtCa = findViewById(R.id.layoutManageOvirtCa);
+        LinearLayout layoutToggleUsingCustomOvirtCa = findViewById(R.id.layoutToggleUsingCustomOvirtCa);
+
+        ToggleButton toggleUsingCustomOvirtCa = findViewById(R.id.toggleUsingCustomOvirtCa);
         toggleUsingCustomOvirtCa.setChecked(currentConnection.isUsingCustomOvirtCa());
 
-        layoutUseLastPositionToolbar = (LinearLayout) findViewById(R.id.layoutUseLastPositionToolbar);
-        textUseLastPositionToolbar = (TextView) findViewById(R.id.textUseLastPositionToolbar);
+        ToggleButton useDpadForArrows = findViewById(R.id.dpadAsArrows);
+        useDpadForArrows.setChecked(currentConnection.getUseDpadAsArrows());
+
+        TextView textUseLastPositionToolbar = findViewById(R.id.textUseLastPositionToolbar);
         textUseLastPositionToolbar.setText(getString(R.string.position_toolbar_last_used));
-        toggleUseLastPositionToolbar = (ToggleButton) findViewById(R.id.toggleUseLastPositionToolbar);
+        ToggleButton toggleUseLastPositionToolbar = findViewById(R.id.toggleUseLastPositionToolbar);
         toggleUseLastPositionToolbar.setChecked(currentConnection.getUseLastPositionToolbar());
 
-        buttonManageOvirtCa = (Button) findViewById(R.id.buttonManageOvirtCa);
+        buttonManageOvirtCa = findViewById(R.id.buttonManageOvirtCa);
         buttonManageOvirtCa.setEnabled(currentConnection.isUsingCustomOvirtCa());
 
         if (currentConnection.getConnectionTypeString()
@@ -118,7 +111,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
             layoutManageOvirtCa.setVisibility(View.GONE);
         }
 
-        layoutMapSpinner = (Spinner) findViewById(R.id.layoutMaps);
+        layoutMapSpinner = findViewById(R.id.layoutMaps);
 
         layoutMapSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
@@ -139,7 +132,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
             }
         });
 
-        layoutToggleCustomRemoteResolution = (LinearLayout) findViewById(R.id.layoutToggleCustomRemoteResolution);
+        layoutToggleCustomRemoteResolution = findViewById(R.id.layoutToggleCustomRemoteResolution);
         layoutCustomRemoteResolution = findViewById(R.id.layoutCustomRemoteResolution);
 
         if (toggleCustomDisplayResolution.isChecked()) {
@@ -155,7 +148,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
             layoutCustomRemoteResolution.setVisibility(View.GONE);
         }
 
-        rdpWidth = findViewById(R.id.rdpWidth);
+        EditText rdpWidth = findViewById(R.id.rdpWidth);
         rdpWidth.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -179,7 +172,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
             }
         });
         rdpWidth.setText(Integer.toString(currentConnection.getRdpWidth()));
-        rdpHeight = findViewById(R.id.rdpHeight);
+        EditText rdpHeight = findViewById(R.id.rdpHeight);
         rdpHeight.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -196,6 +189,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
                     try {
                         res = Integer.parseInt(s.toString());
                     } catch (NumberFormatException e) {
+                        Log.e(TAG, "Error converting number: " + Log.getStackTraceString(e));
                         res = currentConnection.getRdpHeight();
                     }
                 }
@@ -212,7 +206,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 
     /**
      * Automatically linked with android:onClick to the toggleAudio button.
-     * @param view
+     * @param view the view that was clicked on
      */
     public void toggleAudioPlaybackSetting(View view) {
         ToggleButton s = (ToggleButton) view;
@@ -224,7 +218,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 
     /**
      * Automatically linked with android:onClick to the toggleUsbEnabled button.
-     * @param view
+     * @param view the view that was clicked on
      */
     public void toggleUsbEnabledSetting(View view) {
         ToggleButton s = (ToggleButton) view;
@@ -233,7 +227,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 
     /**
      * Automatically linked with android:onClick to the toggleAutoRotation button.
-     * @param view
+     * @param view the view that was clicked on
      */
     public void toggleAutoRotation(View view) {
         ToggleButton s = (ToggleButton) view;
@@ -242,7 +236,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 
     /**
      * Automatically linked with android:onClick to the toggleRotation button.
-     * @param view
+     * @param view the view that was clicked on
      */
     public void toggleAutoRequestDisplayResolution(View view) {
         ToggleButton s = (ToggleButton) view;
@@ -259,7 +253,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 
     /**
      * Automatically linked with android:onClick to the toggleRotation button.
-     * @param view
+     * @param view the view that was clicked on
      */
     public void toggleCustomDisplayResolution(View view) {
         ToggleButton s = (ToggleButton) view;
@@ -278,7 +272,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 
     /**
      * Automatically linked with android:onClick to the toggleSslStrict button.
-     * @param view
+     * @param view the view that was clicked on
      */
     public void toggleSslStrict(View view) {
         ToggleButton s = (ToggleButton) view;
@@ -287,7 +281,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 
     /**
      * Automatically linked with android:onClick to the toggleUsingCustomOvirtCa button.
-     * @param view
+     * @param view the view that was clicked on
      */
     public void toggleUsingCustomOvirtCa(View view) {
         ToggleButton s = (ToggleButton) view;
@@ -298,17 +292,25 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 
     /**
      * Automatically linked with android:onClick to the positionToolbarLastUsed button.
-     * @param view
+     * @param view the view that was clicked on
      */
     public void toggleUseLastPositionToolbar(View view) {
         ToggleButton s = (ToggleButton) view;
-        boolean useLastPositionToolbar = s.isChecked();
-        currentConnection.setUseLastPositionToolbar(useLastPositionToolbar);
+        currentConnection.setUseLastPositionToolbar(s.isChecked());
+    }
+
+    /**
+     * Automatically linked with android:onClick to the dpadAsArrows button.
+     * @param view the view that was clicked on
+     */
+    public void dpadAsArrows(View view) {
+        ToggleButton s = (ToggleButton) view;
+        currentConnection.setUseDpadAsArrows(s.isChecked());
     }
 
     /**
      * Automatically linked with android:onClick to the buttonManageOvirtCa button.
-     * @param view
+     * @param view the view that was clicked on
      */
     public void showManageOvirtCaDialog(View view) {
         showCaDialog(ManageCustomCaFragment.TYPE_OVIRT);
@@ -323,21 +325,26 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
     @Override
     public void onResume() {
         super.onResume();
-        // Load list of items from asset folder and populate this:
-        List<String> spinnerArray = null;
-        try {
-            spinnerArray = FileUtils.listFiles(this, "layouts");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        tryPopulatingLayoutsSpinner();
+    }
 
+    private void tryPopulatingLayoutsSpinner() {
+        try {
+            populateLayoutsSpinner();
+        } catch (IOException e) {
+            Log.e(TAG, "Error getting layout files: " + Log.getStackTraceString(e));
+        }
+    }
+
+    private void populateLayoutsSpinner() throws IOException {
+        // Load list of items from asset folder and populate this:
+        List<String> spinnerArray = FileUtils.listFiles(this, "layouts");
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerArray);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, spinnerArray);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         layoutMapSpinner.setAdapter(adapter);
-
         int selection = spinnerArray.indexOf(currentConnection.getLayoutMap());
         if (selection < 0) {
             selection = spinnerArray.indexOf(RemoteClientLibConstants.DEFAULT_LAYOUT_MAP);
