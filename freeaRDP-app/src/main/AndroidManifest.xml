@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="115720"
-    android:versionName="v5.7.2">
+    android:versionCode="115730"
+    android:versionName="v5.7.3">
 
     <uses-permission tools:node="removeAll" />
     <uses-permission android:name="android.permission.INTERNET" />
