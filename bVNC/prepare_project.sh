@@ -114,7 +114,7 @@ then
     pushd ../remoteClientLib
     export NDK_LIBS_OUT=./src/main/jniLibs
 
-    ${ANDROID_NDK}/ndk-build -j 4
+    ${ANDROID_NDK}/ndk-build -j 8
 
     echo "Adding any custom certificate authority files in $(pwd)/certificate_authorities/ to certificate bundle from gstreamer."
     if [ -n "$(ls certificate_authorities/)" ]

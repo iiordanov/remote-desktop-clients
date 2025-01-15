@@ -455,7 +455,7 @@ build_cerbero() {
         then
             pushd cerbero
             git checkout ${gstreamer_ver}
-            #patch -p1 < ../cerbero-disable-assrender.patch
+            patch -p1 < ../cerbero-pixman-a64-neon-disable.patch
             patch -p1 < ../cerbero-config-rust.patch
             popd
             cerbero/cerbero-uninstalled bootstrap

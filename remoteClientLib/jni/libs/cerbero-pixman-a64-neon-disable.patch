@@ -1,0 +1,13 @@
+diff --git a/recipes/pixman.recipe b/recipes/pixman.recipe
+index 7276222f..b26f2516 100644
+--- a/recipes/pixman.recipe
++++ b/recipes/pixman.recipe
+@@ -39,7 +39,7 @@ class Recipe(recipe.Recipe):
+                 self.meson_options['neon'] = 'disabled'
+                 self.meson_options['arm-simd'] = 'disabled'
+                 if self.config.target_arch == Architecture.ARM64:
+-                    self.meson_options['a64-neon'] = 'enabled'
++                    self.meson_options['a64-neon'] = 'disabled'
+             self.meson_options['cpu-features-path'] = os.path.join(self.config.toolchain_prefix, 'sources', 'android', 'cpufeatures')
+             # Prevent symbol conflicts
+             self.append_env('CFLAGS',
