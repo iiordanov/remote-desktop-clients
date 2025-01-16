@@ -204,6 +204,8 @@ build-*
 upload_*
 trigger-*
 increment_*
+install.sh
+switch-to-*
 
 remote-desktop-clients-libs-*
 

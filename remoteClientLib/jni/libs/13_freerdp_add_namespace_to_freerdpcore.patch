@@ -1,0 +1,25 @@
+diff --git a/client/Android/Studio/freeRDPCore/build.gradle b/client/Android/Studio/freeRDPCore/build.gradle
+index e2224c21c..62a573f3b 100644
+--- a/client/Android/Studio/freeRDPCore/build.gradle
++++ b/client/Android/Studio/freeRDPCore/build.gradle
+@@ -2,10 +2,10 @@ apply plugin: 'com.android.library'
+ 
+ android {
+     compileSdkVersion = rootProject.ext.compileApi
+-    buildToolsVersion = rootProject.ext.toolsVersion
++
+ 
+     defaultConfig {
+-        minSdkVersion rootProject.ext.minApi
++        minSdkVersion 14
+         targetSdkVersion rootProject.ext.targetApi
+         vectorDrawables.useSupportLibrary = true
+     }
+@@ -20,6 +20,7 @@ android {
+             renderscriptDebuggable true
+         }
+     }
++    namespace "com.freerdp.freerdpcore"
+ }
+ 
+ dependencies {
