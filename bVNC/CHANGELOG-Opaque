@@ -1,3 +1,6 @@
+v5.7.5
+- Bugfix for SEGFAULT in pixman when neon features are enabled
+- Upgraded spice-gtk back to 0.42
 v5.7.4
 - Reverted back to spice-gtk 0.39 due to issues with 0.42
 v5.7.3
