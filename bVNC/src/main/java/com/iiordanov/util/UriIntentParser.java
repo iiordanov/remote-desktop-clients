@@ -151,6 +151,8 @@ public class UriIntentParser {
             }
         }
         database.close();
+        // Also load any settings that are stored in shared preferences like toolbar location
+        connection.load(context);
     }
 
     public static void parseFromUri(Context context, Connection connection, Uri dataUri) {
