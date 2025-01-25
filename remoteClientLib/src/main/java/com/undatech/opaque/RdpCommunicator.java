@@ -149,15 +149,23 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) != 0) {
             sendModifierKeys(true);
         }
-        try {
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-        }
-        LibFreeRDP.sendCursorEvent(session.getInstance(), x, y, pointerMask);
+        sendRemoteMouseEventOnNewThread(x, y, pointerMask);
         if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) == 0) {
             sendModifierKeys(false);
         }
     }
+
+    private void sendRemoteMouseEventOnNewThread(int x, int y, int pointerMask) {
+        runMethodOnNewThread(() -> {
+            sendRemoteMouseEvent(x, y, pointerMask);
+        });
+    }
+
+    private synchronized void sendRemoteMouseEvent(int x, int y, int pointerMask) {
+        sleepBetweenInputEvents(0, 500);
+        LibFreeRDP.sendCursorEvent(session.getInstance(), x, y, pointerMask);
+    }
+
 
     @Override
     public synchronized void writeKeyEvent(int key, int metaState, boolean down) {
@@ -208,11 +216,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
                 int modifier = modifierMap.get(modifierMask);
                 GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys, modifierMask:" +
                         modifierMask + ", sending: " + modifier + ", down: " + down);
-                try {
-                    Thread.sleep(5);
-                } catch (InterruptedException e) {
-                }
-                LibFreeRDP.sendKeyEvent(session.getInstance(), modifier, down);
+                sendKeyEventOnNewThread(modifier, down);
                 remoteKeyboardState.updateRemoteMetaState(modifierMask, down);
             }
         }
@@ -228,18 +232,22 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         if (down) {
             sendModifierKeys(true);
         }
-        try {
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-        }
-
-        GeneralUtils.debugLog(this.debugLogging, TAG, "processVirtualKey: " +
-                "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
-        LibFreeRDP.sendKeyEvent(session.getInstance(), virtualKeyCode, down);
+        sendKeyEventOnNewThread(virtualKeyCode, down);
 
         if (!down) {
             sendModifierKeys(false);
         }
+    }
+
+    private void sendKeyEventOnNewThread(int virtualKeyCode, boolean down) {
+        runMethodOnNewThread(() -> {
+            sendKeyEvent(virtualKeyCode, down);
+        });
+    }
+
+    private synchronized void sendKeyEvent(int virtualKeyCode, boolean down) {
+        sleepBetweenInputEvents(0, 500);
+        LibFreeRDP.sendKeyEvent(session.getInstance(), virtualKeyCode, down);
     }
 
     @Override
@@ -251,17 +259,29 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         if (down && !suppressMetaState) {
             sendModifierKeys(true);
         }
-        try {
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-        }
-        GeneralUtils.debugLog(this.debugLogging, TAG, "processUnicodeKey: " +
-                "Sending unicode key: " + unicodeKey + ", down: " + down + ", metaState: " + metaState);
-        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, down);
+        sendUnicodeKeyOnNewThread(unicodeKey, down);
 
         if (!down && !suppressMetaState) {
             sendModifierKeys(false);
         }
+    }
+
+    private void sendUnicodeKeyOnNewThread(int unicodeKey, boolean down) {
+        runMethodOnNewThread(() -> sendUnicodeKey(unicodeKey, down));
+    }
+
+    private void runMethodOnNewThread(Runnable runnable) {
+        Thread t = new Thread(runnable);
+        t.start();
+    }
+
+    private synchronized void sendUnicodeKey(int unicodeKey, boolean down) {
+        sleepBetweenInputEvents(0, 500);
+        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, down);
+    }
+
+    private static void sleepBetweenInputEvents(int millis, int nanos) {
+        try { Thread.sleep(millis, nanos); } catch (InterruptedException ignored) { }
     }
 
     @Override
