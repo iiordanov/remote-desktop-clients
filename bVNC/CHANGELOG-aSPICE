@@ -1,3 +1,5 @@
+v5.7.6
+- Bugfix for toolbar location when launching via widget or URI
 v5.7.5
 - Bugfix for SEGFAULT in pixman when neon features are enabled
 - Upgraded spice-gtk back to 0.42

@@ -1,3 +1,7 @@
+v5.7.6
+- Decrease latency of mouse and key events
+- Improve responsiveness when using Send Text dialog
+- Bugfix for toolbar location when launching via widget or URI
 v5.7.2
 - Ability to set default scaling mode
 v5.6.8
