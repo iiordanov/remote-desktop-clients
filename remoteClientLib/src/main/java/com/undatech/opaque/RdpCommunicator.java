@@ -29,7 +29,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
     static final String TAG = "RdpCommunicator";
 
-    private final static int VK_CONTROL = 0x11;
+    // private final static int VK_CONTROL = 0x11;
     private final static int VK_LCONTROL = 0xA2;
     private final static int VK_RCONTROL = 0xA3;
     private final static int VK_LMENU = 0xA4;
@@ -42,11 +42,11 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     private final RdpCommunicator myself;
     private final Viewable viewable;
     private SessionState session;
-    private BookmarkBase bookmark;
-    private String rdpFileName;
+    private final BookmarkBase bookmark;
+    private final String rdpFileName;
     // Keeps track of libFreeRDP instance
-    private GlobalApp freeRdpApp;
-    private Context context;
+    private final GlobalApp freeRdpApp;
+    private final Context context;
     private boolean isInNormalProtocol = false;
     // This variable indicates whether or not the user has accepted an untrusted
     // security certificate. Used to control progress while the dialog asking the user
@@ -63,9 +63,9 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public RdpCommunicator(Connection connection,
-            Context context, Handler handler, Viewable viewable,
-            String rdpFileName, String username, String domain, String password,
-            boolean debugLogging
+                           Context context, Handler handler, Viewable viewable,
+                           String rdpFileName, String username, String domain, String password,
+                           boolean debugLogging
     ) {
         super(debugLogging, handler);
         this.connection = connection;
@@ -93,7 +93,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     private void patchFreeRdpCore() {
-        Class cls = this.freeRdpApp.getClass();
+        Class<? extends GlobalApp> cls = this.freeRdpApp.getClass();
         try {
             Log.i(TAG, "Initializing sessionMap in GlobalApp");
             Field sessionMap = cls.getDeclaredField("sessionMap");
@@ -162,9 +162,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     private void sendRemoteMouseEventOnNewThread(int x, int y, int pointerMask) {
-        runMethodOnNewThread(() -> {
-            sendRemoteMouseEvent(x, y, pointerMask);
-        });
+        runMethodOnNewThread(() -> sendRemoteMouseEvent(x, y, pointerMask));
     }
 
     private synchronized void sendRemoteMouseEvent(int x, int y, int pointerMask) {
@@ -219,11 +217,13 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     private void sendModifierKeys(boolean down) {
         for (int modifierMask : modifierMap.keySet()) {
             if (remoteKeyboardState.shouldSendModifier(metaState, modifierMask, down)) {
-                int modifier = modifierMap.get(modifierMask);
-                GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys, modifierMask:" +
-                        modifierMask + ", sending: " + modifier + ", down: " + down);
-                sendKeyEventOnNewThread(modifier, down);
-                remoteKeyboardState.updateRemoteMetaState(modifierMask, down);
+                Integer modifier = modifierMap.get(modifierMask);
+                if (modifier != null) {
+                    GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys, modifierMask:" +
+                            modifierMask + ", sending: " + modifier + ", down: " + down);
+                    sendKeyEventOnNewThread(modifier, down);
+                    remoteKeyboardState.updateRemoteMetaState(modifierMask, down);
+                }
             }
         }
     }
@@ -246,9 +246,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     private void sendKeyEventOnNewThread(int virtualKeyCode, boolean down) {
-        runMethodOnNewThread(() -> {
-            sendKeyEvent(virtualKeyCode, down);
-        });
+        runMethodOnNewThread(() -> sendKeyEvent(virtualKeyCode, down));
     }
 
     private synchronized void sendKeyEvent(int virtualKeyCode, boolean down) {
@@ -284,7 +282,10 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     private static void sleepBetweenInputEvents(int millis) {
-        try { Thread.sleep(millis); } catch (InterruptedException ignored) { }
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ignored) {
+        }
     }
 
     @Override
@@ -299,7 +300,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     @Override
     public void requestResolution(int x, int y) {
-        // TODO Auto-generated method stub
+        // This functionality is not yet available for RDP
     }
 
     private void initSession(String rdpFileName, String username, String domain, String password) {
@@ -373,8 +374,8 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     /**
      * Adds brackets around a valid IPv6 address that does not already start with [.
      *
-     * @param address
-     * @return
+     * @param address the address to potentially ad brackets to
+     * @return the address with brackets added if necessary
      */
     private String addBracketsToIpv6Address(String address) {
         InetAddressValidator validator = InetAddressValidator.getInstance();
@@ -526,7 +527,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
                 try {
                     this.wait();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "InterruptedException: " + Log.getStackTraceString(e));
                 }
             }
         }
@@ -577,7 +578,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         remoteClipboardChanged(data);
     }
 
-    public class DisconnectThread extends Thread {
+    public static class DisconnectThread extends Thread {
         long instance;
 
         public DisconnectThread(long i) {
