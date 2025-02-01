@@ -22,6 +22,8 @@ import org.apache.commons.validator.routines.InetAddressValidator;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper.KeyProcessingListener,
         LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
@@ -56,7 +58,9 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     private boolean disconnectRequested = false;
     private final String username, password, domain;
 
-    private Connection connection;
+    private final Connection connection;
+
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public RdpCommunicator(Connection connection,
             Context context, Handler handler, Viewable viewable,
@@ -146,13 +150,15 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     @Override
     public synchronized void writePointerEvent(int x, int y, int metaState, int pointerMask, boolean rel) {
         this.metaState = metaState;
-        if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) != 0) {
+        boolean down = (pointerMask & RemotePointer.POINTER_DOWN_MASK) != 0;
+        if (down) {
             sendModifierKeys(true);
         }
         sendRemoteMouseEventOnNewThread(x, y, pointerMask);
-        if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) == 0) {
+        if (!down) {
             sendModifierKeys(false);
         }
+
     }
 
     private void sendRemoteMouseEventOnNewThread(int x, int y, int pointerMask) {
@@ -162,7 +168,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     private synchronized void sendRemoteMouseEvent(int x, int y, int pointerMask) {
-        sleepBetweenInputEvents(0, 500);
+        sleepBetweenInputEvents(1);
         LibFreeRDP.sendCursorEvent(session.getInstance(), x, y, pointerMask);
     }
 
@@ -246,7 +252,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     private synchronized void sendKeyEvent(int virtualKeyCode, boolean down) {
-        sleepBetweenInputEvents(0, 500);
+        sleepBetweenInputEvents(5);
         LibFreeRDP.sendKeyEvent(session.getInstance(), virtualKeyCode, down);
     }
 
@@ -255,12 +261,10 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         GeneralUtils.debugLog(this.debugLogging, TAG, "processUnicodeKey: " +
                 "Processing unicode key: " + unicodeKey + ", down: " + down +
                 ", metaState: " + metaState + ", suppressMetaState: " + suppressMetaState);
-
         if (down && !suppressMetaState) {
             sendModifierKeys(true);
         }
         sendUnicodeKeyOnNewThread(unicodeKey, down);
-
         if (!down && !suppressMetaState) {
             sendModifierKeys(false);
         }
@@ -271,17 +275,16 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     private void runMethodOnNewThread(Runnable runnable) {
-        Thread t = new Thread(runnable);
-        t.start();
+        executorService.submit(runnable);
     }
 
     private synchronized void sendUnicodeKey(int unicodeKey, boolean down) {
-        sleepBetweenInputEvents(0, 500);
+        sleepBetweenInputEvents(5);
         LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, down);
     }
 
-    private static void sleepBetweenInputEvents(int millis, int nanos) {
-        try { Thread.sleep(millis, nanos); } catch (InterruptedException ignored) { }
+    private static void sleepBetweenInputEvents(int millis) {
+        try { Thread.sleep(millis); } catch (InterruptedException ignored) { }
     }
 
     @Override
