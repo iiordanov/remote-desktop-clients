@@ -1,6 +1,6 @@
-v5.7.7
-- Decrease latency of mouse and key events
-- Improve responsiveness when using Send Text dialog
+v5.7.8
+- Decreased latency of mouse events
+- Improved responsiveness when using Send Text dialog
 - Bugfix for toolbar location when launching via widget or URI
 - New icons
 v5.7.2
