@@ -7,6 +7,8 @@
     <string name="action_edit_default_settings">기본 설정 편집</string>
     <string name="action_export_settings">내보내기 설정</string>
     <string name="action_delete_connection">연결 삭제</string>
+    <string name="action_rate_or_share_app">도움말, 평가, 공유</string>
+    <string name="get_help">도움말</string>
     <string name="opaque_app_name">불투명</string>
     <string name="opaque_app_name_beta">불투명한 베타</string>
     <string name="advanced_settings">고급 설정</string>
@@ -220,7 +222,7 @@
     <string name="error_spice_unable_to_connect">연결/인증 수 없습니다. 서버 주소, Password, 인증 기관 과 서브젝트를 확인하십시오.</string>
     <string name="error_ssh_could_not_exec_command">리모트 명령을 실행할 수 없습니다.</string>
     <string name="error_ssh_could_not_send_sudo_pwd">sudo Password를 전송할 수 없습니다.</string>
-    <string name="error_ssh_hostkey_changed">에러! 서버 호스트 키가 변경되었습니다.의도적으로 변경된 경우는 한번 연결을 제거하고 재시행하십시오.그렇지 않은 경우 중간자 공격의 가능성이 있습니다.</string>
+    <string name="error_ssh_hostkey_changed">오류! 서버 호스트 키가 변경되었습니다. 의도적으로 변경한 경우 계속하십시오. 그렇지 않으면 중간자 공격의 가능성이 있습니다.</string>
     <string name="error_ssh_kbd_auth_method_unavail">SSH 서버는 \"password\" 과 \"keyboard-interactive\" 양쪽의 인증 방식으로 대응하지 않습니다. 혹은 \"publickey \" 방식을 먼저 실행해야합니다. 적어도 어느 하나를 허용하도록 설정하십시오. 또는 본  애플리케이션측을 재 설정하십시오. 유효한 인증 방식:</string>
     <string name="error_ssh_key_auth_fail">key-pair(공개 키와 비밀 키)에 의한 SSH서버에 인증에 실패했습니다.SSH 사용자 이름을 확인하십시오.또한 공개 키가 리모트의 "인증 된 키 파일"에 들어 있는지 확인하십시오.</string>
     <string name="error_ssh_keypair_decryption_failure">key-pair(공개 키와 비밀 키)의 해독에 실패했습니다.메인 화면의 \'SSH Passphrase\' 필드에 passphrase(암호 문구)를 올바르게 입력되어 있는지 확인하십시오.</string>
@@ -824,6 +826,7 @@ aSPICEで의 대응 기능는 이하와 같다 :
     <string name="enter_vnc_credentials">VNC credentials(자격 증명)을 입력하세요.</string>
     <string name="enter_vnc_password">VNC 비밀번호를 입력하세요.</string>
     <string name="enter_rdp_credentials">RDP credentials(자격 증명)을 입력하세요.</string>
+    <string name="enter_gateway_credentials">게이트웨이 인증 정보를 입력하세요.</string>
     <string name="enter_spice_password">SPICE 비밀번호를 입력하세요.</string>
     <string name="enter_passphrase_title">키 패스프레이즈를 입력하세요.</string>
     <string name="enter_passphrase">키 패스프레이즈를 입력하세요.</string>
@@ -846,7 +849,9 @@ aSPICEで의 대응 기능는 이하와 같다 :
 
   - 고급 설정: 이 섹션에서는 로컬 장치, 프로토콜 및 성능의 미세 조정을 확인할 수 있습니다."</string>
     <string name="help">도움</string>
+    <string name="need_help">도움이 필요하십니까?</string>
     <string name="support_forum">지원 포럼</string>
+    <string name="email_us">이메일 보내기 📧</string>
     <string name="report_bug">버그보고</string>
     <string name="download_from_server">서버에서 다운로드</string>
     <string name="import_from_file">파일에서 가져오기</string>
@@ -855,6 +860,20 @@ aSPICEで의 대응 기능는 이하와 같다 :
     <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
     <string name="more_debug_logging">기타 디버그 로그</string>
     <string name="prefer_sending_unicode">유니코드 입력(Windows만 해당)</string>
-    <string name="hide_connection_thumbnails">썸네일 비표시</string>
-    <string name="show_only_connection_nicknames">닉네임 표시</string>
+    <string name="hide_connection_thumbnails">연결 썸네일 숨기기</string>
+    <string name="show_only_connection_nicknames">연결 닉네임만 표시</string>
+    <string name="love_our_work">이 앱이 마음에 드셨습니까?</string>
+    <string name="rate_app">평가 ⭐⭐⭐⭐⭐</string>
+    <string name="share_app">공유 🔗</string>
+    <string name="share_app_toast">앱 링크를 SNS로 친구에게 공유</string>
+    <string name="donate_app">기부하다 ❤</string>
+    <string name="more_apps">기타 앱 📱</string>
+    <string name="previous_versions">버전 기록 ⍼</string>
+    <string name="keyboard_type">소프트웨어 키보드 타입</string>
+    <string name="pref_keyboard_type_label_TYPE_NULL">디폴트(TYPE_NULL)</string>
+    <string name="pref_keyboard_type_label_VISIBLE_PASSWORD">텍스트/숫자 입력 지원 없음(VISIBLE_PASSWORD)</string>
+    <string name="pref_keyboard_type_label_TYPE_CLASS_TEXT">텍스트 입력 지원 있음(TYPE_CLASS_TEXT)</string>
+    <string name="no_application_to_handle_vpn">이 연결은 외부 앱을 통해 VPN을 시작하도록 구성되어 있습니다. 시작하려면 Morpheusly와 같은 앱을 설치가 필요합니다.</string>
+    <string name="vnc_viewer_started">VNC 뷰어가 시작되었습니다.</string>
+    <string name="enable_gateway">게이트웨이를 활성화</string>
 </resources>
