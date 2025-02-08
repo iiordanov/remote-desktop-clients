@@ -21,6 +21,7 @@ package com.iiordanov.pubkeygenerator;
 import static com.iiordanov.pubkeygenerator.PubkeyDatabase.KEY_TYPE_DSA;
 import static com.iiordanov.pubkeygenerator.PubkeyDatabase.KEY_TYPE_ECDSA;
 import static com.iiordanov.pubkeygenerator.PubkeyDatabase.KEY_TYPE_RSA;
+import static com.morpheusly.common.Constants.MAX_KEY_FILE_SIZE_BYTES;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -478,14 +479,13 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
             case IMPORT_KEY_REQUEST:
                 if (resultCode == Activity.RESULT_OK) {
                     if (data != null && data.getData() != null) {
-                        String keyData = Utilities.Companion.getStringDataFromIntent(data, this);
+                        String keyData = Utilities.Companion.getStringDataFromIntent(data, this, MAX_KEY_FILE_SIZE_BYTES);
                         try {
                             passphrase = password1.getText().toString();
                             KeyPair pair = PubkeyUtils.tryImportingPemAndPkcs8(GeneratePubkeyActivity.this, keyData, passphrase);
                             convertToBase64AndSendIntent(pair);
                         } catch (Exception e) {
-                            e.printStackTrace();
-                            Log.e(TAG, "Failed to import key.");
+                            Log.e(TAG, "Failed to import key: " + Log.getStackTraceString(e));
                             Toast.makeText(getBaseContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                             return;
                         }

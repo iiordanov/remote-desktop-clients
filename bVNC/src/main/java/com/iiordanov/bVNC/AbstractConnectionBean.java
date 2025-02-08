@@ -1802,41 +1802,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             Log.d(TAG, "Got data: " + data);
             final String dataString = data.toString();
             if (dataString.startsWith("http")) {
-                android.util.Log.d(TAG, "Intent is with http scheme.");
-                FileUtils.deleteFile(tempConfigFile);
-
-                // Spin up a thread to grab the file over the network.
-                Thread t = new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            // Download the file and write it out.
-                            URL url = new URL(data.toString());
-                            File file = new File(tempConfigFile);
-                            URLConnection ucon = url.openConnection();
-                            FileUtils.outputToFile(ucon.getInputStream(), file, MAX_CONFIG_FILE_SIZE_BYTES);
-
-                            synchronized (waitOn) {
-                                waitOn.notify();
-                            }
-                        } catch (IOException e) {
-                            msgId[0] = R.string.error_failed_to_download_http;
-                            if (dataString.startsWith("https")) {
-                                msgId[0] = R.string.error_failed_to_download_https;
-                            }
-                        }
-                    }
-                };
-                t.start();
-
-                synchronized (waitOn) {
-                    try {
-                        waitOn.wait(GET_FILE_TIMEOUT);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    configFileName = tempConfigFile;
-                }
+                configFileName = downloadFile(waitOn, tempConfigFile, data, msgId, dataString);
             } else if (dataString.startsWith("file")) {
                 Log.d(TAG, "Intent is with file scheme.");
                 msgId[0] = R.string.error_failed_to_obtain_file;
@@ -1864,6 +1830,41 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
                 throw new GettingConnectionSettingsException(msgId[0]);
             }
             android.util.Log.d(TAG, "Got filename: " + configFileName);
+        }
+        return configFileName;
+    }
+
+    private static String downloadFile(Object waitOn, String tempConfigFile, Uri data, int[] msgId, String dataString) {
+        String configFileName;
+        Log.d(TAG, "Intent is with http scheme.");
+        FileUtils.deleteFile(tempConfigFile);
+
+        // Spin up a thread to grab the file over the network.
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    FileUtils.writeDataUriOutToFile(data, tempConfigFile);
+                    synchronized (waitOn) {
+                        waitOn.notify();
+                    }
+                } catch (IOException e) {
+                    msgId[0] = R.string.error_failed_to_download_http;
+                    if (dataString.startsWith("https")) {
+                        msgId[0] = R.string.error_failed_to_download_https;
+                    }
+                }
+            }
+        };
+        t.start();
+
+        synchronized (waitOn) {
+            try {
+                waitOn.wait(GET_FILE_TIMEOUT);
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Timeout getting file over network: " + Log.getStackTraceString(e));
+            }
+            configFileName = tempConfigFile;
         }
         return configFileName;
     }

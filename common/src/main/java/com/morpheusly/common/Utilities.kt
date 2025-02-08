@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -34,13 +35,16 @@ class Utilities {
             }
         }
 
-        fun readFileToUtf8String(i: InputStream?): String? {
+        private fun readFileToUtf8String(i: InputStream?, maxKeyFileSizeBytes: Int): String? {
             val bis = BufferedInputStream(i)
             val buffer = ByteArrayOutputStream()
             try {
                 val data = ByteArray(BUFFER_SIZE)
-                var current: Int
-                while (bis.read(data, 0, data.size).also { current = it } != -1) {
+                var current = 0
+                while (
+                    current < maxKeyFileSizeBytes &&
+                    bis.read(data, 0, data.size).also { current = it } != -1
+                ) {
                     buffer.write(data, 0, current)
                 }
                 i?.close()
@@ -51,7 +55,7 @@ class Utilities {
             return ""
         }
 
-        fun getInputStreamFromUri(resolver: ContentResolver, uri: Uri?): InputStream? {
+        private fun getInputStreamFromUri(resolver: ContentResolver, uri: Uri?): InputStream? {
             var stream: InputStream? = null
             try {
                 stream = resolver.openInputStream(uri!!)
@@ -71,15 +75,25 @@ class Utilities {
             return out
         }
 
-        fun getStringDataFromIntent(data: Intent, activity: Activity): String? {
+        fun getStringDataFromIntent(
+            data: Intent,
+            activity: Activity,
+            maxKeyFileSizeBytes: Int
+        ): String? {
             val resolver = activity.contentResolver
             val stream: InputStream? = getInputStreamFromUri(resolver, data.data)
-            return readFileToUtf8String(stream)
+            return readFileToUtf8String(stream, maxKeyFileSizeBytes)
         }
 
         fun importCaCertFromFile(activity: Activity, requestCode: Int) {
             Log.d(TAG, "importCaCertFromFile")
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+
+            val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                Intent(Intent.ACTION_OPEN_DOCUMENT)
+            } else {
+                Log.e(TAG, "importCaCertFromFile: SDK older than Kitkat")
+                return
+            }
             intent.addCategory(Intent.CATEGORY_OPENABLE)
             intent.type = "*/*"
             intent.putExtra(

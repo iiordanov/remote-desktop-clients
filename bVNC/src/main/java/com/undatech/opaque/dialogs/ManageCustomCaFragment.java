@@ -20,6 +20,8 @@
 
 package com.undatech.opaque.dialogs;
 
+import static com.morpheusly.common.Constants.MAX_KEY_FILE_SIZE_BYTES;
+
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -184,8 +186,8 @@ public class ManageCustomCaFragment extends DialogFragment
                     if (data != null && data.getData() != null) {
                         String keyData = Utilities.Companion.getStringDataFromIntent(
                                 data,
-                                requireActivity()
-                        );
+                                requireActivity(),
+                                MAX_KEY_FILE_SIZE_BYTES);
                         caCert.setText(keyData);
                     } else {
                         Toast.makeText(

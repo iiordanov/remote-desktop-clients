@@ -2,6 +2,8 @@ package com.undatech.opaque.util;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import static com.undatech.opaque.RemoteClientLibConstants.MAX_CONFIG_FILE_SIZE_BYTES;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -21,6 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -200,5 +204,13 @@ public class FileUtils {
         }
         Log.d(TAG, "Successfully deleted the file or directory: " + file.toString());
         return true;
+    }
+
+    public static void writeDataUriOutToFile(Uri data, String tempConfigFile) throws IOException {
+        // Download the file and write it out.
+        URL url = new URL(data.toString());
+        File file = new File(tempConfigFile);
+        URLConnection ucon = url.openConnection();
+        FileUtils.outputToFile(ucon.getInputStream(), file, MAX_CONFIG_FILE_SIZE_BYTES);
     }
 }

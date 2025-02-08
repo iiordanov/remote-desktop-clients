@@ -19,6 +19,8 @@
 
 package com.iiordanov.bVNC;
 
+import static com.morpheusly.common.Constants.MAX_KEY_FILE_SIZE_BYTES;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -236,7 +238,7 @@ public class aSPICE extends MainConfiguration {
         if (requestCode == ImportTlsCaDialog.IMPORT_CA_REQUEST) {
             if (resultCode == Activity.RESULT_OK) {
                 if (data != null && data.getData() != null) {
-                    String keyData = Utilities.Companion.getStringDataFromIntent(data, this);
+                    String keyData = Utilities.Companion.getStringDataFromIntent(data, this, MAX_KEY_FILE_SIZE_BYTES);
                     Log.i(TAG, "onActivityResult, keyData: " + keyData);
                     selected.setCaCert(keyData);
                     updateViewFromSelected();
