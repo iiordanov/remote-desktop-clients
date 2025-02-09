@@ -13,8 +13,10 @@ import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.Viewable;
+import com.undatech.opaque.util.GeneralUtils;
 
 public abstract class RemotePointer {
+    private static final String TAG = "RemotePointer";
 
     public static final int POINTER_DOWN_MASK = 0x8000; // 32768
     public static float DEFAULT_SENSITIVITY = 2.0f;
@@ -297,4 +299,23 @@ public abstract class RemotePointer {
         }
     }
 
+    protected void setNewPointerPosition(int x, int y) {
+        int imageWidth = canvas.getImageWidth();
+        int imageHeight = canvas.getImageHeight();
+        pointerX = x;
+        pointerY = y;
+        // Do not let mouse pointer leave the bounds of the desktop.
+        if (pointerX < 0) {
+            pointerX = 0;
+        } else if (pointerX >= imageWidth) {
+            pointerX = imageWidth - 1;
+        }
+        if (pointerY < 0) {
+            pointerY = 0;
+        } else if (pointerY >= imageHeight) {
+            pointerY = imageHeight - 1;
+        }
+        GeneralUtils.debugLog(this.debugLogging, TAG, "Sending absolute mouse event at: " + pointerX +
+                ", " + pointerY + ", pointerMask: " + pointerMask);
+    }
 }

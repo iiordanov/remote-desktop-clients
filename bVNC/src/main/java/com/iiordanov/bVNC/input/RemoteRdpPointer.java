@@ -124,26 +124,12 @@ public class RemoteRdpPointer extends RemotePointer {
             prevPointerMask = pointerMask;
         }
 
-        canvas.invalidateMousePosition();
-        pointerX = x;
-        pointerY = y;
-
-        // Do not let mouse pointer leave the bounds of the desktop.
-        if (pointerX < 0) {
-            pointerX = 0;
-        } else if (pointerX >= canvas.getImageWidth()) {
-            pointerX = canvas.getImageWidth() - 1;
+        if (canvas != null) {
+            canvas.invalidateMousePosition();
+            setNewPointerPosition(x, y);
+            protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, MOUSE_BUTTON_MOVE | pointerMask, false);
+            protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask, false);
+            canvas.invalidateMousePosition();
         }
-        if (pointerY < 0) {
-            pointerY = 0;
-        } else if (pointerY >= canvas.getImageHeight()) {
-            pointerY = canvas.getImageHeight() - 1;
-        }
-        canvas.invalidateMousePosition();
-        GeneralUtils.debugLog(this.debugLogging, TAG, "Sending absolute mouse event at: " + pointerX +
-                ", " + pointerY + " with pointerMask: " + pointerMask);
-        protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, MOUSE_BUTTON_MOVE | pointerMask, false);
-        protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask, false);
     }
-
 }

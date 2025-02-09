@@ -36,7 +36,6 @@ public class RemoteVncPointer extends RemotePointer {
     public static final int MOUSE_BUTTON_SCROLL_DOWN = 16;
     public static final int MOUSE_BUTTON_SCROLL_LEFT = 32;
     public static final int MOUSE_BUTTON_SCROLL_RIGHT = 64;
-    private static final String TAG = "RemotePointer";
 
     public RemoteVncPointer(
             RfbConnectable rfb,
@@ -125,9 +124,7 @@ public class RemoteVncPointer extends RemotePointer {
      * @param isMoving
      */
     private void sendPointerEvent(int x, int y, int metaState, boolean isMoving) {
-
         int combinedMetaState = metaState | remoteInput.getKeyboard().getMetaState();
-
         // Save the previous pointer mask other than action_move, so we can
         // send it with the pointer flag "not down" to clear the action.
         if (!isMoving) {
@@ -140,24 +137,11 @@ public class RemoteVncPointer extends RemotePointer {
             prevPointerMask = pointerMask;
         }
 
-        canvas.invalidateMousePosition();
-        pointerX = x;
-        pointerY = y;
-
-        // Do not let mouse pointer leave the bounds of the desktop.
-        if (pointerX < 0) {
-            pointerX = 0;
-        } else if (pointerX >= canvas.getImageWidth()) {
-            pointerX = canvas.getImageWidth() - 1;
+        if (canvas != null) {
+            canvas.invalidateMousePosition();
+            setNewPointerPosition(x, y);
+            protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask, false);
+            canvas.invalidateMousePosition();
         }
-        if (pointerY < 0) {
-            pointerY = 0;
-        } else if (pointerY >= canvas.getImageHeight()) {
-            pointerY = canvas.getImageHeight() - 1;
-        }
-        canvas.invalidateMousePosition();
-        GeneralUtils.debugLog(this.debugLogging, TAG, "Sending absolute mouse event at: " + pointerX +
-                ", " + pointerY + ", pointerMask: " + pointerMask);
-        protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask, false);
     }
 }

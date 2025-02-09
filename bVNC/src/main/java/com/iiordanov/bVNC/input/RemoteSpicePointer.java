@@ -146,33 +146,20 @@ public class RemoteSpicePointer extends RemotePointer {
 
         int combinedMetaState = metaState | remoteInput.getKeyboard().getMetaState();
 
-        if (relativeEvents) {
-            int relX = x - pointerX;
-            int relY = y - pointerY;
-            GeneralUtils.debugLog(this.debugLogging, TAG, "Sending relative mouse event: " + relX + ", " + relY);
-            clearPointerMaskEvent(relX, relY, isMoving, combinedMetaState);
-            protocomm.writePointerEvent(relX, relY, combinedMetaState, pointerMask, relativeEvents);
-
-        } else {
+        if (canvas != null) {
             canvas.invalidateMousePosition();
-            pointerX = x;
-            pointerY = y;
-            // Do not let mouse pointer leave the bounds of the desktop.
-            if (pointerX < 0) {
-                pointerX = 0;
-            } else if (pointerX >= canvas.getImageWidth()) {
-                pointerX = canvas.getImageWidth() - 1;
+            if (relativeEvents) {
+                int relX = x - pointerX;
+                int relY = y - pointerY;
+                GeneralUtils.debugLog(this.debugLogging, TAG, "Sending relative mouse event: " + relX + ", " + relY);
+                clearPointerMaskEvent(relX, relY, isMoving, combinedMetaState);
+                protocomm.writePointerEvent(relX, relY, combinedMetaState, pointerMask, relativeEvents);
+            } else {
+                setNewPointerPosition(x, y);
+                clearPointerMaskEvent(x, y, isMoving, combinedMetaState);
+                protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask,
+                        relativeEvents);
             }
-            if (pointerY < 0) {
-                pointerY = 0;
-            } else if (pointerY >= canvas.getImageHeight()) {
-                pointerY = canvas.getImageHeight() - 1;
-            }
-            clearPointerMaskEvent(x, y, isMoving, combinedMetaState);
-            GeneralUtils.debugLog(this.debugLogging, TAG, "Sending absolute mouse event at: " + pointerX +
-                    ", " + pointerY + ", pointerMask: " + pointerMask);
-            protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask,
-                    relativeEvents);
             canvas.invalidateMousePosition();
         }
     }
