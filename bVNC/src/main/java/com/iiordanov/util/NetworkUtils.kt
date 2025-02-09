@@ -29,6 +29,8 @@ import kotlinx.coroutines.withTimeout
 import java.net.Inet6Address
 import java.net.InetAddress
 
+private const val networkTimeout = 1900L
+
 object NetworkUtils {
     private const val tag: String = "NetworkUtils"
 
@@ -45,7 +47,7 @@ object NetworkUtils {
         block: (CoroutineScope) -> Boolean?, dispatcher: CoroutineDispatcher
     ): Boolean {
         return runBlocking {
-            this.tryRunningWithTimeoutAsync(block, false, 2000L, dispatcher)
+            this.tryRunningWithTimeoutAsync(block, false, networkTimeout, dispatcher)
         } ?: false
     }
 
