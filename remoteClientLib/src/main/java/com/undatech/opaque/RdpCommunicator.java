@@ -323,7 +323,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
             boolean menuAnimations, boolean theming, boolean redirectSdCard,
             boolean consoleMode, int redirectSound, boolean enableRecording,
             boolean enableRemoteFx, boolean enableGfx, boolean enableGfxH264,
-            int colors, int desktopScalePercentage
+            int colors, int desktopScalePercentage, boolean debugLog
     ) {
         // Set a writable data directory
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
@@ -341,7 +341,11 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         gatewaySettings.setPort(gatewayPort);
 
         BookmarkBase.DebugSettings debugSettings = bookmark.getDebugSettings();
-        debugSettings.setDebugLevel("INFO");
+        if (debugLog) {
+            debugSettings.setDebugLevel("DEBUG");
+        } else {
+            debugSettings.setDebugLevel("INFO");
+        }
         //debugSettings.setAsyncUpdate(false);
         //debugSettings.setAsyncInput(false);
         //debugSettings.setAsyncChannel(false);

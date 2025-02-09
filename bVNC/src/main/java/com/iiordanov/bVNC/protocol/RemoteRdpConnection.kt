@@ -64,7 +64,7 @@ class RemoteRdpConnection(
             connection.redirectSdCard, connection.consoleMode,
             connection.remoteSoundType, connection.enableRecording,
             connection.remoteFx, connection.enableGfx, connection.enableGfxH264,
-            connection.rdpColor, connection.desktopScalePercentage
+            connection.rdpColor, connection.desktopScalePercentage, App.debugLog
         )
         rdpComm!!.connect()
         pd.dismiss()
