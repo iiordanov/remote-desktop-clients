@@ -19,6 +19,7 @@
 
 package com.iiordanov.util
 
+
 import android.util.Log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -29,7 +30,7 @@ import kotlinx.coroutines.withTimeout
 import java.net.Inet6Address
 import java.net.InetAddress
 
-private const val networkTimeout = 1900L
+private const val networkTimeout = 1800L
 
 object NetworkUtils {
     private const val tag: String = "NetworkUtils"
