@@ -41,9 +41,13 @@ class Utilities {
             try {
                 val data = ByteArray(BUFFER_SIZE)
                 var current = 0
+                var total = 0
                 while (
-                    current < maxKeyFileSizeBytes &&
-                    bis.read(data, 0, data.size).also { current = it } != -1
+                    total < maxKeyFileSizeBytes &&
+                    bis.read(data, 0, data.size).also {
+                        current = it
+                        total += current
+                    } != -1
                 ) {
                     buffer.write(data, 0, current)
                 }
