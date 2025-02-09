@@ -51,6 +51,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -93,7 +94,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     private EditText search;
     private boolean togglingMasterPassword = false;
     private AppCompatImageButton addNewConnection = null;
-    private AppCompatImageButton editDefaultSettings = null;
+    private AppCompatImageButton popUpMenuButton = null;
 
     private RateOrShareFragment rateOrShareFragment = new RateOrShareFragment();
     private boolean showMasterPasswordDialog = true;
@@ -167,8 +168,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         FileUtils.deletePrivateFileIfExisting(this, ".config/freerdp/licenses");
         addNewConnection = findViewById(R.id.addNewConnection);
         addNewConnection.setOnClickListener(v -> addNewConnection());
-        editDefaultSettings = findViewById(R.id.editDefaultSettings);
-        editDefaultSettings.setOnClickListener(v -> editDefaultSettings());
+        popUpMenuButton = findViewById(R.id.popUpMenuButton);
+        popUpMenuButton.setOnClickListener(v -> popUpMenu());
     }
 
     private ConnectionLoader getConnectionLoader(Context context) {
@@ -367,6 +368,15 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             intent.setClassName(this, "com.iiordanov.bVNC.GlobalPreferencesActivity");
             startActivity(intent);
         }
+    }
+
+    /**
+     * Used to programmatically show the menu from a button. Mainly needed for Android TV
+     */
+    public void popUpMenu() {
+        PopupMenu popupMenu = new PopupMenu(ConnectionGridActivity.this, popUpMenuButton);
+        popupMenu.getMenuInflater().inflate(R.menu.grid_view_activity_actions, popupMenu.getMenu());
+        popupMenu.show();
     }
 
     /**

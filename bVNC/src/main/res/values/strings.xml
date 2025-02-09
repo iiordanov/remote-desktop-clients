@@ -909,4 +909,5 @@ Below that is where you configure your connection.
     <string name="enable_gateway">Enable Gateway</string>
     <string name="scroll_speed">Touch Scroll Speed</string>
     <string name="desktop_scale_percentage">Custom Scaling Percentage</string>
+    <string name="show_menu">Show Menu</string>
 </resources>

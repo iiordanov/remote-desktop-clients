@@ -129,6 +129,8 @@ obj/
 .idea/codeStyles
 .idea/jarRepositories.xml
 .idea/gradle.xml
+.idea/deploymentTargetSelector.xml
+.idea/assetWizardSettings.xml
 
 Opaque/.idea/libraries/
 Opaque/.idea/workspace.xml
