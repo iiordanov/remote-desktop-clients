@@ -1,4 +1,4 @@
-v5.8.2
+v5.8.3
 - Fix for SIGBUS error on Android 5
 - Updated icons
 - Bugfixes
