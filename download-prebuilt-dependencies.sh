@@ -3,7 +3,7 @@
 DIR=$(dirname $0)
 pushd $DIR
 
-DEPVER=16
+DEPVER=17
 
 if which wget
 then
