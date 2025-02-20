@@ -1,6 +1,8 @@
-v5.8.0
+v5.8.1
 - Improved SSH key import logic
 - Improved pointer movement logic
+- Updated icons
+- Bugfixes
 v5.7.8
 - Decreased latency of mouse events
 - Improved responsiveness when using Send Text dialog

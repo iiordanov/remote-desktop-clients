@@ -1,6 +1,7 @@
-v5.8.0
+v5.8.1
 - Improved SSH key import logic
 - Improved pointer movement logic
+- Bugfixes
 v5.7.8
 - Bugfix for toolbar location when launching via widget or URI
 v5.7.2
