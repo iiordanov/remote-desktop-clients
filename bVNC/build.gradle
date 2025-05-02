@@ -47,7 +47,7 @@ dependencies {
     implementation group: 'androidx.preference', name: 'preference-ktx', version: '1.2.0'
     implementation 'net.zetetic:android-database-sqlcipher:4.5.1@aar'
     implementation "androidx.sqlite:sqlite-ktx:2.2.0"
-    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.23'
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '2.4'
     implementation 'org.apache.httpcomponents:httpcore:4.4.10'
     implementation "com.github.luben:zstd-jni:1.4.3-1@aar"
     implementation "androidx.core:core-ktx:1.7.0"
