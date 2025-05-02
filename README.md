@@ -124,6 +124,15 @@ Welcome screen, browsing to the remote-desktop-clients directory and selecting i
 
   - Build -> Make Project should now work.
 
+### Opting-out of Google dependencies
+
+To build without Google dependencies,
+
+1. Open the project in Android Studio
+2. In Android Studio menu, select Build -> Select Build Variant...
+3. In the Build Variants window, select the `withoutGoogleDebug` or `withoutGoogleRelease` variant
+for the module(s) you want to build.
+
 ## Custom Certificate Authority
 
 You can add custom CAs for aSPICE and Opaque in remoteClientLib/certificate_authorities/. They will be merged with the

@@ -16,6 +16,18 @@ android {
         }
     }
 
+    flavorDimensions += "googleDependencies"
+    productFlavors {
+        withGoogle {
+            dimension "googleDependencies"
+            matchingFallbacks ["withGoogle"]
+        }
+        withoutGoogle {
+            dimension "googleDependencies"
+            matchingFallbacks ["withoutGoogle"]
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
