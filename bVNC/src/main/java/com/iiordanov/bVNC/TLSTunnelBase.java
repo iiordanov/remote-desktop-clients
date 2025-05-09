@@ -54,7 +54,10 @@ public abstract class TLSTunnelBase {
                     "SSLv3, TLSv1, TLSv1.1, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, NULL");
             Security.removeProvider(BouncyCastleJsseProvider.PROVIDER_NAME);
             Security.insertProviderAt(new BouncyCastleJsseProvider(), 1);
-            SSLContext sc = SSLContext.getInstance("TLS", BouncyCastleJsseProvider.PROVIDER_NAME);
+            // When we stop supporting anonDH (which is to say: vino), this can be set to "TLS" again.
+            // Until then, vino will happily try to use TLSv1.3, which will then fail because that doesn't support anonDH,
+            // and bc-java (sensibly) will default to TLSv1.3 if it's available.
+            SSLContext sc = SSLContext.getInstance("TLSv1.2", BouncyCastleJsseProvider.PROVIDER_NAME);
 
             Log.i(TAG, "Generating TLS context");
             initContext(sc);
