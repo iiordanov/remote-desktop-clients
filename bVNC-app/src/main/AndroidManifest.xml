@@ -48,7 +48,6 @@
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/bvnc_app_name"
             android:resizeableActivity="true"
-            android:screenOrientation="unspecified"
             android:theme="@android:style/Theme.DeviceDefault"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
@@ -56,7 +55,6 @@
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:exported="true"
             android:resizeableActivity="true"
-            android:screenOrientation="unspecified"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
