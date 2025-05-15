@@ -373,10 +373,14 @@ public class Utils {
     }
 
     public static boolean querySharedPreferenceBoolean(Context context, String key) {
-        boolean result = false;
+        return querySharedPreferenceBoolean(context, key, false);
+    }
+
+    public static boolean querySharedPreferenceBoolean(Context context, String key, boolean defaultValue) {
+        boolean result = defaultValue;
         if (context != null) {
             SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
-            result = sp.getBoolean(key, false);
+            result = sp.getBoolean(key, defaultValue);
         }
         return result;
     }

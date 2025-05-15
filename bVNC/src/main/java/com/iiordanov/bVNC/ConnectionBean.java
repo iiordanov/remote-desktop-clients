@@ -68,7 +68,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     public ConnectionBean(Context context) {
         String inputMode = TouchInputHandlerDirectSwipePan.ID;
         ScaleType scaling = ScaleType.MATRIX;
-        boolean preferSendingUnicode = false;
+        boolean preferSendingUnicode = Constants.preferSendingUnicodeDefaultValue;
         boolean useDpadAsArrows = true;
         if (context == null) {
             context = App.getContext();
@@ -78,7 +78,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             useDpadAsArrows = !GeneralUtils.isTv(context);
             inputMode = getDefaultInputMode(context);
             scaling = getDefaultScaling(context);
-            preferSendingUnicode = Utils.querySharedPreferenceBoolean(context, Constants.preferSendingUnicode);
+            preferSendingUnicode = Utils.querySharedPreferenceBoolean(context, Constants.preferSendingUnicode, preferSendingUnicode);
         } else {
             Log.e(TAG, "Failed to query defaults from shared preferences, context is null.");
         }
