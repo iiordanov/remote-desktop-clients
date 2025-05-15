@@ -26,6 +26,7 @@ android {
 
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
     }
 
     compileOptions {
