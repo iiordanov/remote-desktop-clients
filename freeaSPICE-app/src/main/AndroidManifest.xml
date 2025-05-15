@@ -50,6 +50,7 @@
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/freeaspice_app_name"
             android:resizeableActivity="true"
+            android:screenOrientation="fullUser"
             android:theme="@android:style/Theme.DeviceDefault"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
