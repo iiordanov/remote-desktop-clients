@@ -6,7 +6,6 @@
         <activity
             android:name=".GeneratePubkeyActivity"
             android:label="@string/title_activity_pubkey_generator"
-            android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden|adjustResize"></activity>
     </application>
 
