@@ -2150,6 +2150,10 @@ public class RfbProto extends RfbConnectable {
             Log.d(TAG, "requestResolution: ExtendedDesktopSize not supported, not continuing");
             return;
         }
+        if (x == framebufferWidth && y == framebufferHeight) {
+            Log.d(TAG, "requestResolution: ExtendedDesktopSize is supported, but resolution is already correct");
+            return;
+        }
         Log.d(TAG, "requestResolution: ExtendedDesktopSize supported, continuing");
 
         byte[] setDesktopSizeBuff = new byte[24];
