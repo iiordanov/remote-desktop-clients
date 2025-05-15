@@ -28,6 +28,7 @@
         android:name="com.iiordanov.bVNC.App"
         android:allowBackup="true"
         android:banner="@mipmap/banner_opaque"
+
         android:icon="@mipmap/icon_opaque"
         android:label="@string/opaque_app_name"
         android:theme="@android:style/Theme.DeviceDefault">
@@ -54,12 +55,14 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/opaque_app_name"
             android:resizeableActivity="true"
+            android:screenOrientation="fullUser"
             android:theme="@android:style/Theme.DeviceDefault" />
         <activity
             android:name="com.undatech.opaque.AdvancedSettingsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/advanced_settings"
             android:resizeableActivity="true"
+            android:screenOrientation="fullUser"
             android:theme="@android:style/Theme.DeviceDefault" />
         <activity
             android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
