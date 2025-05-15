@@ -70,7 +70,7 @@ public class LabeledImageApapter extends BaseAdapter {
                 }
             }
         }
-        doNotShowDesktopThumbnails = Utils.querySharedPreferenceBoolean(context, Constants.doNotShowDesktopThumbnails);
+        doNotShowDesktopThumbnails = Utils.isDoNotShowDesktopThumbnails(context);
         if (doNotShowDesktopThumbnails) {
             numCols = 1;
         }

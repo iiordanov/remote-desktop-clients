@@ -83,7 +83,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             Log.e(TAG, "Failed to query defaults from shared preferences, context is null.");
         }
 
-        showOnlyConnectionNicknames = Utils.querySharedPreferenceBoolean(context, Constants.showOnlyConnectionNicknames);
+        showOnlyConnectionNicknames = Utils.isShowOnlyConnectionNicknames(context);
 
         set_Id(0);
         setAddress("");

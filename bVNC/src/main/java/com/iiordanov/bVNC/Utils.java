@@ -581,6 +581,14 @@ public class Utils {
         return value;
     }
 
+    public static boolean isShowOnlyConnectionNicknames(Context context) {
+        return Utils.querySharedPreferenceBoolean(context, Constants.showOnlyConnectionNicknames);
+    }
+
+    public static boolean isDoNotShowDesktopThumbnails(Context context) {
+        return Utils.querySharedPreferenceBoolean(context, Constants.doNotShowDesktopThumbnails);
+    }
+
     public static boolean getBooleanFromMessage(Message msg, String key) {
         Bundle s = msg.getData();
         boolean value = false;

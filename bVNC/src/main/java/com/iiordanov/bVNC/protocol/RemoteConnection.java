@@ -285,7 +285,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
             sshConnection = null;
         }
 
-        if (connection != null) {
+        if (connection != null && !Utils.isDoNotShowDesktopThumbnails(context)) {
             Log.d(TAG, "Saving screenshot to " + context.getFilesDir() + "/" + connection.getScreenshotFilename());
             canvas.writeScreenshotToFile(context.getFilesDir() + "/" + connection.getScreenshotFilename(), 720);
         }
