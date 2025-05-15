@@ -184,6 +184,7 @@ public class Constants {
     public static final String permissionsRequested = "permissionsRequested";
     public static final String positionToolbarLastUsed = "positionToolbarLastUsed";
     public static final String preferSendingUnicode = "preferSendingUnicode";
+    public static final boolean preferSendingUnicodeDefaultValue = true;
     public static final String doNotShowDesktopThumbnails = "doNotShowDesktopThumbnails";
     public static final String showOnlyConnectionNicknames = "showOnlyConnectionNicknames";
     public static final String softwareKeyboardType = "softwareKeyboardType";
