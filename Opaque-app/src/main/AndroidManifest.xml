@@ -67,7 +67,6 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
-            android:screenOrientation="unspecified"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateHidden|adjustResize">
 
