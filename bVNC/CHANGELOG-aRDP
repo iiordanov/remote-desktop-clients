@@ -1,3 +1,7 @@
+v5.8.6
+- Allow all orientations
+- Stop capturing screenshots after option to not show them is toggled
+- Send Unicode by default
 v5.8.4
 - Improved SSH key import logic
 - Improved pointer movement logic
