@@ -252,11 +252,6 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
         if (drawable != null)
             drawable.dispose();
         drawable = null;
-
-        if (mbitmap != null)
-            mbitmap.recycle();
-        mbitmap = null;
-
         memGraphics = null;
         bitmapPixels = null;
     }
