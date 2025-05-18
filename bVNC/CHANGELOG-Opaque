@@ -1,3 +1,5 @@
+v5.8.7
+- Allow all orientations
 v5.8.4
 - Bugfix for SEGFAULT in pixman when neon features are enabled
 - Upgraded spice-gtk back to 0.42

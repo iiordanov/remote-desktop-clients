@@ -1,3 +1,5 @@
+v5.8.7
+- Fix for widgets in newer Androids
 v5.8.6
 - Allow all orientations
 - Stop capturing screenshots after option to not show them is toggled
