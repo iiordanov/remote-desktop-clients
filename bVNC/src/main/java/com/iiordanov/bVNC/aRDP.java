@@ -73,6 +73,7 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxMenuAnimation;
     private CheckBox checkboxVisualStyles;
     private CheckBox checkboxEnableGfx;
+    private CheckBox checkboxEnableGfxH264;
     private CheckBox checkboxPreferSendingUnicode;
     private Spinner spinnerRdpColor;
     private List<String> rdpColorArray;
@@ -142,6 +143,7 @@ public class aRDP extends MainConfiguration {
         checkboxMenuAnimation = findViewById(R.id.checkboxMenuAnimation);
         checkboxVisualStyles = findViewById(R.id.checkboxVisualStyles);
         checkboxEnableGfx = findViewById(R.id.checkboxEnableGfx);
+        checkboxEnableGfxH264 = findViewById(R.id.checkboxEnableGfxH264);
         checkboxPreferSendingUnicode = findViewById(R.id.checkboxPreferSendingUnicode);
     }
 
@@ -239,6 +241,7 @@ public class aRDP extends MainConfiguration {
         checkboxMenuAnimation.setChecked(selected.getMenuAnimation());
         checkboxVisualStyles.setChecked(selected.getVisualStyles());
         checkboxEnableGfx.setChecked(selected.getEnableGfx());
+        checkboxEnableGfxH264.setChecked(selected.getEnableGfxH264());
         checkboxPreferSendingUnicode.setChecked(selected.getPreferSendingUnicode());
     }
 
@@ -286,6 +289,7 @@ public class aRDP extends MainConfiguration {
         selected.setMenuAnimation(checkboxMenuAnimation.isChecked());
         selected.setVisualStyles(checkboxVisualStyles.isChecked());
         selected.setEnableGfx(checkboxEnableGfx.isChecked());
+        selected.setEnableGfxH264(checkboxEnableGfxH264.isChecked());
         selected.setPreferSendingUnicode(checkboxPreferSendingUnicode.isChecked());
     }
 
