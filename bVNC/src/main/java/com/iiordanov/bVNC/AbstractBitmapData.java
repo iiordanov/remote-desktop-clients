@@ -253,7 +253,6 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
             drawable.dispose();
         drawable = null;
         memGraphics = null;
-        bitmapPixels = null;
     }
 
     public int fbWidth() {

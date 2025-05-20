@@ -20,18 +20,28 @@
 
 package com.iiordanov.bVNC;
 
+import static androidx.core.content.pm.ShortcutManagerCompat.createShortcutResultIntent;
+
 import android.app.ListActivity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Intent.ShortcutIconResource;
 import android.content.SharedPreferences;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.database.Cursor;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.undatech.remoteClientUi.R;
 
@@ -55,7 +65,6 @@ public class ConnectionListActivity extends ListActivity {
             return;
         }
 
-        // Query for all people contacts using the Contacts.People convenience class.
         // Put a managed wrapper around the retrieved cursor so we don't have to worry about
         // requerying or closing it as the activity changes state.
         Cursor mCursor = database.getReadableDatabase().query(
@@ -105,37 +114,93 @@ public class ConnectionListActivity extends ListActivity {
         ConnectionBean connection = new ConnectionBean(this);
         if (connection.Gen_read(database.getReadableDatabase(), id)) {
             Log.d(TAG, "Got a readable database");
-            // create shortcut if requested
-            Context context = getApplicationContext();
-            ShortcutIconResource icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.bvnc_icon);
-            if (Utils.isRdp(context)) {
-                icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.ardp_icon);
-            } else if (Utils.isSpice(context)) {
-                icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.aspice_icon);
-            }
-
-            Intent intent = new Intent();
-
-            Intent launchIntent = new Intent(this, RemoteCanvasActivity.class);
-            Uri.Builder builder = new Uri.Builder();
-            builder.authority(Utils.getConnectionString(this) + ":" + connection.get_Id());
-            builder.scheme(Utils.getConnectionScheme(this));
-            launchIntent.setData(builder.build());
-            Log.d(TAG, "EXTRA_SHORTCUT_INTENT: " + launchIntent.getData());
-            intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, launchIntent);
-            Log.d(TAG, "EXTRA_SHORTCUT_NAME: " + connection.getNickname());
-            intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, connection.getNickname());
-            Log.d(TAG, "EXTRA_SHORTCUT_ICON_RESOURCE: " + icon);
-            intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
-
+            Intent intent = getShortcutIntent(connection);
             setResult(RESULT_OK, intent);
             Log.d(TAG, "RESULT_OK");
         } else {
             setResult(RESULT_CANCELED);
             Log.d(TAG, "RESULT_CANCELED");
         }
-
         finish();
+    }
+
+    private Intent getShortcutIntent(ConnectionBean connection) {
+        Intent intent;
+        Context context = getApplicationContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            intent = setupNewShortcut(context, connection);
+        } else {
+            intent = setupLegacyShortcut(context, connection);
+        }
+        return intent;
+    }
+
+    private ShortcutIconResource getIcon(Context context) {
+        ShortcutIconResource icon = ShortcutIconResource.fromContext(this, R.drawable.icon_bvnc);
+        if (Utils.isRdp(context)) {
+            icon = ShortcutIconResource.fromContext(this, R.drawable.icon_bvnc);
+        } else if (Utils.isSpice(context)) {
+            icon = ShortcutIconResource.fromContext(this, R.drawable.icon_aspice);
+        }
+        return icon;
+    }
+
+    private Intent setupLegacyShortcut(Context context, ConnectionBean connection) {
+        Log.i(TAG, "Setting up a legacy style shortcut.");
+        Intent intent = new Intent();
+        Intent launchIntent = getLaunchIntent(connection);
+        Log.d(TAG, "EXTRA_SHORTCUT_INTENT: " + launchIntent.getData());
+        intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, launchIntent);
+        Log.d(TAG, "EXTRA_SHORTCUT_NAME: " + getShortLabel(connection));
+        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, getShortLabel(connection));
+        ShortcutIconResource icon = getIcon(context);
+        Log.d(TAG, "EXTRA_SHORTCUT_ICON_RESOURCE: " + icon);
+        intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
+        return intent;
+    }
+
+    @NonNull
+    private Intent getLaunchIntent(ConnectionBean connection) {
+        Intent launchIntent = new Intent(this, RemoteCanvasActivity.class);
+        Uri.Builder builder = new Uri.Builder();
+        builder.authority(Utils.getConnectionString(this) + ":" + connection.get_Id());
+        builder.scheme(Utils.getConnectionScheme(this));
+        launchIntent.setData(builder.build());
+        launchIntent.setAction(Intent.ACTION_VIEW);
+        return launchIntent;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private Icon getNewIcon(Context context) {
+        Icon icon = Icon.createWithResource(context, R.drawable.icon_bvnc);
+        if (Utils.isRdp(context)) {
+            icon = Icon.createWithResource(context, R.drawable.icon_ardp);
+        } else if (Utils.isSpice(context)) {
+            icon = Icon.createWithResource(context, R.drawable.icon_aspice);
+        }
+        return icon;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private Intent setupNewShortcut(Context context, ConnectionBean connection) {
+        Log.i(TAG, "Setting up a new style shortcut.");
+        ShortcutManager shortcutManager =
+                context.getSystemService(ShortcutManager.class);
+        Intent launchIntent = getLaunchIntent(connection);
+        ShortcutInfo pinShortcutInfo =
+                new ShortcutInfo.Builder(context, String.valueOf(connection.get_Id()))
+                        .setShortLabel(getShortLabel(connection))
+                        .setIcon(getNewIcon(context))
+                        .setIntent(launchIntent).build();
+        return shortcutManager.createShortcutResultIntent(pinShortcutInfo);
+    }
+
+    private static String getShortLabel(ConnectionBean connection) {
+        String label = connection.getNickname();
+        if (label == null || "".equals(label)) {
+            label = connection.getAddress() + ":" + connection.getPort();
+        }
+        return label;
     }
 
     /* (non-Javadoc)
