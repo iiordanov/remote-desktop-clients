@@ -159,7 +159,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setScreenshotFilename(Utils.newScreenshotFileName());
 
         setEnableGfx(true);
-        setEnableGfxH264(false);
+        setEnableGfxH264(true);
         setPreferSendingUnicode(preferSendingUnicode);
         setExternalId("");
         setRequiresVpn(false);
