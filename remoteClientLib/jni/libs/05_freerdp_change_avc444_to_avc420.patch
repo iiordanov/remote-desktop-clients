@@ -1,0 +1,13 @@
+diff --git a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
+index 0f4a92188..a71f17b84 100644
+--- a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
++++ b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
+@@ -305,7 +305,7 @@ public class LibFreeRDP
+ 
+ 		if (flags.getH264() && mHasH264)
+ 		{
+-			args.add("/gfx:AVC444");
++			args.add("/gfx:AVC420");
+ 		}
+ 
+ 		args.add(addFlag("wallpaper", flags.getWallpaper()));
