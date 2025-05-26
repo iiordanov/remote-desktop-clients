@@ -27,8 +27,10 @@ import android.widget.Button
 import android.widget.TableLayout
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.Utils
 import com.undatech.remoteClientUi.R
+import java.io.IOException
 
 class RateOrShareFragment : DialogFragment() {
     private var layout: TableLayout? = null
@@ -47,11 +49,11 @@ class RateOrShareFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         Log.d(TAG, "onCreateView called")
-        dialog?.setTitle(getString(R.string.action_rate_or_share_app))
+        setTitle()
         val v = inflater.inflate(R.layout.rateorshare, container, false)
         layout = v.findViewById<View>(R.id.layout) as TableLayout
-        donationButton = v.findViewById(R.id.buttonDonate);
-        previousVersionsButton = v.findViewById(R.id.buttonPreviousVersions);
+        donationButton = v.findViewById(R.id.buttonDonate)
+        previousVersionsButton = v.findViewById(R.id.buttonPreviousVersions)
         if (!Utils.isFree(activity)) {
             donationButton?.visibility = View.GONE
         }
@@ -60,8 +62,51 @@ class RateOrShareFragment : DialogFragment() {
         }
         versionAndCode = v.findViewById<View>(R.id.versionAndCode) as TextView
         versionAndCode?.text = Utils.getVersionAndCode(v.context)
-
+        setVisibilityOfElements(v)
         return v
+    }
+
+    fun setTitle() {
+        if (Utils.isCustom(context)){
+            try {
+                dialog?.setTitle(
+                    getString(
+                        requireContext().resources.getIdentifier(
+                            Utils.getStringConfigAttribute(App.configFileReader.configData, TAG.replaceFirstChar { it.lowercase() }, "title", "key"),
+                            "string",
+                            Utils.pName(context)
+                        )
+                    )
+                )
+                return
+            }
+            catch (e: Exception) {
+                isCustomException(e)
+            }
+        }
+        dialog?.setTitle(getString(R.string.action_rate_or_share_app))
+    }
+
+    fun setVisibilityOfElements(v: View) {
+        if (Utils.isCustom(context)){
+            try {
+                Utils.setVisibilityForViewElementsViaConfig(context, App.configFileReader.configData, TAG.replaceFirstChar { it.lowercase() }, v)
+            }
+            catch (e: Exception) {
+                isCustomException(e)
+            }
+        }
+    }
+
+    fun isCustomException(e: Exception) {
+        when (e) {
+            is NullPointerException -> {
+                Log.e(TAG, "Error referencing attribute in config file.")
+            }
+            else -> throw e
+        }
+        Log.e(TAG, "Printing Stack Trace")
+        e.printStackTrace()
     }
 
     companion object {
