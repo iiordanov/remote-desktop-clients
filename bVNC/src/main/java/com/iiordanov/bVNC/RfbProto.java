@@ -94,8 +94,6 @@ public class RfbProto extends RfbConnectable {
             SecTypeVeNCrypt = 19,
             SecTypeArd = 30,
             SecTypeUltraVnc2 = 113,
-            SecTypeUltraVnc3 = 114,
-            SecTypeUltraVnc4 = 115,
             SecTypeUltra34 = 0xfffffffa;
     // Supported tunneling types
     final static int
@@ -487,9 +485,8 @@ public class RfbProto extends RfbConnectable {
         } else if (secType == RfbProto.SecTypeTLS) {
             Log.i(TAG, "secType == RfbProto.SecTypeTLS");
             authenticateTLS();
-            authType = negotiateSecurity(userNameSupplied, 0);
-        } else if (secType == RfbProto.SecTypeUltra34 ||
-                secType == RfbProto.SecTypeUltraVnc2) {
+            authType = negotiateSecurity(userNameSupplied, Constants.CONN_TYPE_PLAIN);
+        } else if (secType == RfbProto.SecTypeUltra34 || secType == RfbProto.SecTypeUltraVnc2) {
             Log.i(TAG, "secType == RfbProto.SecTypeUltra34 or SecTypeUltraVnc2");
             authType = RfbProto.AuthUltra;
         } else if (secType == RfbProto.SecTypeArd) {
@@ -704,7 +701,7 @@ public class RfbProto extends RfbConnectable {
                 }
             } else if (connType == Constants.CONN_TYPE_ULTRAVNC) {
                 if (currentSecType == SecTypeNone || currentSecType == SecTypeVncAuth ||
-                        currentSecType == SecTypeUltraVnc2 || currentSecType == SecTypeUltra34) {
+                        currentSecType == SecTypeUltraVnc2) {
                     secType = currentSecType;
                     break;
                 }
@@ -719,8 +716,11 @@ public class RfbProto extends RfbConnectable {
                     break;
                 }
 
-                if (currentSecType == SecTypeNone || currentSecType == SecTypeVncAuth ||
-                        currentSecType == SecTypeVeNCrypt) {
+                if (currentSecType == SecTypeNone
+                        || currentSecType == SecTypeVncAuth
+                        || currentSecType == SecTypeVeNCrypt
+                        || currentSecType == SecTypeUltraVnc2
+                ) {
                     secType = currentSecType;
                     break;
                 }
