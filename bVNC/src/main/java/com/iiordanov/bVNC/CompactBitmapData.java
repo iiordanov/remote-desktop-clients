@@ -199,10 +199,14 @@ class CompactBitmapData extends AbstractBitmapData {
             //Log.i(TAG, "draw");
             try {
                 synchronized (this) {
-                    canvas.drawBitmap(data.mbitmap, 0.0f, 0.0f, _defaultPaint);
-                    canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
+                    if (data.mbitmap != null && !data.mbitmap.isRecycled()) {
+                        canvas.drawBitmap(data.mbitmap, 0.0f, 0.0f, _defaultPaint);
+                    }
+                    if (softCursor != null && !softCursor.isRecycled()) {
+                        canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
+                    }
                 }
-            } catch (Throwable e) {
+            } catch (Throwable ignored) {
             }
         }
     }
