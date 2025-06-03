@@ -19,7 +19,7 @@
             android:layout_weight="0.90"
             android:hint="@string/search_connections"
             android:padding="10dp"
-            android:inputType="textVisiblePassword"
+            android:inputType="textNoSuggestions"
             android:textAppearance="?android:attr/textAppearanceMedium">
         </EditText>
 
