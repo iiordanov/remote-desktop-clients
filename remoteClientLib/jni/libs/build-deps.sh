@@ -604,7 +604,8 @@ build_freerdp() {
 
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
                -e 's/WITH_JPEG=.*/WITH_JPEG=1/'\
-               -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
+               -e 's/WITH_OPENH264=.*/WITH_OPENH264=0/'\
+               -e 's/WITH_FFMPEG=.*/WITH_FFMPEG=1/'\
                -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=openssl-'${openssl_ver}'/'\
                -e 's/NDK_TARGET=26/NDK_TARGET=21/'\
                -e 's/OPENSSL_HASH=.*/OPENSSL_HASH='${openssl_hash}'/'\
