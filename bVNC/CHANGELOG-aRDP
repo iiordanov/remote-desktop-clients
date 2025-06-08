@@ -1,3 +1,7 @@
+v5.8.9
+- Bugfixes
+- Ability to connect to UltraVNC/MSLogon II over SSH
+- Improved krdpserver compatibility
 v5.8.8
 - New Gfx H264 Option
 - Fix for certain krdpserver configs
