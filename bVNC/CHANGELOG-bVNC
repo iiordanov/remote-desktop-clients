@@ -1,3 +1,6 @@
+v5.8.9
+- Bugfixes
+- Ability to connect to UltraVNC/MSLogon II over SSH
 v5.8.8
 - Fix for widgets in newer Androids
 v5.8.6
