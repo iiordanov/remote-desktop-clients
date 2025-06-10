@@ -1,3 +1,6 @@
+v5.9.0
+- Bugfixes
+- Improved krdpserver compatibility by replacing libopenh264 with ffmpeg
 v5.8.8
 - New Gfx H264 Option
 - Fix for certain krdpserver configs
