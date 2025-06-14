@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left|center"
         android:visibility="gone"
-        android:background="@drawable/ic_keyboard_gray_48dp"
+        android:background="@drawable/ic_keyboard"
         android:contentDescription="@string/show_keyboard" />
 
     <RelativeLayout
