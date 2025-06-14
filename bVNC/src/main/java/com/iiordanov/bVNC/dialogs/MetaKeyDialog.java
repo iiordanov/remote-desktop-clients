@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,6 +56,7 @@ import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.remoteClientUi.R;
 
 import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -66,6 +68,7 @@ import java.util.Map.Entry;
  *
  */
 public class MetaKeyDialog extends Dialog implements ConnectionSettable {
+    public static String TAG = "MetaKeyDialog";
 
     public static final String[] EMPTY_ARGS = new String[0];
     static ArrayList<MetaList> _lists;
@@ -511,17 +514,9 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
                 if (list.get_Id() == listId) {
                     _spinnerLists.setSelection(i);
                     _keysInList = new ArrayList<MetaKeyBean>();
-                    Cursor c = _database.getReadableDatabase().rawQuery(
-                            MessageFormat.format("SELECT * FROM {0} WHERE {1} = {2} ORDER BY KEYDESC",
-                                    MetaKeyBean.GEN_TABLE_NAME,
-                                    MetaKeyBean.GEN_FIELD_METALISTID,
-                                    listId),
-                            EMPTY_ARGS);
-                    MetaKeyBean.Gen_populateFromCursor(
-                            c,
-                            _keysInList,
-                            MetaKeyBean.NEW);
-                    c.close();
+                    tryPopulateKeysInListWhereFieldMatchesValue(
+                            _database, _keysInList, MetaKeyBean.GEN_FIELD_METALISTID, listId
+                    );
                     ArrayList<String> keys = new ArrayList<String>(_keysInList.size());
                     int selectedOffset = 0;
                     long lastSelectedKeyId = _canvasActivity.getConnection().getLastMetaKeyId();
@@ -546,6 +541,39 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
             }
             _listId = listId;
         }
+    }
+
+    public static void tryPopulateKeysInListWhereFieldMatchesValue(
+            Database database,
+            ArrayList<MetaKeyBean> keys,
+            String field,
+            long value
+    ) {
+        try {
+            populateKeysInListWhereFieldMatchesValue(database, keys, field, value);
+        } catch (SQLiteException e) {
+            Log.e(TAG, "Error getting meta keys:");
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
+    public static void populateKeysInListWhereFieldMatchesValue(
+            Database database,
+            ArrayList<MetaKeyBean> keys,
+            String field,
+            long value
+    ) {
+        Cursor c = database.getReadableDatabase().rawQuery(
+                MessageFormat.format(
+                        "SELECT * FROM {0} WHERE {1} = {2} ORDER BY KEYDESC",
+                        MetaKeyBean.GEN_TABLE_NAME,
+                        field,
+                        value
+                ),
+                EMPTY_ARGS
+        );
+        MetaKeyBean.Gen_populateFromCursor(c, keys, MetaKeyBean.NEW);
+        c.close();
     }
 
     private void updateDialogForCurrentKey() {
