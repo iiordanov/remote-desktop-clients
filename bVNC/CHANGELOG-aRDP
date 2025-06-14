@@ -1,3 +1,5 @@
+v5.9.2
+- Improved usability when setting up connection with remote control
 v5.9.0
 - Bugfixes
 - Improved krdpserver compatibility by replacing libopenh264 with ffmpeg
