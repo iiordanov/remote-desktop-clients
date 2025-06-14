@@ -23,6 +23,8 @@
 //
 package com.iiordanov.bVNC;
 
+import static com.iiordanov.bVNC.dialogs.MetaKeyDialog.tryPopulateKeysInListWhereFieldMatchesValue;
+
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -1138,14 +1140,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 || lastSentKey.get_Id() != connection.getLastMetaKeyId()) {
             ArrayList<MetaKeyBean> keys = new ArrayList<>();
             Database database = new Database(this);
-            Cursor c = database.getReadableDatabase().rawQuery(
-                    MessageFormat.format("SELECT * FROM {0} WHERE {1} = {2}",
-                            MetaKeyBean.GEN_TABLE_NAME,
-                            MetaKeyBean.GEN_FIELD__ID, connection
-                                    .getLastMetaKeyId()),
-                    MetaKeyDialog.EMPTY_ARGS);
-            MetaKeyBean.Gen_populateFromCursor(c, keys, MetaKeyBean.NEW);
-            c.close();
+            tryPopulateKeysInListWhereFieldMatchesValue(
+                    database, keys, MetaKeyBean.GEN_FIELD__ID, connection.getLastMetaKeyId()
+            );
             database.close();
             if (keys.size() > 0) {
                 lastSentKey = keys.get(0);
