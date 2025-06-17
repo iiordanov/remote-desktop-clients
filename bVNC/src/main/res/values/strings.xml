@@ -910,4 +910,5 @@ Below that is where you configure your connection.
     <string name="scroll_speed">Touch Scroll Speed</string>
     <string name="desktop_scale_percentage">Custom Scaling Percentage</string>
     <string name="show_menu">Show Menu</string>
+    <string name="move_toolbar">Move Toolbar</string>
 </resources>

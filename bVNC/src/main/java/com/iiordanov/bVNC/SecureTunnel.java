@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -107,7 +108,7 @@ public class SecureTunnel implements X509TrustManager {
         // create secure tunnel
         Log.i(TAG, "Generating TLS context.");
         SSLContext sc = SSLContext.getInstance("TLS");
-        sc.init(null, new TrustManager[]{this}, null);
+        sc.init(null, new TrustManager[]{this}, new SecureRandom());
         SSLSocketFactory sslfactory = sc.getSocketFactory();
         m_sslsock = (SSLSocket) sslfactory.createSocket(sock, sock.getInetAddress().getHostName(), sock.getPort(), true);
 

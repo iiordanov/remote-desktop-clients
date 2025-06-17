@@ -4,6 +4,7 @@
     <item
         android:id="@+id/moveToolbar"
         app:actionViewClass="android.widget.ImageButton"
+        android:title="@string/move_toolbar"
         app:showAsAction="always" />
 
     <item
@@ -11,6 +12,7 @@
         android:icon="@drawable/showkeys"
         android:onClick="extraKeysToggle"
         android:padding="0dp"
+        android:title="@string/extra_keys_enable"
         app:showAsAction="always" />
 
     <item
@@ -18,6 +20,7 @@
         android:icon="@drawable/ic_keyboard_gray_48dp"
         android:onClick="toggleKeyboard"
         android:padding="0dp"
+        android:title="@string/toggle_keyboard"
         app:showAsAction="always" />
 
     <item

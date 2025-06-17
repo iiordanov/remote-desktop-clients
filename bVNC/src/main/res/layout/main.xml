@@ -256,6 +256,7 @@
                         android:inputType="textNoSuggestions|textVisiblePassword"
                         android:singleLine="true"
                         android:text="5900"
+                        android:nextFocusDown="@+id/textUsername"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
                 </LinearLayout>
             </TableRow>
@@ -270,6 +271,7 @@
                     android:hint="@string/username_hint_optional"
                     android:inputType="textNoSuggestions|textVisiblePassword"
                     android:singleLine="true"
+                    android:nextFocusDown="@+id/textPASSWORD"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </TableRow>
 
@@ -289,6 +291,7 @@
                         android:hint="@string/password_caption_hint"
                         android:inputType="textNoSuggestions|textPassword"
                         android:singleLine="true"
+                        android:nextFocusDown="@+id/checkboxKeepPassword"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <CheckBox
@@ -298,6 +301,7 @@
                         android:layout_weight="0"
                         android:singleLine="true"
                         android:text="@string/keep_password_button"
+                        android:nextFocusDown="@+id/toggleAdvancedSettings"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
                 </LinearLayout>
             </TableRow>
