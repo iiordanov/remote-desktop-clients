@@ -1,3 +1,5 @@
+v5.9.3
+- Bugfix for 'Send Key Again'
 v5.9.2
 - Fix for Android 4.4 caused by Android TV icon
 - Improved usability when setting up connection with remote control
