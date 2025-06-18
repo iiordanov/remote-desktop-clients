@@ -515,7 +515,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
                     _spinnerLists.setSelection(i);
                     _keysInList = new ArrayList<MetaKeyBean>();
                     tryPopulateKeysInListWhereFieldMatchesValue(
-                            _database, _keysInList, MetaKeyBean.GEN_FIELD_METALISTID, listId
+                            _database, _keysInList, MetaKeyBean.GEN_FIELD_METALISTID, listId, true
                     );
                     ArrayList<String> keys = new ArrayList<String>(_keysInList.size());
                     int selectedOffset = 0;
@@ -547,10 +547,11 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
             Database database,
             ArrayList<MetaKeyBean> keys,
             String field,
-            long value
+            long value,
+            boolean orderByDescending
     ) {
         try {
-            populateKeysInListWhereFieldMatchesValue(database, keys, field, value);
+            populateKeysInListWhereFieldMatchesValue(database, keys, field, value, orderByDescending);
         } catch (SQLiteException e) {
             Log.e(TAG, "Error getting meta keys:");
             Log.e(TAG, Log.getStackTraceString(e));
@@ -561,11 +562,16 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
             Database database,
             ArrayList<MetaKeyBean> keys,
             String field,
-            long value
+            long value,
+            boolean orderByDescending
     ) {
+        String query = "SELECT * FROM {0} WHERE {1} = {2}";
+        if (orderByDescending) {
+            query += " ORDER BY KEYDESC";
+        }
         Cursor c = database.getReadableDatabase().rawQuery(
                 MessageFormat.format(
-                        "SELECT * FROM {0} WHERE {1} = {2} ORDER BY KEYDESC",
+                        query,
                         MetaKeyBean.GEN_TABLE_NAME,
                         field,
                         value
