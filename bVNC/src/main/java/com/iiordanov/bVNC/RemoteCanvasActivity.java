@@ -243,8 +243,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         remoteConnection.correctAfterRotation();
     }
 
-    private MetaKeyBean lastSentKey;
-
     /**
      * Enables sticky immersive mode if supported.
      */
@@ -1136,22 +1134,15 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     }
 
     private void sendSpecialKeyAgain() {
-        if (lastSentKey == null
-                || lastSentKey.get_Id() != connection.getLastMetaKeyId()) {
-            ArrayList<MetaKeyBean> keys = new ArrayList<>();
-            Database database = new Database(this);
-            tryPopulateKeysInListWhereFieldMatchesValue(
-                    database, keys, MetaKeyBean.GEN_FIELD__ID, connection.getLastMetaKeyId()
-            );
-            database.close();
-            if (keys.size() > 0) {
-                lastSentKey = keys.get(0);
-            } else {
-                lastSentKey = null;
-            }
+        ArrayList<MetaKeyBean> keys = new ArrayList<>();
+        Database database = new Database(this);
+        tryPopulateKeysInListWhereFieldMatchesValue(
+                database, keys, MetaKeyBean.GEN_FIELD__ID, connection.getLastMetaKeyId(), false
+        );
+        database.close();
+        if (!keys.isEmpty()) {
+            remoteConnection.getKeyboard().sendMetaKey(keys.get(0));
         }
-        if (lastSentKey != null)
-            remoteConnection.getKeyboard().sendMetaKey(lastSentKey);
     }
 
     @Override
