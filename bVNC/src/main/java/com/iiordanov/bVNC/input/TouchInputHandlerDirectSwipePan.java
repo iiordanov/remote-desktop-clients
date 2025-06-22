@@ -79,12 +79,7 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
             return true;
         }
 
-        // TODO: Workaround for Android 4.2.
-        boolean twoFingers = false;
-        if (e1 != null)
-            twoFingers = (e1.getPointerCount() > 1);
-        if (e2 != null)
-            twoFingers = twoFingers || (e2.getPointerCount() > 1);
+        boolean twoFingers = isTwoFingers(e1, e2);
 
         // onFling called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
         // consumed. This prevents the mouse pointer from flailing around while we are scaling.
@@ -99,6 +94,15 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
         activity.showActionBar();
         panRepeater.start(-velocityX, -velocityY);
         return true;
+    }
+
+    private static boolean isTwoFingers(MotionEvent e1, MotionEvent e2) {
+        boolean twoFingers = false;
+        if (e1 != null)
+            twoFingers = (e1.getPointerCount() > 1);
+        if (e2 != null)
+            twoFingers = twoFingers || (e2.getPointerCount() > 1);
+        return twoFingers;
     }
 
     /*
@@ -120,11 +124,7 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
             // to stick a spiteful onScroll with a MASSIVE delta here.
             // This would cause the mouse pointer to jump to another place suddenly.
             // Hence, we ignore onScroll after scaling until we lift all pointers up.
-            boolean twoFingers = false;
-            if (e1 != null)
-                twoFingers = (e1.getPointerCount() > 1);
-            if (e2 != null)
-                twoFingers = twoFingers || (e2.getPointerCount() > 1);
+            boolean twoFingers = isTwoFingers(e1, e2);
 
             if (twoFingers || inSwiping)
                 return true;

@@ -675,17 +675,17 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     }
 
     boolean consumeAsMouseWheel(MotionEvent e1, MotionEvent e2) {
+        if (e1 == null || e2 == null) {
+            return false;
+        }
+
         boolean useEvent = false;
         if (!canvas.isAbleToPan()) {
             GeneralUtils.debugLog(debugLogging, TAG, "consumeAsMouseWheel, fit-to-screen");
             useEvent = true;
         }
 
-        if (e1.getSource() == InputDeviceCompat.SOURCE_MOUSE ||
-                e1.getSource() == InputDeviceCompat.SOURCE_CLASS_POINTER ||
-                e1.getSource() == InputDeviceCompat.SOURCE_CLASS_TRACKBALL ||
-                e1.getSource() == InputDeviceCompat.SOURCE_TOUCHPAD ||
-                e1.getSource() == InputDeviceCompat.SOURCE_DPAD
+        if (isSourceTypeOfMouse(e1.getSource())
         ) {
             GeneralUtils.debugLog(debugLogging, TAG, "consumeAsMouseWheel, mouse-like source");
             useEvent = true;
@@ -715,5 +715,13 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         }
         sendScrollEvents(getX(e1), getY(e1), meta);
         return true;
+    }
+
+    private static boolean isSourceTypeOfMouse(int source) {
+        return source == InputDeviceCompat.SOURCE_MOUSE ||
+                source == InputDeviceCompat.SOURCE_CLASS_POINTER ||
+                source == InputDeviceCompat.SOURCE_CLASS_TRACKBALL ||
+                source == InputDeviceCompat.SOURCE_TOUCHPAD ||
+                source == InputDeviceCompat.SOURCE_DPAD;
     }
 }
