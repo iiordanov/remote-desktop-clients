@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="115930"
-    android:versionName="v5.9.3">
+    android:versionCode="115940"
+    android:versionName="v5.9.4">
 
     <uses-permission tools:node="removeAll" />
     <uses-permission android:name="android.permission.INTERNET" />
