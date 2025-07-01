@@ -45,7 +45,7 @@ class CompactBitmapData extends AbstractBitmapData {
         if (trueColor)
             cfg = Bitmap.Config.ARGB_8888;
 
-        mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);
+        allocateBuffer();
         Log.i(TAG, "bitmapsize = (" + bitmapwidth + "," + bitmapheight + ")");
 
         if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB_MR1) {
@@ -55,6 +55,12 @@ class CompactBitmapData extends AbstractBitmapData {
         memGraphics = new Canvas(mbitmap);
         bitmapPixels = new int[bitmapwidth * bitmapheight];
         drawable.startDrawing();
+    }
+
+    public void allocateBuffer() {
+        synchronized(this) {
+            mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);
+        }
     }
 
     @Override
@@ -80,7 +86,7 @@ class CompactBitmapData extends AbstractBitmapData {
      */
     @Override
     public void updateBitmap(int x, int y, int w, int h) {
-        synchronized (mbitmap) {
+        synchronized(this) {
             mbitmap.setPixels(bitmapPixels, offset(x, y), bitmapwidth, x, y, w, h);
         }
     }
@@ -90,7 +96,7 @@ class CompactBitmapData extends AbstractBitmapData {
      */
     @Override
     public void updateBitmap(Bitmap b, int x, int y, int w, int h) {
-        synchronized (mbitmap) {
+        synchronized(this) {
             memGraphics.drawBitmap(b, x, y, null);
         }
     }
@@ -120,13 +126,14 @@ class CompactBitmapData extends AbstractBitmapData {
             srcOffset = offset(sx, y);
             dstOffset = offset(dx, dstY);
             try {
-                synchronized (mbitmap) {
+                synchronized(this) {
                     mbitmap.getPixels(bitmapPixels, srcOffset, bitmapwidth, sx - xoffset, y - yoffset, dstW, 1);
+                    System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
                 }
-                System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
             } catch (Exception e) {
                 // There was an index out of bounds exception, but we continue copying what we can.
-                e.printStackTrace();
+                Log.e(TAG, "Caught an exception");
+                Log.e(TAG, Log.getStackTraceString(e));
             }
             dstY += deltaY;
         }
@@ -138,7 +145,7 @@ class CompactBitmapData extends AbstractBitmapData {
      */
     @Override
     public void drawRect(int x, int y, int w, int h, Paint paint) {
-        synchronized (mbitmap) {
+        synchronized(this) {
             memGraphics.drawRect(x, y, x + w, y + h, paint);
         }
     }
@@ -149,32 +156,6 @@ class CompactBitmapData extends AbstractBitmapData {
     @Override
     public void scrollChanged(int newx, int newy) {
         // Don't need to do anything here
-    }
-
-    /* (non-Javadoc)
-     * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
-     */
-    @Override
-    public void frameBufferSizeChanged(int width, int height) {
-        framebufferwidth = width;
-        framebufferheight = height;
-        if (bitmapwidth < framebufferwidth || bitmapheight < framebufferheight) {
-            Log.i(TAG, "One or more bitmap dimensions increased, realloc = ("
-                    + framebufferwidth + "," + framebufferheight + ")");
-            dispose();
-            // Try to free up some memory.
-            System.gc();
-            bitmapwidth = framebufferwidth;
-            bitmapheight = framebufferheight;
-            bitmapPixels = new int[bitmapwidth * bitmapheight];
-            mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);
-            memGraphics = new Canvas(mbitmap);
-            drawable = createDrawable();
-            drawable.startDrawing();
-        } else {
-            Log.i(TAG, "Both bitmap dimensions same or smaller, no realloc = ("
-                    + framebufferwidth + "," + framebufferheight + ")");
-        }
     }
 
     /* (non-Javadoc)
@@ -195,18 +176,22 @@ class CompactBitmapData extends AbstractBitmapData {
          * @see android.graphics.drawable.DrawableContainer#draw(android.graphics.Canvas)
          */
         @Override
-        public void draw(Canvas canvas) {
+        public synchronized void draw(Canvas canvas) {
             //Log.i(TAG, "draw");
             try {
-                synchronized (this) {
-                    if (data.mbitmap != null && !data.mbitmap.isRecycled()) {
-                        canvas.drawBitmap(data.mbitmap, 0.0f, 0.0f, _defaultPaint);
-                    }
-                    if (softCursor != null && !softCursor.isRecycled()) {
-                        canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
+                synchronized(CompactBitmapData.this) {
+                    if (drawing) {
+                        if (mbitmap != null && !mbitmap.isRecycled()) {
+                            canvas.drawBitmap(mbitmap, 0.0f, 0.0f, _defaultPaint);
+                        }
+                        if (softCursor != null && !softCursor.isRecycled()) {
+                            canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
+                        }
                     }
                 }
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                Log.e(TAG, "Failed to draw");
+                Log.e(TAG, Log.getStackTraceString(e));
             }
         }
     }

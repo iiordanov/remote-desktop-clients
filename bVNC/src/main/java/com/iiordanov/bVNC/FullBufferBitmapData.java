@@ -30,18 +30,14 @@ import com.undatech.opaque.Viewable;
 import java.util.Arrays;
 
 class FullBufferBitmapData extends AbstractBitmapData {
-    /**
-     * Multiply this times total number of pixels to get estimate of process size with all buffers plus
-     * safety factor
-     */
-    static final int CAPACITY_MULTIPLIER = 6;
+    public static final String TAG = "FullBufferBitmapData";
 
     int xoffset;
     int yoffset;
     int dataWidth;
     int dataHeight;
 
-    public FullBufferBitmapData(int width, int height, Viewable c, int capacity) {
+    public FullBufferBitmapData(int width, int height, Viewable c) {
         super(width, height, c);
         framebufferwidth = width;
         framebufferheight = height;
@@ -60,29 +56,28 @@ class FullBufferBitmapData extends AbstractBitmapData {
     @Override
     public void copyRect(int sx, int sy, int dx, int dy, int w, int h) {
         int srcOffset, dstOffset;
-        int dstH = h;
-        int dstW = w;
 
         int startSrcY, endSrcY, dstY, deltaY;
         if (sy > dy) {
             startSrcY = sy;
-            endSrcY = sy + dstH;
+            endSrcY = sy + h;
             dstY = dy;
-            deltaY = +1;
+            deltaY = 1;
         } else {
-            startSrcY = sy + dstH - 1;
+            startSrcY = sy + h - 1;
             endSrcY = sy - 1;
-            dstY = dy + dstH - 1;
+            dstY = dy + h - 1;
             deltaY = -1;
         }
         for (int y = startSrcY; y != endSrcY; y += deltaY) {
             srcOffset = offset(sx, y);
             dstOffset = offset(dx, dstY);
             try {
-                System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
+                System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, w);
             } catch (Exception e) {
                 // There was an index out of bounds exception, but we continue copying what we can.
-                e.printStackTrace();
+                Log.e(TAG, "Caught an exception");
+                Log.e(TAG, Log.getStackTraceString(e));
             }
             dstY += deltaY;
         }
@@ -134,28 +129,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
     }
 
     /* (non-Javadoc)
-     * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
-     */
-    @Override
-    public void frameBufferSizeChanged(int width, int height) {
-        framebufferwidth = width;
-        framebufferheight = height;
-        bitmapwidth = framebufferwidth;
-        bitmapheight = framebufferheight;
-        Log.i("FBBM", "bitmapsize changed = (" + bitmapwidth + "," + bitmapheight + ")");
-        if (dataWidth < framebufferwidth || dataHeight < framebufferheight) {
-            dispose();
-            // Try to free up some memory.
-            System.gc();
-            dataWidth = framebufferwidth;
-            dataHeight = framebufferheight;
-            bitmapPixels = new int[framebufferwidth * framebufferheight];
-            drawable = createDrawable();
-            drawable.startDrawing();
-        }
-    }
-
-    /* (non-Javadoc)
      * @see com.iiordanov.bVNC.AbstractBitmapData#syncScroll()
      */
     @Override
@@ -184,9 +157,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
      */
     @Override
     public boolean validDraw(int x, int y, int w, int h) {
-        if (x + w > bitmapwidth || y + h > bitmapheight)
-            return false;
-        return true;
+        return x + w <= bitmapwidth && y + h <= bitmapheight;
     }
 
     class Drawable extends AbstractBitmapDrawable {
@@ -195,9 +166,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
         int drawHeight;
         int xo, yo;
 
-        /**
-         * @param data
-         */
         public Drawable(AbstractBitmapData data) {
             super(data);
         }
@@ -234,14 +202,18 @@ class FullBufferBitmapData extends AbstractBitmapData {
                 drawHeight = data.framebufferheight - yo;
 
             try {
-                synchronized (this) {
-                    canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth,
-                            xo, yo, drawWidth, drawHeight, false, _defaultPaint);
-                    if (softCursor != null && !softCursor.isRecycled()) {
-                        canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
+                synchronized (FullBufferBitmapData.this) {
+                    if (drawing) {
+                        canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth,
+                                xo, yo, drawWidth, drawHeight, false, _defaultPaint);
+                        if (softCursor != null && !softCursor.isRecycled()) {
+                            canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
+                        }
                     }
                 }
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                Log.e(TAG, "Failed to draw");
+                Log.e(TAG, Log.getStackTraceString(e));
             }
         }
     }

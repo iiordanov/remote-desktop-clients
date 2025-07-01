@@ -134,28 +134,6 @@ class UltraCompactBitmapData extends AbstractBitmapData {
     }
 
     @Override
-    public void frameBufferSizeChanged(int width, int height) {
-        framebufferwidth = width;
-        framebufferheight = height;
-        if (bitmapwidth < framebufferwidth || bitmapheight < framebufferheight) {
-            android.util.Log.i(TAG, "One or more bitmap dimensions increased, realloc = ("
-                    + framebufferwidth + "," + framebufferheight + ")");
-            dispose();
-            // Try to free up some memory.
-            System.gc();
-            bitmapwidth = framebufferwidth;
-            bitmapheight = framebufferheight;
-            mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);
-            memGraphics = new Canvas(mbitmap);
-            drawable = createDrawable();
-            drawable.startDrawing();
-        } else {
-            android.util.Log.i(TAG, "Both bitmap dimensions same or smaller, no realloc = ("
-                    + framebufferwidth + "," + framebufferheight + ")");
-        }
-    }
-
-    @Override
     public void syncScroll() {
         // Don't need anything here either
     }

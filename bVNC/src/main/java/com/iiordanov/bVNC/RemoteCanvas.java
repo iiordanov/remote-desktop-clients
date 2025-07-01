@@ -316,13 +316,12 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
             try {
                 if (!compact) {
                     Log.i(TAG, "Using FullBufferBitmapData.");
-                    myDrawable = new FullBufferBitmapData(dx, dy, this, capacity);
+                    myDrawable = new FullBufferBitmapData(dx, dy, this);
                 } else {
                     Log.i(TAG, "Using CompactBufferBitmapData.");
                     myDrawable = new CompactBitmapData(dx, dy, this, isSpice | isOpaque);
                 }
-            } catch (
-                    Throwable e) { // If despite our efforts we fail to allocate memory, use CompactBitmapData.
+            } catch (Throwable e) { // If despite our efforts we fail to allocate memory, use CompactBitmapData.
                 Log.e(TAG, "Could not allocate drawable, attempting to use CompactBitmapData.");
                 disposeDrawable();
                 myDrawable = new CompactBitmapData(dx, dy, this, isSpice | isOpaque);
@@ -338,7 +337,8 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
             myDrawable.syncScroll();
             drawableReallocatedListener.setBitmapData(myDrawable);
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Caught a NullPointerException");
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 

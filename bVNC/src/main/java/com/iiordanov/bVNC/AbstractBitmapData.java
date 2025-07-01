@@ -23,7 +23,11 @@ package com.iiordanov.bVNC;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.DrawableContainer;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.undatech.opaque.AbstractDrawableData;
@@ -37,6 +41,8 @@ import com.undatech.opaque.Viewable;
  * @author Michael A. MacDonald
  */
 abstract public class AbstractBitmapData implements AbstractDrawableData {
+    private final static String TAG = "AbstractBitmapData";
+
     public AbstractBitmapDrawable drawable;
     public Paint paint;
     int framebufferwidth;
@@ -44,7 +50,7 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
     int bitmapwidth;
     int bitmapheight;
     Bitmap mbitmap;
-    int bitmapPixels[];
+    int[] bitmapPixels;
     Canvas memGraphics;
     boolean waitingForInput;
     Viewable vncCanvas;
@@ -74,8 +80,9 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
     }
 
     public void setSoftCursor(int[] newSoftCursorPixels) {
-        if (drawable != null)
+        if (drawable != null) {
             drawable.setSoftCursor(newSoftCursorPixels);
+        }
     }
 
     public RectF getCursorRect() {
@@ -86,10 +93,11 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
     }
 
     public boolean isNotInitSoftCursor() {
-        if (drawable != null)
-            return (drawable.softCursorInit == false);
-        else
+        if (drawable != null) {
+            return (!drawable.softCursorInit);
+        } else {
             return false;
+        }
     }
 
     /**
@@ -101,7 +109,7 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
     }
 
     public boolean widthRatioLessThanHeightRatio() {
-        return (float) vncCanvas.getWidth() / framebufferwidth < vncCanvas.getHeight() / framebufferheight;
+        return (float) vncCanvas.getWidth() / framebufferwidth < (float) vncCanvas.getHeight() / framebufferheight;
     }
 
     /**
@@ -111,8 +119,6 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
      */
     public void prepareFullUpdateRequest(boolean incremental) {
     }
-
-    ;
 
     /**
      * Determine if a rectangle in full-frame coordinates can be drawn in the existing buffer
@@ -128,8 +134,6 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
     /**
      * Return an offset in the bitmapPixels array of a point in full-frame coordinates
      *
-     * @param x
-     * @param y
      * @return Offset in bitmapPixels array of color data for that point
      */
     public abstract int offset(int x, int y);
@@ -197,13 +201,14 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
     public void imageRect(int x, int y, int w, int h, int[] pix) {
         for (int j = 0; j < h; j++) {
             try {
-                synchronized (mbitmap) {
+                synchronized(this) {
                     System.arraycopy(pix, (w * j), bitmapPixels, offset(x, y + j), w);
                 }
                 //System.arraycopy(pix, (w * j), bitmapPixels, bitmapwidth * (y + j) + x, w);
             } catch (ArrayIndexOutOfBoundsException e) {
                 // An index is out of bounds for some reason, but we try to continue.
-                e.printStackTrace();
+                Log.e(TAG, "Caught an ArrayIndexOutOfBoundsException");
+                Log.e(TAG, Log.getStackTraceString(e));
             }
 
         }
@@ -233,14 +238,6 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
     public abstract void scrollChanged(int newx, int newy);
 
     /**
-     * Remote framebuffer size has changed.
-     * <p>
-     * This method is called when the framebuffer has changed size and reinitializes the
-     * necessary data structures to support that change.
-     */
-    public abstract void frameBufferSizeChanged(int width, int height);
-
-    /**
      * Sync scroll -- called from network thread; copies scroll changes from UI to network state
      */
     public abstract void syncScroll();
@@ -249,10 +246,18 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
      * Release resources
      */
     public void dispose() {
-        if (drawable != null)
-            drawable.dispose();
-        drawable = null;
-        memGraphics = null;
+        synchronized(this) {
+            if (drawable != null) {
+                drawable.stopDrawing();
+                drawable.dispose();
+            }
+            if (mbitmap != null) {
+                mbitmap.recycle();
+                mbitmap = null;
+            }
+            drawable = null;
+            memGraphics = null;
+        }
     }
 
     public int fbWidth() {
@@ -308,4 +313,118 @@ abstract public class AbstractBitmapData implements AbstractDrawableData {
     public Bitmap getMbitmap() {
         return mbitmap;
     }
+
+    public class AbstractBitmapDrawable extends DrawableContainer {
+        public Paint _defaultPaint;
+        RectF cursorRect;
+        int hotX, hotY;
+        Bitmap softCursor;
+        boolean softCursorInit;
+        Rect clipRect;
+        Rect toDraw;
+        volatile boolean drawing = false;
+        AbstractBitmapData data;
+        Paint _whitePaint;
+        Paint _blackPaint;
+
+        AbstractBitmapDrawable(AbstractBitmapData data) {
+            this.data = data;
+            cursorRect = new RectF();
+            clipRect = new Rect();
+            // Try to free up some memory.
+            System.gc();
+            createInitialSoftCursor();
+
+            _defaultPaint = new Paint();
+            _defaultPaint.setFilterBitmap(true);
+            _whitePaint = new Paint();
+            _whitePaint.setColor(0xffffffff);
+            _blackPaint = new Paint();
+            _blackPaint.setColor(0xff000000);
+        }
+
+        private void createInitialSoftCursor() {
+            synchronized (AbstractBitmapData.this) {
+                softCursor = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+                softCursorInit = false;
+            }
+        }
+
+        void setCursorRect(int x, int y, float w, float h, int hX, int hY) {
+            hotX = hX;
+            hotY = hY;
+            cursorRect.left = x - hotX;
+            cursorRect.right = cursorRect.left + w;
+            cursorRect.top = y - hotY;
+            cursorRect.bottom = cursorRect.top + h;
+        }
+
+        void moveCursorRect(int x, int y) {
+            setCursorRect(x, y, cursorRect.width(), cursorRect.height(), hotX, hotY);
+        }
+
+        void setSoftCursor(int[] newSoftCursorPixels) {
+            synchronized (AbstractBitmapData.this) {
+                Bitmap oldSoftCursor = softCursor;
+                softCursor = Bitmap.createBitmap(newSoftCursorPixels, (int) cursorRect.width(),
+                        (int) cursorRect.height(), Bitmap.Config.ARGB_8888);
+                softCursorInit = true;
+                oldSoftCursor.recycle();
+            }
+        }
+
+        /* (non-Javadoc)
+         * @see android.graphics.drawable.DrawableContainer#getIntrinsicHeight()
+         */
+        @Override
+        public int getIntrinsicHeight() {
+            return data.framebufferheight;
+        }
+
+        /* (non-Javadoc)
+         * @see android.graphics.drawable.DrawableContainer#getIntrinsicWidth()
+         */
+        @Override
+        public int getIntrinsicWidth() {
+            return data.framebufferwidth;
+        }
+
+        /* (non-Javadoc)
+         * @see android.graphics.drawable.DrawableContainer#getOpacity()
+         */
+        @Override
+        public int getOpacity() {
+            return PixelFormat.OPAQUE;
+        }
+
+        /* (non-Javadoc)
+         * @see android.graphics.drawable.DrawableContainer#isStateful()
+         */
+        @Override
+        public boolean isStateful() {
+            return false;
+        }
+
+        void dispose() {
+            synchronized (AbstractBitmapData.this) {
+                drawing = false;
+                if (softCursor != null) {
+                    softCursor.recycle();
+                    softCursor = null;
+                }
+                cursorRect = null;
+                clipRect = null;
+                toDraw = null;
+            }
+        }
+
+        protected void startDrawing() {
+            drawing = true;
+        }
+
+        protected void stopDrawing() {
+            drawing = false;
+        }
+    }
+
 }

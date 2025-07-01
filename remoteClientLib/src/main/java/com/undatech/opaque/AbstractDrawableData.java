@@ -46,8 +46,6 @@ public interface AbstractDrawableData {
 
     void scrollChanged(int newx, int newy);
 
-    void frameBufferSizeChanged(int width, int height);
-
     void syncScroll();
 
     void dispose();
