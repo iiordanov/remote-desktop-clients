@@ -1991,8 +1991,7 @@ public class RfbProto extends RfbConnectable {
                                     decoder.handleCopyRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
                                     break;
                                 case RfbProto.EncodingNewFBSize:
-                                    setFramebufferSize(updateRectW, updateRectH);
-                                    canvas.reallocateDrawable(updateRectW, updateRectH);
+                                    setFrameBufferSizeAndReallocateDrawable(updateRectW, updateRectH);
                                     exitforloop = true;
                                     break;
                                 case RfbProto.EncodingRaw:
@@ -2081,6 +2080,13 @@ public class RfbProto extends RfbConnectable {
         closeSocket();
     }
 
+    private synchronized void setFrameBufferSizeAndReallocateDrawable(int updateRectW, int updateRectH) {
+        if (updateRectW != framebufferWidth || updateRectH != framebufferHeight) {
+            setFramebufferSize(updateRectW, updateRectH);
+            canvas.reallocateDrawable(updateRectW, updateRectH);
+        }
+    }
+
     /**
      * This method handles the pseudo encoding ExtendedDesktopSize enabling a remote resizing of the vnc session
      * Protocol: https://github.com/rfbproto/rfbproto/blob/master/rfbproto.rst#extendeddesktopsize-pseudo-encoding
@@ -2129,8 +2135,7 @@ public class RfbProto extends RfbConnectable {
 
         Log.d(TAG, "handleExtendedDesktopSize, wxh: " + width + "x" + height);
         if (width != 0 && height != 0) {
-            setFramebufferSize(width, height);
-            canvas.reallocateDrawable(width, height);
+            setFrameBufferSizeAndReallocateDrawable(width, height);
         }
         if (preferredFramebufferWidth != 0 && preferredFramebufferHeight != 0) {
             // Notifiy Listeners on first update
