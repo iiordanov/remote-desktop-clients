@@ -4,8 +4,9 @@ android {
     compileSdkVersion compileApi
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 16
         targetSdkVersion targetApi
+        multiDexEnabled true
     }
 
     buildTypes {

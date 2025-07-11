@@ -10,7 +10,6 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/CustomVnc-app" />
             <option value="$PROJECT_DIR$/Opaque-app" />
             <option value="$PROJECT_DIR$/aRDP-app" />
             <option value="$PROJECT_DIR$/aSPICE-app" />
