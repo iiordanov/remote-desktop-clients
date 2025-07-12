@@ -179,7 +179,7 @@ public class bVNC extends MainConfiguration {
         if (id == R.layout.repeater_dialog) {
             return new RepeaterDialog(this);
         } else if (id == R.layout.auto_x_customize) {
-            Dialog d = new AutoXCustomizeDialog(this, database);
+            Dialog d = new AutoXCustomizeDialog(this);
             d.setCancelable(false);
             return d;
         }

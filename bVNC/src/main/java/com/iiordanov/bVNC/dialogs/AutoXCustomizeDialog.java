@@ -19,6 +19,7 @@
 
 package com.iiordanov.bVNC.dialogs;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -26,13 +27,12 @@ import android.content.Intent;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -41,25 +41,24 @@ import android.widget.ToggleButton;
 
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Constants;
-import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.bVNC;
 import com.iiordanov.util.RandomString;
 import com.undatech.remoteClientUi.R;
+
+import java.util.Objects;
 
 /**
  * @author Iordan K Iordanov
  *
  */
 public class AutoXCustomizeDialog extends AlertDialog {
+    private final static String TAG = "AutoXCustomizeDialog";
     private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://iiordanov.blogspot.ca/2012/10/looking-for-nx-client-for-android-or.html"));
-    private bVNC mainConfigDialog;
-    private ConnectionBean selected;
+    private final bVNC mainConfigDialog;
     private int commandIndex;
     private int origCommandIndex;
     private String command;
     private Spinner spinnerAutoXType;
-    private Button autoXConfirm;
-    private Button autoXCancel;
     private String geometry = "";
     private String sessionProg = "";
     private String pw = "";
@@ -70,24 +69,26 @@ public class AutoXCustomizeDialog extends AlertDialog {
     private EditText autoXHeight;
     private Spinner spinnerAutoXSession;
     private EditText autoXSessionProg;
-    private int nativeWidth;
-    private int nativeHeight;
     private CheckBox checkboxAutoXUnixpw;
     private CheckBox checkboxAutoXUnixAuth;
-    private RandomString rnd;
-    private Button buttonAutoXHelp;
-    private Database database;
+    private final RandomString rnd;
 
     /**
-     * @param context
      */
-    public AutoXCustomizeDialog(Context context, Database database) {
+    public AutoXCustomizeDialog(Context context) {
         super(context);
         setOwnerActivity((Activity) context);
         mainConfigDialog = (bVNC) context;
-        selected = mainConfigDialog.getCurrentConnection();
         rnd = new RandomString();
-        this.database = database;
+    }
+
+    private ConnectionBean getCurrentConnectionOrDismissIfNull() {
+        ConnectionBean selected = mainConfigDialog.getCurrentConnection();
+        if (selected == null) {
+            dismiss();
+            return new ConnectionBean(getContext());
+        }
+        return selected;
     }
 
     public static void showDocumentation(Context c) {
@@ -118,13 +119,8 @@ public class AutoXCustomizeDialog extends AlertDialog {
     }
 
     private void setWidgetStateAppropriately() {
-        selected = mainConfigDialog.getCurrentConnection();
-        if (selected == null) {
-            dismiss();
-            return;
-        }
-        commandIndex = selected.getAutoXType();
-        origCommandIndex = selected.getAutoXType();
+        commandIndex = getCurrentConnectionOrDismissIfNull().getAutoXType();
+        origCommandIndex = getCurrentConnectionOrDismissIfNull().getAutoXType();
         // Set current selection to the one corresponding to saved setting.
         spinnerAutoXType.setSelection(commandIndex);
         // Set the widgets controlling the remote resolution.
@@ -134,7 +130,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
         // Sets the password option.
         setPwOption();
         // Sets the state of the auto unixpw authentication checkbox.
-        checkboxAutoXUnixAuth.setChecked(selected.getAutoXUnixAuth());
+        checkboxAutoXUnixAuth.setChecked(getCurrentConnectionOrDismissIfNull().getAutoXUnixAuth());
         // Set the toggle state of the advanced button.
         setAdvancedToggleState();
     }
@@ -144,9 +140,9 @@ public class AutoXCustomizeDialog extends AlertDialog {
      */
     private void setAdvancedToggleState() {
         boolean adv = ((commandIndex != Constants.COMMAND_AUTO_X_DISABLED) &&
-                ((selected.getAutoXResType() != Constants.AUTOX_GEOM_SELECT_NATIVE) ||
-                        (selected.getAutoXSessionType() != Constants.AUTOX_SESS_PROG_SELECT_AUTO) ||
-                        selected.getAutoXUnixpw() || selected.getAutoXUnixAuth()));
+                ((getCurrentConnectionOrDismissIfNull().getAutoXResType() != Constants.AUTOX_GEOM_SELECT_NATIVE) ||
+                        (getCurrentConnectionOrDismissIfNull().getAutoXSessionType() != Constants.AUTOX_SESS_PROG_SELECT_AUTO) ||
+                        getCurrentConnectionOrDismissIfNull().getAutoXUnixpw() || getCurrentConnectionOrDismissIfNull().getAutoXUnixAuth()));
         toggleAutoXAdvanced.setChecked(adv);
     }
 
@@ -159,16 +155,19 @@ public class AutoXCustomizeDialog extends AlertDialog {
         if (commandIndex != Constants.COMMAND_AUTO_X_DISABLED)
             command = Constants.getCommandString(commandIndex, geometry + sessionProg + pw);
         else
-            command = new String("");
+            command = "";
     }
 
     /**
      * Enables and disables the EditText boxes for width and height of remote desktop.
      */
+    @SuppressLint("SetTextI18n")
     private void setRemoteWidthAndHeight() {
 
         // Android devices with SDK newer than KITKAT use immersive mode and therefore
         // we get the resolution of the whole display.
+        int nativeWidth;
+        int nativeHeight;
         if (Constants.SDK_INT < android.os.Build.VERSION_CODES.KITKAT) {
             nativeWidth = Math.max(mainConfigDialog.getWidth(), mainConfigDialog.getHeight());
             nativeHeight = Math.min(mainConfigDialog.getWidth(), mainConfigDialog.getHeight());
@@ -179,22 +178,22 @@ public class AutoXCustomizeDialog extends AlertDialog {
             nativeHeight = Math.min(dS.x, dS.y);
         }
 
-        spinnerAutoXGeometry.setSelection(selected.getAutoXResType());
-        if (selected.getAutoXResType() == Constants.AUTOX_GEOM_SELECT_NATIVE) {
+        spinnerAutoXGeometry.setSelection(getCurrentConnectionOrDismissIfNull().getAutoXResType());
+        if (getCurrentConnectionOrDismissIfNull().getAutoXResType() == Constants.AUTOX_GEOM_SELECT_NATIVE) {
             autoXWidth.setEnabled(false);
             autoXHeight.setEnabled(false);
             autoXWidth.setText(Integer.toString(nativeWidth));
             autoXHeight.setText(Integer.toString(nativeHeight));
-            selected.setAutoXWidth(nativeWidth);
-            selected.setAutoXHeight(nativeHeight);
+            getCurrentConnectionOrDismissIfNull().setAutoXWidth(nativeWidth);
+            getCurrentConnectionOrDismissIfNull().setAutoXHeight(nativeHeight);
         } else {
             autoXWidth.setEnabled(true);
             autoXHeight.setEnabled(true);
-            autoXWidth.setText(Integer.toString(selected.getAutoXWidth()));
-            autoXHeight.setText(Integer.toString(selected.getAutoXHeight()));
+            autoXWidth.setText(Integer.toString(getCurrentConnectionOrDismissIfNull().getAutoXWidth()));
+            autoXHeight.setText(Integer.toString(getCurrentConnectionOrDismissIfNull().getAutoXHeight()));
         }
 
-        geometry = new String(" -env FD_GEOM=" + selected.getAutoXWidth() + "x" + selected.getAutoXHeight());
+        geometry = " -env FD_GEOM=" + getCurrentConnectionOrDismissIfNull().getAutoXWidth() + "x" + getCurrentConnectionOrDismissIfNull().getAutoXHeight();
     }
 
     /**
@@ -202,17 +201,17 @@ public class AutoXCustomizeDialog extends AlertDialog {
      */
     private void setSessionProg() {
 
-        spinnerAutoXSession.setSelection(selected.getAutoXSessionType());
+        spinnerAutoXSession.setSelection(getCurrentConnectionOrDismissIfNull().getAutoXSessionType());
 
-        if (selected.getAutoXSessionType() != Constants.AUTOX_SESS_PROG_SELECT_CUSTOM) {
+        if (getCurrentConnectionOrDismissIfNull().getAutoXSessionType() != Constants.AUTOX_SESS_PROG_SELECT_CUSTOM) {
             autoXSessionProg.setEnabled(false);
-            autoXSessionProg.setText(Constants.getSessionProgString(selected.getAutoXSessionType()));
-            sessionProg = new String(" -env FD_PROG=\""
-                    + Constants.getSessionProgString(selected.getAutoXSessionType()) + "\" ");
+            autoXSessionProg.setText(Constants.getSessionProgString(getCurrentConnectionOrDismissIfNull().getAutoXSessionType()));
+            sessionProg = " -env FD_PROG=\""
+                    + Constants.getSessionProgString(getCurrentConnectionOrDismissIfNull().getAutoXSessionType()) + "\" ";
         } else {
             autoXSessionProg.setEnabled(true);
-            autoXSessionProg.setText(selected.getAutoXSessionProg().toString());
-            sessionProg = new String(" -env FD_PROG=\"" + autoXSessionProg.getText().toString() + "\" ");
+            autoXSessionProg.setText(getCurrentConnectionOrDismissIfNull().getAutoXSessionProg());
+            sessionProg = " -env FD_PROG=\"" + autoXSessionProg.getText().toString() + "\" ";
         }
     }
 
@@ -220,13 +219,13 @@ public class AutoXCustomizeDialog extends AlertDialog {
      * Sets the UNIXsessionProg variable according to selection.
      */
     private void setPwOption() {
-        checkboxAutoXUnixpw.setChecked(selected.getAutoXUnixpw());
-        if (selected.getAutoXUnixpw()) {
+        checkboxAutoXUnixpw.setChecked(getCurrentConnectionOrDismissIfNull().getAutoXUnixpw());
+        if (getCurrentConnectionOrDismissIfNull().getAutoXUnixpw()) {
             pw = Constants.AUTO_X_USERPW;
         } else {
             // Generate, save, and use random file extension.
-            selected.setAutoXRandFileNm(rnd.randomLowerCaseString(20));
-            pw = Constants.AUTO_X_PASSWDFILE + Constants.AUTO_X_PWFILEBASENAME + selected.getAutoXRandFileNm() + " \"";
+            getCurrentConnectionOrDismissIfNull().setAutoXRandFileNm(rnd.randomLowerCaseString(20));
+            pw = Constants.AUTO_X_PASSWDFILE + Constants.AUTO_X_PWFILEBASENAME + getCurrentConnectionOrDismissIfNull().getAutoXRandFileNm() + " \"";
         }
     }
 
@@ -238,7 +237,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.auto_x_customize);
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+        Objects.requireNonNull(getWindow()).clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                 WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.dimAmount = 1.0f;
@@ -247,7 +246,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
         getWindow().setAttributes(lp);
 
         // Define the spinner which allows one to choose the X-server type
-        spinnerAutoXType = (Spinner) findViewById(R.id.spinnerAutoXType);
+        spinnerAutoXType = findViewById(R.id.spinnerAutoXType);
         spinnerAutoXType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
@@ -263,39 +262,28 @@ public class AutoXCustomizeDialog extends AlertDialog {
         });
 
         // Set up the help button.
-        buttonAutoXHelp = (Button) findViewById(R.id.buttonAutoXHelp);
-        buttonAutoXHelp.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                showDocumentation(AutoXCustomizeDialog.this.mainConfigDialog);
-            }
-        });
+        Button buttonAutoXHelp = findViewById(R.id.buttonAutoXHelp);
+        buttonAutoXHelp.setOnClickListener(v -> showDocumentation(AutoXCustomizeDialog.this.mainConfigDialog));
 
         // The advanced settings button.
-        toggleAutoXAdvanced = (ToggleButton) findViewById(R.id.toggleAutoXAdvanced);
-        layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
-        toggleAutoXAdvanced.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-            @Override
-            public void onCheckedChanged(CompoundButton arg0, boolean checked) {
-                if (checked)
-                    layoutAdvancedSettings.setVisibility(View.VISIBLE);
-                else
-                    layoutAdvancedSettings.setVisibility(View.GONE);
-            }
-
+        toggleAutoXAdvanced = findViewById(R.id.toggleAutoXAdvanced);
+        layoutAdvancedSettings = findViewById(R.id.layoutAdvancedSettings);
+        toggleAutoXAdvanced.setOnCheckedChangeListener((arg0, checked) -> {
+            if (checked)
+                layoutAdvancedSettings.setVisibility(View.VISIBLE);
+            else
+                layoutAdvancedSettings.setVisibility(View.GONE);
         });
 
         // The geometry type and dimensions boxes.
-        spinnerAutoXGeometry = (Spinner) findViewById(R.id.spinnerAutoXGeometry);
-        autoXWidth = (EditText) findViewById(R.id.autoXWidth);
-        autoXHeight = (EditText) findViewById(R.id.autoXHeight);
+        spinnerAutoXGeometry = findViewById(R.id.spinnerAutoXGeometry);
+        autoXWidth = findViewById(R.id.autoXWidth);
+        autoXHeight = findViewById(R.id.autoXHeight);
         spinnerAutoXGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
-                selected.setAutoXResType(itemIndex);
+                getCurrentConnectionOrDismissIfNull().setAutoXResType(itemIndex);
                 setRemoteWidthAndHeight();
             }
 
@@ -306,13 +294,13 @@ public class AutoXCustomizeDialog extends AlertDialog {
         });
 
         // Define the type of session to start.
-        spinnerAutoXSession = (Spinner) findViewById(R.id.spinnerAutoXSession);
-        autoXSessionProg = (EditText) findViewById(R.id.autoXSessionProg);
+        spinnerAutoXSession = findViewById(R.id.spinnerAutoXSession);
+        autoXSessionProg = findViewById(R.id.autoXSessionProg);
         spinnerAutoXSession.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
-                selected.setAutoXSessionType(itemIndex);
+                getCurrentConnectionOrDismissIfNull().setAutoXSessionType(itemIndex);
                 setSessionProg();
             }
 
@@ -322,48 +310,30 @@ public class AutoXCustomizeDialog extends AlertDialog {
         });
 
         // Define the unixpw checkbox.
-        checkboxAutoXUnixpw = (CheckBox) findViewById(R.id.checkboxAutoXUnixpw);
-        checkboxAutoXUnixpw.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-            @Override
-            public void onCheckedChanged(CompoundButton arg0, boolean checked) {
-                selected.setAutoXUnixpw(checked);
-                setPwOption();
-            }
+        checkboxAutoXUnixpw = findViewById(R.id.checkboxAutoXUnixpw);
+        checkboxAutoXUnixpw.setOnCheckedChangeListener((arg0, checked) -> {
+            getCurrentConnectionOrDismissIfNull().setAutoXUnixpw(checked);
+            setPwOption();
         });
 
         // Define the auto unix authentication checkbox.
-        checkboxAutoXUnixAuth = (CheckBox) findViewById(R.id.checkboxAutoXUnixAuth);
-        checkboxAutoXUnixAuth.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-            @Override
-            public void onCheckedChanged(CompoundButton arg0, boolean checked) {
-                selected.setAutoXUnixAuth(checked);
-            }
-        });
+        checkboxAutoXUnixAuth = findViewById(R.id.checkboxAutoXUnixAuth);
+        checkboxAutoXUnixAuth.setOnCheckedChangeListener((arg0, checked) -> getCurrentConnectionOrDismissIfNull().setAutoXUnixAuth(checked));
 
 
         // Define Confirm button
-        autoXConfirm = (Button) findViewById(R.id.autoXConfirm);
-        autoXConfirm.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                updateAutoXInfo();
-                dismiss();
-            }
+        Button autoXConfirm = findViewById(R.id.autoXConfirm);
+        autoXConfirm.setOnClickListener(v -> {
+            updateAutoXInfo();
+            dismiss();
         });
 
         // Define Cancel button
-        autoXCancel = (Button) findViewById(R.id.autoXCancel);
-        autoXCancel.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                retainAutoXInfo();
-                // If the user cancels, exit without changes.
-                dismiss();
-            }
+        Button autoXCancel = findViewById(R.id.autoXCancel);
+        autoXCancel.setOnClickListener(v -> {
+            retainAutoXInfo();
+            // If the user cancels, exit without changes.
+            dismiss();
         });
 
         // Set the widgets' state appropriately.
@@ -375,17 +345,17 @@ public class AutoXCustomizeDialog extends AlertDialog {
      */
     public void updateAutoXInfo() {
         // Save any user modified resolution.
-        selected.setAutoXResType(spinnerAutoXGeometry.getSelectedItemPosition());
+        getCurrentConnectionOrDismissIfNull().setAutoXResType(spinnerAutoXGeometry.getSelectedItemPosition());
         try {
-            selected.setAutoXWidth(Integer.parseInt(autoXWidth.getText().toString()));
-            selected.setAutoXHeight(Integer.parseInt(autoXHeight.getText().toString()));
+            getCurrentConnectionOrDismissIfNull().setAutoXWidth(Integer.parseInt(autoXWidth.getText().toString()));
+            getCurrentConnectionOrDismissIfNull().setAutoXHeight(Integer.parseInt(autoXHeight.getText().toString()));
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
         }
 
         // Save any remote session command the user set.
-        selected.setAutoXSessionType(spinnerAutoXSession.getSelectedItemPosition());
-        selected.setAutoXSessionProg(autoXSessionProg.getText().toString());
+        getCurrentConnectionOrDismissIfNull().setAutoXSessionType(spinnerAutoXSession.getSelectedItemPosition());
+        getCurrentConnectionOrDismissIfNull().setAutoXSessionProg(autoXSessionProg.getText().toString());
 
         // Ensure the values of command and commandIndex match the widgets.
         setRemoteWidthAndHeight();
@@ -393,29 +363,29 @@ public class AutoXCustomizeDialog extends AlertDialog {
         setCommandIndexAndCommand(commandIndex);
 
         boolean autoXenabled = commandIndex != Constants.COMMAND_AUTO_X_DISABLED;
-        selected.setAutoXEnabled(autoXenabled);
+        getCurrentConnectionOrDismissIfNull().setAutoXEnabled(autoXenabled);
         if (autoXenabled) {
-            selected.setAddress("localhost");
+            getCurrentConnectionOrDismissIfNull().setAddress("localhost");
         }
-        selected.setAutoXType(commandIndex);
-        selected.setAutoXCommand(command);
-        selected.setAutoXUnixpw(checkboxAutoXUnixpw.isChecked());
-        selected.setAutoXUnixAuth(checkboxAutoXUnixAuth.isChecked());
+        getCurrentConnectionOrDismissIfNull().setAutoXType(commandIndex);
+        getCurrentConnectionOrDismissIfNull().setAutoXCommand(command);
+        getCurrentConnectionOrDismissIfNull().setAutoXUnixpw(checkboxAutoXUnixpw.isChecked());
+        getCurrentConnectionOrDismissIfNull().setAutoXUnixAuth(checkboxAutoXUnixAuth.isChecked());
         // Set a random VNC password (for the built-in security mechanism).
-        selected.setPassword(rnd.randomString(8));
+        getCurrentConnectionOrDismissIfNull().setPassword(rnd.randomString(8));
 
         // Update and save.
         mainConfigDialog.updateViewFromSelected();
-        selected.saveAndWriteRecent(false, getContext());
+        getCurrentConnectionOrDismissIfNull().saveAndWriteRecent(false, getContext());
     }
 
     public void retainAutoXInfo() {
         setCommandIndexAndCommand(origCommandIndex);
-        selected.setAutoXType(origCommandIndex);
-        selected.setAutoXCommand(command);
+        getCurrentConnectionOrDismissIfNull().setAutoXType(origCommandIndex);
+        getCurrentConnectionOrDismissIfNull().setAutoXCommand(command);
 
         // Update and save.
         mainConfigDialog.updateViewFromSelected();
-        selected.saveAndWriteRecent(false, getContext());
+        getCurrentConnectionOrDismissIfNull().saveAndWriteRecent(false, getContext());
     }
 }
