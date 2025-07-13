@@ -154,12 +154,14 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      */
     private final Runnable drawableSetter = new Runnable() {
         public void run() {
-            Log.d(TAG, "drawableSetter.run");
-            if (myDrawable != null) {
-                Log.d(TAG, "drawableSetter myDrawable not null");
-                myDrawable.setImageDrawable(RemoteCanvas.this);
-            } else {
-                Log.e(TAG, "drawableSetter myDrawable is null");
+            synchronized (RemoteCanvas.this) {
+                Log.d(TAG, "drawableSetter.run");
+                if (myDrawable != null) {
+                    Log.d(TAG, "drawableSetter myDrawable not null");
+                    myDrawable.setImageDrawable(RemoteCanvas.this);
+                } else {
+                    Log.e(TAG, "drawableSetter myDrawable is null");
+                }
             }
         }
     };
@@ -309,24 +311,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
             useFull = (connection.getForceFull() == BitmapImplHint.FULL);
         }
 
-        if (!isVnc) {
-            Log.i(TAG, "Using UltraCompactBufferBitmapData.");
-            myDrawable = new UltraCompactBitmapData(dx, dy, this, isSpice | isOpaque);
-        } else {
-            try {
-                if (!compact) {
-                    Log.i(TAG, "Using FullBufferBitmapData.");
-                    myDrawable = new FullBufferBitmapData(dx, dy, this);
-                } else {
-                    Log.i(TAG, "Using CompactBufferBitmapData.");
-                    myDrawable = new CompactBitmapData(dx, dy, this, isSpice | isOpaque);
-                }
-            } catch (Throwable e) { // If despite our efforts we fail to allocate memory, use CompactBitmapData.
-                Log.e(TAG, "Could not allocate drawable, attempting to use CompactBitmapData.");
-                disposeDrawable();
-                myDrawable = new CompactBitmapData(dx, dy, this, isSpice | isOpaque);
-            }
-        }
+        reallocateMyDrawable(dx, dy);
 
         try {
             if (needsLocalCursor()) {
@@ -334,11 +319,35 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
             }
             postDrawableSetter();
             handler.post(setModes);
-            myDrawable.syncScroll();
+            syncScroll();
             drawableReallocatedListener.setBitmapData(myDrawable);
         } catch (NullPointerException e) {
             Log.e(TAG, "Caught a NullPointerException");
             Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
+    private void reallocateMyDrawable(int dx, int dy) {
+        synchronized(this) {
+            if (!isVnc) {
+                Log.i(TAG, "Using UltraCompactBufferBitmapData.");
+                myDrawable = new UltraCompactBitmapData(dx, dy, this, isSpice | isOpaque);
+            } else {
+                try {
+                    if (!compact) {
+                        Log.i(TAG, "Using FullBufferBitmapData.");
+                        myDrawable = new FullBufferBitmapData(dx, dy, this);
+                    } else {
+                        Log.i(TAG, "Using CompactBufferBitmapData.");
+                        myDrawable = new CompactBitmapData(dx, dy, this, isSpice | isOpaque);
+                    }
+                } catch (
+                        Throwable e) { // If despite our efforts we fail to allocate memory, use CompactBitmapData.
+                    Log.e(TAG, "Could not allocate drawable, attempting to use CompactBitmapData.");
+                    disposeDrawable();
+                    myDrawable = new CompactBitmapData(dx, dy, this, isSpice | isOpaque);
+                }
+            }
         }
     }
 
@@ -358,10 +367,12 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      * Disposes of the old drawable which holds the remote desktop data.
      */
     public void disposeDrawable() {
-        if (myDrawable != null) {
-            myDrawable.dispose();
+        synchronized (this) {
+            if (myDrawable != null) {
+                myDrawable.dispose();
+            }
+            myDrawable = null;
         }
-        myDrawable = null;
         System.gc();
     }
 
@@ -372,37 +383,51 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
     @Override
     public int framebufferWidth() {
-        return myDrawable.fbWidth();
+        synchronized (this) {
+            return myDrawable.fbWidth();
+        }
     }
 
     @Override
     public int framebufferHeight() {
-        return myDrawable.fbHeight();
+        synchronized (this) {
+            return myDrawable.fbHeight();
+        }
     }
 
     @Override
     public void prepareFullUpdateRequest(boolean incremental) {
-        myDrawable.prepareFullUpdateRequest(incremental);
+        synchronized (this) {
+            myDrawable.prepareFullUpdateRequest(incremental);
+        }
     }
 
     @Override
     public int getXoffset() {
-        return myDrawable.getXoffset();
+        synchronized (this) {
+            return myDrawable.getXoffset();
+        }
     }
 
     @Override
     public int getYoffset() {
-        return myDrawable.getYoffset();
+        synchronized (this) {
+            return myDrawable.getYoffset();
+        }
     }
 
     @Override
     public int bmWidth() {
-        return myDrawable.bmWidth();
+        synchronized (this) {
+            return myDrawable.bmWidth();
+            }
     }
 
     @Override
     public int bmHeight() {
-        return myDrawable.bmHeight();
+        synchronized (this) {
+            return myDrawable.bmHeight();
+        }
     }
 
     /**
@@ -427,7 +452,9 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      * Lets the drawable know that an update from the remote server has arrived.
      */
     public void doneWaiting() {
-        myDrawable.doneWaiting();
+        synchronized (this) {
+            myDrawable.doneWaiting();
+        }
     }
 
     /**
@@ -435,7 +462,9 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      * drawable's scroll position (used only in LargeBitmapData)
      */
     public void syncScroll() {
-        myDrawable.syncScroll();
+        synchronized (this) {
+            myDrawable.syncScroll();
+        }
     }
 
     @Override
@@ -447,8 +476,10 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      * Computes the X and Y offset for converting coordinates from full-frame coordinates to view coordinates.
      */
     public void computeShiftFromFullToView() {
-        shiftX = (myDrawable.fbWidth() - getWidth()) / 2.0f;
-        shiftY = (myDrawable.fbHeight() - getHeight()) / 2.0f;
+        synchronized (this) {
+            shiftX = (myDrawable.fbWidth() - getWidth()) / 2.0f;
+            shiftY = (myDrawable.fbHeight() - getHeight()) / 2.0f;
+        }
     }
 
     /**
@@ -472,10 +503,12 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
         // Don't pan in a certain direction if dimension scaled is already less
         // than the dimension of the visible part of the screen.
-        if (myDrawable.fbWidth() < getVisibleDesktopWidth())
-            panX = false;
-        if (myDrawable.fbHeight() < getVisibleDesktopHeight())
-            panY = false;
+        synchronized (this) {
+            if (myDrawable.fbWidth() < getVisibleDesktopWidth())
+                panX = false;
+            if (myDrawable.fbHeight() < getVisibleDesktopHeight())
+                panY = false;
+        }
 
         // We only pan if the current scaling is able to pan.
         if (canvasZoomer != null && !canvasZoomer.isAbleToPan())
@@ -574,14 +607,10 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         if (absoluteYPosition + getVisibleDesktopHeight() + sY > getImageHeight() + buttonAndCurveOffset)
             sY = getImageHeight() - getVisibleDesktopHeight() - absoluteYPosition + buttonAndCurveOffset;
 
-        absoluteXPosition += sX;
-        absoluteYPosition += sY;
-        if (sX != 0.0 || sY != 0.0) {
-            //scrollBy((int)sX, (int)sY);
-            resetScroll();
-            return true;
-        }
-        return false;
+        absoluteXPosition += (int) sX;
+        absoluteYPosition += (int) sY;
+        resetScroll();
+        return true;
     }
 
     /**
@@ -611,18 +640,22 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     @Override
     protected void onScrollChanged(int l, int t, int oldL, int oldT) {
         super.onScrollChanged(l, t, oldL, oldT);
-        if (myDrawable != null) {
-            myDrawable.scrollChanged(absoluteXPosition, absoluteYPosition);
+        synchronized (this) {
+            if (myDrawable != null) {
+                myDrawable.scrollChanged(absoluteXPosition, absoluteYPosition);
+            }
         }
     }
 
     @Override
     public Bitmap getBitmap() {
-        Bitmap bitmap = null;
-        if (myDrawable != null) {
-            bitmap = myDrawable.getMbitmap();
+        synchronized (this) {
+            Bitmap bitmap = null;
+            if (myDrawable != null) {
+                bitmap = myDrawable.getMbitmap();
+            }
+            return bitmap;
         }
-        return bitmap;
     }
 
     /**
@@ -670,10 +703,12 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      * Invalidates (to redraw) the location of the remote pointer.
      */
     public void invalidateMousePosition() {
-        if (myDrawable != null) {
-            myDrawable.moveCursorRect(pointer.getX(), pointer.getY());
-            RectF r = myDrawable.getCursorRect();
-            reDraw(r.left, r.top, r.width(), r.height());
+        synchronized (this) {
+            if (myDrawable != null) {
+                moveSoftCursor(pointer.getX(), pointer.getY());
+                RectF r = getCursorRect();
+                reDraw(r.left, r.top, r.width(), r.height());
+            }
         }
     }
 
@@ -696,30 +731,42 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         return canvasZoomer.isAbleToPan();
     }
 
-    @Override
-    public void setImageDrawable(AbstractDrawableData drawable) {
-        myDrawable = drawable;
-        postDrawableSetter();
-    }
-
     /**
      * Moves soft cursor into a particular location.
      */
     synchronized public void softCursorMove(int x, int y) {
-        if (myDrawable.isNotInitSoftCursor() && connection.getUseLocalCursor() != Constants.CURSOR_FORCE_DISABLE) {
+        if (isNotInitSoftCursor() && connection.getUseLocalCursor() != Constants.CURSOR_FORCE_DISABLE) {
             initializeSoftCursor();
         }
 
         if (!cursorBeingMoved || pointer.isRelativeEvents()) {
             pointer.setX(x);
             pointer.setY(y);
-            RectF prevR = new RectF(myDrawable.getCursorRect());
+            RectF prevR = new RectF(getCursorRect());
             // Move the cursor.
-            myDrawable.moveCursorRect(x, y);
+            moveSoftCursor(x, y);
             // Show the cursor.
-            RectF r = myDrawable.getCursorRect();
+            RectF r = getCursorRect();
             reDraw(r.left, r.top, r.width(), r.height());
             reDraw(prevR.left, prevR.top, prevR.width(), prevR.height());
+        }
+    }
+
+    private RectF getCursorRect() {
+        synchronized (this) {
+            return myDrawable.getCursorRect();
+        }
+    }
+
+    private void moveSoftCursor(int x, int y) {
+        synchronized (this) {
+            myDrawable.moveCursorRect(x, y);
+        }
+    }
+
+    private boolean isNotInitSoftCursor() {
+        synchronized (this) {
+            return myDrawable.isNotInitSoftCursor();
         }
     }
 
@@ -733,10 +780,16 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         int[] tempPixels = new int[w * h];
         bm.getPixels(tempPixels, 0, w, 0, 0, w, h);
         // Set cursor rectangle as well.
-        myDrawable.setCursorRect(pointer.getX(), pointer.getY(), w, h, 0, 0);
-        // Set softCursor to whatever the resource is.
-        myDrawable.setSoftCursor(tempPixels);
+        setSoftCursorRectAndPixels(w, h, tempPixels);
         bm.recycle();
+    }
+
+    private void setSoftCursorRectAndPixels(int w, int h, int[] tempPixels) {
+        synchronized (this) {
+            myDrawable.setCursorRect(pointer.getX(), pointer.getY(), w, h, 0, 0);
+            // Set softCursor to whatever the resource is.
+            myDrawable.setSoftCursor(tempPixels);
+        }
     }
 
     @Override
@@ -788,26 +841,37 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     }
 
     public int getImageWidth() {
-        return myDrawable.fbWidth();
+        synchronized (this) {
+            return myDrawable.fbWidth();
+        }
     }
 
     public int getImageHeight() {
-        return myDrawable.fbHeight();
+        synchronized (this) {
+            return myDrawable.fbHeight();
+        }
     }
 
     public int getCenteredXOffset() {
-        return (myDrawable.fbWidth() - getWidth()) / 2;
+        synchronized (this) {
+            return (myDrawable.fbWidth() - getWidth()) / 2;
+        }
     }
 
     public int getCenteredYOffset() {
-        return (myDrawable.fbHeight() - getHeight()) / 2;
+        synchronized (this) {
+            return (myDrawable.fbHeight() - getHeight()) / 2;
+        }
     }
 
     public float getMinimumScale() {
-        if (myDrawable != null) {
-            return myDrawable.getMinimumScale();
-        } else
-            return 1.f;
+        synchronized (this) {
+            if (myDrawable != null) {
+                return myDrawable.getMinimumScale();
+            } else {
+                return 1.f;
+            }
+        }
     }
 
     public float getDisplayDensity() {
@@ -835,7 +899,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
                 try {
                     this.wait();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, Log.getStackTraceString(e));
                 }
             }
         }

@@ -24,8 +24,6 @@ public interface Viewable {
 
     boolean isAbleToPan();
 
-    void setImageDrawable(AbstractDrawableData drawable);
-
     Context getContext();
 
     void invalidateMousePosition();
