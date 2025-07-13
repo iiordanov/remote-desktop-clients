@@ -5,7 +5,8 @@
     android:layout_height="fill_parent"
     android:gravity="top|center"
     android:orientation="vertical"
-    android:stretchMode="columnWidth">
+    android:stretchMode="columnWidth"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
