@@ -56,7 +56,7 @@ import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.remoteClientUi.R;
 
 import net.sqlcipher.database.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
+import net.sqlcipher.database.SQLiteException;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
