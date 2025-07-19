@@ -22,7 +22,8 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingLeft="10dip"
-    android:paddingRight="10dip">
+    android:paddingRight="10dip"
+    android:fitsSystemWindows="true">
 
     <TextView
         android:layout_width="fill_parent"

@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dip"
-    tools:context="com.undatech.opaque.ConnectionSetupActivity">
+    tools:context="com.undatech.opaque.ConnectionSetupActivity"
+    android:fitsSystemWindows="true">
 
     <TableLayout
         android:id="@+id/fullscreen_content_controls"
