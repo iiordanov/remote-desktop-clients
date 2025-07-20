@@ -78,17 +78,5 @@
                 <data android:mimeType="application/vnd.vnc" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.iiordanov.bVNC.ConnectionListActivity"
-            android:exported="true"
-            android:label="${custom_vnc_app_name}"
-            android:resizeableActivity="true"
-            android:theme="@android:style/Theme.DeviceDefault"
-            android:windowSoftInputMode="stateHidden|adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_SHORTCUT" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
     </application>
 </manifest> 
