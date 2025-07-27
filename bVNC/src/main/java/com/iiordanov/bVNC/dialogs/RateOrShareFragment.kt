@@ -67,24 +67,22 @@ class RateOrShareFragment : DialogFragment() {
     }
 
     fun setTitle() {
+        var titleString = getString(R.string.action_rate_or_share_app)
         if (Utils.isCustom(context)){
             try {
-                dialog?.setTitle(
-                    getString(
-                        requireContext().resources.getIdentifier(
-                            Utils.getStringConfigAttribute(App.configFileReader.configData, TAG.replaceFirstChar { it.lowercase() }, "title", "key"),
-                            "string",
-                            Utils.pName(context)
-                        )
+                titleString = getString(
+                    requireContext().resources.getIdentifier(
+                        Utils.getStringConfigAttribute(App.configFileReader.configData, TAG.replaceFirstChar { it.lowercase() }, "title", "key"),
+                        "string",
+                        Utils.pName(context)
                     )
                 )
-                return
             }
-            catch (e: Exception) {
-                isCustomException(e)
+            catch (e: NullPointerException) {
+                isCustomNullPointerException(e)
             }
         }
-        dialog?.setTitle(getString(R.string.action_rate_or_share_app))
+        dialog?.setTitle(titleString)
     }
 
     fun setVisibilityOfElements(v: View) {
@@ -92,19 +90,14 @@ class RateOrShareFragment : DialogFragment() {
             try {
                 Utils.setVisibilityForViewElementsViaConfig(context, App.configFileReader.configData, TAG.replaceFirstChar { it.lowercase() }, v)
             }
-            catch (e: Exception) {
-                isCustomException(e)
+            catch (e: NullPointerException) {
+                isCustomNullPointerException(e)
             }
         }
     }
 
-    fun isCustomException(e: Exception) {
-        when (e) {
-            is NullPointerException -> {
-                Log.e(TAG, "Error referencing attribute in config file.")
-            }
-            else -> throw e
-        }
+    fun isCustomNullPointerException(e: NullPointerException) {
+        Log.e(TAG, "Error referencing attribute in config file.")
         Log.e(TAG, "Printing Stack Trace")
         e.printStackTrace()
     }

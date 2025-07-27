@@ -278,28 +278,18 @@ public class Utils {
     }
 
     public static String getStringConfigAttribute(Map<String, Map> configData, String configDataKey, String configDataKeyChild, String childAttribute) throws NullPointerException {
-        try {
-            String attr = (String) ((Map) configData.get(configDataKey).get(configDataKeyChild)).get(childAttribute);
-            return attr;
-        }
-        catch (NullPointerException e) {
-            throw e;
-        }
+        String attr = (String) ((Map) configData.get(configDataKey).get(configDataKeyChild)).get(childAttribute);
+        return attr;
     }
 
     public static void setVisibilityForViewElementsViaConfig(Context context, Map<String, Map> configData, String configDataKey, View view) throws NullPointerException {
-        try {
-            String packageName = Utils.pName(context);
-            Map<String, Integer> visibility = (Map<String, Integer>) configData.get(configDataKey).get("visibility");
+        String packageName = Utils.pName(context);
+        Map<String, Integer> visibility = (Map<String, Integer>) configData.get(configDataKey).get("visibility");
 
-            for (String s : visibility.keySet()) {
-                int resID = context.getResources().getIdentifier(s, "id", packageName);
-                View viewElement = view.findViewById(resID);
-                viewElement.setVisibility(visibility.get(s));
-            }
-        }
-        catch (NullPointerException e) {
-            throw e;
+        for (String s : visibility.keySet()) {
+            int resID = context.getResources().getIdentifier(s, "id", packageName);
+            View viewElement = view.findViewById(resID);
+            viewElement.setVisibility(visibility.get(s));
         }
     }
 
