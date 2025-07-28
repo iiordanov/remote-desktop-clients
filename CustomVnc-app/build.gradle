@@ -32,7 +32,7 @@ android {
     lintOptions {
         disable "Instantiatable"
     }
-    namespace 'com.iiordanov.' + project.getProperties().get("CUSTOM_VNC_APP_NAMESPACE")
+    namespace 'com.iiordanov.' + project.getProperties().get("CUSTOM_VNC_APP_NAMESPACE", "CUSTOM_VNC_APP_PACKAGE_NAME")
 }
 
 dependencies {
