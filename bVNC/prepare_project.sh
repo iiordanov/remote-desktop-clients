@@ -86,17 +86,17 @@ fi
 
 if [ -n "${CUSTOM_CLIENT}" ]
 then
-  if ! grep -q CUSTOM_.*_APP_PACKAGE_NAME ../${CUSTOM_MANIFEST_EXTENSION}-app/build.gradle
+  if ! grep -q CUSTOM_VNC_APP_NAMESPACE=.* ../gradle.properties
   then
-    echo "Failed to find CUSTOM_.*_APP_PACKAGE_NAME in build.gradle."
+    echo "Failed to find CUSTOM_VNC_APP_NAMESPACE=.* in gradle.properties."
     exit 1
   fi
 
-  sed -i.bakautocustom "s/CUSTOM_.*_APP_PACKAGE_NAME/$PRJ/" ../${CUSTOM_MANIFEST_EXTENSION}-app/build.gradle
+  sed -i "s/CUSTOM_VNC_APP_NAMESPACE=.*/CUSTOM_VNC_APP_NAMESPACE=${PRJ}/" ../gradle.properties
 
-  if grep -q CUSTOM_.*_APP_PACKAGE_NAME ../${CUSTOM_MANIFEST_EXTENSION}-app/build.gradle
+  if ! grep -q CUSTOM_VNC_APP_NAMESPACE=${PRJ} ../gradle.properties
   then
-    echo "Failed to set CUSTOM_.*_APP_PACKAGE_NAME in build.gradle."
+    echo "Failed to set CUSTOM_VNC_APP_NAMESPACE=${PRJ} in gradle.properties."
     exit 1
   fi
 fi
