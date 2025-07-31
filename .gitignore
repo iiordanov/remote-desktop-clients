@@ -206,6 +206,7 @@ build-*
 upload_*
 trigger-*
 increment_*
+functions.sh
 install.sh
 switch-to-*
 

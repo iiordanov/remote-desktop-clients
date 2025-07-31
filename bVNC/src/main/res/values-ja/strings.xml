@@ -7,6 +7,8 @@
     <string name="action_edit_default_settings">編集デフォルト設定</string>
     <string name="action_export_settings">エクスポート設定</string>
     <string name="action_delete_connection">接続削除</string>
+    <string name="action_rate_or_share_app">ヘルプ、評価、シェア</string>
+    <string name="get_help">ヘルプ</string>
     <string name="opaque_app_name">不透明</string>
     <string name="opaque_app_name_beta">不透明なベータ</string>
     <string name="advanced_settings">高度な設定</string>
@@ -218,7 +220,7 @@
     <string name="error_spice_unable_to_connect">接続/認証ができません。サーバーアドレス、パスワード、認証局とサブジェクトを確認してください。</string>
     <string name="error_ssh_could_not_exec_command">リモートコマンドを実行できませんでした。</string>
     <string name="error_ssh_could_not_send_sudo_pwd">sudoパスワードを送信できませんでした。</string>
-    <string name="error_ssh_hostkey_changed">エラー！サーバーホストキーが変更されました。意図的に変更された場合は、一度接続を削除してから再試行してください。そうでない場合、中間者攻撃の可能性があります。</string>
+    <string name="error_ssh_hostkey_changed">エラー！サーバーのホストキーが変更されました。意図的に変更した場合、続行してください。そうでない場合は、中間者攻撃の可能性があります。</string>
     <string name="error_ssh_kbd_auth_method_unavail">SSHサーバーは、 \"password\"と\"keyboard-interactive\"両方の認証方式に非対応です。 或いは\"publickey\"方式を先に実行させる必要があります。少なくとも、どちらか1つを許可するよう設定してください。又は、bVNC側を再設定してください。有効な認証方式：</string>
     <string name="error_ssh_key_auth_fail">鍵ペアによるSSHサーバーへの認証に失敗しました。SSHユーザー名を確認してください。また、パブリックキーがリモート側の「認証済みキーファイル」に入っていることを確認してください。</string>
     <string name="error_ssh_keypair_decryption_failure">鍵ペアの解読に失敗しました。メイン画面の\'SSH Passphrase\'フィールドに、パスフレーズが正しく入力されていることを確認してください。</string>
@@ -843,6 +845,7 @@ aSPICEで対応済み機能は以下の通り：
     <string name="enter_vnc_credentials">VNCクレデンシャルを入力してください</string>
     <string name="enter_vnc_password">VNCパスワードを入力してください</string>
     <string name="enter_rdp_credentials">RDPクレデンシャルを入力してください</string>
+    <string name="enter_gateway_credentials">ゲートウェイの認証情報を入力してください</string>
     <string name="enter_spice_password">SPICEパスワードを入力してください</string>
     <string name="enter_passphrase_title">キーパスフレーズを入力してください</string>
     <string name="enter_passphrase">キーパスフレーズを入力してください</string>
@@ -865,7 +868,9 @@ aSPICEで対応済み機能は以下の通り：
 
  -詳細設定：このセクションでは、ローカルデバイス、プロトコル、およびパフォーマンスの微調整を確認できます。"</string>
     <string name="help">ヘルプ</string>
+    <string name="need_help">ヘルプが必要ですか？</string>
     <string name="support_forum">サポートフォーラム</string>
+    <string name="email_us">Emailを送る 📧</string>
     <string name="report_bug">バグを報告</string>
     <string name="download_from_server">サーバーからダウンロード</string>
     <string name="import_from_file">ファイルからインポート</string>
@@ -874,6 +879,20 @@ aSPICEで対応済み機能は以下の通り：
     <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
     <string name="more_debug_logging">その他のデバッグログ</string>
     <string name="prefer_sending_unicode">Unicode入力（Windowsのみ）</string>
-    <string name="hide_connection_thumbnails">サムネイル非表示</string>
-    <string name="show_only_connection_nicknames">ニックネーム表示</string>
+    <string name="hide_connection_thumbnails">接続サムネイルを隠す</string>
+    <string name="show_only_connection_nicknames">接続ニックネームのみを表示</string>
+    <string name="love_our_work">このアプリを気に入りましたか？</string>
+    <string name="rate_app">評価する ⭐⭐⭐⭐⭐</string>
+    <string name="share_app">シェアする 🔗</string>
+    <string name="share_app_toast">このアプリをSNSで友達にシェア！</string>
+    <string name="donate_app">寄付する ❤</string>
+    <string name="more_apps">その他のアプリ 📱</string>
+    <string name="previous_versions">バージョン履歴 ⍼</string>
+    <string name="keyboard_type">ソフトウェアキーボードのタイプ</string>
+    <string name="pref_keyboard_type_label_TYPE_NULL">デフォルト (TYPE_NULL)</string>
+    <string name="pref_keyboard_type_label_VISIBLE_PASSWORD">テキスト/数字入力サポートなし（VISIBLE_PASSWORD)</string>
+    <string name="pref_keyboard_type_label_TYPE_CLASS_TEXT">テキスト入力サポートあり (TYPE_CLASS_TEXT)</string>
+    <string name="no_application_to_handle_vpn">この接続は、外部アプリ経由でVPNを起動するように設定されています。起動するにはMorpheuslyのようなアプリをインストールする必要があります。</string>
+    <string name="vnc_viewer_started">VNCビューワーが開始しました</string>
+    <string name="enable_gateway">ゲートウェイを有効にする</string>
 </resources>
