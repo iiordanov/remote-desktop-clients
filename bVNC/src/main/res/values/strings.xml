@@ -253,6 +253,7 @@
     <string name="error_ssh_unable_to_connect">Failed to connect to SSH Server. Please check network connectivity, and SSH Server address and port.</string>
     <string name="error_ssh_x11vnc_no_port_failure">Could not obtain remote VNC port from x11vnc. Please ensure x11vnc is installed. To be sure, try running x11vnc by hand on the command-line.</string>
     <string name="error_uri_noinfo_nosave">Insufficent information specified to connect.</string>
+    <string name="error_uri_parse_error">Unable to parse Intent URI. Please check the URI format. You can also see device logcat for more details.</string>
     <string name="error_vnc_authentication">VNC authentication failed! Check VNC password (and user if applicable).</string>
     <string name="error_vnc_unable_to_connect">"Connection to VNC server failed with reason: "</string>
     <string name="error_x509_could_not_generate_encoding">Certificate encoding could not be generated.</string>

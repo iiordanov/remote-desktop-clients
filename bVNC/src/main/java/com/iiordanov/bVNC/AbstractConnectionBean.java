@@ -1877,10 +1877,21 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         } else if (configFileName != null && Utils.isFree(context)) {
             throw new GettingConnectionSettingsException(R.string.pro_feature_generic);
         } else {
-            connection = getConnection(i, context, masterPasswordEnabled);
+            connection = tryGetConnectionFromUri(i, context, masterPasswordEnabled);
         }
         connection.setConnectionConfigFile(configFileName);
         return connection;
+    }
+
+    private static Connection tryGetConnectionFromUri(Intent i, Context context, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
+        try {
+            Connection connection;
+            connection = getConnection(i, context, masterPasswordEnabled);
+            return connection;
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "Error parsing URI: " + Log.getStackTraceString(e));
+            throw new GettingConnectionSettingsException(R.string.error_uri_noinfo_nosave);
+        }
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
