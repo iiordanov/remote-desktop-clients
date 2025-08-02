@@ -24,9 +24,8 @@ import com.undatech.remoteClientUi.R;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 
+@SuppressWarnings("unused")
 public abstract class AbstractConnectionBean extends com.antlersoft.android.dbimpl.IdImplementationBase implements Connection {
     public static final String TAG = "AbstractConnectionBean";
 
@@ -1816,11 +1815,9 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
                     FileUtils.outputToFile(context.getContentResolver().openInputStream(data), new File(tempConfigFile), MAX_CONFIG_FILE_SIZE_BYTES);
                     configFileName = tempConfigFile;
                 } catch (IOException e) {
-                    Log.e(TAG, "Could not write temp file: IOException.");
-                    e.printStackTrace();
+                    Log.e(TAG, "Could not write temp file: IOException:\n" + Log.getStackTraceString(e));
                 } catch (SecurityException e) {
-                    Log.e(TAG, "Could not write temp file: SecurityException.");
-                    e.printStackTrace();
+                    Log.e(TAG, "Could not write temp file: SecurityException:\n" + Log.getStackTraceString(e));
                 }
             }
 
@@ -1862,7 +1859,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             try {
                 waitOn.wait(GET_FILE_TIMEOUT);
             } catch (InterruptedException e) {
-                Log.e(TAG, "Timeout getting file over network: " + Log.getStackTraceString(e));
+                Log.e(TAG, "Timeout getting file over network:\n" + Log.getStackTraceString(e));
             }
             configFileName = tempConfigFile;
         }
@@ -1889,7 +1886,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             connection = getConnection(i, context, masterPasswordEnabled);
             return connection;
         } catch (IllegalStateException e) {
-            Log.e(TAG, "Error parsing URI: " + Log.getStackTraceString(e));
+            Log.e(TAG, "Error parsing URI:\n" + Log.getStackTraceString(e));
             throw new GettingConnectionSettingsException(R.string.error_uri_noinfo_nosave);
         }
     }
