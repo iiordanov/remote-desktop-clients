@@ -1,0 +1,1 @@
+<i>bVNC</i> is a secure, open source VNC client with Master password support, Multi-factor (two-factor) SSH authentication, Multi-touch control over the remote mouse, Scrolling with a two-finger drag, Pinch-zooming, Dynamic resolution changes (allowing you to reconfigure your desktop while connected), Multi-language support, SSH tunneling, and much more.
