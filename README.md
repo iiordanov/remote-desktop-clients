@@ -7,9 +7,9 @@ Please see the LICENSE file for information on how the source is licensed.
 
 # Links to App Stores
 
-bVNC is a VNC client. It's released as a donation version at [bVNC Pro](https://play.google.com/store/apps/details?id=com.iiordanov.bVNC), and a free version at [bVNC](https://play.google.com/store/apps/details?id=com.iiordanov.freebVNC)
+bVNC is a VNC client. It's released as a donation version at [bVNC Pro](https://play.google.com/store/apps/details?id=com.iiordanov.bVNC), and a free version at [PlayStore](https://play.google.com/store/apps/details?id=com.iiordanov.freebVNC) and at [IzzyOnDroid](https://apt.izzysoft.de/packages/com.iiordanov.freebVNC)
 
-aRDP is a RDP client. It's released as a donation version at, [aRDP Pro](https://play.google.com/store/apps/details?id=com.iiordanov.aRDP), and a free version at [aRDP](https://play.google.com/store/apps/details?id=com.iiordanov.freeaRDP)
+aRDP is a RDP client. It's released as a donation version at, [aRDP Pro](https://play.google.com/store/apps/details?id=com.iiordanov.aRDP), and a free version at [PlayStore](https://play.google.com/store/apps/details?id=com.iiordanov.freeaRDP) and at [IzzyOnDroid](https://apt.izzysoft.de/packages/com.iiordanov.freeaRDP)
 
 aSPICE is a SPICE Protocol client. It's available as a donation version at, [aSPICE Pro](https://play.google.com/store/apps/details?id=com.iiordanov.aSPICE), and a free version at [aSPICE](https://play.google.com/store/apps/details?id=com.iiordanov.freeaSPICE)
 
