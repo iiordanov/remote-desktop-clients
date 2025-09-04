@@ -49,6 +49,7 @@ public class Constants {
     public static final int DEFAULT_RDP_PORT = 3389;
     public static final int DEFAULT_RDP_GATEWAY_PORT = 443;
     public static final int DEFAULT_RDP_COLOR_MODE = 16;
+    public static final int DEFAULT_RDP_SECURITY_AUTO_NEGOTIATE = 0;
     // URI Parameters
     public static final String PARAM_CONN_NAME = "ConnectionName";
     public static final String PARAM_RDP_USER = "RdpUsername";

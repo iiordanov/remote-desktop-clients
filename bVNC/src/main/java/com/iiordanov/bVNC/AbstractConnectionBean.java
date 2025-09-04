@@ -30,7 +30,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public static final String TAG = "AbstractConnectionBean";
 
     public static final String GEN_TABLE_NAME = "CONNECTION_BEAN";
-    public static final int GEN_COUNT = 93;
+    public static final int GEN_COUNT = 94;
 
     // Field constants
     public static final String GEN_FIELD__ID = "_id";
@@ -224,6 +224,8 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public static final int GEN_ID_KEEPRDPGATEWAYPASSWORD = 91;
     public static final String GEN_FIELD_DESKTOPSCALEPERCENTAGE = "DESKTOPSCALEPERCENTAGE";
     public static final int GEN_ID_DESKTOPSCALEPERCENTAGE = 92;
+    public static final String GEN_FIELD_RDPSECURITY = "RDPSECURITY";
+    public static final int GEN_ID_RDPSECURITY = 93;
 
     // SQL Command for creating the table
     public static String GEN_CREATE = "CREATE TABLE CONNECTION_BEAN (" +
@@ -319,7 +321,8 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             "RDPGATEWAYDOMAIN TEXT," +
             "RDPGATEWAYPASSWORD TEXT," +
             "KEEPRDPGATEWAYPASSWORD INTEGER," +
-            "DESKTOPSCALEPERCENTAGE INTEGER" +
+            "DESKTOPSCALEPERCENTAGE INTEGER," +
+            "RDPSECURITY INTEGER" +
             ")";
 
     // Members corresponding to defined fields
@@ -420,6 +423,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     private String gen_rdpGatewayPassword;
     private boolean gen_keepRdpGatewayPassword;
     private int gen_desktopScalePercentage;
+    private int gen_rdpSecurity;
 
     public String Gen_tableName() {
         return GEN_TABLE_NAME;
@@ -1172,6 +1176,16 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         this.gen_desktopScalePercentage = desktopScalePercentage;
     }
 
+    @Override
+    public int getRdpSecurity() {
+        return gen_rdpSecurity;
+    }
+
+    @Override
+    public void setRdpSecurity(int rdpSecurity) {
+        this.gen_rdpSecurity = rdpSecurity;
+    }
+
     public android.content.ContentValues Gen_getValues() {
         android.content.ContentValues values = new android.content.ContentValues();
         values.put(GEN_FIELD__ID, Long.toString(this.gen__Id));
@@ -1272,6 +1286,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         values.put(GEN_FIELD_RDPGATEWAYPASSWORD, (this.gen_rdpGatewayPassword));
         values.put(GEN_FIELD_KEEPRDPGATEWAYPASSWORD, (this.gen_keepRdpGatewayPassword));
         values.put(GEN_FIELD_DESKTOPSCALEPERCENTAGE, (this.gen_desktopScalePercentage));
+        values.put(GEN_FIELD_RDPSECURITY, (this.gen_rdpSecurity));
 
         return values;
     }
@@ -1386,6 +1401,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         result[90] = cursor.getColumnIndex(GEN_FIELD_RDPGATEWAYPASSWORD);
         result[91] = cursor.getColumnIndex(GEN_FIELD_KEEPRDPGATEWAYPASSWORD);
         result[92] = cursor.getColumnIndex(GEN_FIELD_DESKTOPSCALEPERCENTAGE);
+        result[93] = cursor.getColumnIndex(GEN_FIELD_RDPSECURITY);
 
         return result;
     }
@@ -1677,6 +1693,9 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         if (columnIndices[GEN_ID_DESKTOPSCALEPERCENTAGE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_DESKTOPSCALEPERCENTAGE])) {
             gen_desktopScalePercentage = cursor.getInt(columnIndices[GEN_ID_DESKTOPSCALEPERCENTAGE]);
         }
+        if (columnIndices[GEN_ID_RDPSECURITY] >= 0 && !cursor.isNull(columnIndices[GEN_ID_RDPSECURITY])) {
+            gen_rdpSecurity = cursor.getInt(columnIndices[GEN_ID_RDPSECURITY]);
+        }
     }
 
     /**
@@ -1781,6 +1800,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_rdpGatewayPassword = values.getAsString(GEN_FIELD_RDPGATEWAYPASSWORD);
         gen_keepRdpGatewayPassword = values.getAsBoolean(GEN_FIELD_KEEPRDPGATEWAYPASSWORD);
         gen_desktopScalePercentage = values.getAsInteger(GEN_FIELD_DESKTOPSCALEPERCENTAGE);
+        gen_rdpSecurity = values.getAsInteger(GEN_FIELD_RDPSECURITY);
     }
 
     /**

@@ -523,6 +523,7 @@ If you are looking for a quick performance boost, try setting the Color mode to 
     <string name="rdp_adv_remotefx">Enable RemoteFX</string>
     <string name="rdp_adv_visual_styles">Enable Visual Styles</string>
     <string name="rdp_adv_window_contents">Show window contents while dragging</string>
+    <string name="rdp_security_mode">Security Mode</string>
     <string-array name="rdp_connection_type">
         <item>@string/connection_type_rdp</item>
         <item>@string/connection_type_rdp_over_ssh</item>
@@ -553,6 +554,16 @@ If you are looking for a quick performance boost, try setting the Color mode to 
         <item>16</item>
         <item>15</item>
         <item>8</item>
+    </string-array>
+    <string name="rdp_security_auto">Auto-negotiate Security</string>
+    <string name="rdp_security_rdp">RDP Security</string>
+    <string name="rdp_security_tls">TLS Security</string>
+    <string name="rdp_security_nla">Network Level Authentication</string>
+    <string-array name="rdp_security">
+        <item>@string/rdp_security_auto</item>
+        <item>@string/rdp_security_rdp</item>
+        <item>@string/rdp_security_tls</item>
+        <item>@string/rdp_security_nla</item>
     </string-array>
     <string-array name="vnc_geometry">
         <item>@string/rdp_geom_disabled</item>

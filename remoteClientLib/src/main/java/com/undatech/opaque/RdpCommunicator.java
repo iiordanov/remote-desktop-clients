@@ -372,7 +372,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         advancedSettings.setConsoleMode(consoleMode);
         advancedSettings.setRedirectSound(redirectSound);
         advancedSettings.setRedirectMicrophone(enableRecording);
-        advancedSettings.setSecurity(0); // Automatic negotiation
+        advancedSettings.setSecurity(connection.getRdpSecurity());
     }
 
     /**

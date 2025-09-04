@@ -55,7 +55,8 @@ public class Database extends SQLiteOpenHelper {
     static final int DBV_2_1_9 = 521;
     static final int DBV_2_2_0 = 525;
     static final int DBV_2_2_1 = 561;
-    static final int CURRVERS = DBV_2_2_1;
+    static final int DBV_2_2_2 = 602;
+    static final int CURRVERS = DBV_2_2_2;
     private static final String dbName = "VncDatabase";
     private static String password = "";
 
@@ -105,11 +106,11 @@ public class Database extends SQLiteOpenHelper {
         String newFormat = null;
 
         // If the previous key is an empty string, we must encrypt a plaintext DB.
-        if (Database.password.equals("")) {
+        if ("".equals(Database.password)) {
             Log.i(TAG, "Previous database unencrypted, encrypting.");
             newFormat = "encrypted";
             // If the previous key is not an empty string, then we must rekey an existing DB.
-        } else if (newPassword.equals("")) {
+        } else if ("".equals(newPassword)) {
             Log.i(TAG, "Previous database encrypted, decrypting.");
             newFormat = "plaintext";
             // If both the previous and new password are non-empty, we are rekeying the DB.
@@ -443,11 +444,20 @@ public class Database extends SQLiteOpenHelper {
             );
             oldVersion = DBV_2_2_1;
         }
+        if (oldVersion == DBV_2_2_1) {
+            Log.i(TAG, "Doing upgrade from 561 to 602");
+            db.execSQL(
+                    "ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                            + AbstractConnectionBean.GEN_FIELD_RDPSECURITY + " INTEGER DEFAULT "
+                            + Constants.DEFAULT_RDP_SECURITY_AUTO_NEGOTIATE
+            );
+            oldVersion = DBV_2_2_2;
+        }
     }
 
     public boolean checkMasterPassword(String password, Context context) {
         Log.i(TAG, "Checking master password.");
-        boolean result = false;
+        boolean result;
 
         Database testPassword = new Database(context);
         testPassword.close();

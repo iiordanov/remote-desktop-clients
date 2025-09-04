@@ -279,6 +279,10 @@ public interface Connection {
 
     void setRemoteSoundType(int remoteSoundType);
 
+    int getRdpSecurity();
+
+    void setRdpSecurity(int rdpSecurity);
+
     boolean getViewOnly();
 
     void setViewOnly(boolean viewOnly);
@@ -399,13 +403,13 @@ public interface Connection {
 
     void setMetaListId(long metaListId);
 
-    public String getScreenshotFilename();
+    String getScreenshotFilename();
 
-    public void setScreenshotFilename(String screenShotFilename);
+    void setScreenshotFilename(String screenShotFilename);
 
-    public String getX509KeySignature();
+    String getX509KeySignature();
 
-    public void setX509KeySignature(String x509KeySignature);
+    void setX509KeySignature(String x509KeySignature);
 
     boolean getEnableGfx();
 
@@ -459,23 +463,23 @@ public interface Connection {
 
     void setRdpGatewayPort(int rdpGatewayPort);
 
-    public String getRdpGatewayUsername();
+    String getRdpGatewayUsername();
 
-    public void setRdpGatewayUsername(String rdpGatewayUsername);
+    void setRdpGatewayUsername(String rdpGatewayUsername);
 
-    public String getRdpGatewayDomain();
+    String getRdpGatewayDomain();
 
-    public void setRdpGatewayDomain(String rdpGatewayDomain);
+    void setRdpGatewayDomain(String rdpGatewayDomain);
 
-    public String getRdpGatewayPassword();
+    String getRdpGatewayPassword();
 
-    public void setRdpGatewayPassword(String rdpGatewayPassword);
+    void setRdpGatewayPassword(String rdpGatewayPassword);
 
-    public boolean getKeepRdpGatewayPassword();
+    boolean getKeepRdpGatewayPassword();
 
-    public void setKeepRdpGatewayPassword(boolean keepRdpGatewayPassword);
+    void setKeepRdpGatewayPassword(boolean keepRdpGatewayPassword);
 
-    public int getDesktopScalePercentage();
+    int getDesktopScalePercentage();
 
-    public void setDesktopScalePercentage(int desktopScalePercentage);
+    void setDesktopScalePercentage(int desktopScalePercentage);
 }

@@ -157,7 +157,7 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
                 if (value instanceof String) {
                     editor.putString(key, (String) value);
                 } else if (value instanceof Integer) {
-                    editor.putInt(key,((Integer) value));
+                    editor.putInt(key, ((Integer) value));
                 } else if (value instanceof Boolean) {
                     editor.putBoolean(key, ((Boolean) value));
                 } else if (value instanceof Float) {
@@ -886,7 +886,6 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
      * Saves provided CA to a file if it doesn't exist already, and returns file name
      * if it was saved or it already exists. Returns "" if caCertData is empty or an error
      * occurred.
-     *
      */
     public String saveCaToFile(Context context, String caCertData) {
         String fileName;
@@ -997,6 +996,15 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
     @Override
     public void setRdpHeight(int rdpHeight) {
         this.rdpHeight = rdpHeight;
+    }
+
+    @Override
+    public int getRdpSecurity() {
+        return 0;
+    }
+
+    @Override
+    public void setRdpSecurity(int rdpSecurity) {
     }
 
     @Override

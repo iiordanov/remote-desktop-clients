@@ -26,6 +26,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.ImageView.ScaleType;
 
+import androidx.annotation.NonNull;
+
 import com.antlersoft.android.dbimpl.NewInstance;
 import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
 import com.iiordanov.util.NetworkUtils;
@@ -46,22 +48,17 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
     private static final String TAG = "ConnectionBean";
     static Context c = null;
-    public static final NewInstance<ConnectionBean> newInstance = new NewInstance<ConnectionBean>() {
-        public ConnectionBean get() {
-            return new ConnectionBean(c);
-        }
-    };
+    public static final NewInstance<ConnectionBean> newInstance = () -> new ConnectionBean(c);
     private boolean readyForConnection = true; // saved connections are OK
     private boolean readyToBeSaved = false;
     private int idHashAlgorithm;
     private String idHash;
-    private String masterPassword;
     private String id;
     private boolean useLastPositionToolbar;
     private int useLastPositionToolbarX;
     private int useLastPositionToolbarY;
     private boolean useLastPositionToolbarMoved;
-    private boolean showOnlyConnectionNicknames = false;
+    private final boolean showOnlyConnectionNicknames;
 
     private String connectionConfigFile = null;
 
@@ -206,9 +203,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
      * is the app's global state
      */
     public static MostRecentBean getMostRecent(SQLiteDatabase db) {
-        ArrayList<MostRecentBean> recents = new ArrayList<MostRecentBean>(1);
+        ArrayList<MostRecentBean> recents = new ArrayList<>(1);
         MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents, MostRecentBean.GEN_NEW);
-        if (recents.size() == 0)
+        if (recents.isEmpty())
             return null;
         return recents.get(0);
     }
@@ -527,15 +524,16 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         this.useLastPositionToolbarMoved = useLastPositionToolbarMoved;
     }
 
+    @NonNull
     @Override
     public String toString() {
         if (isNew()) {
             return c.getString(R.string.new_connection);
         }
-        String result = new String("");
+        String result = "";
 
         // Add the nickname if it has been set.
-        if (!getNickname().equals("")) {
+        if (!"".equals(getNickname())) {
             result += getNickname() + ":";
         }
 
@@ -576,8 +574,8 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     public void saveAndWriteRecent(boolean saveEmpty, Context c) {
         Log.d(TAG, "saveAndWriteRecent called");
         Database database = new Database(c);
-        if ((getConnectionType() == Constants.CONN_TYPE_SSH && getSshServer().equals("")
-                || getAddress().equals("")) && !saveEmpty) {
+        if ((getConnectionType() == Constants.CONN_TYPE_SSH && "".equals(getSshServer())
+                || "".equals(getAddress())) && !saveEmpty) {
             Log.d(TAG, "saveAndWriteRecent not saving due to missing data");
         } else {
             Log.d(TAG, "saveAndWriteRecent saving connection");

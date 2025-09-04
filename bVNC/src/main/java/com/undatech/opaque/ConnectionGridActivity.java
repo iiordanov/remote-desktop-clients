@@ -174,7 +174,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
     private ConnectionLoader getConnectionLoader(Context context) {
         boolean connectionsInSharedPrefs = Utils.isOpaque(context);
-        ConnectionLoader connectionLoader = new ConnectionLoader(appContext, this, connectionsInSharedPrefs);
+        ConnectionLoader connectionLoader = new ConnectionLoader(appContext, connectionsInSharedPrefs);
         return connectionLoader;
     }
 

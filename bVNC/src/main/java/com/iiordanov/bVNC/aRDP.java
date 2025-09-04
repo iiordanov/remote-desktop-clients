@@ -49,8 +49,6 @@ import java.util.List;
  * aRDP is the Activity for setting up RDP connections.
  */
 public class aRDP extends MainConfiguration {
-    private final static String TAG = "aRDP";
-
     private Spinner spinnerRdpGeometry;
     private EditText rdpDomain;
     private ToggleButton rdpGatewayEnabled;
@@ -76,6 +74,7 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxEnableGfxH264;
     private CheckBox checkboxPreferSendingUnicode;
     private Spinner spinnerRdpColor;
+    private Spinner spinnerRdpSecurity;
     private List<String> rdpColorArray;
     private SeekBar desktopScaleSeekBar;
     private TextView desktopScaleProgressTextView;
@@ -89,6 +88,7 @@ public class aRDP extends MainConfiguration {
         initializeRdpGatewaySettings();
         initializeRdpColorSpinner();
         initializeRdpResolutionSpinner();
+        initializeRdpSecuritySpinner();
         initializeAdvancedSettings();
     }
 
@@ -178,12 +178,24 @@ public class aRDP extends MainConfiguration {
         });
     }
 
+    private void initializeRdpSecuritySpinner() {
+        spinnerRdpSecurity = findViewById(R.id.spinnerRdpSecurity);
+        spinnerRdpSecurity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
+                selected.setRdpSecurity(itemIndex); // See rdp_security string-array
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+    }
+
     private void initializeRdpGatewaySettings() {
         layoutRdpGatewaySettings = findViewById(R.id.layoutRdpGatewaySettings);
         rdpGatewayEnabled = findViewById(R.id.rdpGatewayEnabled);
-        rdpGatewayEnabled.setOnClickListener(v -> {
-            layoutRdpGatewaySettings.setVisibility(((ToggleButton) v).isChecked() ? View.VISIBLE : View.GONE);
-        });
+        rdpGatewayEnabled.setOnClickListener(v -> layoutRdpGatewaySettings.setVisibility(((ToggleButton) v).isChecked() ? View.VISIBLE : View.GONE));
         rdpGatewayHostname = findViewById(R.id.rdpGatewayHostname);
         rdpGatewayPort = findViewById(R.id.rdpGatewayPort);
         rdpGatewayUsername = findViewById(R.id.rdpGatewayUsername);
@@ -199,6 +211,7 @@ public class aRDP extends MainConfiguration {
         super.updateViewFromSelected();
         setRdpSpecificSettingsFromSelected();
         setRdpColorSpinnerPositionFromSelected();
+        setRdpSecuritySpinnerPositionFromSelected();
         setRdpGeometrySpinnerPositionFromSelected();
         setRemoteWidthAndHeight(RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
         setRemoteSoundTypeFromSelected(selected.getRemoteSoundType());
@@ -226,6 +239,10 @@ public class aRDP extends MainConfiguration {
 
     private void setRdpColorSpinnerPositionFromSelected() {
         spinnerRdpColor.setSelection(rdpColorArray.indexOf(String.valueOf(selected.getRdpColor())));
+    }
+
+    private void setRdpSecuritySpinnerPositionFromSelected() {
+        spinnerRdpSecurity.setSelection(selected.getRdpSecurity());
     }
 
     private void updateAdvancedSettingsViewsFromSelected() {

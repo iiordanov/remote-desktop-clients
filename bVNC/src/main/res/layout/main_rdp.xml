@@ -650,6 +650,27 @@
                 android:text="@string/rdp_adv_gfxh264"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.4"
+                    android:text="@string/rdp_security_mode"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <Spinner
+                    android:id="@+id/spinnerRdpSecurity"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
+                    android:entries="@array/rdp_security"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            </LinearLayout>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

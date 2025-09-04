@@ -1,6 +1,5 @@
 package com.undatech.opaque.util;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -18,18 +17,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConnectionLoader {
-    private static String TAG = "ConnectionLoader";
-    private Context appContext;
-    private boolean connectionsInSharedPrefs;
-    private Map<String, Connection> connectionsById;
-    private String[] connectionPreferenceFiles;
+    private static final String TAG = "ConnectionLoader";
+    private final Context appContext;
+    private final boolean connectionsInSharedPrefs;
+    private final Map<String, Connection> connectionsById;
     private int numConnections = 0;
-    private Activity activity;
 
-    public ConnectionLoader(Context appContext, Activity activity, boolean connectionsInSharedPrefs) {
+    public ConnectionLoader(Context appContext, boolean connectionsInSharedPrefs) {
         this.appContext = appContext;
         this.connectionsInSharedPrefs = connectionsInSharedPrefs;
-        this.activity = activity;
         this.connectionsById = new HashMap<>();
         loadConnectionsById();
     }
@@ -47,11 +43,11 @@ public class ConnectionLoader {
         Database database = new Database(this.appContext);
         SQLiteDatabase db = database.getWritableDatabase();
 
-        ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
+        ArrayList<ConnectionBean> connections = new ArrayList<>();
         ConnectionBean.getAll(db, ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
         Collections.sort(connections);
         numConnections = connections.size();
-        if (connections.size() == 0) {
+        if (connections.isEmpty()) {
             Log.i(TAG, "No connections in the database");
         } else {
             for (int i = 0; i < connections.size(); i++) {
@@ -67,8 +63,8 @@ public class ConnectionLoader {
         SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         String connections = sp.getString("connections", null);
         Log.d(TAG, "Loading connections from this list: " + connections);
-        if (connections != null && !connections.equals("")) {
-            connectionPreferenceFiles = connections.split(" ");
+        if (connections != null && !connections.isEmpty()) {
+            String[] connectionPreferenceFiles = connections.split(" ");
             numConnections = connectionPreferenceFiles.length;
             for (int i = 0; i < numConnections; i++) {
                 Connection cs = new ConnectionSettings(connectionPreferenceFiles[i]);
@@ -78,18 +74,6 @@ public class ConnectionLoader {
                 connectionsById.put(Integer.toString(i), cs);
             }
         }
-    }
-
-    public boolean isConnectionsInSharedPrefs() {
-        return connectionsInSharedPrefs;
-    }
-
-    public String[] getConnectionPreferenceFiles() {
-        return connectionPreferenceFiles;
-    }
-
-    public int getNumConnections() {
-        return numConnections;
     }
 
     public Map<String, Connection> getConnectionsById() {
