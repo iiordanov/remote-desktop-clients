@@ -114,9 +114,9 @@ class FitToScreenScaling extends AbstractScaling {
         canvas.absoluteXPosition = 0;
         canvas.absoluteYPosition = 0;
         if (!canvas.myDrawable.widthRatioLessThanHeightRatio()) {
-            canvas.absoluteXPosition = -(int) (((canvas.getWidth() - canvas.framebufferWidth() * minimumScale) / 2) / minimumScale);
+            canvas.absoluteXPosition = -(int) (((canvas.getWidth() - canvas.getImageWidth() * minimumScale) / 2) / minimumScale);
         } else {
-            canvas.absoluteYPosition = -(int) (((canvas.getHeight() - canvas.framebufferHeight() * minimumScale) / 2) / minimumScale);
+            canvas.absoluteYPosition = -(int) (((canvas.getHeight() - canvas.getImageHeight() * minimumScale) / 2) / minimumScale);
         }
         resolveZoom(activity);
         canvas.relativePan(0, 0);

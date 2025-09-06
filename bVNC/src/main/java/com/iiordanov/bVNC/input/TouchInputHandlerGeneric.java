@@ -19,6 +19,7 @@
 
 
 package com.iiordanov.bVNC.input;
+import com.undatech.opaque.Viewable;
 
 import android.os.SystemClock;
 import android.view.GestureDetector;
@@ -28,8 +29,6 @@ import android.view.ScaleGestureDetector;
 import androidx.core.view.InputDeviceCompat;
 
 import com.iiordanov.bVNC.Constants;
-import com.iiordanov.bVNC.RemoteCanvas;
-import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.util.GeneralUtils;
 
@@ -48,9 +47,9 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     final double minScaleFactor = 0.1;
     protected GestureDetector gestureDetector;
     protected MyScaleGestureDetector scalingGestureDetector;
-    // Handles to the RemoteCanvas view and RemoteCanvasActivity activity.
-    protected RemoteCanvas canvas;
-    protected RemoteCanvasActivity activity;
+    // Handles to the canvas touchInputDelegate and activity touchInputDelegate.
+    protected Viewable viewable;
+    protected TouchInputDelegate touchInputDelegate;
     protected PanRepeater panRepeater;
     // Various drag modes in which we don't detect gestures.
     protected boolean panMode = false;
@@ -105,26 +104,25 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     Queue<Float> distXQueue;
     Queue<Float> distYQueue;
 
-    TouchInputHandlerGeneric(RemoteCanvasActivity activity, RemoteCanvas canvas, InputCarriable remoteInput,
+    TouchInputHandlerGeneric(TouchInputDelegate touchInputDelegate, Viewable viewable, InputCarriable remoteInput,
                              boolean debugLogging, int swipeSpeed) {
-        this.activity = activity;
-        this.canvas = canvas;
+        this.touchInputDelegate = touchInputDelegate;
+        this.viewable = viewable;
         this.remoteInput = remoteInput;
         this.debugLogging = debugLogging;
         this.maxSwipeSpeed = swipeSpeed;
 
-        // TODO: Implement this
-        useDpadAsArrows = true; //activity.getUseDpadAsArrows();
-        rotateDpad = false; //activity.getRotateDpad();
+        useDpadAsArrows = touchInputDelegate.getUseDpadAsArrows();
+        rotateDpad = touchInputDelegate.getRotateDpad();
 
-        gestureDetector = new GestureDetector(activity, this);
-        scalingGestureDetector = new MyScaleGestureDetector(activity, this);
+        gestureDetector = new GestureDetector(viewable.getContext(), this);
+        scalingGestureDetector = new MyScaleGestureDetector(viewable.getContext(), this);
 
         gestureDetector.setOnDoubleTapListener(this);
 
-        this.panRepeater = new PanRepeater(canvas, canvas.handler);
+        this.panRepeater = new PanRepeater(viewable, viewable.getHandler());
 
-        displayDensity = canvas.getDisplayDensity();
+        displayDensity = viewable.getDisplayDensity();
 
         distXQueue = new LinkedList<Float>();
         distYQueue = new LinkedList<Float>();
@@ -141,8 +139,8 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
      * @return the appropriate X coordinate.
      */
     protected int getX(MotionEvent e) {
-        float scale = canvas.getZoomFactor();
-        return (int) (canvas.getAbsX() + e.getX() / scale);
+        float scale = viewable.getZoomFactor();
+        return (int) (viewable.getAbsX() + e.getX() / scale);
     }
 
     /**
@@ -150,8 +148,8 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
      * @return the appropriate Y coordinate.
      */
     protected int getY(MotionEvent e) {
-        float scale = canvas.getZoomFactor();
-        return (int) (canvas.getAbsY() + (e.getY() - 1.f * canvas.getTop()) / scale);
+        float scale = viewable.getZoomFactor();
+        return (int) (viewable.getAbsY() + (e.getY() - 1.f * viewable.getTop()) / scale);
     }
 
     /**
@@ -164,9 +162,9 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         final int action = e.getActionMasked();
         final int meta = e.getMetaState();
         final int bstate = e.getButtonState();
-        float scale = canvas.getZoomFactor();
-        int x = (int) (canvas.getAbsX() + e.getX() / scale);
-        int y = (int) (canvas.getAbsY() + (e.getY() - 1.f * canvas.getTop()) / scale);
+        float scale = viewable.getZoomFactor();
+        int x = (int) (viewable.getAbsX() + e.getX() / scale);
+        int y = (int) (viewable.getAbsY() + (e.getY() - 1.f * viewable.getTop()) / scale);
 
         switch (action) {
             // If a mouse button was pressed or mouse was moved.
@@ -175,19 +173,19 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
             case MotionEvent.ACTION_MOVE:
                 switch (bstate) {
                     case MotionEvent.BUTTON_PRIMARY:
-                        canvas.movePanToMakePointerVisible();
+                        viewable.movePanToMakePointerVisible();
                         remoteInput.getPointer().leftButtonDown(x, y, meta);
                         used = true;
                         break;
                     case MotionEvent.BUTTON_SECONDARY:
                     case MotionEvent.BUTTON_STYLUS_PRIMARY:
-                        canvas.movePanToMakePointerVisible();
+                        viewable.movePanToMakePointerVisible();
                         remoteInput.getPointer().rightButtonDown(x, y, meta);
                         used = true;
                         break;
                     case MotionEvent.BUTTON_TERTIARY:
                     case MotionEvent.BUTTON_STYLUS_SECONDARY:
-                        canvas.movePanToMakePointerVisible();
+                        viewable.movePanToMakePointerVisible();
                         remoteInput.getPointer().middleButtonDown(x, y, meta);
                         used = true;
                         break;
@@ -206,7 +204,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                     case MotionEvent.BUTTON_TERTIARY:
                     case MotionEvent.BUTTON_STYLUS_PRIMARY:
                     case MotionEvent.BUTTON_STYLUS_SECONDARY:
-                        canvas.movePanToMakePointerVisible();
+                        viewable.movePanToMakePointerVisible();
                         remoteInput.getPointer().releaseButton(x, y, meta);
                         used = true;
                         break;
@@ -242,8 +240,8 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
             // If the mouse was moved OR as reported, some external mice trigger this when a
             // mouse button is pressed as well, so we check bstate here too.
             case MotionEvent.ACTION_HOVER_MOVE:
-                activity.showActionBar();
-                canvas.movePanToMakePointerVisible();
+                touchInputDelegate.showActionBar();
+                viewable.movePanToMakePointerVisible();
                 switch (bstate) {
                     case MotionEvent.BUTTON_PRIMARY:
                         remoteInput.getPointer().leftButtonDown(x, y, meta);
@@ -303,14 +301,17 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
         GeneralUtils.debugLog(debugLogging, TAG, "onSingleTapConfirmed, e: " + e);
+        performLeftClick(e);
+        return true;
+    }
 
+    private void performLeftClick(MotionEvent e) {
         int metaState = e.getMetaState();
-        activity.showActionBar();
+        touchInputDelegate.showActionBar();
         remoteInput.getPointer().leftButtonDown(getX(e), getY(e), metaState);
         SystemClock.sleep(50);
         remoteInput.getPointer().releaseButton(getX(e), getY(e), metaState);
-        canvas.movePanToMakePointerVisible();
-        return true;
+        viewable.movePanToMakePointerVisible();
     }
 
     /*
@@ -328,7 +329,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         remoteInput.getPointer().leftButtonDown(getX(e), getY(e), metaState);
         SystemClock.sleep(50);
         remoteInput.getPointer().releaseButton(getX(e), getY(e), metaState);
-        canvas.movePanToMakePointerVisible();
+        viewable.movePanToMakePointerVisible();
         return true;
     }
 
@@ -347,7 +348,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
             return;
         }
 
-        activity.sendShortVibration();
+        touchInputDelegate.sendShortVibration();
 
         dragMode = true;
         remoteInput.getPointer().leftButtonDown(getX(e), getY(e), metaState);
@@ -360,7 +361,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     protected boolean endDragModesAndScrolling() {
         GeneralUtils.debugLog(debugLogging, TAG, "endDragModesAndScrolling");
         boolean nonDragGesture = panMode || inScaling || inSwiping || inScrolling || immersiveSwipe;
-        canvas.cursorBeingMoved = false;
+        viewable.setCursorBeingMoved(false);
         panMode = false;
         inScaling = false;
         inSwiping = false;
@@ -389,7 +390,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     private void detectImmersiveSwipe(float y) {
         GeneralUtils.debugLog(debugLogging, TAG, "detectImmersiveSwipe");
         if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT &&
-                (y <= immersiveSwipeDistance || canvas.getHeight() - y <= immersiveSwipeDistance)) {
+                (y <= immersiveSwipeDistance || viewable.getHeight() - y <= immersiveSwipeDistance)) {
             inSwiping = true;
             immersiveSwipe = true;
         } else if (!singleHandedGesture) {
@@ -424,7 +425,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         }
 
         if (action == MotionEvent.ACTION_UP) {
-            canvas.invalidate();
+            viewable.invalidate();
         }
 
         GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent: pointerID: " + pointerID);
@@ -444,7 +445,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                         // Cancel drag modes and scrolling.
                         if (!singleHandedGesture)
                             endDragModesAndScrolling();
-                        canvas.cursorBeingMoved = true;
+                        viewable.setCursorBeingMoved(true);
                         // Indicate where we start dragging from.
                         dragX = e.getX();
                         dragY = e.getY();
@@ -473,14 +474,14 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                         GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent: ACTION_MOVE");
                         // Send scroll up/down events if swiping is happening.
                         if (panMode) {
-                            float scale = canvas.getZoomFactor();
-                            canvas.relativePan(-(int) ((e.getX() - dragX) * scale), -(int) ((e.getY() - dragY) * scale));
+                            float scale = viewable.getZoomFactor();
+                            viewable.relativePan(-(int) ((e.getX() - dragX) * scale), -(int) ((e.getY() - dragY) * scale));
                             dragX = e.getX();
                             dragY = e.getY();
                             GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent: ACTION_MOVE panMode");
                             return true;
                         } else if (dragMode || rightDragMode || middleDragMode) {
-                            canvas.movePanToMakePointerVisible();
+                            viewable.movePanToMakePointerVisible();
                             remoteInput.getPointer().moveMouseButtonDown(getX(e), getY(e), meta);
                             GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent: ACTION_MOVE in a drag mode, moving mouse with button down");
                             return true;
@@ -620,12 +621,12 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                 eventConsumed = false;
             }
 
-            if (eventConsumed && canvas != null && canvas.canvasZoomer != null) {
+            if (eventConsumed && viewable != null) {
                 if (inScaling == false) {
                     inScaling = true;
                 }
                 GeneralUtils.debugLog(debugLogging, TAG, "Changing zoom level: " + detector.getScaleFactor());
-                canvas.canvasZoomer.changeZoom(activity, detector.getScaleFactor(), xCurrentFocus, yCurrentFocus);
+                viewable.changeZoom(detector.getScaleFactor(), xCurrentFocus, yCurrentFocus);
             }
         }
         return eventConsumed;
@@ -680,7 +681,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         }
 
         boolean useEvent = false;
-        if (!canvas.isAbleToPan()) {
+        if (!viewable.isAbleToPan()) {
             GeneralUtils.debugLog(debugLogging, TAG, "consumeAsMouseWheel, fit-to-screen");
             useEvent = true;
         }

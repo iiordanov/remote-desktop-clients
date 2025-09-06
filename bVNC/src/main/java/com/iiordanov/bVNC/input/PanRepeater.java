@@ -19,10 +19,10 @@
 
 
 package com.iiordanov.bVNC.input;
+import com.undatech.opaque.Viewable;
 
 import android.os.Handler;
 
-import com.iiordanov.bVNC.RemoteCanvas;
 
 public class PanRepeater implements Runnable {
 
@@ -30,14 +30,14 @@ public class PanRepeater implements Runnable {
     static final float speedFactor = 0.008f;
     // Delay next scheduled pan by this value.
     int delay = 5;
-    private RemoteCanvas canvas = null;
+    private Viewable viewable = null;
     private Handler handler = null;
     // Used to hold current velocity
     private float velocityX;
     private float velocityY;
 
-    public PanRepeater(RemoteCanvas canvas, Handler handler) {
-        this.canvas = canvas;
+    public PanRepeater(Viewable viewable, Handler handler) {
+        this.viewable = viewable;
         this.handler = handler;
     }
 
@@ -59,7 +59,7 @@ public class PanRepeater implements Runnable {
         float pY = Math.abs(velocityY);
         if (pX >= 1 || pY >= 1) {
             //Log.i ("PanRepeater", "Panning by: " + velocityX + "x" + velocityY);
-            canvas.relativePan((int) velocityX, (int) velocityY);
+            viewable.relativePan((int) velocityX, (int) velocityY);
             velocityX = velocityX / 1.23f;
             velocityY = velocityY / 1.23f;
             handler.postDelayed(this, delay);

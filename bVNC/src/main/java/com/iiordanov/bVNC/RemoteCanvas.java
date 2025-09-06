@@ -284,8 +284,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     void showMessage(final String error) {
         Log.d(TAG, "showMessage");
         screenMessage = error;
-        handler.removeCallbacks(showDialogMessage);
-        handler.post(showDialogMessage);
+        postMessage(showDialogMessage);
     }
 
     /**
@@ -381,19 +380,6 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         handler.post(drawableSetter);
     }
 
-    @Override
-    public int framebufferWidth() {
-        synchronized (this) {
-            return myDrawable.fbWidth();
-        }
-    }
-
-    @Override
-    public int framebufferHeight() {
-        synchronized (this) {
-            return myDrawable.fbHeight();
-        }
-    }
 
     @Override
     public void prepareFullUpdateRequest(boolean incremental) {
@@ -435,15 +421,19 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      */
     public void displayShortToastMessage(final CharSequence message) {
         screenMessage = message;
-        handler.removeCallbacks(showMessage);
-        handler.post(showMessage);
+        postMessage(showMessage);
     }
 
     /**
      * Displays a short toast message on the screen.
      */
+    @Override
     public void displayShortToastMessage(final int messageID) {
         screenMessage = getResources().getText(messageID);
+        postMessage(showMessage);
+    }
+
+    private void postMessage(Runnable showMessage) {
         handler.removeCallbacks(showMessage);
         handler.post(showMessage);
     }
@@ -739,7 +729,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
             initializeSoftCursor();
         }
 
-        if (!cursorBeingMoved || pointer.isRelativeEvents()) {
+        if (!isCursorBeingMoved() || pointer.isRelativeEvents()) {
             pointer.setX(x);
             pointer.setY(y);
             RectF prevR = new RectF(getCursorRect());
@@ -888,6 +878,37 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
     public int getAbsY() {
         return absoluteYPosition;
+    }
+
+    @Override
+    public boolean relativePan(int deltaX, int deltaY) {
+        return relativePan((float) deltaX, (float) deltaY);
+    }
+
+    @Override
+    public boolean isCursorBeingMoved() {
+        return cursorBeingMoved;
+    }
+
+    @Override
+    public void setCursorBeingMoved(boolean cursorBeingMoved) {
+        this.cursorBeingMoved = cursorBeingMoved;
+    }
+
+    @Override
+    public void changeZoom(float scaleFactor, float fx, float fy) {
+        if (canvasZoomer != null && getContext() instanceof RemoteCanvasActivity) {
+            canvasZoomer.changeZoom((RemoteCanvasActivity) getContext(), scaleFactor, fx, fy);
+        }
+    }
+    @Override
+    public boolean isZoomerAbleToPan() {
+        return canvasZoomer != null && canvasZoomer.isAbleToPan();
+    }
+
+    @Override
+    public Handler getHandler() {
+        return handler;
     }
 
     /**

@@ -81,6 +81,7 @@ import com.iiordanov.bVNC.input.TouchInputHandlerDirectDragPan;
 import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
 import com.iiordanov.bVNC.input.TouchInputHandlerSingleHanded;
 import com.iiordanov.bVNC.input.TouchInputHandlerTouchpad;
+import com.iiordanov.bVNC.input.TouchInputDelegate;
 import com.iiordanov.bVNC.protocol.GettingConnectionSettingsException;
 import com.iiordanov.bVNC.protocol.RemoteConnection;
 import com.iiordanov.bVNC.protocol.RemoteConnectionFactory;
@@ -104,7 +105,7 @@ import java.util.TimerTask;
 
 @SuppressLint("ClickableViewAccessibility")
 public class RemoteCanvasActivity extends AppCompatActivity implements
-        SelectTextElementFragment.OnFragmentDismissedListener {
+        SelectTextElementFragment.OnFragmentDismissedListener, TouchInputDelegate {
 
     public static final int[] inputModeIds = {R.id.itemInputTouchpad,
             R.id.itemInputTouchPanZoomMouse,
@@ -564,6 +565,21 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         } else {
             Log.i(TAG, "Device cannot vibrate, not sending vibration");
         }
+    }
+
+    @Override
+    public <T extends View> T findViewById(int id) {
+        return super.findViewById(id);
+    }
+
+    @Override
+    public boolean getUseDpadAsArrows() {
+        return connection != null && connection.getUseDpadAsArrows();
+    }
+
+    @Override
+    public boolean getRotateDpad() {
+        return connection != null && connection.getRotateDpad();
     }
 
     /**

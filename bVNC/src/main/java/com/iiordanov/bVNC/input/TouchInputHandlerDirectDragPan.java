@@ -19,11 +19,10 @@
 
 
 package com.iiordanov.bVNC.input;
+import com.undatech.opaque.Viewable;
 
 import android.view.MotionEvent;
 
-import com.iiordanov.bVNC.RemoteCanvas;
-import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
@@ -32,10 +31,10 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
     public static final String ID = "TOUCH_ZOOM_MODE_DRAG_PAN";
     static final String TAG = "InputHandlerDirectDragPan";
 
-    public TouchInputHandlerDirectDragPan(RemoteCanvasActivity activity, RemoteCanvas canvas,
+    public TouchInputHandlerDirectDragPan(TouchInputDelegate touchInputDelegate, Viewable viewable,
                                           InputCarriable remoteInput, boolean debugLogging,
                                           int swipeSpeed) {
-        super(activity, canvas, remoteInput, debugLogging, swipeSpeed);
+        super(touchInputDelegate, viewable, remoteInput, debugLogging, swipeSpeed);
     }
 
     /*
@@ -44,7 +43,7 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
      */
     @Override
     public String getDescription() {
-        return canvas.getResources().getString(R.string.input_method_direct_drag_pan_description);
+        return viewable.getResources().getString(R.string.input_method_direct_drag_pan_description);
     }
 
     /*
@@ -69,9 +68,9 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
             return;
 
         endDragModesAndScrolling();
-        if (canvas.canvasZoomer != null && canvas.canvasZoomer.isAbleToPan()) {
-            activity.sendShortVibration();
-            canvas.displayShortToastMessage(activity.getString(R.string.panning));
+        if (viewable.isZoomerAbleToPan()) {
+            touchInputDelegate.sendShortVibration();
+            viewable.displayShortToastMessage(R.string.panning);
             panMode = true;
         } else {
             startDragAndDropMode(e);
@@ -94,9 +93,9 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
 
         // If we are scaling, allow panning around by moving two fingers around the screen
         if (inScaling) {
-            float scale = canvas.getZoomFactor();
-            activity.showActionBar();
-            canvas.relativePan((int) (distanceX * scale), (int) (distanceY * scale));
+            float scale = viewable.getZoomFactor();
+            touchInputDelegate.showActionBar();
+            viewable.relativePan((int) (distanceX * scale), (int) (distanceY * scale));
         } else {
             // onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
             // consumed. This prevents the mouse pointer from flailing around while we are scaling.
@@ -113,7 +112,7 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
             if (twoFingers || inSwiping)
                 return true;
 
-            activity.showActionBar();
+            touchInputDelegate.showActionBar();
 
             if (!dragMode) {
                 startDragAndDropMode(e1);
@@ -121,7 +120,7 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
                 remoteInput.getPointer().moveMouseButtonDown(getX(e2), getY(e2), e2.getMetaState());
             }
         }
-        canvas.movePanToMakePointerVisible();
+        viewable.movePanToMakePointerVisible();
         return true;
     }
 }

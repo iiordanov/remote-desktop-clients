@@ -19,11 +19,10 @@
 
 
 package com.iiordanov.bVNC.input;
+import com.undatech.opaque.Viewable;
 
 import android.view.MotionEvent;
 
-import com.iiordanov.bVNC.RemoteCanvas;
-import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
@@ -32,10 +31,10 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
     public static final String ID = "TOUCH_ZOOM_MODE";
     static final String TAG = "InputHandlerDirectSwipePan";
 
-    public TouchInputHandlerDirectSwipePan(RemoteCanvasActivity activity, RemoteCanvas canvas,
+    public TouchInputHandlerDirectSwipePan(TouchInputDelegate touchInputDelegate, Viewable viewable,
                                            InputCarriable remoteInput, boolean debugLogging,
                                            int swipeSpeed) {
-        super(activity, canvas, remoteInput, debugLogging, swipeSpeed);
+        super(touchInputDelegate, viewable, remoteInput, debugLogging, swipeSpeed);
     }
 
     /*
@@ -44,7 +43,7 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
      */
     @Override
     public String getDescription() {
-        return canvas.getResources().getString(R.string.input_method_direct_swipe_pan_description);
+        return viewable.getResources().getString(R.string.input_method_direct_swipe_pan_description);
     }
 
     /*
@@ -91,7 +90,7 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
             return true;
         }
 
-        activity.showActionBar();
+        touchInputDelegate.showActionBar();
         panRepeater.start(-velocityX, -velocityY);
         return true;
     }
@@ -151,9 +150,9 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
             return true;
         }
 
-        float scale = canvas.getZoomFactor();
-        activity.showActionBar();
-        canvas.relativePan((int) (distanceX * scale), (int) (distanceY * scale));
+        float scale = viewable.getZoomFactor();
+        touchInputDelegate.showActionBar();
+        viewable.relativePan((int) (distanceX * scale), (int) (distanceY * scale));
         return true;
     }
 }

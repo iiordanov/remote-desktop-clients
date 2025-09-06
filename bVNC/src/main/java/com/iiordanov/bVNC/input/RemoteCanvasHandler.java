@@ -303,7 +303,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
         // If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
         Log.d(TAG, "Attempting to initialize SSH HostKey.");
 
-        c.displayShortToastMessage(context.getString(R.string.info_ssh_initializing_hostkey));
+        c.displayShortToastMessage(R.string.info_ssh_initializing_hostkey);
         // Show a dialog with the key signature.
         DialogInterface.OnClickListener signatureNo = (dialog, which) -> {
             // We were told to not continue, so stop the activity

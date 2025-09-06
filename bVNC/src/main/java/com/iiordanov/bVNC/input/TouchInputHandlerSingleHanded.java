@@ -19,6 +19,7 @@
 
 
 package com.iiordanov.bVNC.input;
+import com.undatech.opaque.Viewable;
 
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,8 +27,6 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-import com.iiordanov.bVNC.RemoteCanvas;
-import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
@@ -46,10 +45,10 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
     private int eventStartX, eventStartY, eventAction, eventMeta;
     private boolean needInitPan;
 
-    public TouchInputHandlerSingleHanded(RemoteCanvasActivity activity, RemoteCanvas canvas,
+    public TouchInputHandlerSingleHanded(TouchInputDelegate touchInputDelegate, Viewable viewable,
                                          InputCarriable remoteInput, boolean debugLogging,
                                          int swipeSpeed) {
-        super(activity, canvas, remoteInput, debugLogging, swipeSpeed);
+        super(touchInputDelegate, viewable, remoteInput, debugLogging, swipeSpeed);
         initializeButtons();
     }
 
@@ -57,69 +56,69 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
      * Initializes the on-screen single-handed mode-selector buttons.
      */
     private void initializeButtons() {
-        singleHandOpts = (RelativeLayout) activity.findViewById(R.id.singleHandOpts);
-        dragModeButton = (ImageButton) activity.findViewById(R.id.singleDrag);
+        singleHandOpts = touchInputDelegate.findViewById(R.id.singleHandOpts);
+        dragModeButton = touchInputDelegate.findViewById(R.id.singleDrag);
         dragModeButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 startNewSingleHandedGesture();
                 dragMode = true;
                 remoteInput.getPointer().leftButtonDown(eventStartX, eventStartY, eventMeta);
-                canvas.displayShortToastMessage(R.string.single_left);
+                viewable.displayShortToastMessage(R.string.single_left);
             }
         });
 
-        rightDragModeButton = (ImageButton) activity.findViewById(R.id.singleRight);
+        rightDragModeButton = touchInputDelegate.findViewById(R.id.singleRight);
         rightDragModeButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 startNewSingleHandedGesture();
                 rightDragMode = true;
                 remoteInput.getPointer().rightButtonDown(eventStartX, eventStartY, eventMeta);
-                canvas.displayShortToastMessage(R.string.single_right);
+                viewable.displayShortToastMessage(R.string.single_right);
             }
         });
 
-        middleDragModeButton = (ImageButton) activity.findViewById(R.id.singleMiddle);
+        middleDragModeButton = touchInputDelegate.findViewById(R.id.singleMiddle);
         middleDragModeButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 startNewSingleHandedGesture();
                 middleDragMode = true;
                 remoteInput.getPointer().middleButtonDown(eventStartX, eventStartY, eventMeta);
-                canvas.displayShortToastMessage(R.string.single_middle);
+                viewable.displayShortToastMessage(R.string.single_middle);
             }
         });
 
-        scrollButton = (ImageButton) activity.findViewById(R.id.singleScroll);
+        scrollButton = touchInputDelegate.findViewById(R.id.singleScroll);
         scrollButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 GeneralUtils.debugLog(debugLogging, TAG, "scrollButton clicked. Setting inSwiping to true.");
                 startNewSingleHandedGesture();
-                canvas.cursorBeingMoved = true;
+                viewable.setCursorBeingMoved(true);
                 inSwiping = true;
                 remoteInput.getPointer().moveMouseButtonUp(eventStartX, eventStartY, eventMeta);
-                canvas.displayShortToastMessage(R.string.single_scroll);
+                viewable.displayShortToastMessage(R.string.single_scroll);
             }
         });
 
-        zoomButton = (ImageButton) activity.findViewById(R.id.singleZoom);
+        zoomButton = touchInputDelegate.findViewById(R.id.singleZoom);
         zoomButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 startNewSingleHandedGesture();
                 inScaling = true;
-                canvas.displayShortToastMessage(R.string.single_zoom);
+                viewable.displayShortToastMessage(R.string.single_zoom);
             }
         });
 
-        cancelButton = (ImageButton) activity.findViewById(R.id.singleCancel);
+        cancelButton = touchInputDelegate.findViewById(R.id.singleCancel);
         cancelButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 singleHandOpts.setVisibility(View.GONE);
-                canvas.displayShortToastMessage(R.string.single_cancel);
+                viewable.displayShortToastMessage(R.string.single_cancel);
             }
         });
     }
@@ -141,7 +140,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
      */
     @Override
     public String getDescription() {
-        return canvas.getResources().getString(R.string.input_method_single_handed_description);
+        return viewable.getResources().getString(R.string.input_method_single_handed_description);
     }
 
     /*
@@ -168,9 +167,9 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
         initializeSingleHandedMode(e);
 
         if (buttonsVisible)
-            canvas.displayShortToastMessage(R.string.single_reposition);
+            viewable.displayShortToastMessage(R.string.single_reposition);
         else
-            canvas.displayShortToastMessage(R.string.single_choose);
+            viewable.displayShortToastMessage(R.string.single_choose);
     }
 
     private void initializeSingleHandedMode(MotionEvent e) {
@@ -200,7 +199,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
         // If the single-handed gesture buttons are visible, reposition pointer.
         if (buttonsVisible) {
             initializeSingleHandedMode(e);
-            canvas.displayShortToastMessage(R.string.single_reposition);
+            viewable.displayShortToastMessage(R.string.single_reposition);
             return true;
         } else
             return super.onSingleTapConfirmed(e);
@@ -256,15 +255,15 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
         } else if (inScaling) {
             GeneralUtils.debugLog(debugLogging, TAG, "inScaling");
             float scaleFactor = 1.0f + distanceY * 0.01f;
-            if (canvas != null && canvas.canvasZoomer != null) {
-                float zoomFactor = canvas.canvasZoomer.getZoomFactor();
+            if (viewable != null) {
+                float zoomFactor = viewable.getZoomFactor();
 
                 if (needInitPan) {
                     needInitPan = false;
-                    canvas.absolutePan((int) (canvas.getAbsX() + (xInitialFocus - canvas.getWidth() / 2.f) / zoomFactor),
-                            (int) (canvas.getAbsY() + (yInitialFocus - canvas.getHeight() / 2.f) / zoomFactor));
+                    viewable.absolutePan((int) (viewable.getAbsX() + (xInitialFocus - viewable.getWidth() / 2.f) / zoomFactor),
+                            (int) (viewable.getAbsY() + (yInitialFocus - viewable.getHeight() / 2.f) / zoomFactor));
                 }
-                canvas.canvasZoomer.changeZoom(activity, scaleFactor, xInitialFocus, yInitialFocus);
+                viewable.changeZoom(scaleFactor, xInitialFocus, yInitialFocus);
             }
         }
 

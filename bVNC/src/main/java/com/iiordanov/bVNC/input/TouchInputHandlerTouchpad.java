@@ -19,11 +19,10 @@
 
 
 package com.iiordanov.bVNC.input;
+import com.undatech.opaque.Viewable;
 
 import android.view.MotionEvent;
 
-import com.iiordanov.bVNC.RemoteCanvas;
-import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
@@ -32,10 +31,10 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
     public static final String ID = "TOUCHPAD_MODE";
     static final String TAG = "InputHandlerTouchpad";
 
-    public TouchInputHandlerTouchpad(RemoteCanvasActivity activity, RemoteCanvas canvas,
+    public TouchInputHandlerTouchpad(TouchInputDelegate touchInputDelegate, Viewable viewable,
                                      InputCarriable remoteInput, boolean debugLogging,
                                      int swipeSpeed) {
-        super(activity, canvas, remoteInput, debugLogging, swipeSpeed);
+        super(touchInputDelegate, viewable, remoteInput, debugLogging, swipeSpeed);
     }
 
     /*
@@ -44,7 +43,7 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
      */
     @Override
     public String getDescription() {
-        return canvas.getResources().getString(R.string.input_method_touchpad_description);
+        return viewable.getResources().getString(R.string.input_method_touchpad_description);
     }
 
     /*
@@ -68,9 +67,9 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
 
         // If we are scaling, allow panning around by moving two fingers around the screen
         if (inScaling) {
-            float scale = canvas.getZoomFactor();
-            activity.showActionBar();
-            canvas.relativePan(Math.round(distanceX * scale), Math.round(distanceY * scale));
+            float scale = viewable.getZoomFactor();
+            touchInputDelegate.showActionBar();
+            viewable.relativePan(Math.round(distanceX * scale), Math.round(distanceY * scale));
         } else {
             // TODO: This is a workaround for Android 4.2
             boolean twoFingers = false;
@@ -89,7 +88,7 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
                 return true;
             }
 
-            activity.showActionBar();
+            touchInputDelegate.showActionBar();
 
             // If the gesture has just began, then don't allow a big delta to prevent
             // pointer jumps at the start of scrolling.
@@ -125,7 +124,7 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
 
             remoteInput.getPointer().moveMouse(newX, newY, meta);
         }
-        canvas.movePanToMakePointerVisible();
+        viewable.movePanToMakePointerVisible();
         return true;
     }
 
@@ -176,7 +175,7 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
      * @return
      */
     private float getDelta(float distance) {
-        float delta = (float) (distance * Math.cbrt(canvas.getZoomFactor()));
+        float delta = (float) (distance * Math.cbrt(viewable.getZoomFactor()));
         return computeAcceleration(delta);
     }
 

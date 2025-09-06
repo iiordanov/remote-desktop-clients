@@ -32,8 +32,6 @@ import com.iiordanov.bVNC.RemoteCanvasActivity;
  * @author Michael A. MacDonald
  */
 public class Panner implements Runnable {
-
-    private static final String TAG = "PANNER";
     final int freq = 10;
     RemoteCanvasActivity activity;
     Handler handler;
@@ -51,10 +49,9 @@ public class Panner implements Runnable {
         handler.removeCallbacks(this);
     }
 
-    public void start(float xv, float yv, VelocityUpdater update) {
-        if (update == null)
-            update = DefaultUpdater.instance;
-        updater = update;
+    public void start(float xv, float yv) {
+         if (updater == null)
+            updater = DefaultUpdater.instance;
         velocity.x = xv;
         velocity.y = yv;
         //Log.v(TAG, String.format("pan start %f %f", velocity.x, velocity.y));
@@ -111,6 +108,5 @@ public class Panner implements Runnable {
         public boolean updateVelocity(PointF p, long interval) {
             return true;
         }
-
     }
 }
