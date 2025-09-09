@@ -220,7 +220,7 @@ public interface Viewable {
 
     /**
      * Calculates the appropriate remote height based on view dimensions and connection settings.
-     * @param width the view width  
+     * @param width the view width
      * @param height the view height
      * @return the calculated remote height
      */

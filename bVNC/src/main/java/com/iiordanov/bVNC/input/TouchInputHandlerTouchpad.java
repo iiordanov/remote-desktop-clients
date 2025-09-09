@@ -63,20 +63,21 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         GeneralUtils.debugLog(debugLogging, TAG, "onScroll, e1: " + e1 + ", e2:" + e2);
 
-        final int meta = e2.getMetaState();
-
         // If we are scaling, allow panning around by moving two fingers around the screen
         if (inScaling) {
             float scale = viewable.getZoomFactor();
             touchInputDelegate.showActionBar();
             viewable.relativePan(Math.round(distanceX * scale), Math.round(distanceY * scale));
         } else {
-            // TODO: This is a workaround for Android 4.2
             boolean twoFingers = false;
-            if (e1 != null)
+            int meta = 0;
+            if (e1 != null) {
                 twoFingers = (e1.getPointerCount() > 1);
-            if (e2 != null)
+            }
+            if (e2 != null) {
                 twoFingers = twoFingers || (e2.getPointerCount() > 1);
+                meta = e2.getMetaState();
+            }
 
             // onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
             // consumed. This prevents the mouse pointer from flailing around while we are scaling.

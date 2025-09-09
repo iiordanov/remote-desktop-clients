@@ -104,10 +104,12 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
             // This would cause the mouse pointer to jump to another place suddenly.
             // Hence, we ignore onScroll after scaling until we lift all pointers up.
             boolean twoFingers = false;
-            if (e1 != null)
+            if (e1 != null) {
                 twoFingers = (e1.getPointerCount() > 1);
-            if (e2 != null)
+            }
+            if (e2 != null) {
                 twoFingers = twoFingers || (e2.getPointerCount() > 1);
+            }
 
             if (twoFingers || inSwiping)
                 return true;
@@ -116,7 +118,7 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
 
             if (!dragMode) {
                 startDragAndDropMode(e1);
-            } else {
+            } else if (e2 != null) {
                 remoteInput.getPointer().moveMouseButtonDown(getX(e2), getY(e2), e2.getMetaState());
             }
         }

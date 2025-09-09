@@ -50,8 +50,9 @@ public class Panner implements Runnable {
     }
 
     public void start(float xv, float yv) {
-         if (updater == null)
-            updater = DefaultUpdater.instance;
+         if (updater == null) {
+             updater = DefaultUpdater.instance;
+         }
         velocity.x = xv;
         velocity.y = yv;
         //Log.v(TAG, String.format("pan start %f %f", velocity.x, velocity.y));
