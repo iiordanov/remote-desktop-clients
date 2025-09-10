@@ -37,14 +37,12 @@ dependencies {
     implementation project(':pubkeyGenerator')
     implementation project(':remoteClientLib')
     implementation project(':remoteClientLib:jni:libs:deps:FreeRDP:client:Android:Studio:freeRDPCore')
-    implementation files('libs/com.antlersoft.android.contentxml.jar')
-    implementation files('libs/com.antlersoft.android.db.jar')
     implementation group: 'org.bouncycastle', name: 'bctls-jdk18on', version: '1.80'
     implementation group: 'androidx.appcompat', name: 'appcompat', version: '1.4.1'
     implementation group: 'androidx.legacy', name: 'legacy-support-v4', version: '1.0.0'
     implementation group: 'androidx.vectordrawable', name: 'vectordrawable', version: '1.1.0'
     implementation group: 'androidx.preference', name: 'preference-ktx', version: '1.2.0'
-    implementation 'net.zetetic:android-database-sqlcipher:4.5.1@aar'
+    implementation 'net.zetetic:sqlcipher-android:4.7.2@aar'
     implementation "androidx.sqlite:sqlite-ktx:2.2.0"
     implementation group: 'org.yaml', name: 'snakeyaml', version: '2.4'
     implementation 'org.apache.httpcomponents:httpcore:4.4.10'

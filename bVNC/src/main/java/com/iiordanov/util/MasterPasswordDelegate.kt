@@ -7,15 +7,17 @@ import com.iiordanov.bVNC.Database
 import com.iiordanov.bVNC.Utils
 import com.undatech.remoteClientUi.R
 
-class MasterPasswordDelegate(val context: Context, val database: Database) {
+class MasterPasswordDelegate(val context: Context) {
     private val TAG: String? = "MasterPasswordDelegate"
 
-    public fun checkMasterPasswordAndQuitIfWrong(
+    fun checkMasterPasswordAndQuitIfWrong(
         providedPassword: String,
         dialogWasCancelled: Boolean
     ): Boolean {
         Log.i(TAG, "checkMasterPasswordAndQuitIfWrong: Just checking the password.")
         var result = false
+        Database.setPassword(providedPassword)
+        val database = Database(context)
         if (dialogWasCancelled) {
             Log.i(TAG, "Dialog cancelled, so quitting.")
             Utils.showFatalErrorMessage(
@@ -65,6 +67,7 @@ class MasterPasswordDelegate(val context: Context, val database: Database) {
         if (!dialogWasCancelled) {
             Log.i(TAG, "Setting master password.")
             Database.setPassword("")
+            val database = Database(context)
             if (database.changeDatabasePassword(providedPassword)) {
                 Utils.toggleSharedPreferenceBoolean(context, Constants.masterPasswordEnabledTag)
                 result = true
@@ -96,6 +99,8 @@ class MasterPasswordDelegate(val context: Context, val database: Database) {
         )
         var result = false
         // Master password is enabled
+        Database.setPassword(providedPassword)
+        val database = Database(context)
         if (dialogWasCancelled) {
             Log.i(TAG, "Dialog cancelled, so quitting.")
             Utils.showFatalErrorMessage(
@@ -122,6 +127,7 @@ class MasterPasswordDelegate(val context: Context, val database: Database) {
         Log.i(TAG, "disableMasterPassword")
         var result = false
         Database.setPassword(providedPassword)
+        val database = Database(context)
         if (database.changeDatabasePassword("")) {
             Utils.toggleSharedPreferenceBoolean(context, Constants.masterPasswordEnabledTag)
             result = true

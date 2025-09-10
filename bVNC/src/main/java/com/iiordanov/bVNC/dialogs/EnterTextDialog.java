@@ -35,7 +35,7 @@ import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.SentTextBean;
 import com.undatech.remoteClientUi.R;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import java.util.ArrayList;
 

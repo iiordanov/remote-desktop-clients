@@ -15,7 +15,7 @@ import com.iiordanov.bVNC.MostRecentBean;
 import com.iiordanov.bVNC.Utils;
 import com.undatech.opaque.Connection;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.jetbrains.annotations.Nullable;
 

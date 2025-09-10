@@ -55,8 +55,7 @@ import com.undatech.opaque.Connection;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.remoteClientUi.R;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -552,7 +551,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
     ) {
         try {
             populateKeysInListWhereFieldMatchesValue(database, keys, field, value, orderByDescending);
-        } catch (SQLiteException e) {
+        } catch (Exception e) {
             Log.e(TAG, "Error getting meta keys:");
             Log.e(TAG, Log.getStackTraceString(e));
         }

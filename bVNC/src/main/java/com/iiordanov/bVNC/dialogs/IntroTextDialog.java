@@ -43,7 +43,7 @@ import com.iiordanov.bVNC.MostRecentBean;
 import com.iiordanov.bVNC.Utils;
 import com.undatech.remoteClientUi.R;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 /**
  * @author Michael A. MacDonald

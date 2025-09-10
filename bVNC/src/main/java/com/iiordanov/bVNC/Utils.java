@@ -62,7 +62,7 @@ import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.ConnectionSetupActivity;
 import com.undatech.remoteClientUi.R;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.xml.sax.SAXException;
 

@@ -9,7 +9,7 @@ import com.iiordanov.bVNC.Database;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.ConnectionSettings;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.Collections;
