@@ -395,6 +395,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.grid_view_activity_actions, menu);
+        MenuItem itemMasterPassword = menu.findItem(R.id.itemMasterPassword);
+        itemMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -469,46 +471,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     /* (non-Javadoc)
-     * @see android.app.Activity#onMenuOpened(int, android.view.Menu)
-     */
-    @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        Log.d(TAG, "onMenuOpened");
-        try {
-            updateInputMenu(menu.findItem(R.id.itemInputMode).getSubMenu());
-            MenuItem itemMasterPassword = menu.findItem(R.id.itemMasterPassword);
-            itemMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
-        } catch (NullPointerException e) {
-        }
-        return true;
-    }
-
-    /**
-     * Check the right item in the input mode sub-menu
-     */
-    void updateInputMenu(Menu inputMenu) {
-        MenuItem[] inputModeMenuItems = new MenuItem[RemoteCanvasActivity.inputModeIds.length];
-        for (int i = 0; i < RemoteCanvasActivity.inputModeIds.length; i++) {
-            inputModeMenuItems[i] = inputMenu.findItem(RemoteCanvasActivity.inputModeIds[i]);
-        }
-        String defaultInputHandlerId = Utils.querySharedPreferenceString(
-                this, Constants.defaultInputMethodTag, TouchInputHandlerDirectSwipePan.ID);
-        Log.d(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
-
-        try {
-            for (MenuItem item : inputModeMenuItems) {
-                Log.d(TAG, "Input Mode Item: " +
-                        RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
-
-                if (defaultInputHandlerId.equals(RemoteCanvasActivity.inputModeMap.get(item.getItemId()))) {
-                    item.setChecked(true);
-                }
-            }
-        } catch (NullPointerException e) {
-        }
-    }
-
-    /* (non-Javadoc)
      * @see android.app.Activity#onCreateDialog(int)
      */
     @Override
@@ -556,6 +518,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         Log.i(TAG, "handlePassword");
         boolean loadConnections;
         MasterPasswordDelegate passwordDelegate = new MasterPasswordDelegate(this);
+        boolean wasTogglingMasterPassword = togglingMasterPassword;
         if (togglingMasterPassword) {
             loadConnections = passwordDelegate.toggleMasterPassword(providedPassword, dialogWasCancelled);
             togglingMasterPassword = false;
@@ -565,6 +528,9 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         if (loadConnections) {
             removeGetPasswordFragments();
             loadSavedConnections();
+            if (wasTogglingMasterPassword) {
+                invalidateOptionsMenu();
+            }
         }
     }
 
