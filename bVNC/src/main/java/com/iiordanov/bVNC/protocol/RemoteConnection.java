@@ -196,7 +196,6 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
                 pd.dismiss();
 
             if (e instanceof OutOfMemoryError) {
-                canvas.disposeDrawable();
                 showFatalMessageAndQuit(context.getString(R.string.error_out_of_memory));
             } else {
                 String error = context.getString(R.string.error_connection_failed);

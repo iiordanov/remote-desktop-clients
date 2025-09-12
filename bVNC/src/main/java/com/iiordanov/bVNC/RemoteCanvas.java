@@ -371,8 +371,8 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
                 myDrawable.dispose();
             }
             myDrawable = null;
+            System.gc();
         }
-        System.gc();
     }
 
     @Override
