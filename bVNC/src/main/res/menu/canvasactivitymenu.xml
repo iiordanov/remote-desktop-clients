@@ -24,6 +24,12 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/actionScrollWheel"
+        app:actionViewClass="com.iiordanov.bVNC.input.ScrollWheelButton"
+        android:title="@string/scroll_wheel"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/itemExtraKeys"
         android:icon="@drawable/extra_keys"
         android:title="@string/extra_keys_disable" />

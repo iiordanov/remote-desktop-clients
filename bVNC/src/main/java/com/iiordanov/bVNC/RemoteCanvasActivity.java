@@ -940,6 +940,17 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             MenuItem moveToolbar = menu.findItem(R.id.moveToolbar);
             moveToolbar.setActionView(moveButton);
             moveButton.setOnTouchListener(toolbarMover);
+
+            // Set up scroll wheel button
+            MenuItem scrollWheelItem = menu.findItem(R.id.actionScrollWheel);
+            if (scrollWheelItem != null) {
+                com.iiordanov.bVNC.input.ScrollWheelButton scrollWheelButton = 
+                    new com.iiordanov.bVNC.input.ScrollWheelButton(this);
+                scrollWheelButton.setRemoteInput(remoteConnection);
+                scrollWheelButton.setTouchInputDelegate(this);
+                scrollWheelItem.setActionView(scrollWheelButton);
+                Log.d(TAG, "ScrollWheelButton added to toolbar");
+            }
         } catch (NullPointerException e) {
             e.printStackTrace();
         }

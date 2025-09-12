@@ -225,6 +225,56 @@ public abstract class RemotePointer {
 
     abstract public void moveMouseButtonUp(int x, int y, int metaState);
 
+    /**
+     * Convenience method to scroll up at the current pointer position.
+     */
+    public void scrollUp() {
+        scrollUp(pointerX, pointerY, 0);
+    }
+
+    /**
+     * Convenience method to scroll down at the current pointer position.
+     */
+    public void scrollDown() {
+        scrollDown(pointerX, pointerY, 0);
+    }
+
+    /**
+     * Convenience method to scroll left at the current pointer position.
+     */
+    public void scrollLeft() {
+        scrollLeft(pointerX, pointerY, 0);
+    }
+
+    /**
+     * Convenience method to scroll right at the current pointer position.
+     */
+    public void scrollRight() {
+        scrollRight(pointerX, pointerY, 0);
+    }
+
+    /**
+     * Convenience method to perform a middle mouse button click at the current pointer position.
+     */
+    public void middleClick() {
+        middleButtonDown(pointerX, pointerY, 0);
+        releaseButton(pointerX, pointerY, 0);
+    }
+
+    /**
+     * Convenience method to release button at the current pointer position.
+     */
+    public void releaseButton() {
+        releaseButton(pointerX, pointerY, 0);
+    }
+
+    /**
+     * Convenience method to perform moveMouseButtonUp at the current pointer position.
+     */
+    public void moveMouseButtonUp() {
+        moveMouseButtonUp(pointerX, pointerY, 0);
+    }
+
     public boolean isRelativeEvents() {
         return relativeEvents;
     }
