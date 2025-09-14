@@ -1,0 +1,3 @@
+[submodule "remote-desktop-clients-store-metadata"]
+	path = remote-desktop-clients-store-metadata
+	url = https://github.com/iiordanov/remote-desktop-clients-store-metadata
