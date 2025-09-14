@@ -43,8 +43,13 @@ android {
         jniLibs.srcDirs += 'src/main/jniLibs'
     }
 
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
+    packaging {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES']
+        }
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
     namespace 'com.undatech.remoteClientLib'
     /*

@@ -33,9 +33,13 @@ android {
         java.srcDirs += 'src/main/java'
     }
 
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
+    packaging {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/versions/9/OSGI-INF/MANIFEST.MF']
+        }
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 
     compileOptions {

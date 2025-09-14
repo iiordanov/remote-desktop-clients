@@ -17,11 +17,13 @@ android {
         }
     }
 
-    packagingOptions {
-        exclude 'lib/armeabi/libsqlcipher.so'
-        exclude 'lib/mips64/libsqlcipher.so'
-        exclude 'lib/mips/libsqlcipher.so'
-        exclude 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
+    packaging {
+        resources {
+            excludes += ['lib/armeabi/libsqlcipher.so', 'lib/mips64/libsqlcipher.so', 'lib/mips/libsqlcipher.so', 'META-INF/versions/9/OSGI-INF/MANIFEST.MF']
+        }
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 
     useLibrary 'org.apache.http.legacy'
