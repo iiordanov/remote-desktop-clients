@@ -1,0 +1,12 @@
+diff --git a/scripts/android-build-freerdp.sh b/scripts/android-build-freerdp.sh
+index 0caab58f3..d8f3afbea 100755
+--- a/scripts/android-build-freerdp.sh
++++ b/scripts/android-build-freerdp.sh
+@@ -181,6 +181,7 @@ do
+ 			-DANDROID_ABI=$ARCH \
+ 			-DCMAKE_INSTALL_PREFIX=$BUILD_DST/$ARCH \
+ 			-DCMAKE_INSTALL_LIBDIR=. \
++                        -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-z,max-page-size=16384" \
+ 			$SRC_DIR
+ 		echo $(pwd)
+ 		common_run $CMAKE_PROGRAM --build . --target install

@@ -48,7 +48,7 @@ dependencies {
     implementation "androidx.sqlite:sqlite-ktx:2.2.0"
     implementation group: 'org.yaml', name: 'snakeyaml', version: '2.4'
     implementation 'org.apache.httpcomponents:httpcore:4.4.10'
-    implementation "com.github.luben:zstd-jni:1.4.3-1@aar"
+    implementation "com.github.luben:zstd-jni:1.5.7-4@aar"
     implementation "androidx.core:core-ktx:1.7.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 

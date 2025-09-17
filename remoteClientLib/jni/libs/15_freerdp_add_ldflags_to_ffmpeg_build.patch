@@ -1,0 +1,13 @@
+diff --git a/scripts/android-build-ffmpeg.sh b/scripts/android-build-ffmpeg.sh
+index 206e728c1..c08483003 100755
+--- a/scripts/android-build-ffmpeg.sh
++++ b/scripts/android-build-ffmpeg.sh
+@@ -102,7 +102,7 @@ function build {
+ 
+     BUILD_HOST=$(get_build_host)
+     set_toolchain_clang_paths
+-    LDFLAGS=$(get_arch_specific_ldflags)
++    LDFLAGS="$(get_arch_specific_ldflags) ${LDFLAGS}"
+ 
+ 	PATH=$ANDROID_NDK:$PATH
+     common_run ./configure \

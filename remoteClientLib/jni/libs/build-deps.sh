@@ -397,6 +397,7 @@ setup() {
         gstarch=arm64
         arch=arm64
         build_host="aarch64-linux-android"
+        ldflags="-Wl,-z,max-page-size=16384"
         ;;
     x86)
         gstarch=x86
@@ -407,6 +408,7 @@ setup() {
         gstarch=x86_64
         arch=x86_64
         build_host="x86_64-linux-android"
+        ldflags="-Wl,-z,max-page-size=16384"
         ;;
     *)
         echo "Unknown ABI: $abi"
@@ -449,6 +451,9 @@ build_cerbero() {
         echo "Cerbero was previously built. Remove $(realpath CERBERO_BUILT_${1}) if you want to rebuild it."
         echo ; echo
     else
+        echo "Installing android NDK ${freerdp_ndk_version} for FreeRDP build compatibility"
+        export ANDROID_NDK=$(install_ndk ../../ ${cerbero_ndk_version})
+
         git config --global protocol.file.allow always
         # Build GStreamer SDK
         if git clone https://gitlab.freedesktop.org/gstreamer/cerbero
@@ -600,7 +605,10 @@ build_freerdp() {
         git checkout ${freerdp_ver}
         git reset --hard
 
-        # Patch the config
+        echo "Deleting build directory"
+        rm -rf build/
+
+        echo "Patching the configuration"
 
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
                -e 's/WITH_JPEG=.*/WITH_JPEG=1/'\
@@ -679,6 +687,9 @@ sdist)
     sdist
     ;;
 build)
+    echo "Setting LDFLAGS for 16kb alignment"
+    export LDFLAGS="${LDFLAGS} -Wl,-z,max-page-size=16384"
+
     for curabi in $abis
     do
         build "$curabi"

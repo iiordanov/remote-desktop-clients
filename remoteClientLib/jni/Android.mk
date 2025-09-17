@@ -132,6 +132,8 @@ LOCAL_CFLAGS 	:=  $(LOCAL_CPPFLAGS) \
 
 # Workaround for older NDK r18b that breaks builds with newer NDKs like r25c
 #LOCAL_LDFLAGS   += -fuse-ld=bfd
+# Workaround for 16 kb page size alignment
+LOCAL_LDFLAGS += "-Wl,-z,max-page-size=16384"
 
 LOCAL_EXPORT_CFLAGS += $(LOCAL_CFLAGS)
 LOCAL_EXPORT_LDLIBS += $(LOCAL_LDLIBS)
