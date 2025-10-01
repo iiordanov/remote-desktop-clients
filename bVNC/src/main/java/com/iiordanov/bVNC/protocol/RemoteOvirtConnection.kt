@@ -12,6 +12,7 @@ import com.undatech.opaque.RemoteClientLibConstants
 import com.undatech.opaque.SpiceCommunicator
 import com.undatech.opaque.Viewable
 import com.undatech.opaque.proxmox.OvirtClient
+import com.undatech.opaque.util.FileUtilsKt
 import com.undatech.remoteClientUi.R
 import java.io.File
 import javax.security.auth.login.LoginException
@@ -48,11 +49,14 @@ class RemoteOvirtConnection(
                     ovirtClient.trySsoLogin(connection.userName, connection.password)
                     val ssoToken = ovirtClient.accessToken
                     val ovirtCaFile: String = if (connection.isUsingCustomOvirtCa) {
+                        Log.i(tag, "Using a custom Certificate Authority:")
+                        Log.i(tag, FileUtilsKt.readFileDirectlyAsText(connection.ovirtCaFile))
                         connection.ovirtCaFile
                     } else {
-                        File(context.filesDir, "ssl/certs/ca-certificates.crt").path
+                        val standardCas = File(context.filesDir, "ssl/certs/ca-certificates.crt")
+                        Log.i(tag, "Using the standard Certificate Authorities: ${standardCas.length()}")
+                        standardCas.path
                     }
-
                     // If not VM name is specified, then get a list of VMs and let the user pick one.
                     if (connection.vmname == "") {
                         val success = spiceComm?.fetchOvirtVmNames(
