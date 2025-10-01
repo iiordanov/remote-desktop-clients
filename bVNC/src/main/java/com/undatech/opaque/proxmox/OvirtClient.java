@@ -18,7 +18,7 @@ import javax.security.auth.login.LoginException;
 public class OvirtClient extends RestClient {
     private static final String TAG = "OvirtClient";
     private static final int DEFAULT_OVIRT_PORT = 443;
-    private String baseUrl;
+    private final String baseUrl;
     private String accessToken;
 
     /**

@@ -33,7 +33,6 @@ android {
         ndk.abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86' ,'x86_64'
         multiDexEnabled true
     }
-    useLibrary 'org.apache.http.legacy'
 
     buildTypes {
         debug {

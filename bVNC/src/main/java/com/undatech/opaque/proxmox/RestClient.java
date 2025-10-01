@@ -1,5 +1,6 @@
 package com.undatech.opaque.proxmox;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -11,35 +12,16 @@ import androidx.annotation.NonNull;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.RemoteClientLibConstants;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HTTP;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.Socket;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -47,17 +29,18 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-// Examples taken from:
-// http://lukencode.com/2010/04/27/calling-web-services-in-android-using-httpclient
+// Original examples (adapter to use HttpURLConnection) taken from:
+// http://lukencode.com/2010/04/27/calling-web-services-in-android-using-httpclient\
 public class RestClient {
     public static final String TAG = "RestClient";
-    private static HttpClient client = new DefaultHttpClient();
-    private ArrayList<NameValuePair> params;
-    private ArrayList<NameValuePair> headers;
+    private static final int TIMEOUT_MS = 60 * 1000; // 60 seconds
+    protected ArrayList<Parameter> params;
+    private ArrayList<Parameter> headers;
     private int responseCode;
     private String message;
     private String response;
@@ -74,7 +57,6 @@ public class RestClient {
         this.uri = Uri.parse(getUriToParse());
         this.port = getApiPort(defaultPort);
         this.host = uri.getHost();
-
     }
 
     private int getApiPort(int defaultPort) {
@@ -110,21 +92,25 @@ public class RestClient {
     private static String convertStreamToString(InputStream is) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
-        String line = null;
+        String line;
         try {
             while ((line = reader.readLine()) != null) {
                 sb.append(line).append("\n");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logErrorStacktrace(e);
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logErrorStacktrace(e);
             }
         }
         return sb.toString();
+    }
+
+    private static void logErrorStacktrace(IOException e) {
+        Log.e(TAG, Log.getStackTraceString(e));
     }
 
     public String getErrorMessage() {
@@ -141,100 +127,139 @@ public class RestClient {
 
     public void resetState(String url) {
         this.url = url;
-        try {
-            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            trustStore.load(null, null);
-
-            MySSLSocketFactory sslsf = new MySSLSocketFactory(trustStore, connection.getX509KeySignature().trim(), handler);
-
-            Scheme https = new Scheme("https", sslsf, 443);
-            Scheme pve = new Scheme("https", sslsf, 8006);
-            client.getConnectionManager().getSchemeRegistry().register(pve);
-            client.getConnectionManager().getSchemeRegistry().register(https);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        params = new ArrayList<NameValuePair>();
-        headers = new ArrayList<NameValuePair>();
+        setupSSLConfiguration();
+        params = new ArrayList<>();
+        headers = new ArrayList<>();
     }
 
     public void addHeader(String name, String value) {
-        headers.add(new BasicNameValuePair(name, value));
+        headers.add(new Parameter(name, value));
     }
 
     public void addParam(String name, String value) {
-        params.add(new BasicNameValuePair(name, value));
+        params.add(new Parameter(name, value));
     }
 
     public void execute(RequestMethod method) throws IOException {
         switch (method) {
-            case GET: {
-                // add parameters
-                String combinedParams = "";
-                if (!params.isEmpty()) {
-                    combinedParams += "?";
-                    for (NameValuePair p : params) {
-                        String paramString = p.getName() + "="
-                                + URLEncoder.encode(p.getValue(), "UTF-8");
-                        if (combinedParams.length() > 1) {
-                            combinedParams += "&" + paramString;
-                        } else {
-                            combinedParams += paramString;
-                        }
-                    }
-                }
-
-                HttpGet request = new HttpGet(url + combinedParams);
-
-                // add headers
-                for (NameValuePair h : headers) {
-                    request.addHeader(h.getName(), h.getValue());
-                }
-
-                executeRequest(request, url);
+            case GET:
+                executeGet();
                 break;
-            }
-            case POST: {
-                HttpPost request = new HttpPost(url);
-
-                // add headers
-                for (NameValuePair h : headers) {
-                    request.addHeader(h.getName(), h.getValue());
-                }
-
-                if (!params.isEmpty()) {
-                    request.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
-                }
-
-                executeRequest(request, url);
+            case POST:
+                executePost();
                 break;
-            }
         }
     }
 
-    private void executeRequest(HttpUriRequest request, String url) throws IOException {
+    private void executeGet() throws IOException {
+        StringBuilder queryString = new StringBuilder();
+        if (!params.isEmpty()) {
+            queryString.append("?");
+            for (int i = 0; i < params.size(); i++) {
+                Parameter param = params.get(i);
+                if (i > 0) {
+                    queryString.append("&");
+                }
+                queryString.append(param.getName())
+                        .append("=")
+                        .append(URLEncoder.encode(param.getValue(), "UTF-8"));
+            }
+        }
 
-        HttpParams params = client.getParams();
+        URL requestUrl = new URL(url + queryString);
+        HttpURLConnection connection = createConnection(requestUrl);
+        connection.setRequestMethod("GET");
+        addHeaders(connection);
+        executeRequest(connection);
+    }
 
-        // Setting 60 second timeouts
-        HttpConnectionParams.setConnectionTimeout(params, 60 * 1000);
-        HttpConnectionParams.setSoTimeout(params, 60 * 1000);
+    private void executePost() throws IOException {
+        URL requestUrl = new URL(url);
+        HttpURLConnection connection = createConnection(requestUrl);
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        addHeaders(connection);
 
-        HttpResponse httpResponse;
+        if (!params.isEmpty()) {
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            String postData = buildPostData();
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(postData.getBytes(StandardCharsets.UTF_8));
+                os.flush();
+            }
+        }
 
-        httpResponse = client.execute(request);
-        responseCode = httpResponse.getStatusLine().getStatusCode();
-        message = httpResponse.getStatusLine().getReasonPhrase();
+        executeRequest(connection);
+    }
 
-        HttpEntity entity = httpResponse.getEntity();
+    private HttpURLConnection createConnection(URL url) throws IOException {
+        HttpURLConnection connection;
+        if (url.getProtocol().equals("https")) {
+            connection = (HttpsURLConnection) url.openConnection();
+        } else {
+            connection = (HttpURLConnection) url.openConnection();
+        }
 
-        if (entity != null) {
+        connection.setConnectTimeout(TIMEOUT_MS);
+        connection.setReadTimeout(TIMEOUT_MS);
+        return connection;
+    }
 
-            InputStream instream = entity.getContent();
-            response = convertStreamToString(instream);
+    private void addHeaders(HttpURLConnection connection) {
+        for (Parameter header : headers) {
+            connection.setRequestProperty(header.getName(), header.getValue());
+        }
+    }
 
-            // Closing the input stream will trigger connection release
-            instream.close();
+    private String buildPostData() throws IOException {
+        StringBuilder postData = new StringBuilder();
+        for (int i = 0; i < params.size(); i++) {
+            Parameter param = params.get(i);
+            if (i > 0) {
+                postData.append("&");
+            }
+            postData.append(param.getName())
+                    .append("=")
+                    .append(URLEncoder.encode(param.getValue(), "UTF-8"));
+        }
+        return postData.toString();
+    }
+
+    private void executeRequest(HttpURLConnection connection) throws IOException {
+        try {
+            responseCode = connection.getResponseCode();
+            message = connection.getResponseMessage();
+
+            InputStream inputStream;
+            if (responseCode >= 200 && responseCode < 300) {
+                inputStream = connection.getInputStream();
+            } else {
+                inputStream = connection.getErrorStream();
+            }
+
+            if (inputStream != null) {
+                response = convertStreamToString(inputStream);
+            }
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+    private void setupSSLConfiguration() {
+        try {
+            String certString = connection.getX509KeySignature().trim();
+            CustomTrustManager trustManager = new CustomTrustManager(certString, handler);
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[]{trustManager}, null);
+
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> {
+                // Accept all hostnames for custom certificate handling
+                return true;
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to setup SSL configuration", e);
         }
     }
 
@@ -243,70 +268,79 @@ public class RestClient {
         POST
     }
 
-    public class MySSLSocketFactory extends SSLSocketFactory {
-        Certificate cert = null;
-        SSLContext sslContext = SSLContext.getInstance("TLS");
+    public static class Parameter {
+        private final String name;
+        private final String value;
 
-        public MySSLSocketFactory(KeyStore truststore, String certString, final Handler h)
-                throws NoSuchAlgorithmException, KeyManagementException,
-                KeyStoreException, UnrecoverableKeyException, CertificateException {
-            super(truststore);
-            if (certString != null && !certString.equals("")) {
-                ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(certString, Base64.DEFAULT));
-                CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-                cert = (X509Certificate) certFactory.generateCertificate(in);
-            }
+        public Parameter(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
 
-            TrustManager tm = new X509TrustManager() {
-                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        public String getName() {
+            return name;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    @SuppressLint("CustomX509TrustManager")
+    private class CustomTrustManager implements X509TrustManager {
+        private Certificate storedCert = null;
+        private final Handler handler;
+
+        public CustomTrustManager(String certString, Handler handler) {
+            this.handler = handler;
+            if (certString != null && !certString.isEmpty()) {
+                try {
+                    ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(certString, Base64.DEFAULT));
+                    CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+                    storedCert = certFactory.generateCertificate(in);
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to parse stored certificate", e);
                 }
+            }
+        }
 
-                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            // Client certificates are not used in this implementation
+            Log.e(TAG, "checkClientTrusted called unexpectedly");
+            throw new CertificateException();
+        }
 
-                    if (cert == null || !cert.equals(chain[0])) {
-                        synchronized (h) {
-                            Log.d(TAG, "Sending a message containing the certificate to our handler.");
-                            Message m = new Message();
-                            m.setTarget(h);
-                            m.what = RemoteClientLibConstants.DIALOG_X509_CERT;
-                            m.obj = chain[0];
-                            h.sendMessage(m);
-                            connection.setX509KeySignature("");
-                            connection.setOvirtCaData("");
-                            Log.d(TAG, "Blocking indefinitely until the x509 cert is accepted.");
-                            while (connection.getX509KeySignature().isEmpty() ||
-                                    connection.getOvirtCaData().isEmpty()) {
-                                try {
-                                    h.wait();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                    Log.d(TAG, "The x509 cert was not accepted.");
-                                    throw new CertificateException("The x509 cert was not accepted.");
-                                }
-                            }
-                            Log.d(TAG, "The x509 cert was accepted and X509KeySignature and OvirtCaData set.");
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            if (storedCert == null || !storedCert.equals(chain[0])) {
+                synchronized (handler) {
+                    Log.d(TAG, "Sending a message containing the certificate to our handler.");
+                    Message m = new Message();
+                    m.setTarget(handler);
+                    m.what = RemoteClientLibConstants.DIALOG_X509_CERT;
+                    m.obj = chain[0];
+                    handler.sendMessage(m);
+                    connection.setX509KeySignature("");
+                    connection.setOvirtCaData("");
+                    Log.d(TAG, "Blocking indefinitely until the x509 cert is accepted.");
+                    while (connection.getX509KeySignature().isEmpty() ||
+                            connection.getOvirtCaData().isEmpty()) {
+                        try {
+                            handler.wait();
+                        } catch (InterruptedException e) {
+                            Log.e(TAG, "The x509 cert was not accepted.", e);
+                            throw new CertificateException("The x509 cert was not accepted.");
                         }
                     }
+                    Log.d(TAG, "The x509 cert was accepted and X509KeySignature and OvirtCaData set.");
                 }
-
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-            };
-
-            sslContext.init(null, new TrustManager[]{tm}, null);
+            }
         }
 
         @Override
-        public Socket createSocket(Socket socket, String host, int port,
-                                   boolean autoClose) throws IOException, UnknownHostException {
-            return sslContext.getSocketFactory().createSocket(socket, host,
-                    port, autoClose);
-        }
-
-        @Override
-        public Socket createSocket() throws IOException {
-            return sslContext.getSocketFactory().createSocket();
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
         }
     }
 }

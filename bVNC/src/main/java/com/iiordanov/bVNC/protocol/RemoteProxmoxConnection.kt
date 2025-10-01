@@ -132,13 +132,19 @@ class RemoteProxmoxConnection(
                     // If selected realm has TFA enabled, then ask for the code
                     val pveRealm = realms[realm]
                     if (pveRealm != null && pveRealm.tfa != null) {
-                        Log.i(tag, "Displaying a dialog to obtain OTP/TFA.")
+                        Log.i(tag, "Displaying a dialog to obtain OTP/TFA enabled for realm")
                         handler.sendEmptyMessage(RemoteClientLibConstants.GET_OTP_CODE)
                         synchronized(handler) { castAsObject(handler).wait() }
                     }
 
                     // Login with provided credentials
                     api.login(user, realm, connection.password, connection.otpCode)
+                    if (api.isPerUserNeedTfa) {
+                        Log.i(tag, "Displaying a dialog to obtain OTP/TFA for specific user")
+                        handler.sendEmptyMessage(RemoteClientLibConstants.GET_OTP_CODE)
+                        synchronized(handler) { castAsObject(handler).wait() }
+                        api.login(user, realm, connection.password, connection.otpCode)
+                    }
 
                     // Get map of user parsable names to resources
                     val nameToResources = api.resources

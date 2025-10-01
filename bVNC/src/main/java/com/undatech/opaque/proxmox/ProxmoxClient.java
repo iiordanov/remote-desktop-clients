@@ -1,6 +1,7 @@
 package com.undatech.opaque.proxmox;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.proxmox.pojo.PveRealm;
@@ -22,10 +23,10 @@ import java.util.Map;
 import javax.security.auth.login.LoginException;
 
 public class ProxmoxClient extends RestClient {
-    private static final String TAG = "ProxmoxClient";
     private static final int DEFAULT_PROXMOX_PORT = 8006;
-    private String baseUrl;
+    private final String baseUrl;
     private String ticket;
+    private boolean perUserNeedTfa;
     private String csrfToken;
 
     /**
@@ -41,7 +42,7 @@ public class ProxmoxClient extends RestClient {
         resetState(baseUrl + "/access/domains");
         execute(RestClient.RequestMethod.GET);
 
-        HashMap<String, PveRealm> result = null;
+        HashMap<String, PveRealm> result;
         if (getResponseCode() == HttpURLConnection.HTTP_OK) {
             JSONArray array = new JSONObject(getResponse()).getJSONArray("data");
             result = PveRealm.getRealmsFromJsonArray(array);
@@ -56,17 +57,23 @@ public class ProxmoxClient extends RestClient {
             throws JSONException, IOException, HttpException, LoginException {
         resetState(baseUrl + "/access/ticket");
 
-        addParam("username", user);
-        addParam("password", password);
-        addParam("realm", realm);
-        if (otp != null && !"".equals(otp)) {
+        if (!perUserNeedTfa && otpObtained(otp)) {
+            addRegularAuthParams(user, password, realm);
             addParam("otp", otp);
+        } else if (perUserNeedTfa && otpObtained(otp)) {
+            String otpUsername = user + "@" + realm;
+            String otpPassword = "totp:" + otp;
+            addUserAndPassword(otpUsername, otpPassword);
+            addParam("tfa-challenge", ticket);
+        } else {
+            addRegularAuthParams(user, password, realm);
         }
 
         execute(RestClient.RequestMethod.POST);
 
         if (getResponseCode() == HttpURLConnection.HTTP_OK) {
             JSONObject data = new JSONObject(getResponse()).getJSONObject("data");
+            setPerUserNeedTfa(getNeedTfaIfAvailable(data));
             ticket = data.getString("ticket");
             csrfToken = data.getString("CSRFPreventionToken");
         } else if (getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
@@ -76,6 +83,30 @@ public class ProxmoxClient extends RestClient {
         }
     }
 
+    private void addRegularAuthParams(String user, String password, String realm) {
+        addUserAndPassword(user, password);
+        addParam("realm", realm);
+    }
+
+    private void addUserAndPassword(String user, String password) {
+        addParam("username", user);
+        addParam("password", password);
+    }
+
+    private static boolean otpObtained(String otp) {
+        return otp != null && !otp.isEmpty();
+    }
+
+    private boolean getNeedTfaIfAvailable(JSONObject data) {
+        boolean res = false;
+        try {
+            res = "1".equals(data.getString("NeedTFA"));
+        } catch (JSONException e) {
+            Log.d(TAG, "getNeedTfaIfAvailable: could not find NeedTFA, no TFA for user");
+        }
+        return res;
+    }
+
     /**
      * Actually performs a request to PVE.
      *
@@ -83,10 +114,7 @@ public class ProxmoxClient extends RestClient {
      * @param method      the method (GET, POST, etc)
      * @param requestData the data to send
      * @return the data returned by PVE as a result of the request.
-     * @throws JSONException
-     * @throws LoginException
-     * @throws IOException
-     * @throws HttpException
+     * @noinspection SameParameterValue
      */
     private JSONObject request(String resource, RestClient.RequestMethod method, Map<String, String> requestData)
             throws IOException, JSONException, LoginException, HttpException {
@@ -128,10 +156,6 @@ public class ProxmoxClient extends RestClient {
      *
      * @param node the name of the PVE node
      * @return the VNC display of the node
-     * @throws LoginException
-     * @throws JSONException
-     * @throws IOException
-     * @throws HttpException
      */
     public VncDisplay vncNode(String node) throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/nodes/" + node + "/vncshell", RestClient.RequestMethod.POST, null);
@@ -143,10 +167,6 @@ public class ProxmoxClient extends RestClient {
      *
      * @param node the name of the PVE node
      * @return the SPICE display of the node
-     * @throws LoginException
-     * @throws JSONException
-     * @throws IOException
-     * @throws HttpException
      */
     public SpiceDisplay spiceNode(String node) throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/nodes/" + node + "/spiceshell", RestClient.RequestMethod.POST, null);
@@ -160,10 +180,6 @@ public class ProxmoxClient extends RestClient {
      * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
      * @return The VNC display of the VM
-     * @throws LoginException
-     * @throws JSONException
-     * @throws IOException
-     * @throws HttpException
      */
     public VncDisplay vncVm(String node, String type, int vmid) throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/nodes/" + node + "/" + type + "/" + vmid + "/vncproxy", RestClient.RequestMethod.POST, null);
@@ -177,10 +193,6 @@ public class ProxmoxClient extends RestClient {
      * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
      * @return The SPICE display of the VM
-     * @throws LoginException
-     * @throws JSONException
-     * @throws IOException
-     * @throws HttpException
      */
     public SpiceDisplay spiceVm(String node, String type, int vmid) throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/nodes/" + node + "/" + type + "/" + vmid + "/spiceproxy", RestClient.RequestMethod.POST, null);
@@ -194,10 +206,6 @@ public class ProxmoxClient extends RestClient {
      * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
      * @return status string
-     * @throws LoginException
-     * @throws JSONException
-     * @throws IOException
-     * @throws HttpException
      */
     public String startVm(String node, String type, int vmid) throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/nodes/" + node + "/" + type + "/" + vmid + "/status/start", RestClient.RequestMethod.POST, null);
@@ -211,10 +219,6 @@ public class ProxmoxClient extends RestClient {
      * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
      * @return status of VM
-     * @throws LoginException
-     * @throws JSONException
-     * @throws IOException
-     * @throws HttpException
      */
     public VmStatus getCurrentStatus(String node, String type, int vmid) throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/nodes/" + node + "/" + type + "/" + vmid + "/status/current", RestClient.RequestMethod.GET, null);
@@ -225,15 +229,11 @@ public class ProxmoxClient extends RestClient {
      * Shows what resources are currently available on the PVE cluster
      *
      * @return object representing resources available
-     * @throws LoginException
-     * @throws JSONException
-     * @throws IOException
-     * @throws HttpException
      */
     public Map<String, PveResource> getResources() throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/cluster/resources", RestClient.RequestMethod.GET, null);
         JSONArray jArr = jObj.getJSONArray("data");
-        HashMap<String, PveResource> result = new HashMap<String, PveResource>();
+        HashMap<String, PveResource> result = new HashMap<>();
         for (int i = 0; i < jArr.length(); i++) {
             PveResource r = new PveResource(jArr.getJSONObject(i));
             if (r.getName() != null && r.getNode() != null && r.getType() != null && r.getVmid() != null) {
@@ -241,5 +241,13 @@ public class ProxmoxClient extends RestClient {
             }
         }
         return result;
+    }
+
+    public boolean isPerUserNeedTfa() {
+        return perUserNeedTfa;
+    }
+
+    public void setPerUserNeedTfa(boolean needPerUserTfa) {
+        this.perUserNeedTfa = needPerUserTfa;
     }
 }
