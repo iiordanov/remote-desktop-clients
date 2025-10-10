@@ -254,6 +254,9 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                     case MotionEvent.BUTTON_STYLUS_SECONDARY:
                         remoteInput.getPointer().middleButtonDown(x, y, meta);
                         break;
+                    case 0: // Workaround for S-Pen on newer Samsungs to release right-click presses
+                        remoteInput.getPointer().releaseButton(x, y, meta);
+                        break;
                     default:
                         remoteInput.getPointer().moveMouseButtonUp(x, y, meta);
                         break;
