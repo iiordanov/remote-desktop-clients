@@ -1,5 +1,8 @@
+v6.0.5
+- Fix for S-Pen button right click release on newer Samsungs
+- Per-user OTP support for Proxmox
 v6.0.4
-- Mouse Scroll whell on floating toolbar
+- Mouse Scroll wheel on floating toolbar
 - 16 kb page size support
 v6.0.3
 - Refactoring, bugfixes
