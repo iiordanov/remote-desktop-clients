@@ -5,17 +5,34 @@ clients for Android.
 
 Please see the LICENSE file for information on how the source is licensed.
 
-# Links to App Stores
+# Android App Store Links
 
-bVNC is a VNC client. It's released as a donation version at [bVNC Pro](https://play.google.com/store/apps/details?id=com.iiordanov.bVNC), and a free version at [bVNC](https://play.google.com/store/apps/details?id=com.iiordanov.freebVNC)
+bVNC is a VNC client. It's released as a donation version at [bVNC Pro](https://play.google.com/store/apps/details?id=com.iiordanov.bVNC),
+and as a free version at [bVNC](https://play.google.com/store/apps/details?id=com.iiordanov.freebVNC)
+and [IzzyOnDroid](https://apt.izzysoft.de/packages/com.iiordanov.freebVNC)
 
-aRDP is a RDP client. It's released as a donation version at, [aRDP Pro](https://play.google.com/store/apps/details?id=com.iiordanov.aRDP), and a free version at [aRDP](https://play.google.com/store/apps/details?id=com.iiordanov.freeaRDP)
+aRDP is a RDP client. It's released as a donation version at, [aRDP Pro](https://play.google.com/store/apps/details?id=com.iiordanov.aRDP)
+and as a free version at [aRDP](https://play.google.com/store/apps/details?id=com.iiordanov.freeaRDP)
+and [IzzyOnDroid](https://apt.izzysoft.de/packages/com.iiordanov.freeaRDP)
 
-aSPICE is a SPICE Protocol client. It's available as a donation version at, [aSPICE Pro](https://play.google.com/store/apps/details?id=com.iiordanov.aSPICE), and a free version at [aSPICE](https://play.google.com/store/apps/details?id=com.iiordanov.freeaSPICE)
+aSPICE is a SPICE Protocol client. It's available as a donation version at [aSPICE Pro](https://play.google.com/store/apps/details?id=com.iiordanov.aSPICE),
+and as a free version at [aSPICE](https://play.google.com/store/apps/details?id=com.iiordanov.freeaSPICE)
 
 Opaque is an oVirt, RHEV, and Proxmox client available at [Opaque](https://play.google.com/store/apps/details?id=com.undatech.opaque)
 
-The donation versions are also available on Amazon App Store at [bVNC](https://www.amazon.ca/Unda-Tech-VNC-Pro-Viewer/dp/B00OWZYE1A), [aRDP](https://www.amazon.ca/Unda-Tech-RDP-Pro-Client/dp/B00OX1RBAO), [aSPICE](https://www.amazon.ca/aSPICE-Pro-Secure-SPICE-Client/dp/B07B6K9BDB), [Opaque](https://www.amazon.ca/Opaque-oVirt-RHEV-Proxmox-Client/dp/B07HMTYT1L).
+The donation versions are also available on Amazon App Store at
+[bVNC](https://www.amazon.ca/Unda-Tech-VNC-Pro-Viewer/dp/B00OWZYE1A), [aRDP](https://www.amazon.ca/Unda-Tech-RDP-Pro-Client/dp/B00OX1RBAO), [aSPICE](https://www.amazon.ca/aSPICE-Pro-Secure-SPICE-Client/dp/B07B6K9BDB), [Opaque](https://www.amazon.ca/Opaque-oVirt-RHEV-Proxmox-Client/dp/B07HMTYT1L).
+
+## Apple App Store Links
+
+bVNC Pro is available at [bVNC Pro](https://apps.apple.com/app/bvnc-pro/id1506461202).
+
+aRDP is available at [aRDP Pro](https://apps.apple.com/app/ardp-pro/id1620745523)
+
+aSPICE Pro is available at [aSPICE Pro](https://apps.apple.com/app/aspice-pro/id1560593107).
+
+Find bVNC Pro, aRDP Pro, and aSPICE Pro for MacOS and iOS source code
+[here](https://gitlab.com/iiordanov/remote-desktop-clients-ios)
 
 # Links to Pro APKs
 
@@ -25,6 +42,10 @@ You can always get the latest Pro versions by supporting us as a Patreon member 
 [aRDP Pro](https://www.patreon.com/posts/113067997)
 [aSPICE Pro](https://www.patreon.com/posts/113067946)
 [Opaque](https://www.patreon.com/posts/113067670)
+
+# Releases
+
+You can find all free Android APK files [here](https://github.com/iiordanov/remote-desktop-clients/releases)
 
 # Building
 
