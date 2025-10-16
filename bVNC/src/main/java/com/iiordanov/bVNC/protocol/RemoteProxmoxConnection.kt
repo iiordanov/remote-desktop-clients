@@ -106,7 +106,7 @@ class RemoteProxmoxConnection(
 
     override fun startConnection() {
         if (!pd.isShowing) pd.show()
-        val cThread: Thread = object : Thread() {
+        connectionThread = object : Thread() {
             override fun run() {
                 try {
                     // Obtain user's password if necessary.
@@ -243,7 +243,7 @@ class RemoteProxmoxConnection(
                 }
             }
         }
-        cThread.start()
+        connectionThread.start()
     }
 
 }

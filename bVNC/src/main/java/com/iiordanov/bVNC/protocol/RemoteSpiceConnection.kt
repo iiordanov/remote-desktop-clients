@@ -74,8 +74,7 @@ class RemoteSpiceConnection(
     override fun initializeConnection() {
         super.initializeConnection()
         initializeClipboardMonitor()
-
-        val t: Thread = object : Thread() {
+        connectionThread = object : Thread() {
             override fun run() {
                 try {
                     startSpiceConnection()
@@ -84,7 +83,7 @@ class RemoteSpiceConnection(
                 }
             }
         }
-        t.start()
+        connectionThread.start()
     }
 
     /**

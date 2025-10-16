@@ -234,12 +234,6 @@ public interface Viewable {
     void writeScreenshotToFile(String filePath, int dstWidth);
 
     /**
-     * Disposes of the drawable and releases associated resources.
-     * Should be called when the view is no longer needed.
-     */
-    void disposeDrawable();
-
-    /**
      * Get the current zoom factor
      * @return the zoom factor
      */

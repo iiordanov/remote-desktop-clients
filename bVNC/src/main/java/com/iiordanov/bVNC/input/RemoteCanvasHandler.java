@@ -590,13 +590,18 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                     displayVms.show(fm, "selectVm");
                 }
                 break;
-            case RemoteClientLibConstants.SPICE_CONNECT_SUCCESS:
+            case RemoteClientLibConstants.GRAPHICS_SETTINGS_RECEIVED:
                 if (remoteConnection.pd != null && remoteConnection.pd.isShowing()) {
-                    remoteConnection.pd.dismiss();
+                    remoteConnection.pd.setMessage(context.getString(R.string.info_progress_dialog_downloading));
                 }
                 synchronized (remoteConnection.getRfbConn()) {
-                    remoteConnection.spiceUpdateReceived = true;
+                    remoteConnection.graphicsSettingsReceived = true;
                     remoteConnection.getRfbConn().notifyAll();
+                }
+                break;
+            case RemoteClientLibConstants.GRAPHICS_FIRST_FRAME_RECEIVED:
+                if (remoteConnection.pd != null && remoteConnection.pd.isShowing()) {
+                    remoteConnection.pd.dismiss();
                 }
                 break;
             case RemoteClientLibConstants.SPICE_CONNECT_FAILURE:
@@ -607,7 +612,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                         remoteConnection.pd.dismiss();
                     }
                     // Only if we were intending to stay connected, and the connection failed, show an error message.
-                    if (!remoteConnection.spiceUpdateReceived) {
+                    if (!remoteConnection.graphicsSettingsReceived) {
                         remoteConnection.disconnectAndShowMessage(R.string.error_ovirt_unable_to_connect, R.string.error_dialog_title, e);
                     } else {
                         remoteConnection.disconnectAndShowMessage(R.string.error_connection_interrupted, R.string.error_dialog_title, e);

@@ -200,5 +200,4 @@ class ZoomScaling extends AbstractScaling {
         scaling = minimumScale;
         resolveZoom(canvas);
     }
-
 }

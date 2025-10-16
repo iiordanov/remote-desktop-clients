@@ -353,7 +353,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         // Set screen settings to native res if instructed to, or if height or width are too small.
         BookmarkBase.ScreenSettings screenSettings = bookmark.getActiveScreenSettings();
         screenSettings.setDesktopScalePercentage(desktopScalePercentage);
-        setScreenPreferences(remoteWidth, remoteHeight, colors, screenSettings);
+        updateScreenSettings(remoteWidth, remoteHeight, colors);
 
         // Set performance flags.
         BookmarkBase.PerformanceFlags performanceFlags = bookmark.getPerformanceFlags();
@@ -459,23 +459,29 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     @Override
     public void OnSettingsChanged(int width, int height, int bpp) {
-        android.util.Log.d(TAG, "OnSettingsChanged called, wxh: " + width + "x" + height);
+        Log.d(TAG, "OnSettingsChanged called, wxh: " + width + "x" + height);
+        handler.sendEmptyMessage(RemoteClientLibConstants.GRAPHICS_SETTINGS_RECEIVED);
         BookmarkBase.ScreenSettings settings = session.getBookmark().getActiveScreenSettings();
         if (settings.getWidth() != width || settings.getHeight() != height) {
-            setScreenPreferences(width, height, bpp, settings);
-            connection.setRdpResType(RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
-            connection.setRdpWidth(width);
-            connection.setRdpHeight(height);
-            connection.setRdpColor(bpp);
-            connection.save(context);
-            close();
-            initSession(rdpFileName, username, domain, password);
-            connect();
+            Log.d(TAG, "OnSettingsChanged width and height do not match saved values, saving and reconnecting");
+            saveConnectionSettings(width, height, bpp);
+            handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
+        } else {
+            viewable.reallocateDrawable(width, height);
         }
-        viewable.reallocateDrawable(width, height);
     }
 
-    private static void setScreenPreferences(int width, int height, int bpp, BookmarkBase.ScreenSettings settings) {
+    private void saveConnectionSettings(int width, int height, int bpp) {
+        connection.setRdpResType(RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
+        connection.setRdpWidth(width);
+        connection.setRdpHeight(height);
+        connection.setRdpColor(bpp);
+        connection.save(context);
+        updateScreenSettings(width, height, bpp);
+    }
+
+    private void updateScreenSettings(int width, int height, int bpp) {
+        BookmarkBase.ScreenSettings settings = session.getBookmark().getActiveScreenSettings();
         settings.setWidth(width);
         settings.setHeight(height);
         settings.setColors(bpp);
@@ -484,7 +490,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     //////////////////////////////////////////////////////////////////////////////////
     //  Implementation of LibFreeRDP.UIEventListener. Through the functions implemented
-    //  below libspice and FreeRDP communicate remote desktop size and updates.
+    //  below, libspice and FreeRDP communicate remote desktop size and updates.
     //////////////////////////////////////////////////////////////////////////////////
 
     @Override
@@ -561,6 +567,10 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     @Override
     public void OnGraphicsUpdate(int x, int y, int width, int height) {
         //android.util.Log.v(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
+        if (!receivedFirstGraphicsFrame) {
+            receivedFirstGraphicsFrame = true;
+            handler.sendEmptyMessage(RemoteClientLibConstants.GRAPHICS_FIRST_FRAME_RECEIVED);
+        }
         if (viewable != null && session != null) {
             Bitmap bitmap = viewable.getBitmap();
             if (bitmap != null && x + width <= bitmap.getWidth() && y + height <= bitmap.getHeight()) {

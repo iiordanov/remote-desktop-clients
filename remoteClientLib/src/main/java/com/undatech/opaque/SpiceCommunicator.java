@@ -226,14 +226,21 @@ public class SpiceCommunicator extends RfbConnectable {
 
     private static void OnGraphicsUpdate(int inst, int x, int y, int width, int height) {
         //android.util.Log.i(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
-        Bitmap bitmap = myself.canvas.getBitmap();
+        myself.onGraphicsUpdate(x, y, width, height);
+    }
+
+    void onGraphicsUpdate(int x, int y, int width, int height) {
+        if (!receivedFirstGraphicsFrame) {
+            receivedFirstGraphicsFrame = true;
+            handler.sendEmptyMessage(RemoteClientLibConstants.GRAPHICS_FIRST_FRAME_RECEIVED);
+        }
+        Bitmap bitmap = canvas.getBitmap();
         if (bitmap != null) {
-            synchronized (myself.canvas) {
+            synchronized (canvas) {
                 myself.UpdateBitmap(bitmap, x, y, width, height);
             }
-            myself.canvas.reDraw(x, y, width, height);
+            canvas.reDraw(x, y, width, height);
         }
-        //myself.onGraphicsUpdate(x, y, width, height);
     }
 
     private static void OnMouseUpdate(int x, int y) {
@@ -533,13 +540,12 @@ public class SpiceCommunicator extends RfbConnectable {
 
     public void onSettingsChanged(int width, int height, int bpp) {
         android.util.Log.i(TAG, "onSettingsChanged called, wxh: " + width + "x" + height);
+        handler.sendEmptyMessage(RemoteClientLibConstants.GRAPHICS_SETTINGS_RECEIVED);
 
         setFramebufferWidth(width);
         setFramebufferHeight(height);
 
         canvas.reallocateDrawable(width, height);
-
-        handler.sendEmptyMessage(RemoteClientLibConstants.SPICE_CONNECT_SUCCESS);
 
         if (isRequestingNewDisplayResolution) {
             handler.postDelayed(() -> {

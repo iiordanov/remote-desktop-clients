@@ -141,6 +141,7 @@ class RemoteVncConnection(
         }
         rfb?.writeClientInit()
         rfb?.readServerInit()
+        handler.sendEmptyMessage(RemoteClientLibConstants.GRAPHICS_SETTINGS_RECEIVED)
 
         // Is custom resolution enabled?
         if (connection.rdpResType != Constants.VNC_GEOM_SELECT_DISABLED) {
@@ -152,7 +153,6 @@ class RemoteVncConnection(
         }
         canvas.reallocateDrawable(rfb!!.framebufferWidth, rfb!!.framebufferHeight)
         decoder.setPixelFormat(rfb)
-        handler.post { pd.setMessage(context.getString(R.string.info_progress_dialog_downloading)) }
         sendUnixAuth()
         canvas.postDrawableSetter()
 
@@ -170,15 +170,13 @@ class RemoteVncConnection(
 
     override fun initializeConnection() {
         super.initializeConnection()
-
         try {
             initializeVncConnection()
+            initializeClipboardMonitor()
         } catch (e: Throwable) {
             handleUncaughtException(e, R.string.error_vnc_unable_to_connect)
         }
-        initializeClipboardMonitor()
-
-        val t: Thread = object : Thread() {
+        connectionThread = object : Thread() {
             override fun run() {
                 try {
                     startVncConnection()
@@ -187,7 +185,7 @@ class RemoteVncConnection(
                 }
             }
         }
-        t.start()
+        connectionThread.start()
     }
 
 

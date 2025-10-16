@@ -32,8 +32,9 @@ public class RemoteClientLibConstants {
     public static final int DIALOG_X509_CERT = 1;
     public static final int DIALOG_SSH_CERT = 2;
     public static final int DIALOG_RDP_CERT = 3;
-    public static final int SPICE_CONNECT_SUCCESS = 4;
+    public static final int GRAPHICS_SETTINGS_RECEIVED = 4;
     public static final int SPICE_CONNECT_FAILURE = 5;
+    public static final int GRAPHICS_FIRST_FRAME_RECEIVED = 6;
     public static final int RDP_CONNECT_FAILURE = 7;
     public static final int RDP_UNABLE_TO_CONNECT = 8;
     public static final int RDP_AUTH_FAILED = 9;
@@ -48,8 +49,6 @@ public class RemoteClientLibConstants {
     public static final int DISCONNECT_WITH_MESSAGE = 18;
     public static final int GET_RDP_CREDENTIALS = 19;
     public static final int GET_SPICE_PASSWORD = 20;
-    public static final int REPORT_TOOLBAR_POSITION = 21;
-
     public static final int LAUNCH_VNC_VIEWER = 23;
     public static final int VM_LAUNCHED = 24;
     public static final int OVIRT_AUTH_FAILURE = 25;

@@ -2,14 +2,10 @@ package com.iiordanov.bVNC.protocol
 
 import android.content.Context
 import android.util.Log
-import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.Utils
 import com.iiordanov.bVNC.input.RemoteCanvasHandler
-import com.iiordanov.bVNC.input.RemoteSpiceKeyboard
-import com.iiordanov.bVNC.input.RemoteSpicePointer
 import com.undatech.opaque.Connection
 import com.undatech.opaque.RemoteClientLibConstants
-import com.undatech.opaque.SpiceCommunicator
 import com.undatech.opaque.Viewable
 import com.undatech.opaque.proxmox.OvirtClient
 import com.undatech.opaque.util.FileUtilsKt
@@ -36,7 +32,7 @@ class RemoteOvirtConnection(
         connection.address = Utils.getHostFromUriString(connection.address)
 
         if (!pd.isShowing) pd.show()
-        val cThread: Thread = object : Thread() {
+        connectionThread = object : Thread() {
             override fun run() {
                 try {
                     // Obtain user's password if necessary.
@@ -110,7 +106,7 @@ class RemoteOvirtConnection(
                     } catch (e: InterruptedException) {
                         Log.w(tag, "Wait for SPICE connection interrupted.")
                     }
-                    if (!spiceUpdateReceived && maintainConnection) {
+                    if (!graphicsSettingsReceived && maintainConnection) {
                         handler.sendEmptyMessage(RemoteClientLibConstants.OVIRT_TIMEOUT)
                     }
                 } catch (e: LoginException) {
@@ -121,6 +117,6 @@ class RemoteOvirtConnection(
                 }
             }
         }
-        cThread.start()
+        connectionThread.start()
     }
 }

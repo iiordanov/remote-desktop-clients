@@ -67,20 +67,17 @@ class RemoteRdpConnection(
             connection.rdpColor, connection.desktopScalePercentage, App.debugLog
         )
         rdpComm!!.connect()
-        pd.dismiss()
     }
 
     override fun initializeConnection() {
         super.initializeConnection()
-
         try {
             initializeRdpConnection()
+            initializeClipboardMonitor()
         } catch (e: Throwable) {
             handleUncaughtException(e, R.string.error_rdp_unable_to_connect)
         }
-        initializeClipboardMonitor()
-
-        val t: Thread = object : Thread() {
+        connectionThread = object : Thread() {
             override fun run() {
                 try {
                     startRdpConnection()
@@ -89,7 +86,7 @@ class RemoteRdpConnection(
                 }
             }
         }
-        t.start()
+        connectionThread.start()
     }
 
     /**

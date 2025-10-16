@@ -340,11 +340,13 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
                         Log.i(TAG, "Using CompactBufferBitmapData.");
                         myDrawable = new CompactBitmapData(dx, dy, this, isSpice | isOpaque);
                     }
-                } catch (
-                        Throwable e) { // If despite our efforts we fail to allocate memory, use CompactBitmapData.
+                } catch (Throwable e) { // If despite our efforts we fail to allocate memory, use CompactBitmapData.
                     Log.e(TAG, "Could not allocate drawable, attempting to use CompactBitmapData.");
-                    disposeDrawable();
+                    if (myDrawable != null) {
+                        myDrawable.dispose();;
+                    }
                     myDrawable = new CompactBitmapData(dx, dy, this, isSpice | isOpaque);
+
                 }
             }
         }
@@ -360,19 +362,6 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         boolean localCursorForceEnabled =
                 connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL;
         return (isRdpSpiceOrOpaque && localCursorNotForceDisabled) || localCursorForceEnabled;
-    }
-
-    /**
-     * Disposes of the old drawable which holds the remote desktop data.
-     */
-    public void disposeDrawable() {
-        synchronized (this) {
-            if (myDrawable != null) {
-                myDrawable.dispose();
-            }
-            myDrawable = null;
-            System.gc();
-        }
     }
 
     @Override

@@ -49,6 +49,7 @@ import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.MessageDialogs;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.Viewable;
 import com.undatech.opaque.input.RemotePointer;
@@ -65,6 +66,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
     private final static String TAG = "RemoteConnection";
     public static final int CLIPBOARD_INITIAL_DELAY = 0;
     public static final int CLIPBOARD_CHECK_PERIOD = 500;
+    public static final int MAX_IN_DIALOG_ERROR_LENGTH = 300;
 
     // Connection parameters
     public Connection connection;
@@ -75,7 +77,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
     public ProgressDialog pd;
     public boolean serverJustCutText = false;
     public Runnable hideKeyboardAndExtraKeys;
-    public boolean spiceUpdateReceived = false;
+    public boolean graphicsSettingsReceived = false;
     /**
      * Handler for the dialogs that display the x509/RDP/SSH key signatures to the user.
      * Also shows the dialogs which show various connection failures.
@@ -95,6 +97,8 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
     Context context;
     Viewable canvas;
 
+    Thread connectionThread;
+
     /**
      * Constructor used by the inflation apparatus
      */
@@ -111,16 +115,18 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
         this.sshTunneled = connection.getConnectionType() == Constants.CONN_TYPE_SSH;
         this.clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         // Startup the connection thread with a progress dialog
-        this.pd = ProgressDialog.show(context, context.getString(R.string.info_progress_dialog_connecting),
+        this.pd = ProgressDialog.show(
+                context,
+                context.getString(R.string.info_progress_dialog_connecting),
                 context.getString(R.string.info_progress_dialog_establishing),
-                true, true, dialog -> {
-                    closeConnection();
-                    handler.post(() -> Utils.showFatalErrorMessage(context, context.getString(R.string.info_progress_dialog_aborted)));
+                true,
+                true,
+                dialog -> {
+                    handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE);
                 });
 
         // Make this dialog cancellable only upon hitting the Back button and not touching outside.
         this.pd.setCanceledOnTouchOutside(false);
-        this.pd.setCancelable(false);
     }
 
     public RfbConnectable getRfbConn() {
@@ -189,8 +195,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
 
     protected void handleUncaughtException(Throwable e, int resource) {
         if (maintainConnection) {
-            Log.e(TAG, e.toString());
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
             // Ensure we dismiss the progress dialog before we finish
             if (pd.isShowing())
                 pd.dismiss();
@@ -208,7 +213,9 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
                     ) {
                         error = context.getString(resource);
                     }
-                    error = error + "<br>" + e.getLocalizedMessage();
+
+                    error = error + "<br><br>" + context.getString(R.string.error) + ":<br><br>" +
+                            Log.getStackTraceString(e).substring(0, MAX_IN_DIALOG_ERROR_LENGTH) + " ...";
                 }
                 showFatalMessageAndQuit(error);
             }
@@ -272,6 +279,10 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
         // Close the rfb connection.
         if (rfbConn != null) {
             rfbConn.close();
+        }
+
+        if (connectionThread != null) {
+            connectionThread.interrupt();
         }
 
         if (handler != null) {
