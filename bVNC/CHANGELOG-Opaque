@@ -1,3 +1,5 @@
+v6.0.6
+- Connection progress dialog fixes and improvements
 v6.0.5
 - Fix for S-Pen button right click release on newer Samsungs
 - Per-user OTP support for Proxmox
