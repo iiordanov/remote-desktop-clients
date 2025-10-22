@@ -49,9 +49,7 @@ class RemoteOvirtConnection(
                         Log.i(tag, FileUtilsKt.readFileDirectlyAsText(connection.ovirtCaFile))
                         connection.ovirtCaFile
                     } else {
-                        val standardCas = File(context.filesDir, "ssl/certs/ca-certificates.crt")
-                        Log.i(tag, "Using the standard Certificate Authorities: ${standardCas.length()}")
-                        standardCas.path
+                        standardCertificateAuthorities().path
                     }
                     // If not VM name is specified, then get a list of VMs and let the user pick one.
                     if (connection.vmname == "") {

@@ -1,5 +1,7 @@
 package com.undatech.opaque.proxmox.pojo;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -8,6 +10,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class SpiceDisplay {
+    public static final String TAG = "SpiceDisplay";
+
     private String password;
     private int tlsPort;
     private String host;
@@ -20,8 +24,10 @@ public class SpiceDisplay {
     private String type;
     private String toggleFullscreen;
     private String releaseCursor;
+    private String additionalCertificateAuthorities;
+    private String casCombined;
 
-    public SpiceDisplay(JSONObject data) throws JSONException {
+    public SpiceDisplay(JSONObject data, String additionalCertificateAuthorities) throws JSONException {
         password = data.getString("password");
         tlsPort = data.getInt("tls-port");
         host = data.getString("host");
@@ -34,6 +40,9 @@ public class SpiceDisplay {
         type = data.getString("type");
         toggleFullscreen = data.getString("toggle-fullscreen");
         releaseCursor = data.getString("release-cursor");
+        this.additionalCertificateAuthorities = additionalCertificateAuthorities;
+        this.casCombined = ca + "\\n" + additionalCertificateAuthorities;
+        logCasLengths();
     }
 
     public String getPassword() {
@@ -136,8 +145,8 @@ public class SpiceDisplay {
         File file = new File(tempVvFile);
         FileOutputStream fos = new FileOutputStream(file);
         fos.write("[virt-viewer]\n".getBytes());
-        fos.write(("tls-port=" + Integer.toString(tlsPort) + "\n").getBytes());
-        fos.write(("ca=" + ca + "\n").getBytes());
+        fos.write(("tls-port=" + tlsPort + "\n").getBytes());
+        fos.write(("ca=" + casCombined + "\n").getBytes());
         fos.write(("host=" + host + "\n").getBytes());
         fos.write(("host-subject=" + hostSubject + "\n").getBytes());
         fos.write(("password=" + password + "\n").getBytes());
@@ -147,11 +156,15 @@ public class SpiceDisplay {
             fos.write(("proxy=" + proxy + "\n").getBytes());
         }
         fos.write(("title=" + title + "\n").getBytes());
-        fos.write(("delete-this-file=" + Integer.toString(deleteThisFile) + "\n").getBytes());
+        fos.write(("delete-this-file=" + deleteThisFile + "\n").getBytes());
         fos.write(("release-cursor=" + releaseCursor + "\n").getBytes());
         fos.write(("secure-attention=" + secureAttention + "\n").getBytes());
         fos.write(("toggle-fullscreen=" + toggleFullscreen + "\n").getBytes());
         fos.write(("type=" + type + "\n").getBytes());
         fos.close();
+    }
+
+    private void logCasLengths() {
+        Log.i(TAG, String.format("CA length: %d, additional CAs length: %d, combined CAs length: %d", ca.length(), additionalCertificateAuthorities.length(), casCombined.length()));
     }
 }

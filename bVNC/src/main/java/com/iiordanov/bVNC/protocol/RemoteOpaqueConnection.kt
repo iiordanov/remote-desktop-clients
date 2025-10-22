@@ -93,4 +93,10 @@ open class RemoteOpaqueConnection(
     }
 
     protected fun <T> castAsObject(someObject: T) = (someObject as Object)
+
+    protected fun standardCertificateAuthorities(): File {
+        val standardCas = File(context.filesDir, "ssl/certs/ca-certificates.crt")
+        Log.i(tag, "Using the standard Certificate Authorities: ${standardCas.length()}")
+        return standardCas
+    }
 }

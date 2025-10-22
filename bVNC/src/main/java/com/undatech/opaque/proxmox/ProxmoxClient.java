@@ -28,13 +28,15 @@ public class ProxmoxClient extends RestClient {
     private String ticket;
     private boolean perUserNeedTfa;
     private String csrfToken;
+    private final String additionalCertificateAuthorities;
 
     /**
      * Initializes a connection to PVE's API.
      */
-    public ProxmoxClient(Connection connection, Handler handler) {
+    public ProxmoxClient(Connection connection, Handler handler, String additionalCertificateAuthorities) {
         super(connection, handler, DEFAULT_PROXMOX_PORT);
         this.baseUrl = String.format("%s%s", getApiUrl(), "/api2/json");
+        this.additionalCertificateAuthorities = additionalCertificateAuthorities;
     }
 
     public HashMap<String, PveRealm> getAvailableRealms()
@@ -170,7 +172,7 @@ public class ProxmoxClient extends RestClient {
      */
     public SpiceDisplay spiceNode(String node) throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/nodes/" + node + "/spiceshell", RestClient.RequestMethod.POST, null);
-        return new SpiceDisplay(jObj.getJSONObject("data"));
+        return new SpiceDisplay(jObj.getJSONObject("data"), additionalCertificateAuthorities);
     }
 
     /**
@@ -196,7 +198,7 @@ public class ProxmoxClient extends RestClient {
      */
     public SpiceDisplay spiceVm(String node, String type, int vmid) throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/nodes/" + node + "/" + type + "/" + vmid + "/spiceproxy", RestClient.RequestMethod.POST, null);
-        return new SpiceDisplay(jObj.getJSONObject("data"));
+        return new SpiceDisplay(jObj.getJSONObject("data"), additionalCertificateAuthorities);
     }
 
     /**

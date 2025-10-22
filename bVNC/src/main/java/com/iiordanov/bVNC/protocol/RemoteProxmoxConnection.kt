@@ -126,7 +126,8 @@ class RemoteProxmoxConnection(
                     }
 
                     // Connect to the API and obtain available realms
-                    val api = ProxmoxClient(connection, handler)
+                    val cas = standardCertificateAuthorities().readText().replace("\n", "\\n")
+                    val api = ProxmoxClient(connection, handler, cas)
                     val realms = api.availableRealms
 
                     // If selected realm has TFA enabled, then ask for the code
