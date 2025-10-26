@@ -18,10 +18,12 @@
  */
 package com.iiordanov.bVNC.dialogs
 
+import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TableLayout
@@ -35,6 +37,8 @@ import java.io.IOException
 class RateOrShareFragment : DialogFragment() {
     private var layout: TableLayout? = null
     private var donationButton: Button? = null
+    private var emailButton: Button? = null
+    private var rateButton: Button? = null
     private var previousVersionsButton: Button? = null
     private var versionAndCode: TextView? = null
 
@@ -53,6 +57,12 @@ class RateOrShareFragment : DialogFragment() {
         val v = inflater.inflate(R.layout.rateorshare, container, false)
         layout = v.findViewById<View>(R.id.layout) as TableLayout
         donationButton = v.findViewById(R.id.buttonDonate)
+        emailButton = v.findViewById(R.id.emailButton)
+        rateButton = v.findViewById(R.id.buttonRateApp)
+        if (!Utils.supportEnabled(context)) {
+            emailButton?.visibility = GONE
+            rateButton?.visibility = GONE
+        }
         previousVersionsButton = v.findViewById(R.id.buttonPreviousVersions)
         if (!Utils.isFree(activity)) {
             donationButton?.visibility = View.GONE

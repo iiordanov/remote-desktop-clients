@@ -20,6 +20,7 @@
 
 package com.undatech.opaque;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.iiordanov.bVNC.Utils.createMainScreenDialog;
 import static com.iiordanov.bVNC.Utils.setClipboard;
 import static com.iiordanov.bVNC.Utils.startUriIntent;
@@ -567,7 +568,19 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     public void emailUs(View item) {
-        startUriIntent(this, "mailto:support@morpheusly.com");
+        final Intent selectorIntent = new Intent(Intent.ACTION_SENDTO);
+        selectorIntent.setData(Uri.parse("mailto:"));
+        final Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        String packageName = Utils.pName(App.getContext());
+        String versionAndBuild = Utils.getVersionAndCode(App.getContext());
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@morpheusly.com"});
+        emailIntent.putExtra(
+                Intent.EXTRA_SUBJECT,
+                String.format("Help with: %s, version: %s", packageName, versionAndBuild)
+        );
+        emailIntent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+        emailIntent.setSelector(selectorIntent);
+        App.getContext().startActivity(emailIntent);
     }
 
     public void reportBug(View item) {
