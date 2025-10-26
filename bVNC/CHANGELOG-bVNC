@@ -1,3 +1,5 @@
+v6.0.8
+- Revert of net.zetetic:sqlcipher-android migration due to stability concerns
 v6.0.7
 - Bugfixes
 v6.0.6
