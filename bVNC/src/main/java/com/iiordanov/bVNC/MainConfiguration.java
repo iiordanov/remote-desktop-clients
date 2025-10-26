@@ -34,7 +34,7 @@ import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 import com.undatech.opaque.util.LogcatReader;
 import com.undatech.remoteClientUi.R;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.Collections;

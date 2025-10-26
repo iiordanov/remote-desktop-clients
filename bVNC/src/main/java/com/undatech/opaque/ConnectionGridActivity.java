@@ -517,8 +517,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     public void handlePassword(String providedPassword, boolean dialogWasCancelled) {
         Log.i(TAG, "handlePassword");
         boolean loadConnections;
-        MasterPasswordDelegate passwordDelegate = new MasterPasswordDelegate(this);
         boolean wasTogglingMasterPassword = togglingMasterPassword;
+        MasterPasswordDelegate passwordDelegate = new MasterPasswordDelegate(this, database);
         if (togglingMasterPassword) {
             loadConnections = passwordDelegate.toggleMasterPassword(providedPassword, dialogWasCancelled);
             togglingMasterPassword = false;

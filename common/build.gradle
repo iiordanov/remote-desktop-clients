@@ -30,7 +30,7 @@ android {
 }
 
 dependencies {
-    implementation 'net.zetetic:sqlcipher-android:4.7.2@aar'
+    implementation 'net.zetetic:android-database-sqlcipher:4.5.1@aar'
     implementation "androidx.sqlite:sqlite-ktx:2.2.0"
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

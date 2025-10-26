@@ -25,8 +25,8 @@ import android.util.Log;
 
 import com.iiordanov.bVNC.input.AbstractMetaKeyBean;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteOpenHelper;
 
 import java.io.File;
 
@@ -60,20 +60,9 @@ public class Database extends SQLiteOpenHelper {
     private static final String dbName = "VncDatabase";
     private static String password = "";
 
-    /*
-        public SQLiteOpenHelper(Context context, String name, String password, CursorFactory factory,
-                            int version, int minimumSupportedVersion,
-                            DatabaseErrorHandler errorHandler, SQLiteDatabaseHook databaseHook,
-                            boolean enableWriteAheadLogging) {
-        this(context, name, getBytes(password), factory, version, minimumSupportedVersion,
-            errorHandler, databaseHook, enableWriteAheadLogging);
-    }
-
-     */
     public Database(Context context) {
-        super(context, dbName, Database.password, null, CURRVERS, 0, null, null, false);
-        // TODO: Figure out if I need to move outside
-        System.loadLibrary("sqlcipher");
+        super(context, dbName, null, CURRVERS);
+        SQLiteDatabase.loadLibs(context);
     }
 
     public static String getPassword() {
@@ -100,16 +89,16 @@ public class Database extends SQLiteOpenHelper {
     }
 
     public SQLiteDatabase getWritableDatabase() {
-        return super.getWritableDatabase();
+        return getWritableDatabase(Database.password);
     }
 
     public SQLiteDatabase getReadableDatabase() {
-        return super.getReadableDatabase();
+        return getReadableDatabase(Database.password);
     }
 
     public boolean changeDatabasePassword(String newPassword) {
         // Get readable database with old password
-        SQLiteDatabase db = getReadableDatabase();
+        SQLiteDatabase db = getReadableDatabase(Database.password);
         int version = db.getVersion();
         String pathToDb = db.getPath();
         // Delete any temp db that may be in the way.
@@ -144,13 +133,7 @@ public class Database extends SQLiteOpenHelper {
 
             try {
                 // Set version of database
-                /*
-                    public static SQLiteDatabase openDatabase(String path, String password, CursorFactory factory,
-                                              int flags, DatabaseErrorHandler errorHandler,
-                                              SQLiteDatabaseHook databaseHook) {
-
-                 */
-                SQLiteDatabase tempDb = SQLiteDatabase.openDatabase(db.getPath() + "-temp", newPassword, null, SQLiteDatabase.OPEN_READWRITE, null, null);
+                SQLiteDatabase tempDb = SQLiteDatabase.openDatabase(db.getPath() + "-temp", newPassword, null, SQLiteDatabase.OPEN_READWRITE);
                 tempDb.setVersion(version);
                 tempDb.close();
             } catch (Exception e) {
@@ -166,7 +149,7 @@ public class Database extends SQLiteOpenHelper {
                 moveFile(pathToDb + "-temp", pathToDb);
 
                 // Test-open the new database and read off the version.
-                SQLiteDatabase newDb = SQLiteDatabase.openDatabase(db.getPath(), newPassword, null, SQLiteDatabase.OPEN_READWRITE, null, null);
+                SQLiteDatabase newDb = SQLiteDatabase.openDatabase(db.getPath(), newPassword, null, SQLiteDatabase.OPEN_READWRITE);
                 newDb.getVersion();
                 newDb.close();
             } catch (Exception e) {
@@ -476,11 +459,10 @@ public class Database extends SQLiteOpenHelper {
         Log.i(TAG, "Checking master password.");
         boolean result;
 
-        Database.password = password;
         Database testPassword = new Database(context);
         testPassword.close();
         try {
-            testPassword.getReadableDatabase();
+            testPassword.getReadableDatabase(password);
             result = true;
         } catch (Exception e) {
             result = false;
