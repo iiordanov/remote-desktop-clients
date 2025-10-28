@@ -1,4 +1,5 @@
-v6.0.9
+v6.1.0
+- Fix for security negotiation settings
 - Provide more app info in email subject
 v6.0.8
 - Revert of net.zetetic:sqlcipher-android migration due to stability concerns
