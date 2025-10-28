@@ -1,0 +1,21 @@
+diff --git a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
+index 07700c9cf..a4556e55a 100644
+--- a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
++++ b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
+@@ -278,13 +278,13 @@ public class LibFreeRDP
+ 		switch (advanced.getSecurity())
+ 		{
+ 			case 3: // NLA
+-				args.add("/sec-nla");
++				args.add("/sec:nla /sec:ext");
+ 				break;
+ 			case 2: // TLS
+-				args.add("/sec-tls");
++				args.add("/sec:tls");
+ 				break;
+ 			case 1: // RDP
+-				args.add("/sec-rdp");
++				args.add("/sec:rdp");
+ 				break;
+ 			default:
+ 				break;
