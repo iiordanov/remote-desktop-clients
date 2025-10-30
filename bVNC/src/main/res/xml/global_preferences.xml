@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:fitsSystemWindows="true">
     <SwitchPreferenceCompat
         android:defaultValue="false"
@@ -38,27 +37,35 @@
         android:title="@string/keyboard_type" />
     <SeekBarPreference
         android:defaultValue="6"
-        android:max="9"
         android:key="scrollSpeed"
+        android:max="9"
         android:title="@string/scroll_speed" />
     <PreferenceCategory android:title="@string/applies_to_new_connections_only">
         <!--input_methods android:key must match Constants.defaultInputMethodTag -->
         <ListPreference
-            android:title="@string/input_methods"
-            android:key="defaultInputMethod"
             android:defaultValue="TOUCH_ZOOM_MODE"
             android:entries="@array/defaultInputMethodEntries"
-            android:entryValues="@array/defaultInputMethodValues" />
+            android:entryValues="@array/defaultInputMethodValues"
+            android:key="defaultInputMethod"
+            android:title="@string/input_methods" />
         <!--scaling android:key must match Constants.defaultScalingTag -->
         <ListPreference
-            android:title="@string/scaling"
-            android:key="defaultScaling"
             android:defaultValue="MATRIX"
             android:entries="@array/defaultScalingEntries"
-            android:entryValues="@array/defaultScalingValues" />
+            android:entryValues="@array/defaultScalingValues"
+            android:key="defaultScaling"
+            android:title="@string/scaling" />
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="positionToolbarLastUsed"
             android:title="@string/position_toolbar_last_used" />
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="localToRemoteClipboardIntegration"
+            android:title="@string/local_clipboard_integration" />
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="remoteToLocalClipboardIntegration"
+            android:title="@string/remote_clipboard_integration" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -85,7 +85,7 @@ class RemoteVncConnection(
         rfb = RfbProto(
             decoder, canvas, this, handler, connection.prefEncoding, connection.viewOnly,
             sslTunneled, connection.idHashAlgorithm, connection.idHash, connection.x509KeySignature,
-            App.debugLog
+            App.debugLog, isRemoteToLocalClipboardIntegrationEnabled
         )
         rfbConn = rfb
         pointer = RemoteVncPointer(rfbConn, context, this, canvas, handler, !connection.useDpadAsArrows, App.debugLog)

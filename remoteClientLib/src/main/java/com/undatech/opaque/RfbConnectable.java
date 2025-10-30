@@ -31,18 +31,20 @@ import java.util.Map;
 
 public abstract class RfbConnectable implements DrawableReallocatedListener {
     private final static String TAG = "RfbConnectable";
-    public RemoteKeyboardState remoteKeyboardState = null;
+    public RemoteKeyboardState remoteKeyboardState;
     protected Map<Integer, Integer> modifierMap = new HashMap<>();
-    protected boolean debugLogging = false;
+    protected boolean debugLogging;
     protected int metaState = 0;
-    protected Handler handler = null;
+    protected Handler handler;
     public boolean serverJustCutText;
     protected boolean receivedFirstGraphicsFrame = false;
+    protected boolean isRemoteToLocalClipboardIntegrationEnabled;
 
-    public RfbConnectable(boolean debugLogging, Handler handler) {
+    public RfbConnectable(boolean debugLogging, Handler handler, boolean isRemoteToLocalClipboardIntegrationEnabled) {
         this.handler = handler;
         this.debugLogging = debugLogging;
         this.remoteKeyboardState = new RemoteKeyboardState(debugLogging);
+        this.isRemoteToLocalClipboardIntegrationEnabled = isRemoteToLocalClipboardIntegrationEnabled;
     }
 
     public Handler getHandler() {
@@ -59,6 +61,7 @@ public abstract class RfbConnectable implements DrawableReallocatedListener {
 
     public abstract String desktopName();
 
+    @SuppressWarnings("unused")
     public abstract void requestUpdate(boolean incremental);
 
     public abstract void requestResolution(int x, int y) throws Exception;
@@ -88,15 +91,19 @@ public abstract class RfbConnectable implements DrawableReallocatedListener {
     public abstract void setCertificateAccepted(boolean certificateAccepted);
 
     protected void remoteClipboardChanged(String data) {
-        android.util.Log.d(TAG, "remoteClipboardChanged called.");
-        // Send a message containing the text to our handler.
-        Message m = new Message();
-        m.setTarget(handler);
-        m.what = RemoteClientLibConstants.SERVER_CUT_TEXT;
-        Bundle strings = new Bundle();
-        strings.putString("text", data);
-        m.obj = strings;
-        handler.sendMessage(m);
+        if (isRemoteToLocalClipboardIntegrationEnabled) {
+            Log.i(TAG, "remoteClipboardChanged: Remote to local clipboard integration enabled");
+            // Send a message containing the text to our handler.
+            Message m = new Message();
+            m.setTarget(handler);
+            m.what = RemoteClientLibConstants.SERVER_CUT_TEXT;
+            Bundle strings = new Bundle();
+            strings.putString("text", data);
+            m.obj = strings;
+            handler.sendMessage(m);
+        } else {
+            Log.i(TAG, "remoteClipboardChanged: Remote to local clipboard integration disabled");
+        }
     }
 
     @Override

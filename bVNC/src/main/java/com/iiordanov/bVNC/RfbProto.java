@@ -53,6 +53,7 @@ import javax.net.ssl.SSLSocket;
  * This class has no knowledge of the android-specific UI; it sees framebuffer updates
  * and input events as defined in the RFB protocol.
  */
+@SuppressWarnings("unused")
 public class RfbProto extends RfbConnectable {
 
     public static final int SecTypeRA2 = 5;
@@ -339,8 +340,8 @@ public class RfbProto extends RfbConnectable {
     //
     public RfbProto(Decoder decoder, Viewable canvas, RemoteConnection remoteConnection, Handler handler, int preferredEncoding,
                     boolean viewOnly, boolean sslTunneled, int hashAlgorithm,
-                    String hash, String cert, boolean debugLogging) {
-        super(debugLogging, handler);
+                    String hash, String cert, boolean debugLogging, boolean isRemoteToLocalClipboardIntegrationEnabled) {
+        super(debugLogging, handler, isRemoteToLocalClipboardIntegrationEnabled);
         this.sslTunneled = sslTunneled;
         this.decoder = decoder;
         this.viewOnly = viewOnly;
@@ -2048,6 +2049,7 @@ public class RfbProto extends RfbConnectable {
                         break;
 
                     case RfbProto.ServerCutText:
+                        Log.d(TAG, "RfbProto.ServerCutText");
                         remoteClipboardChanged(readServerCutText());
                         break;
 

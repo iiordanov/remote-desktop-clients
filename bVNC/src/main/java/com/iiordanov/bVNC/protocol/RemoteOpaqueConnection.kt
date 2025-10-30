@@ -30,10 +30,11 @@ open class RemoteOpaqueConnection(
         spiceComm = SpiceCommunicator(
             context, handler, canvas,
             connection.isRequestingNewDisplayResolution || connection.rdpResType == RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM,
-            !Utils.isFree(context) && connection.isUsbEnabled, App.debugLog
+            !Utils.isFree(context) && connection.isUsbEnabled, App.debugLog, isRemoteToLocalClipboardIntegrationEnabled
         )
         rfbConn = spiceComm
-        pointer = RemoteSpicePointer(spiceComm, context, this, canvas, handler, !connection.useDpadAsArrows, App.debugLog)
+        pointer =
+            RemoteSpicePointer(spiceComm, context, this, canvas, handler, !connection.useDpadAsArrows, App.debugLog)
         try {
             keyboard = RemoteSpiceKeyboard(
                 context.resources, spiceComm, canvas, this,
@@ -53,7 +54,7 @@ open class RemoteOpaqueConnection(
         }
     }
 
-    private fun checkConfigFileAndStart(connectionConfigFile: String?) {
+    private fun checkConfigFileAndStart(connectionConfigFile: String) {
         Log.d(tag, "Initializing session from vv file: $connectionConfigFile")
         val f = File(connectionConfigFile)
         if (!f.exists()) {

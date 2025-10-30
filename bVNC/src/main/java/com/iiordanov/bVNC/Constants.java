@@ -190,6 +190,8 @@ public class Constants {
     public static final String showOnlyConnectionNicknames = "showOnlyConnectionNicknames";
     public static final String softwareKeyboardType = "softwareKeyboardType";
     public static final String scrollSpeed = "scrollSpeed";
+    public static final String localToRemoteClipboardIntegration = "localToRemoteClipboardIntegration";
+    public static final String remoteToLocalClipboardIntegration = "remoteToLocalClipboardIntegration";
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;
     public static final int usbDevicePermissionTimeout = 15000;
@@ -207,8 +209,10 @@ public class Constants {
     public static final int DEFAULT_SCROLL_SPEED = 6;
 
     public static final String DEFAULT_VPN_URI_SCHEME = "vpn";
+
     /**
      * Returns a string matching a session selection index
+     *
      * @param index - index to convert
      * @return string matching prog.
      */
@@ -238,8 +242,9 @@ public class Constants {
 
     /**
      * Returns a string matching a command index.
+     *
      * @param command - command to convert
-     * @param opts - options to add to command
+     * @param opts    - options to add to command
      * @return string matching command.
      */
     public static String getCommandString(int command, String opts) {
@@ -261,6 +266,7 @@ public class Constants {
         }
         return "";
     }
+
     public static final String opaqueConnectionSettingsClassPath = "com.undatech.opaque.ConnectionSettings";
     public static final String remoteCanvasActivityClassPath = "com.iiordanov.bVNC.RemoteCanvasActivity";
 

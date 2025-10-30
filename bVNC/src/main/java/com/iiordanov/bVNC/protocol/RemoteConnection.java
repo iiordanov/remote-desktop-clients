@@ -96,8 +96,9 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
     boolean sshTunneled;
     Context context;
     Viewable canvas;
-
     Thread connectionThread;
+    boolean isLocalToRemoteClipboardIntegrationEnabled;
+    boolean isRemoteToLocalClipboardIntegrationEnabled;
 
     /**
      * Constructor used by the inflation apparatus
@@ -127,6 +128,8 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
 
         // Make this dialog cancellable only upon hitting the Back button and not touching outside.
         this.pd.setCanceledOnTouchOutside(false);
+        this.isLocalToRemoteClipboardIntegrationEnabled = Utils.querySharedPreferenceBoolean(context, Constants.localToRemoteClipboardIntegration, true);
+        this.isRemoteToLocalClipboardIntegrationEnabled = Utils.querySharedPreferenceBoolean(context, Constants.remoteToLocalClipboardIntegration, true);
     }
 
     public RfbConnectable getRfbConn() {
@@ -159,14 +162,19 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
      */
     @SuppressWarnings("ConstantConditions")
     protected void initializeClipboardMonitor() {
-        clipboardMonitor = new ClipboardMonitor(context, rfbConn);
-        if (clipboardMonitor != null) {
-            clipboardMonitorTimer = new Timer();
-            try {
-                clipboardMonitorTimer.schedule(clipboardMonitor, CLIPBOARD_INITIAL_DELAY, CLIPBOARD_CHECK_PERIOD);
-            } catch (NullPointerException e) {
-                Log.d(TAG, "Ignored NullPointerException while initializing clipboard monitor: " + Log.getStackTraceString(e));
+        if (isLocalToRemoteClipboardIntegrationEnabled) {
+            Log.i(TAG, "Local to remote clipboard integration enabled");
+            clipboardMonitor = new ClipboardMonitor(context, rfbConn);
+            if (clipboardMonitor != null) {
+                clipboardMonitorTimer = new Timer();
+                try {
+                    clipboardMonitorTimer.schedule(clipboardMonitor, CLIPBOARD_INITIAL_DELAY, CLIPBOARD_CHECK_PERIOD);
+                } catch (NullPointerException e) {
+                    Log.d(TAG, "Ignored NullPointerException while initializing clipboard monitor: " + Log.getStackTraceString(e));
+                }
             }
+        } else {
+            Log.i(TAG, "Local to remote clipboard integration enabled");
         }
     }
 

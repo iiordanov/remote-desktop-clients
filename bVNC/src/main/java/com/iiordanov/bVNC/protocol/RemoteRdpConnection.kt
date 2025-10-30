@@ -28,7 +28,7 @@ class RemoteRdpConnection(
         rdpComm = RdpCommunicator(
             connection, context, handler, canvas,
             connection.connectionConfigFile, connection.userName, connection.rdpDomain, connection.password,
-            App.debugLog
+            App.debugLog, isRemoteToLocalClipboardIntegrationEnabled
         )
         rfbConn = rdpComm
         pointer = RemoteRdpPointer(rfbConn, context, this, canvas, handler, !connection.useDpadAsArrows, App.debugLog)

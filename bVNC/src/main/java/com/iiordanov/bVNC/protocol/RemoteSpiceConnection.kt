@@ -32,7 +32,7 @@ class RemoteSpiceConnection(
         spiceComm = SpiceCommunicator(
             context, handler, canvas, true,
             !Utils.isFree(context) && connection.isUsbEnabled,
-            App.debugLog
+            App.debugLog, isRemoteToLocalClipboardIntegrationEnabled
         )
         rfbConn = spiceComm
         pointer = RemoteSpicePointer(spiceComm, context, this, canvas, handler, !connection.useDpadAsArrows, App.debugLog)

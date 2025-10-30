@@ -43,7 +43,6 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     private final Viewable viewable;
     private SessionState session;
     private final BookmarkBase bookmark;
-    private final String rdpFileName;
     // Keeps track of libFreeRDP instance
     private final GlobalApp freeRdpApp;
     private final Context context;
@@ -65,16 +64,15 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     public RdpCommunicator(Connection connection,
                            Context context, Handler handler, Viewable viewable,
                            String rdpFileName, String username, String domain, String password,
-                           boolean debugLogging
+                           boolean debugLogging, boolean isRemoteToLocalClipboardIntegrationEnabled
     ) {
-        super(debugLogging, handler);
+        super(debugLogging, handler, isRemoteToLocalClipboardIntegrationEnabled);
         this.connection = connection;
         // This is necessary because it initializes a synchronizedMap referenced later.
         this.freeRdpApp = new GlobalApp();
         patchFreeRdpCore();
         // Create a manual bookmark and populate it from settings.
         this.bookmark = new ManualBookmark();
-        this.rdpFileName = rdpFileName;
         this.context = context;
         this.viewable = viewable;
         this.myself = this;
@@ -108,7 +106,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     @Override
     public void setIsInNormalProtocol(boolean state) {
-        android.util.Log.d(TAG, "setIsInNormalProtocol: " + state);
+        Log.d(TAG, "setIsInNormalProtocol: " + state);
         isInNormalProtocol = state;
     }
 
@@ -495,7 +493,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     @Override
     public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
-        android.util.Log.d(TAG, "OnAuthenticate called.");
+        Log.d(TAG, "OnAuthenticate called.");
         authenticationAttempted = true;
         setCredentialsStringBuildersToValues(
                 username, domain, password, this.username, this.domain, this.password
@@ -517,7 +515,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     @Override
     public int OnVerifiyCertificate(String commonName, String subject,
                                     String issuer, String fingerprint, boolean mismatch) {
-        android.util.Log.d(TAG, "OnVerifiyCertificate called.");
+        Log.d(TAG, "OnVerifiyCertificate called.");
 
         // Send a message containing the certificate to our handler.
         Message m = new Message();
@@ -548,7 +546,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     @Override
     public boolean OnGatewayAuthenticate(StringBuilder username,
                                          StringBuilder domain, StringBuilder password) {
-        android.util.Log.d(TAG, "OnGatewayAuthenticate called.");
+        Log.d(TAG, "OnGatewayAuthenticate called.");
         gatewayAuthenticationAttempted = true;
         setCredentialsStringBuildersToValues(
                 username, domain, password, this.username, this.domain, this.password
@@ -560,13 +558,13 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     public int OnVerifyChangedCertificate(String commonName, String subject,
                                           String issuer, String fingerprint, String oldSubject,
                                           String oldIssuer, String oldFingerprint) {
-        android.util.Log.d(TAG, "OnVerifyChangedCertificate called.");
+        Log.d(TAG, "OnVerifyChangedCertificate called.");
         return this.OnVerifiyCertificate(commonName, subject, issuer, fingerprint, true);
     }
 
     @Override
     public void OnGraphicsUpdate(int x, int y, int width, int height) {
-        //android.util.Log.v(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
+        //Log.v(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
         if (!receivedFirstGraphicsFrame) {
             receivedFirstGraphicsFrame = true;
             handler.sendEmptyMessage(RemoteClientLibConstants.GRAPHICS_FIRST_FRAME_RECEIVED);
@@ -582,13 +580,13 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     @Override
     public void OnGraphicsResize(int width, int height, int bpp) {
-        android.util.Log.d(TAG, "OnGraphicsResize called " + width + "x" + height + ", bpp:" + bpp);
+        Log.d(TAG, "OnGraphicsResize called " + width + "x" + height + ", bpp:" + bpp);
         OnSettingsChanged(width, height, bpp);
     }
 
     @Override
     public void OnRemoteClipboardChanged(String data) {
-        android.util.Log.d(TAG, "OnRemoteClipboardChanged called.");
+        Log.d(TAG, "OnRemoteClipboardChanged called.");
         remoteClipboardChanged(data);
     }
 
