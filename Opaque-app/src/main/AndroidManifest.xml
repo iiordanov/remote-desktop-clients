@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="116110"
-    android:versionName="v6.1.1">
+    android:versionCode="116120"
+    android:versionName="v6.1.2">
 
     <uses-feature
         android:name="android.hardware.usb.host"
