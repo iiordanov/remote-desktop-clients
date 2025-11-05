@@ -1,5 +1,6 @@
-v6.1.1
+v6.1.2
 - Global settings for clipboard to and from remote
+- Fix for ActionBar hiding top setting in default settings dialog
 v6.1.0
 - Fix for security negotiation settings
 - Provide more app info in email subject
