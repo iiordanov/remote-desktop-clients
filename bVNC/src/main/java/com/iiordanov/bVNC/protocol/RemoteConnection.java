@@ -60,8 +60,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 
-;
-
 abstract public class RemoteConnection implements PointerInputHandler, KeyInputHandler, InputCarriable {
     private final static String TAG = "RemoteConnection";
     public static final int CLIPBOARD_INITIAL_DELAY = 0;
@@ -122,9 +120,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
                 context.getString(R.string.info_progress_dialog_establishing),
                 true,
                 true,
-                dialog -> {
-                    handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE);
-                });
+                dialog -> handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE));
 
         // Make this dialog cancellable only upon hitting the Back button and not touching outside.
         this.pd.setCanceledOnTouchOutside(false);
@@ -179,7 +175,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
     }
 
     public void setHandler(Handler handler) {
-        this.handler = handler;
+        RemoteConnection.handler = handler;
     }
 
     /**
@@ -262,7 +258,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
      * Set the device clipboard text with the string parameter.
      */
     public void setClipboardText(String s) {
-        if (s != null && s.length() > 0) {
+        if (s != null && !s.isEmpty()) {
             try {
                 clipboard.setPrimaryClip(ClipData.newPlainText(null, s));
             } catch (Exception e) {
@@ -353,7 +349,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
         String enc = rfbConn.getEncoding();
         // Encoding might not be set when we display this message
         if (decoder != null && decoder.getColorModel() != null) {
-            if (enc != null && !enc.equals("")) {
+            if (enc != null && !enc.isEmpty()) {
                 msg += ", " + rfbConn.getEncoding() + context.getString(R.string.info_encoding) + decoder.getColorModel().toString();
             }
             msg += ", " + decoder.getColorModel().toString();
