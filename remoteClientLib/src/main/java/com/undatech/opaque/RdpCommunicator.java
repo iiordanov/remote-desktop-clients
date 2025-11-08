@@ -164,7 +164,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     private synchronized void sendRemoteMouseEvent(int x, int y, int pointerMask) {
-        sleepBetweenInputEvents(1);
+        sleepBetweenInputEvents(3);
         LibFreeRDP.sendCursorEvent(session.getInstance(), x, y, pointerMask);
     }
 
