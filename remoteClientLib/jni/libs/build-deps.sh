@@ -175,69 +175,6 @@ build_one() {
         mkdir -p "${root}/lib/pkgconfig"
         cp -a celt051.pc "${root}/lib/pkgconfig"
         ;;
-    openssl)
-        local os
-        case "$abi" in
-        armeabi)
-            os=android
-            arch=arm
-            ;;
-        armeabi-v7a)
-            os=android-arm
-            arch=arm
-            ;;
-        arm64-v8a)
-            os=android-arm64
-            arch=arm64
-            ;;
-        x86)
-            os=android-x86
-            arch=x86
-            ;;
-        x86_64)
-            os=android-x86_64
-            arch=x86_64
-            ;;
-        *)
-            echo "Unsupported ABI: $abi"
-            exit 1
-            ;;
-        esac
-
-        export PATH=${ndkdir}/toolchains/llvm/prebuilt/linux-x86_64/bin/:${PATH}
-
-        echo Environment:
-        env
-
-        echo Executing:
-        echo ./Configure \
-                "${os}" \
-                --prefix="$root" \
-                no-zlib \
-                no-hw \
-                no-ssl2 \
-                no-ssl3 \
-                -D__ANDROID_API__=${android_api} \
-                ${cppflags} \
-                ${cflags} \
-                ${ldflags}
-
-        echo Current working directory: $(pwd)
-        ./Configure \
-                "${os}" \
-                --prefix="$root" \
-                no-zlib \
-                no-hw \
-                no-ssl2 \
-                no-ssl3 \
-                -D__ANDROID_API__=${android_api} \
-                ${cppflags} \
-                ${cflags} \
-                ${ldflags}
-        make depend
-        make
-        make install_sw
-        ;;
     spiceprotocol)
         autoreconf -fi
         do_configure
@@ -451,21 +388,22 @@ build_cerbero() {
         echo "Cerbero was previously built. Remove $(realpath CERBERO_BUILT_${1}) if you want to rebuild it."
         echo ; echo
     else
-        echo "Installing android NDK ${freerdp_ndk_version} for FreeRDP build compatibility"
+        echo "Installing android NDK ${cerbero_ndk_version} for Cerbero/Gstreamer ${gstreamer_ver} compatibility"
         export ANDROID_NDK=$(install_ndk ../../ ${cerbero_ndk_version})
 
         git config --global protocol.file.allow always
-        # Build GStreamer SDK
+        echo "Building GStreamer SDK ${gstreamer_ver} with Android NDK ${ANDROID_NDK}"
         if git clone https://gitlab.freedesktop.org/gstreamer/cerbero
         then
             pushd cerbero
             git checkout ${gstreamer_ver}
             patch -p1 < ../cerbero-pixman-a64-neon-disable.patch
             patch -p1 < ../cerbero-config-rust.patch
+            patch -p1 < ../cerbero-zlib-version-upgrade.patch
             popd
             cerbero/cerbero-uninstalled bootstrap
             echo "allow_parallel_build = True" >>  cerbero/config/cross-android-universal.cbc
-            echo "toolchain_prefix = \"${ndkdir}\"" >> cerbero/config/cross-android-universal.cbc
+            echo "toolchain_prefix = \"${ANDROID_NDK}\"" >> cerbero/config/cross-android-universal.cbc
         fi
 
         echo "Copying local recipes into cerbero"

@@ -1,0 +1,18 @@
+diff --git a/recipes/zlib.recipe b/recipes/zlib.recipe
+index c2499423..1295048c 100644
+--- a/recipes/zlib.recipe
++++ b/recipes/zlib.recipe
+@@ -4,11 +4,11 @@ from cerbero.tools.libtool import LibtoolLibrary
+ 
+ class Recipe(recipe.Recipe):
+     name = 'zlib'
+-    version = '1.2.12'
++    version = '1.3.1'
+     stype = SourceType.TARBALL
+     btype = BuildType.MESON
+     url = 'https://zlib.net/fossils/zlib-%(version)s.tar.gz'
+-    tarball_checksum = '91844808532e5ce316b3c010929493c0244f3d37593afd6de04f71821d5136d9'
++    tarball_checksum = '9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23'
+     licenses = [{License.BSD_like: ['README']}]
+     patches = [
+         'zlib/0001-Add-a-meson-port.patch',

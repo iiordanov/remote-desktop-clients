@@ -12,3 +12,5 @@ services:
         - CURRENT_WORKING_DIR
     volumes:
       - ${CURRENT_WORKING_DIR}:${CURRENT_WORKING_DIR}:cached
+# Keep the container running to more easily investigate failures
+#   command: /bin/bash -c "/bin/sleep inf"
