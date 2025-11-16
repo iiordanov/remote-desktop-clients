@@ -59,7 +59,14 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     private final Connection connection;
 
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    ExecutorService inputExecutor = Executors.newSingleThreadExecutor(
+            r -> {
+                Thread thread = new Thread(r);
+                thread.setName("SendRdpInputThread");
+                thread.setPriority(Thread.MAX_PRIORITY);
+                return thread;
+            }
+    );
 
     public RdpCommunicator(Connection connection,
                            Context context, Handler handler, Viewable viewable,
@@ -160,7 +167,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     private void sendRemoteMouseEventOnNewThread(int x, int y, int pointerMask) {
-        runMethodOnNewThread(() -> sendRemoteMouseEvent(x, y, pointerMask));
+        runMethodOnInputThread(() -> sendRemoteMouseEvent(x, y, pointerMask));
     }
 
     private synchronized void sendRemoteMouseEvent(int x, int y, int pointerMask) {
@@ -244,7 +251,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     private void sendKeyEventOnNewThread(int virtualKeyCode, boolean down) {
-        runMethodOnNewThread(() -> sendKeyEvent(virtualKeyCode, down));
+        runMethodOnInputThread(() -> sendKeyEvent(virtualKeyCode, down));
     }
 
     private synchronized void sendKeyEvent(int virtualKeyCode, boolean down) {
@@ -267,11 +274,11 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     private void sendUnicodeKeyOnNewThread(int unicodeKey, boolean down) {
-        runMethodOnNewThread(() -> sendUnicodeKey(unicodeKey, down));
+        runMethodOnInputThread(() -> sendUnicodeKey(unicodeKey, down));
     }
 
-    private void runMethodOnNewThread(Runnable runnable) {
-        executorService.submit(runnable);
+    private void runMethodOnInputThread(Runnable runnable) {
+        inputExecutor.submit(runnable);
     }
 
     private synchronized void sendUnicodeKey(int unicodeKey, boolean down) {
