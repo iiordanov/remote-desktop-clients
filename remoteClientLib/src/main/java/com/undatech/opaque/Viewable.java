@@ -252,6 +252,12 @@ public interface Viewable {
     int getTop();
 
     /**
+     * Get the left offset of the canvas view
+     * @return the left offset
+     */
+    int getLeft();
+
+    /**
      * Move the pan to make the pointer visible
      */
     void movePanToMakePointerVisible();

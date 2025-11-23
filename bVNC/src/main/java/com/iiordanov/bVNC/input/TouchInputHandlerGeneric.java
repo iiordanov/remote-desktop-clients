@@ -21,11 +21,14 @@
 package com.iiordanov.bVNC.input;
 import com.undatech.opaque.Viewable;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.SystemClock;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.InputDeviceCompat;
 
 import com.iiordanov.bVNC.Constants;
@@ -39,7 +42,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         implements TouchInputHandler, ScaleGestureDetector.OnScaleGestureListener {
     private static final String TAG = "InputHandlerGeneric";
     protected final boolean debugLogging;
-    int maxSwipeSpeed = 1;
+    int maxSwipeSpeed;
     // If swipe events are registered once every baseSwipeTime miliseconds, then
     // swipeSpeed will be one. If more often, swipe-speed goes up, if less, down.
     final long baseSwipeTime = 400;
@@ -79,8 +82,8 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     boolean scrollRight = false;
     // These variables indicate whether the dpad should be used as arrow keys
     // and whether it should be rotated.
-    boolean useDpadAsArrows = false;
-    boolean rotateDpad = false;
+    boolean useDpadAsArrows;
+    boolean rotateDpad;
     // The variables which indicates how many scroll events to send per swipe
     // event and the maximum number to send at one time.
     long swipeSpeed = 1;
@@ -124,8 +127,8 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
 
         displayDensity = viewable.getDisplayDensity();
 
-        distXQueue = new LinkedList<Float>();
-        distYQueue = new LinkedList<Float>();
+        distXQueue = new LinkedList<>();
+        distYQueue = new LinkedList<>();
 
         baseSwipeDist = baseSwipeDist * displayDensity;
         startSwipeDist = startSwipeDist * displayDensity;
@@ -139,8 +142,12 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
      * @return the appropriate X coordinate.
      */
     protected int getX(MotionEvent e) {
-        float scale = viewable.getZoomFactor();
-        return (int) (viewable.getAbsX() + e.getX() / scale);
+        return getScaledX(e, viewable.getZoomFactor());
+    }
+
+    private int getScaledX(MotionEvent e, float scale) {
+        int xoff = touchInputDelegate.getxPointerOffset();
+        return (int) (viewable.getAbsX() + (e.getX() - (float)xoff)/ scale);
     }
 
     /**
@@ -148,14 +155,17 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
      * @return the appropriate Y coordinate.
      */
     protected int getY(MotionEvent e) {
-        float scale = viewable.getZoomFactor();
-        return (int) (viewable.getAbsY() + (e.getY() - 1.f * viewable.getTop()) / scale);
+        return getScaledY(e, viewable.getZoomFactor());
+    }
+
+    private int getScaledY(MotionEvent e, float scale) {
+        int yoff = touchInputDelegate.getyPointerOffset();
+        return (int) (viewable.getAbsY() + (e.getY() - (float)yoff) / scale);
     }
 
     /**
      * Handles actions performed by a mouse-like device.
      * @param e touch or generic motion event
-     * @return
      */
     protected boolean handleMouseActions(MotionEvent e) {
         boolean used = false;
@@ -163,8 +173,8 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         final int meta = e.getMetaState();
         final int bstate = e.getButtonState();
         float scale = viewable.getZoomFactor();
-        int x = (int) (viewable.getAbsX() + e.getX() / scale);
-        int y = (int) (viewable.getAbsY() + (e.getY() - 1.f * viewable.getTop()) / scale);
+        int x = getScaledX(e, scale);
+        int y = getScaledY(e, scale);
 
         switch (action) {
             // If a mouse button was pressed or mouse was moved.
@@ -270,9 +280,6 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
 
     /**
      * Sends scroll events with previously set direction and speed.
-     * @param x
-     * @param y
-     * @param meta
      */
     protected void sendScrollEvents(int x, int y, int meta) {
         GeneralUtils.debugLog(debugLogging, TAG, "sendScrollEvents");
@@ -298,11 +305,11 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         remoteInput.getPointer().releaseButton(x, y, meta);
     }
 
-    /*
+    /**
      * @see android.view.GestureDetector.SimpleOnGestureListener#onSingleTapConfirmed(android.view.MotionEvent)
      */
     @Override
-    public boolean onSingleTapConfirmed(MotionEvent e) {
+    public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
         GeneralUtils.debugLog(debugLogging, TAG, "onSingleTapConfirmed, e: " + e);
         performLeftClick(e);
         return true;
@@ -317,7 +324,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         viewable.movePanToMakePointerVisible();
     }
 
-    /*
+    /**
      * @see android.view.GestureDetector.SimpleOnGestureListener#onDoubleTap(android.view.MotionEvent)
      */
     @Override
@@ -336,7 +343,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         return true;
     }
 
-    /*
+    /**
      * @see android.view.GestureDetector.SimpleOnGestureListener#onLongPress(android.view.MotionEvent)
      */
     @Override
@@ -402,9 +409,10 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         }
     }
 
-    /*
-     * @see com.iiordanov.bVNC.input.InputHandler#0yonTouchEvent(android.view.MotionEvent)
+    /**
+     * @see com.iiordanov.bVNC.input.TouchInputHandlerGeneric#onTouchEvent(android.view.MotionEvent)
      */
+    @SuppressLint("ObsoleteSdkInt")
     @Override
     public boolean onTouchEvent(MotionEvent e) {
         GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent, e: " + e);
@@ -421,7 +429,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
             disregardNextOnFling = true;
         }
 
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
+        if (Build.VERSION.SDK_INT >= 14) {
             // Handle and consume actions performed by a (e.g. USB or bluetooth) mouse.
             if (handleMouseActions(e))
                 return true;
@@ -537,15 +545,14 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                 break;
 
             case 2:
-                switch (action) {
-                    case MotionEvent.ACTION_POINTER_DOWN:
-                        if (!inScaling) {
-                            // This boolean prevents the right-click from firing simultaneously as a middle button click.
-                            thirdPointerWasDown = true;
-                            remoteInput.getPointer().middleButtonDown(getX(e), getY(e), meta);
-                            // Enter middle-drag mode.
-                            middleDragMode = true;
-                        }
+                if (action == MotionEvent.ACTION_POINTER_DOWN) {
+                    if (!inScaling) {
+                        // This boolean prevents the right-click from firing simultaneously as a middle button click.
+                        thirdPointerWasDown = true;
+                        remoteInput.getPointer().middleButtonDown(getX(e), getY(e), meta);
+                        // Enter middle-drag mode.
+                        middleDragMode = true;
+                    }
                 }
                 break;
         }
@@ -554,7 +561,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         return gestureDetector.onTouchEvent(e);
     }
 
-    /*
+    /**
      * @see android.view.ScaleGestureDetector.OnScaleGestureListener#onScale(android.view.ScaleGestureDetector)
      */
     @Override
@@ -625,7 +632,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
             }
 
             if (eventConsumed && viewable != null) {
-                if (inScaling == false) {
+                if (!inScaling) {
                     inScaling = true;
                 }
                 GeneralUtils.debugLog(debugLogging, TAG, "Changing zoom level: " + detector.getScaleFactor());
@@ -635,11 +642,11 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         return eventConsumed;
     }
 
-    /*
+    /**
      * @see android.view.ScaleGestureDetector.OnScaleGestureListener#onScaleBegin(android.view.ScaleGestureDetector)
      */
     @Override
-    public boolean onScaleBegin(ScaleGestureDetector detector) {
+    public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
         GeneralUtils.debugLog(debugLogging, TAG, "onScaleBegin (" + xInitialFocus + "," + yInitialFocus + ")");
         inScaling = false;
         scalingJustFinished = false;
@@ -652,11 +659,11 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         return true;
     }
 
-    /*
+    /**
      * @see android.view.ScaleGestureDetector.OnScaleGestureListener#onScaleEnd(android.view.ScaleGestureDetector)
      */
     @Override
-    public void onScaleEnd(ScaleGestureDetector detector) {
+    public void onScaleEnd(@NonNull ScaleGestureDetector detector) {
         GeneralUtils.debugLog(debugLogging, TAG, "onScaleEnd");
         inScaling = false;
         inSwiping = false;
@@ -665,8 +672,6 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
 
     /**
      * Returns the sign of the given number.
-     * @param number
-     * @return
      */
     protected float getSign(float number) {
         float sign;

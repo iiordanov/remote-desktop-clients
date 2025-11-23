@@ -27,6 +27,8 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
+
 import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
@@ -191,7 +193,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
      * @see com.iiordanov.bVNC.input.InputHandlerGeneric#onSingleTapConfirmed(android.view.MotionEvent)
      */
     @Override
-    public boolean onSingleTapConfirmed(MotionEvent e) {
+    public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
         GeneralUtils.debugLog(debugLogging, TAG, "onSingleTapConfirmed");
 
         boolean buttonsVisible = (singleHandOpts.getVisibility() == View.VISIBLE);

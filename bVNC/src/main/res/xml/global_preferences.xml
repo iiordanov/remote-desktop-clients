@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"     android:paddingRight="26dip">
+    <EditTextPreference/>
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="disableImmersive"
@@ -40,6 +41,10 @@
         android:key="scrollSpeed"
         android:max="9"
         android:title="@string/scroll_speed" />
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="disablePointerOffsetCalculation"
+        android:title="@string/disable_pointer_offset_correction" />
     <PreferenceCategory android:title="@string/applies_to_new_connections_only">
         <!--input_methods android:key must match Constants.defaultInputMethodTag -->
         <ListPreference

@@ -417,6 +417,7 @@ Known issues:
     <string name="landscape_force">Force Landscape Orientation</string>
 
     <string name="left_handed_mode">Left-Handed Mode</string>
+    <string name="disable_pointer_offset_correction">Disable pointer offset correction</string>
 
     <string name="list_caption">List</string>
     <string name="list_name_caption">List Name</string>

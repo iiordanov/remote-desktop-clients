@@ -55,4 +55,17 @@ public interface TouchInputDelegate {
      * @return true if DPad should be rotated
      */
     boolean getRotateDpad();
+
+
+    /**
+     * Gets pointer offset in x axis due to e.g. insets
+     * @return the width of the left inset
+     */
+    int getxPointerOffset();
+
+    /**
+     * Gets pointer offset in y axis due to e.g. window decorations
+     * @return the height of the window decoration
+     */
+    int getyPointerOffset();
 }

@@ -4,4 +4,5 @@
             android:defaultValue="true"
             android:key="preferSendingUnicode"
             android:title="@string/prefer_sending_unicode" />
+        <EditTextPreference/>
 </PreferenceScreen>
