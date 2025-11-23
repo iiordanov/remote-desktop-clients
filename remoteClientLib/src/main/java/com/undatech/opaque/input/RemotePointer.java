@@ -166,8 +166,8 @@ public abstract class RemotePointer {
 
     private void rightClickMouse(int combinedMetastate) {
         rightButtonDown(getX(), getY(), combinedMetastate);
-        SystemClock.sleep(50);
-        releaseButton(getX(), getY(), combinedMetastate);
+        SystemClock.sleep(5);
+        moveMouseButtonUp();
     }
 
     private void scrollMouse(int keyCode, KeyEvent e) {
