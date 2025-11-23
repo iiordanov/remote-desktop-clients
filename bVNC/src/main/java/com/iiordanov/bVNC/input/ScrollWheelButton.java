@@ -23,10 +23,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -71,6 +73,10 @@ public class ScrollWheelButton extends androidx.appcompat.widget.AppCompatImageB
         initializeDrawingPaints();
         configureButtonBehavior();
         Log.d(TAG, "ScrollWheelButton initialized");
+    }
+
+    private void showScrollWheelTooltip() {
+        Toast.makeText(getContext(), R.string.scroll_wheel, Toast.LENGTH_SHORT).show();
     }
 
     private void initializeGestureDetection(Context context) {
@@ -201,6 +207,11 @@ public class ScrollWheelButton extends androidx.appcompat.widget.AppCompatImageB
             }
 
             return ScrollWheelButton.this.handleMiddleClickTap();
+        }
+
+        @Override
+        public void onLongPress(@NonNull MotionEvent e) {
+            showScrollWheelTooltip();
         }
     }
 

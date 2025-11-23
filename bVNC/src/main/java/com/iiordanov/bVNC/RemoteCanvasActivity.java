@@ -76,6 +76,7 @@ import com.iiordanov.bVNC.input.Panner;
 import com.iiordanov.bVNC.input.RemoteCanvasHandler;
 import com.iiordanov.bVNC.input.RemoteClientsInputListener;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.ScrollWheelButton;
 import com.iiordanov.bVNC.input.TouchInputHandler;
 import com.iiordanov.bVNC.input.TouchInputHandlerDirectDragPan;
 import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
@@ -944,8 +945,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             // Set up scroll wheel button
             MenuItem scrollWheelItem = menu.findItem(R.id.actionScrollWheel);
             if (scrollWheelItem != null) {
-                com.iiordanov.bVNC.input.ScrollWheelButton scrollWheelButton = 
-                    new com.iiordanov.bVNC.input.ScrollWheelButton(this);
+                ScrollWheelButton scrollWheelButton = new ScrollWheelButton(this);
                 scrollWheelButton.setRemoteInput(remoteConnection);
                 scrollWheelButton.setTouchInputDelegate(this);
                 scrollWheelItem.setActionView(scrollWheelButton);
