@@ -1,3 +1,7 @@
+v6.1.6
+- Fixes to import/export and master password hamburger menu actions
+- Show toast on long-tap of on-screen mouse wheel
+- Fix for nav buttons covering content when immersive mode is disabled
 v6.1.5
 - Updated sqlcipher to 4.5.4
 v6.1.4
