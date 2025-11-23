@@ -46,9 +46,6 @@ android {
         resources {
             excludes += ['META-INF/DEPENDENCIES']
         }
-        jniLibs {
-            useLegacyPackaging = true
-        }
     }
     namespace 'com.undatech.remoteClientLib'
     /*

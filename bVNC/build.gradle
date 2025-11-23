@@ -21,9 +21,6 @@ android {
         resources {
             excludes += ['lib/armeabi/libsqlcipher.so', 'lib/mips64/libsqlcipher.so', 'lib/mips/libsqlcipher.so', 'META-INF/versions/9/OSGI-INF/MANIFEST.MF']
         }
-        jniLibs {
-            useLegacyPackaging = true
-        }
     }
 
     compileOptions {
