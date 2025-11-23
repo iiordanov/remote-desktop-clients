@@ -161,6 +161,15 @@ then
   ln -s jniLibs ${freerdp_libs_link}
 fi
 
+SQLCIPHER_VER=4.5.4
+if [ ! -f "../common/aars/android-database-sqlcipher-${SQLCIPHER_VER}.aar" ]
+then
+  curl -o "../common/aars/android-database-sqlcipher-${SQLCIPHER_VER}.aar" \
+    'https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/${SQLCIPHER_VER}/android-database-sqlcipher-${SQLCIPHER_VER}.aar'
+else
+  echo "SQL Cipher ${SQLCIPHER_VER} aar found locally"
+fi
+
 popd
 echo
 echo "Now please switch to your IDE, select a launch configuration for the project you want to run"
