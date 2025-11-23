@@ -4,7 +4,7 @@ android {
     compileSdkVersion compileApi
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion project.getProperties().get("SDK_VERSION")
         targetSdkVersion targetApi
         multiDexEnabled true
     }
