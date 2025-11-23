@@ -468,7 +468,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         handler.sendEmptyMessage(RemoteClientLibConstants.GRAPHICS_SETTINGS_RECEIVED);
         BookmarkBase.ScreenSettings settings = session.getBookmark().getActiveScreenSettings();
         if (settings.getWidth() != width || settings.getHeight() != height) {
-            Log.d(TAG, "OnSettingsChanged width and height do not match saved values, saving and reconnecting");
+            Log.i(TAG, "OnSettingsChanged width and height do not match saved values, saving and reconnecting");
             saveConnectionSettings(width, height, bpp);
             handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
         } else {

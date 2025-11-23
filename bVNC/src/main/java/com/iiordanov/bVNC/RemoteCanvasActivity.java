@@ -335,6 +335,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
         if (connection != null && connection.isReadyForConnection()) {
             handler = new RemoteCanvasHandler(this, canvas, remoteConnection, connection, setModes);
+            Log.d(TAG, "OnCreate - initializing session with a REINIT_SESSION message");
             handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
             continueConnecting();
         } else {
