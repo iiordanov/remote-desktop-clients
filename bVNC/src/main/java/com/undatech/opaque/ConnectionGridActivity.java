@@ -396,8 +396,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.grid_view_activity_actions, menu);
-        MenuItem itemMasterPassword = menu.findItem(R.id.itemMasterPassword);
-        itemMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
+        MenuItem actionMasterPassword = menu.findItem(R.id.actionMasterPassword);
+        actionMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -489,25 +489,36 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
-        if (itemId == R.id.itemExportImport) {
-            showDialog(R.layout.importexport);
-        } else if (itemId == R.id.itemMasterPassword) {
-            if (Utils.isFree(this)) {
-                IntroTextDialog.showIntroTextIfNecessary(this, database, true);
-            } else {
-                togglingMasterPassword = true;
-                if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
-                    showGetTextFragment(getPassword);
-                } else {
-                    showGetTextFragment(getNewPassword);
-                }
-            }
+        if (itemId == R.id.actionExportImport) {
+            importExportSettings(null);
+        } else if (itemId == R.id.actionMasterPassword) {
+            toggleMasterPassword(null);
         } else if (item.getGroupId() == R.id.itemInputModeGroup) {
             Log.d(TAG, RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
             Utils.setSharedPreferenceString(this, Constants.defaultInputMethodTag,
                     RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
         }
         return true;
+    }
+
+    public void toggleMasterPassword(MenuItem menuItem) {
+        Log.i(TAG, "toggleMasterPassword");
+        if (Utils.isFree(this)) {
+            IntroTextDialog.showIntroTextIfNecessary(this, database, true);
+        } else {
+            togglingMasterPassword = true;
+            if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
+                showGetTextFragment(getPassword);
+            } else {
+                showGetTextFragment(getNewPassword);
+            }
+        }
+    }
+
+
+    public void importExportSettings(MenuItem menuItem) {
+        Log.i(TAG, "importExportSettings");
+        showDialog(R.layout.importexport);
     }
 
     public void onTextObtained(String dialogId, String[] obtainedStrings, boolean wasCancelled, boolean keep) {

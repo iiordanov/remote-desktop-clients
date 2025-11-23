@@ -3,11 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <item
-        android:id="@+id/itemExportImport"
+        android:id="@+id/actionExportImport"
+        android:onClick="importExportSettings"
         android:title="@string/import_export_settings"
         app:showAsAction="never" />
     <item
-        android:id="@+id/itemMasterPassword"
+        android:id="@+id/actionMasterPassword"
+        android:onClick="toggleMasterPassword"
         android:checkable="true"
         android:title="@string/master_password_enable"
         app:showAsAction="never" />
@@ -28,7 +30,7 @@
         tools:ignore="AppCompatResource" />
 
     <item
-        android:id="@+id/shareOrRate"
+        android:id="@+id/actionRateOrShare"
         android:icon="@android:drawable/btn_star_big_on"
         android:onClick="rateOrShare"
         android:showAsAction="ifRoom"
