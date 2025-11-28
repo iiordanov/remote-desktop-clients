@@ -1,3 +1,7 @@
+v6.1.7
+- Fix for back button right-click
+- Fix for pointer offset in windowed mode
+- Fix for navigation bar with immersive mode disabled hiding part of desktop
 v6.1.6
 - Fixes to import/export and master password hamburger menu actions
 - Show toast on long-tap of on-screen mouse wheel
