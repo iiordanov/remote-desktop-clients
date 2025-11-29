@@ -1928,9 +1928,14 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         Connection connection;
         Uri data = i.getData();
         boolean isSupportedScheme = isSupportedScheme(data);
-        if (isSupportedScheme || !Utils.isNullOrEmptry(i.getType())) {
+        if (isSupportedScheme) {
+            Log.i(TAG, "getConnection - supported scheme, trying to handle supported URI");
             connection = handleSupportedUri(data, context, masterPasswordEnabled);
+        } else if (!Utils.isNullOrEmptry(i.getType())) {
+            Log.i(TAG, "getConnection - non-empty intent type: " + i.getType() + ", making new connection for config file");
+            connection = new ConnectionBean(context);
         } else {
+            Log.i(TAG, "getConnection - launching a regular, serialized connection");
             connection = loadSerializedConnection(i, context);
         }
         return connection;
