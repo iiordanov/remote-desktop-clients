@@ -21,8 +21,10 @@ package com.iiordanov.bVNC;
 
 import android.content.Context;
 import android.text.ClipboardManager;
+import android.util.Log;
 
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.Viewable;
 
 import java.util.TimerTask;
 
@@ -38,10 +40,12 @@ public class ClipboardMonitor extends TimerTask {
     private String knownClipboardContents;
 
     RfbConnectable rfbConnectable;
+    Viewable viewable;
 
-    public ClipboardMonitor(Context c, RfbConnectable rfbConnectable) {
+    public ClipboardMonitor(Viewable viewable, Context c, RfbConnectable rfbConnectable) {
         context = c;
         this.rfbConnectable = rfbConnectable;
+        this.viewable = viewable;
         clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         knownClipboardContents = new String("");
     }
@@ -53,8 +57,10 @@ public class ClipboardMonitor extends TimerTask {
         try {
             return clipboard.getText().toString();
         } catch (NullPointerException e) {
+            Log.e(TAG, "NullPointerException obtaining clipboard string");
             return null;
         } catch (RuntimeException e) {
+            Log.e(TAG, "RuntimeException obtaining clipboard string");
             return null;
         }
     }
@@ -65,6 +71,10 @@ public class ClipboardMonitor extends TimerTask {
      */
     @Override
     public void run() {
+        if (!viewable.isForegrounded()) {
+            Log.v(TAG, "App backgrounded, not monitoring clipboard");
+            return;
+        }
         String currentClipboardContents = getClipboardContents();
         //Log.d(TAG, "Current clipboard contents: " + currentClipboardContents);
         //Log.d(TAG, "Previously known clipboard contents: " + knownClipboardContents);

@@ -160,7 +160,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
     protected void initializeClipboardMonitor() {
         if (isLocalToRemoteClipboardIntegrationEnabled) {
             Log.i(TAG, "Local to remote clipboard integration enabled");
-            clipboardMonitor = new ClipboardMonitor(context, rfbConn);
+            clipboardMonitor = new ClipboardMonitor(canvas, context, rfbConn);
             if (clipboardMonitor != null) {
                 clipboardMonitorTimer = new Timer();
                 try {

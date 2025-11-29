@@ -328,4 +328,9 @@ public interface Viewable {
      * @param messageResId the resource ID of the message
      */
     void displayShortToastMessage(int messageResId);
+
+    /**
+     * Returns whether or not the viewable is in focus
+     */
+    boolean isForegrounded();
 }

@@ -269,6 +269,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
+        canvas.setForegrounded(hasFocus);
         if (hasFocus) {
             controlImmersive();
         }

@@ -130,6 +130,8 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     long lastDraw;
     boolean userPanned = false;
 
+    boolean isForegrounded = false;
+
     /**
      * This runnable displays a message on the screen.
      */
@@ -925,5 +927,14 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
                 this.notify();
             }
         }
+    }
+
+    @Override
+    public boolean isForegrounded() {
+        return isForegrounded;
+    }
+
+    public void setForegrounded(boolean foregrounded) {
+        isForegrounded = foregrounded;
     }
 }
