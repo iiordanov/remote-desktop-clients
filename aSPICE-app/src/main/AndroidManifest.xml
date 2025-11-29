@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="116170"
-    android:versionName="v6.1.7">
+    android:versionCode="116180"
+    android:versionName="v6.1.8">
 
     <uses-feature
         android:name="android.hardware.usb.host"
