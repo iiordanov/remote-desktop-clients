@@ -1,0 +1,14 @@
+diff --git a/libfreerdp/core/tcp.c b/libfreerdp/core/tcp.c
+index 0d0641b82..e20cfb2b8 100644
+--- a/libfreerdp/core/tcp.c
++++ b/libfreerdp/core/tcp.c
+@@ -776,7 +776,9 @@ struct addrinfo* freerdp_tcp_resolve_host(const char* hostname, int port, int ai
+ 		service = port_str;
+ 	}
+ 
++	WLog_INFO(TAG, "getaddrinfo call address: %s, port: %s, ai_flags: %d", hostname, service, ai_flags);
+ 	status = getaddrinfo(hostname, service, &hints, &result);
++	WLog_INFO(TAG, "getaddrinfo response status: %d", status);
+ 
+ 	if (status)
+ 		return NULL;
