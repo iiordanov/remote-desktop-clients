@@ -110,9 +110,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
             String t3,
             boolean keep
     ) {
-        if (remoteConnection.pd != null && remoteConnection.pd.isShowing()) {
-            remoteConnection.pd.dismiss();
-        }
+        dismissProgressDialog();
         GetTextFragment frag = GetTextFragment.newInstance(dialogId, title, dismissalListener,
                 dialogType, messageNum, errorNum, t1, t2, t3, keep);
         frag.setCancelable(false);
@@ -307,7 +305,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
         // Show a dialog with the key signature.
         DialogInterface.OnClickListener signatureNo = (dialog, which) -> {
             // We were told to not continue, so stop the activity
-            remoteConnection.pd.dismiss();
+            dismissProgressDialog();
             Utils.justFinish(context);
         };
         DialogInterface.OnClickListener signatureYes = (dialog, which) -> {
@@ -334,6 +332,16 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
         );
     }
 
+    private void dismissProgressDialog() {
+        if (remoteConnection.pd != null && remoteConnection.pd.isShowing()) {
+            try {
+                remoteConnection.pd.dismiss();
+            } catch (IllegalArgumentException e) {
+                Log.w(TAG, "dismissProgressDialog - " + Log.getStackTraceString(e));
+            }
+        }
+    }
+
 
     @Override
     public void handleMessage(final Message msg) {
@@ -342,9 +350,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
         final String messageText = Utils.getStringFromMessage(msg, "message");
         switch (msg.what) {
             case RemoteClientLibConstants.PRO_FEATURE:
-                if (remoteConnection.pd != null && remoteConnection.pd.isShowing()) {
-                    remoteConnection.pd.dismiss();
-                }
+                dismissProgressDialog();
                 remoteConnection.showFatalMessageAndQuit(context.getString(R.string.pro_feature_mfa));
                 break;
             case RemoteClientLibConstants.GET_VERIFICATIONCODE:
@@ -541,7 +547,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                         connection.getKeepPassword());
                 break;
             case RemoteClientLibConstants.GET_OTP_CODE:
-                remoteConnection.pd.dismiss();
+                dismissProgressDialog();
                 showGetTextFragment(context.getString(R.string.enter_otp_code),
                         GetTextFragment.DIALOG_ID_GET_OPAQUE_OTP_CODE,
                         context.getString(R.string.enter_otp_code),
@@ -580,7 +586,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 }
                 break;
             case RemoteClientLibConstants.DIALOG_DISPLAY_VMS:
-                remoteConnection.pd.dismiss();
+                dismissProgressDialog();
                 ArrayList<String> vms = msg.getData().getStringArrayList("vms");
 
                 if (vms != null && vms.size() > 0) {
@@ -604,17 +610,13 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 break;
             case RemoteClientLibConstants.GRAPHICS_FIRST_FRAME_RECEIVED:
                 Log.e(TAG, "GRAPHICS_FIRST_FRAME_RECEIVED");
-                if (remoteConnection.pd != null && remoteConnection.pd.isShowing()) {
-                    remoteConnection.pd.dismiss();
-                }
+                dismissProgressDialog();
                 break;
             case RemoteClientLibConstants.SPICE_CONNECT_FAILURE:
                 String e = msg.getData().getString("message");
                 if (remoteConnection.maintainConnection) {
                     remoteConnection.maintainConnection = false;
-                    if (remoteConnection.pd != null && remoteConnection.pd.isShowing()) {
-                        remoteConnection.pd.dismiss();
-                    }
+                    dismissProgressDialog();
                     // Only if we were intending to stay connected, and the connection failed, show an error message.
                     if (!remoteConnection.graphicsSettingsReceived) {
                         remoteConnection.disconnectAndShowMessage(R.string.error_ovirt_unable_to_connect, R.string.error_dialog_title, e);
@@ -624,7 +626,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 }
                 break;
             case RemoteClientLibConstants.OVIRT_TIMEOUT:
-                remoteConnection.pd.dismiss();
+                dismissProgressDialog();
                 remoteConnection.disconnectAndShowMessage(R.string.error_ovirt_timeout, R.string.error_dialog_title);
                 break;
             case RemoteClientLibConstants.DIALOG_X509_CERT:
