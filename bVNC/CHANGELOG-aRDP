@@ -1,3 +1,5 @@
+v6.1.9
+- Maintenance and stability updates
 v6.1.8
 - Fix for .rdp files opened with content:// URI
 - Enabled Glyph cache
