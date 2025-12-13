@@ -15,10 +15,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
-
     packagingOptions {
-        exclude 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
+        resources {
+            excludes += ['META-INF/versions/9/OSGI-INF/MANIFEST.MF']
+        }
     }
+
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

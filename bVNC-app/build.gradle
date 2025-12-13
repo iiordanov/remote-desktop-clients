@@ -36,10 +36,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    lintOptions {
-        disable "Instantiatable"
-    }
     namespace 'com.iiordanov.bVNC'
+    lint {
+        disable 'Instantiatable'
+    }
 }
 
 dependencies {
