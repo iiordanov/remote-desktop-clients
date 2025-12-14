@@ -1,5 +1,6 @@
-v6.1.9
+v6.2.0
 - Maintenance and stability updates
+- Fix for servers that don't send image until input is sent
 v6.1.8
 - Fix for .rdp files opened with content:// URI
 - Enabled Glyph cache
