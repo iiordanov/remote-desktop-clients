@@ -600,9 +600,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 break;
             case RemoteClientLibConstants.GRAPHICS_SETTINGS_RECEIVED:
                 Log.e(TAG, "GRAPHICS_SETTINGS_RECEIVED");
-                if (remoteConnection.pd != null && remoteConnection.pd.isShowing()) {
-                    remoteConnection.pd.setMessage(context.getString(R.string.info_progress_dialog_downloading));
-                }
+                dismissProgressDialog();
                 synchronized (remoteConnection.getRfbConn()) {
                     remoteConnection.graphicsSettingsReceived = true;
                     remoteConnection.getRfbConn().notifyAll();
