@@ -378,6 +378,7 @@ bVNCの対応機能は以下の通り：
     <string name="keys_caption">キー</string>
     <string name="landscape_force">強制横向き設定</string>
     <string name="left_handed_mode">左手モード</string>
+    <string name="disable_pointer_offset_correction">ポインターオフセット補正を無効化</string>
     <string name="list_caption">リスト</string>
     <string name="list_name_caption">リスト名</string>
     <string name="local_mouse_check">ローカルマウスポインタ―（ポインタが可視できる場合は選択する）</string>
@@ -488,6 +489,8 @@ bVNCの対応機能は以下の通り：
     <string name="port_hint">ポート</string>
     <string name="port_ssh_hint">ポート</string>
     <string name="portrait_mode">接続時縦向き表示に切替</string>
+    <string name="local_clipboard_integration">ローカルからリモートへのクリップボード連携</string>
+    <string name="remote_clipboard_integration">リモートからローカルへのクリップボード連携</string>
     <string name="position_toolbar_last_used">ツールバー位置の初期化</string>
     <string name="applies_to_new_connections_only">新規接続にのみ適用</string>
     <string name="pro_feature_mfa">サーバーの多要素認証が有効になっています。多要素認証に対応している、Proバージョンをご購入ください。Proバージョンのリンクは、起動時に表示される画面上にあります。</string>
@@ -895,4 +898,5 @@ aSPICEで対応済み機能は以下の通り：
     <string name="no_application_to_handle_vpn">この接続は、外部アプリ経由でVPNを起動するように設定されています。起動するにはMorpheuslyのようなアプリをインストールする必要があります。</string>
     <string name="vnc_viewer_started">VNCビューワーが開始しました</string>
     <string name="enable_gateway">ゲートウェイを有効にする</string>
+    <string name="scroll_speed">タッチパッドスクロール速度</string>
 </resources>

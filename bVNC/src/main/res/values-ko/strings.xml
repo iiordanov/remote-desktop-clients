@@ -381,6 +381,7 @@ bVNC의 대응 기능는 이하와 같습니다 :
     <string name="keys_caption">키</string>
     <string name="landscape_force">강제 가로 설정</string>
     <string name="left_handed_mode">왼손 모드</string>
+    <string name="disable_pointer_offset_correction">포인터 오프셋 보정 비활성화</string>
     <string name="list_caption">리스트</string>
     <string name="list_name_caption">리스트 이름</string>
     <string name="local_mouse_check">로컬 마우스 포인터(포인터가 가시가능한 경우는 선택)</string>
@@ -469,6 +470,8 @@ bVNC의 대응 기능는 이하와 같습니다 :
     <string name="port_hint">포트</string>
     <string name="port_ssh_hint">포트</string>
     <string name="portrait_mode">연결될 때 세로 표시에 전환</string>
+    <string name="local_clipboard_integration">로컬에서 Remote로 클립보드 연동 활성화</string>
+    <string name="remote_clipboard_integration">Remote에서 로컬로 클립보드 연동 활성화</string>
     <string name="position_toolbar_last_used">Toolbar 위치 초기화</string>
     <string name="applies_to_new_connections_only">새 연결만 적용</string>
     <string name="pro_feature_mfa">서버의 다단계 인증이 활성화되어 있습니다.다단계 인증을 지원하고있는 Pro버전을 구입하십시오.Pro버전의 링크가 시작할 때 표시되는 화면에 있습니다</string>
@@ -876,4 +879,5 @@ aSPICEで의 대응 기능는 이하와 같다 :
     <string name="no_application_to_handle_vpn">이 연결은 외부 앱을 통해 VPN을 시작하도록 구성되어 있습니다. 시작하려면 Morpheusly와 같은 앱을 설치가 필요합니다.</string>
     <string name="vnc_viewer_started">VNC 뷰어가 시작되었습니다.</string>
     <string name="enable_gateway">게이트웨이를 활성화</string>
+    <string name="scroll_speed">터치패드 스크롤 속도</string>
 </resources>

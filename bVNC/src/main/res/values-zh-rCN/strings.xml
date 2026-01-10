@@ -378,6 +378,7 @@ bVNC对应的功能如下：
     <string name="keys_caption">键</string>
     <string name="landscape_force">强行横放设定</string>
     <string name="left_handed_mode">左手模式</string>
+    <string name="disable_pointer_offset_correction">禁用光标偏移校正</string>
     <string name="list_caption">一览表</string>
     <string name="list_name_caption">一览表名</string>
     <string name="local_mouse_check">本地鼠标指针（指针不可见时选择）</string>
@@ -470,6 +471,8 @@ bVNC对应的功能如下：
     <string name="port_hint">端口</string>
     <string name="port_ssh_hint">端口</string>
     <string name="portrait_mode">连接后切换到纵放模式</string>
+    <string name="local_clipboard_integration">启用本地端→远程剪贴板整合</string>
+    <string name="remote_clipboard_integration">启用远程→本地端剪贴板整合</string>
     <string name="position_toolbar_last_used">工具栏位置初始化</string>
     <string name="applies_to_new_connections_only">仅限适用到新建连接</string>
     <string name="pro_feature_mfa">看来您的服务器已启用多因素身份验证。请购买支持此功能的Pro版本。在开始对话框中有Pro版本的链接。</string>
@@ -875,4 +878,5 @@ aSPICE对应的功能如下：
     <string name="no_application_to_handle_vpn">此连接设置为通过外部应用程序启动VPN。 您需要安装像Morpheusly这样的应用程序才能启动它。</string>
     <string name="vnc_viewer_started">VNC查看器已启动</string>
     <string name="enable_gateway">启用网关</string>
+    <string name="scroll_speed">触控滚动速度</string>
 </resources>
