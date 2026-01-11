@@ -3,11 +3,11 @@
     <string name="audio_will_be_initialized">Audio will be initialized in about 15 seconds, please stop any running video or audio playback before then</string>
     <string name="audio_initialized">Audio initialized</string>
     <string name="action_import_settings">Import Settings</string>
-    <string name="action_new_connection">New Connection ✚</string>
-    <string name="action_edit_default_settings">Edit Default Settings ⚙</string>
+    <string name="action_new_connection">✚ New Connection</string>
+    <string name="action_edit_default_settings">⚙ Edit Default Settings</string>
     <string name="action_export_settings">Export Settings</string>
     <string name="action_delete_connection">Delete Connection</string>
-    <string name="action_rate_or_share_app">Get Help, Rate, Share</string>
+    <string name="action_rate_or_share_app">⭐ Get Help, Rate, Share</string>
     <string name="get_help">Get Help</string>
     <string name="opaque_app_name">Opaque</string>
     <string name="opaque_app_name_beta">Opaque Beta</string>
@@ -278,7 +278,7 @@
 
     <string name="immersive_mode_disable">Disable Immersive Mode</string>
 
-    <string name="import_export_settings">Import/Export Settings</string>
+    <string name="import_export_settings">📦 Import/Export Settings</string>
     <string name="import_settings">Import</string>
     <string name="import_settings_file_url" />
 
@@ -465,7 +465,7 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 
  - Repeater: Available only in UltraVNC mode. IMPORTANT: If you have an UltraVNC repeater, enter its address and port outside the \'UltraVNC Repeater\' dialog and enter the address and port of the actual VNC server inside the \'UltraVNC Repeater\' Dialog. Separate VNC server\'s address and port with a colon, e.g. 192.168.0.100:5900."</string>
 
-    <string name="master_password_enable">Enable Master Password</string>
+    <string name="master_password_enable">🔒 Enable Master Password</string>
     <string name="master_password_error_failed_to_disable">Could not disable master password. Check free space on your device and try again.</string>
     <string name="master_password_error_failed_to_enable">Could not enable master password. Check free space on your device and try again.</string>
     <string name="master_password_error_intents_not_supported">Connection intents are not yet supported when Master Password is enabled.</string>
@@ -826,7 +826,7 @@ When you add or edit a connection, you will see a connection configuration page.
     <string name="vnc_server_empty_no_save">VNC Server or port empty. Cannot save connection!</string>
 
     <string name="warning_cert_does_not_match">WARNING: The saved x509 certificate or passed in signature does not match the current server certificate! This could be a man-in-the-middle attack. If you are aware of the key change you may proceed. </string>
-    <string name="copy_logcat">Copy Logcat 📋</string>
+    <string name="copy_logcat">📋 Copy Logcat</string>
     <string name="log_copied">Logcat copied to clipboard. You can now paste it in an email or on the support forum. Please look through for any personal data before posting.</string>
     <string name="info_set_touchpad_input_mode">The server reports that it does not support Client Mode Mouse Input, and the current mouse input mode will not work correctly. If this persists, make sure spice tools is installed in the virtual machine or switch to Simulated Touchpad Input Mode from the Menu.</string>
     <string name="ssh_tunnel_settings">SSH Tunnel Settings</string>

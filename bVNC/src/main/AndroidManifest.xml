@@ -30,7 +30,7 @@
             android:configChanges="keyboardHidden|orientation"
             android:resizeableActivity="true"
             android:screenOrientation="fullUser"
-            android:theme="@android:style/Theme.DeviceDefault"
+            android:theme="@style/AppThemeDayNight"
             android:windowSoftInputMode="stateHidden|adjustResize"
             />
         <activity
@@ -46,7 +46,7 @@
             android:exported="true"
             android:resizeableActivity="true"
             android:windowSoftInputMode="stateHidden|adjustResize"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:theme="@style/AppThemeDayNight"
             android:screenOrientation="fullUser">
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
@@ -78,7 +78,8 @@
 
         <activity
             android:name="com.iiordanov.bVNC.GlobalPreferencesActivity"
-            android:theme="@style/Theme.AppCompat" />
+            android:theme="@style/AppThemeDayNight"
+        />
 
         <meta-data
             android:name="com.samsung.android.keepalive.density"

@@ -1,8 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!--
         Base application theme for API 14+. This theme completely replaces
         AppBaseTheme from BOTH res/values/styles.xml and
         res/values-v11/styles.xml on API 14+ devices.
     -->
+
+    <!-- Application theme used while connected to remote -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <!-- Toolbar background color -->
+        <item name="colorPrimary">#808080</item>
+        <item name="android:toolbarStyle">@style/ToolbarStyle</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+t    </style>
+
+    <style name="AppThemeDayNight" parent="Theme.MaterialComponents.DayNight">
+        <item name="colorPrimary">#808080</item>
+        <item name="android:toolbarStyle">@style/ToolbarStyle</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
+        <item name="actionBarStyle">@style/ActionBarStyle</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+    </style>
+
+    <style name="ToolbarStyle" parent="@style/Widget.MaterialComponents.Toolbar">
+        <item name="contentInsetStart">0dp</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="ActionBarStyle" parent="Theme.MaterialComponents.DayNight">
+        <item name="windowActionBar">true</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
 </resources>

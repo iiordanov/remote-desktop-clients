@@ -28,6 +28,9 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentActivity;
 
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
@@ -40,7 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 
-public abstract class MainConfiguration extends FragmentActivity {
+public abstract class MainConfiguration extends AppCompatActivity {
     private final static String TAG = "MainConfiguration";
     protected ConnectionBean selected;
     protected Database database;
@@ -177,6 +180,7 @@ public abstract class MainConfiguration extends FragmentActivity {
     @Override
     public void onCreate(Bundle icicle) {
         Log.d(TAG, "onCreate called");
+        Utils.showActionBarWithTitle(this);
         Intent intent = getIntent();
         isNewConnection = intent.getBooleanExtra("isNewConnection", false);
         initializeConnId(intent.getStringExtra("connID"));

@@ -3,13 +3,15 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:padding="5dip">
+    android:padding="5dip"
+    android:background="@drawable/layout_rounded_corners">
 
     <TextView
         android:id="@+id/grid_item_id"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"></TextView>
+        android:visibility="gone">
+    </TextView>
 
     <TextView
         android:id="@+id/grid_item_text"
@@ -17,12 +19,13 @@
         android:layout_height="wrap_content"
         android:background="#555555"
         android:gravity="top"
-        android:paddingLeft="7dip"
-        android:paddingTop="3dip"
-        android:paddingRight="7dip"
+        android:paddingLeft="3dip"
+        android:paddingTop="0dip"
+        android:paddingRight="3dip"
         android:paddingBottom="3dip"
         android:textColor="#ffffff"
-        android:textSize="14sp"></TextView>
+        android:textSize="14sp">
+    </TextView>
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/grid_item_image"
@@ -30,6 +33,7 @@
         android:layout_height="fill_parent"
         android:background="@color/black_overlay"
         android:gravity="bottom"
-        android:scaleType="centerInside"></androidx.appcompat.widget.AppCompatImageView>
+        android:scaleType="centerInside">
+    </androidx.appcompat.widget.AppCompatImageView>
 </LinearLayout>
 

@@ -28,7 +28,7 @@
         android:banner="@mipmap/banner_aspice"
         android:icon="@mipmap/icon_aspice"
         android:label="@string/freeaspice_app_name"
-        android:theme="@android:style/Theme.DeviceDefault"
+        android:theme="@style/AppThemeDayNight"
         tools:replace="android:label,android:theme">
         <activity
             android:name="com.undatech.opaque.ConnectionGridActivity"
@@ -36,7 +36,8 @@
             android:exported="true"
             android:label="@string/freeaspice_app_name"
             android:resizeableActivity="true"
-            android:theme="@android:style/Theme.DeviceDefault">
+            android:theme="@style/AppThemeDayNight"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -51,7 +52,7 @@
             android:label="@string/freeaspice_app_name"
             android:resizeableActivity="true"
             android:screenOrientation="fullUser"
-            android:theme="@android:style/Theme.DeviceDefault"
+            android:theme="@style/AppThemeDayNight"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.iiordanov.bVNC.RemoteCanvasActivity"

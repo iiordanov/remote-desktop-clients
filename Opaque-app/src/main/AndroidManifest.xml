@@ -31,7 +31,8 @@
 
         android:icon="@mipmap/icon_opaque"
         android:label="@string/opaque_app_name"
-        android:theme="@android:style/Theme.DeviceDefault">
+        android:theme="@style/AppThemeDayNight"
+        >
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
@@ -42,7 +43,8 @@
             android:exported="true"
             android:label="@string/opaque_app_name"
             android:resizeableActivity="true"
-            android:theme="@android:style/Theme.DeviceDefault">
+            android:theme="@style/AppThemeDayNight"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -56,14 +58,16 @@
             android:label="@string/opaque_app_name"
             android:resizeableActivity="true"
             android:screenOrientation="fullUser"
-            android:theme="@android:style/Theme.DeviceDefault" />
+            android:theme="@style/AppThemeDayNight"
+            />
         <activity
             android:name="com.undatech.opaque.AdvancedSettingsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/advanced_settings"
             android:resizeableActivity="true"
             android:screenOrientation="fullUser"
-            android:theme="@android:style/Theme.DeviceDefault" />
+            android:theme="@style/AppThemeDayNight"
+            />
         <activity
             android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"

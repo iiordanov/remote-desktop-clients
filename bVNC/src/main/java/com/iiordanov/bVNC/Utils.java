@@ -52,6 +52,9 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ScrollView;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.antlersoft.android.contentxml.SqliteElement;
 import com.antlersoft.android.contentxml.SqliteElement.ReplaceStrategy;
 import com.google.android.gms.common.ConnectionResult;
@@ -715,4 +718,12 @@ public class Utils {
         }
         return extension;
     }
+
+    public static void showActionBarWithTitle(AppCompatActivity activity) {
+        ActionBar bar = activity.getSupportActionBar();
+        if (bar != null) {
+            bar.setDisplayShowTitleEnabled(true);
+        }
+    }
+
 }

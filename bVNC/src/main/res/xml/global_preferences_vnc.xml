@@ -4,5 +4,6 @@
         android:defaultValue="true"
         android:key="rAltAsIsoL3Shift"
         android:title="@string/right_alt_as_iso_l3_shift" />
-    <EditTextPreference/>
+    <EditTextPreference
+        android:key="preferenceSpacerBottomVnc" />
 </PreferenceScreen>

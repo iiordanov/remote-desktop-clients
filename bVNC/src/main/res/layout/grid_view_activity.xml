@@ -7,18 +7,31 @@
     android:gravity="top|center"
     android:orientation="vertical"
     android:stretchMode="columnWidth"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        >
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/popUpMenuButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.15"
+            android:contentDescription="@string/show_menu"
+            android:title="@string/show_menu"
+            android:background="?android:selectableItemBackground"
+            app:srcCompat="@drawable/ic_baseline_menu_48">
+        </androidx.appcompat.widget.AppCompatImageButton>
 
         <EditText
             android:id="@+id/search"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.90"
+            android:layout_weight="0.70"
             android:hint="@string/search_connections"
             android:padding="10dp"
             android:inputType="textNoSuggestions"
@@ -29,23 +42,13 @@
             android:id="@+id/addNewConnection"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.10"
+            android:layout_weight="0.15"
             android:contentDescription="@string/action_new_connection"
             android:title="@string/action_new_connection"
             android:background="?android:selectableItemBackground"
             app:srcCompat="@drawable/ic_add_connection_48">
         </androidx.appcompat.widget.AppCompatImageButton>
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/popUpMenuButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.10"
-            android:contentDescription="@string/show_menu"
-            android:title="@string/show_menu"
-            android:background="?android:selectableItemBackground"
-            app:srcCompat="@drawable/ic_baseline_menu_48">
-        </androidx.appcompat.widget.AppCompatImageButton>
     </LinearLayout>
 
     <GridView
@@ -54,6 +57,10 @@
         android:layout_height="fill_parent"
         android:gravity="top|center"
         android:numColumns="2"
-        android:stretchMode="columnWidth">
+        android:stretchMode="columnWidth"
+        android:layout_margin="10dp"
+        android:verticalSpacing="3dp"
+        android:horizontalSpacing="6dp"
+        >
     </GridView>
 </LinearLayout>

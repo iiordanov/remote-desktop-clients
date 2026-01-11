@@ -56,6 +56,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -83,7 +84,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class ConnectionGridActivity extends FragmentActivity implements GetTextFragment.OnFragmentDismissedListener {
+public class ConnectionGridActivity extends AppCompatActivity implements GetTextFragment.OnFragmentDismissedListener {
     private static String TAG = "ConnectionGridActivity";
     protected Database database;
     protected boolean isStarting = true;
@@ -103,6 +104,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.showActionBarWithTitle(this);
 
         appContext = getApplicationContext();
         setContentView(R.layout.grid_view_activity);
