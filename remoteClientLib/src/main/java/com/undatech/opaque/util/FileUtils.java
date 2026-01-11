@@ -1,20 +1,13 @@
 package com.undatech.opaque.util;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import static com.undatech.opaque.RemoteClientLibConstants.MAX_CONFIG_FILE_SIZE_BYTES;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
 
 import com.undatech.opaque.RemoteClientLibConstants;
 

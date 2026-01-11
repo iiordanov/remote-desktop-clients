@@ -24,8 +24,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     namespace 'com.undatech.remoteClientUi'
 }
@@ -35,7 +35,8 @@ dependencies {
     implementation project(':remoteClientLib')
     implementation project(':remoteClientLib:jni:libs:deps:FreeRDP:client:Android:Studio:freeRDPCore')
     implementation group: 'org.bouncycastle', name: 'bctls-jdk18on', version: '1.80'
-    implementation group: 'androidx.appcompat', name: 'appcompat', version: '1.4.1'
+    implementation group: 'androidx.appcompat', name: 'appcompat', version: '1.7.1'
+    implementation 'com.google.android.material:material:1.13.0'
     implementation group: 'androidx.legacy', name: 'legacy-support-v4', version: '1.0.0'
     implementation group: 'androidx.vectordrawable', name: 'vectordrawable', version: '1.1.0'
     implementation group: 'androidx.preference', name: 'preference-ktx', version: '1.2.0'
@@ -53,5 +54,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-base:18.0.1'
 }
 repositories {
+    google()
     mavenCentral()
 }

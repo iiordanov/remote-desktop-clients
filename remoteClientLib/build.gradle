@@ -56,7 +56,10 @@ android {
         }
     }
     */
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
 }
 tasks.all { task ->
     if (task.name.startsWith('compile') && task.name.endsWith('Ndk')) {
@@ -66,7 +69,7 @@ tasks.all { task ->
 dependencies {
     implementation project(':remoteClientLib:jni:libs:deps:FreeRDP:client:Android:Studio:freeRDPCore')
     api 'com.android.support:multidex:1.0.3'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation group: 'androidx.appcompat', name: 'appcompat', version: '1.7.1'
     implementation 'org.apache.httpcomponents:httpcore:4.4.10'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation group: 'commons-validator', name: 'commons-validator', version: '1.7'
