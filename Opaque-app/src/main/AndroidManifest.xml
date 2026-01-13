@@ -72,7 +72,6 @@
             android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:exported="true"
-            android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateHidden|adjustResize">
