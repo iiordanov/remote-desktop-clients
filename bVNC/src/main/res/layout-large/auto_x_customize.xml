@@ -156,19 +156,25 @@
 
             <Button
                 android:id="@+id/autoXCancel"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight=".5"
+                android:singleLine="true"
+                android:layout_weight="0.5"
                 android:text="@string/auto_x_cancel"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:layout_marginRight="1dp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                />
 
             <Button
                 android:id="@+id/autoXConfirm"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight=".5"
+                android:singleLine="true"
+                android:layout_weight="0.5"
                 android:text="@string/auto_x_confirm"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:layout_marginLeft="1dp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

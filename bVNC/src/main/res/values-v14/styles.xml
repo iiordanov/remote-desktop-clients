@@ -13,7 +13,7 @@
         <item name="android:toolbarStyle">@style/ToolbarStyle</item>
         <item name="toolbarStyle">@style/ToolbarStyle</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
-t    </style>
+    </style>
 
     <style name="AppThemeDayNight" parent="Theme.MaterialComponents.DayNight">
         <item name="colorPrimary">#808080</item>
@@ -33,4 +33,21 @@ t    </style>
         <item name="android:padding">10dp</item>
     </style>
 
+    <style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="android:textStyle">bold</item>
+        <item name="android:headerDividersEnabled">true</item>
+        <item name="android:typeface">normal</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+    </style>
+
+    <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:background">@android:color/primary_text_light</item>
+        <item name="android:textColor">#A0A0A0</item>
+    </style>
+
+    <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:background">@android:color/primary_text_light</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
 </resources>

@@ -20,12 +20,12 @@
 
 package com.iiordanov.bVNC;
 
-import static android.content.pm.PackageManager.GET_META_DATA;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
-import android.app.AlertDialog;
+
+import androidx.appcompat.app.AlertDialog;
+
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -36,7 +36,6 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -63,7 +62,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
-import com.iiordanov.util.CustomClientConfigFileReader;
 import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.ConnectionSetupActivity;
 import com.undatech.remoteClientUi.R;
@@ -109,7 +107,8 @@ public class Utils {
             if (alertDialog != null && alertDialog.isShowing() && !isContextActivityThatIsFinishing(_context)) {
                 alertDialog.dismiss();
             }
-            AlertDialog.Builder builder = new AlertDialog.Builder(_context);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(_context, R.style.AlertDialogTheme);
             builder.setTitle(title);
             builder.setIcon(android.R.drawable.ic_dialog_info);
             builder.setMessage(message);
@@ -191,6 +190,7 @@ public class Utils {
 
     /**
      * Determine if a string is null or empty
+     *
      * @param s The string to comapare
      * @return true iff s is null or empty
      */
@@ -202,6 +202,7 @@ public class Utils {
 
     /**
      * Converts a given sequence of bytes to a human-readable colon-separated Hex format.
+     *
      * @param bytes
      * @return
      */
@@ -223,6 +224,7 @@ public class Utils {
 
     /**
      * Forces the appearance of a menu in the given context.
+     *
      * @param ctx
      */
     public static void showMenu(Context ctx) {
@@ -502,6 +504,7 @@ public class Utils {
 
     /**
      * Either returns the input of it's already a UUID or returns a random UUID.
+     *
      * @param string which if it's a string representation of a UUID will be returned unaltered
      * @return the input if it's a UUID or a random UUID as a string
      */
@@ -516,6 +519,7 @@ public class Utils {
 
     /**
      * Creates a connection screen help dialog for each app.
+     *
      * @param context
      * @return
      */
@@ -526,6 +530,7 @@ public class Utils {
 
     /**
      * Creates a connection screen help dialog for each app.
+     *
      * @param context
      * @return
      */
