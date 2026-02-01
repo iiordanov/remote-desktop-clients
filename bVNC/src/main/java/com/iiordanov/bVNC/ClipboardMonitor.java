@@ -35,8 +35,8 @@ import java.util.TimerTask;
 
 public class ClipboardMonitor extends TimerTask {
     ClipboardManager clipboard;
-    private String TAG = "ClipboardMonitor";
-    private Context context;
+    private final String TAG = "ClipboardMonitor";
+    private final Context context;
     private String knownClipboardContents;
 
     RfbConnectable rfbConnectable;
@@ -47,7 +47,7 @@ public class ClipboardMonitor extends TimerTask {
         this.rfbConnectable = rfbConnectable;
         this.viewable = viewable;
         clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        knownClipboardContents = new String("");
+        knownClipboardContents = "";
     }
 
     /*
@@ -75,21 +75,22 @@ public class ClipboardMonitor extends TimerTask {
             Log.v(TAG, "App backgrounded, not monitoring clipboard");
             return;
         }
+        
         String currentClipboardContents = getClipboardContents();
-        //Log.d(TAG, "Current clipboard contents: " + currentClipboardContents);
-        //Log.d(TAG, "Previously known clipboard contents: " + knownClipboardContents);
+        //Log.v(TAG, "Current clipboard contents: " + currentClipboardContents);
+        //Log.v(TAG, "Previously known clipboard contents: " + knownClipboardContents);
         if (rfbConnectable != null) {
             if (!rfbConnectable.serverJustCutText && currentClipboardContents != null &&
                     !currentClipboardContents.equals(knownClipboardContents)) {
                 if (rfbConnectable.isInNormalProtocol()) {
                     rfbConnectable.writeClientCutText(currentClipboardContents);
-                    knownClipboardContents = new String(currentClipboardContents);
-                    //Log.d(TAG, "Wrote: " + knownClipboardContents + " to remote clipboard.");
+                    knownClipboardContents = currentClipboardContents;
+                    //Log.v(TAG, "Wrote: " + knownClipboardContents + " to remote clipboard.");
                 }
             } else if (rfbConnectable.serverJustCutText && currentClipboardContents != null) {
-                knownClipboardContents = new String(currentClipboardContents);
+                knownClipboardContents = currentClipboardContents;
                 rfbConnectable.serverJustCutText = false;
-                //Log.d(TAG, "Set knownClipboardContents to equal what server just sent over.");
+                //Log.v(TAG, "Set knownClipboardContents to equal whatever the server just sent over.");
             }
         }
     }

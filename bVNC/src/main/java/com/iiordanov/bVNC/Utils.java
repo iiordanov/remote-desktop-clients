@@ -731,4 +731,18 @@ public class Utils {
         }
     }
 
+    /**
+     * Convert line endings from CRLF or CR to LF
+     */
+    public static String convertLF(String buf) {
+        return buf.replaceAll("\\r\\n?", "\n");
+    }
+
+    /**
+     * Convert line endings from LF to CRLF
+     */
+    public static String convertCRLF(String buf) {
+        return convertLF(buf).replaceAll("\\n", "\r\n");
+    }
+
 }

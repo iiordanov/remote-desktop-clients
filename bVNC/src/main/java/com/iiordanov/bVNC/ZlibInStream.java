@@ -54,6 +54,10 @@ public class ZlibInStream extends InStream {
         ptr = end = 0;
     }
 
+    public int readInt() throws Exception {
+        return readU32();
+    }
+
     public void reset() throws Exception {
         ptr = end = 0;
         if (underlying == null) return;

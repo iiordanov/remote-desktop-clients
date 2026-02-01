@@ -468,13 +468,13 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 }
                 break;
             case RemoteClientLibConstants.SERVER_CUT_TEXT:
-                Log.e(TAG, "SERVER_CUT_TEXT");
+                Log.i(TAG, "SERVER_CUT_TEXT");
                 messageData = (Bundle) msg.obj;
                 remoteConnection.serverJustCutText = true;
                 remoteConnection.setClipboardText(messageData.getString("text"));
                 break;
             case RemoteClientLibConstants.REINIT_SESSION:
-                Log.e(TAG, "REINIT_SESSION");
+                Log.i(TAG, "REINIT_SESSION");
                 remoteConnection.initializeConnection();
                 c.setParameters(remoteConnection.getRfbConn(), connection, this, remoteConnection.getPointer(), setModes);
                 break;
@@ -599,7 +599,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 }
                 break;
             case RemoteClientLibConstants.GRAPHICS_SETTINGS_RECEIVED:
-                Log.e(TAG, "GRAPHICS_SETTINGS_RECEIVED");
+                Log.i(TAG, "GRAPHICS_SETTINGS_RECEIVED");
                 dismissProgressDialog();
                 synchronized (remoteConnection.getRfbConn()) {
                     remoteConnection.graphicsSettingsReceived = true;
@@ -607,7 +607,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 }
                 break;
             case RemoteClientLibConstants.GRAPHICS_FIRST_FRAME_RECEIVED:
-                Log.e(TAG, "GRAPHICS_FIRST_FRAME_RECEIVED");
+                Log.i(TAG, "GRAPHICS_FIRST_FRAME_RECEIVED");
                 dismissProgressDialog();
                 break;
             case RemoteClientLibConstants.SPICE_CONNECT_FAILURE:

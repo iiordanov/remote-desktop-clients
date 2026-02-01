@@ -26,8 +26,12 @@ package com.iiordanov.bVNC;
 import android.os.Handler;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.protocol.RemoteConnection;
+import com.iiordanov.bVNC.protocol.vnc.extendedclipboard.ExtendedClipboardHandler;
+import com.iiordanov.bVNC.protocol.vnc.extendedclipboard.ExtendedClipboardProtocol;
 import com.tigervnc.rdr.InStream;
 import com.tigervnc.rdr.OutStream;
 import com.tigervnc.rdr.RawInStream;
@@ -44,6 +48,7 @@ import com.undatech.remoteClientUi.R;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 import javax.net.ssl.SSLSocket;
 
@@ -169,7 +174,8 @@ public class RfbProto extends RfbConnectable {
             EncodingLastRect = -224,
             EncodingNewFBSize = -223,
             EncodingClientRedirect = -311,
-            EncodingExtendedDesktopSize = -308;
+            EncodingExtendedDesktopSize = -308,
+            EncodingExtendedClipboard = 0xC0A1E5CE;
     final static String
             SigEncodingRaw = "RAW_____",
             SigEncodingCopyRect = "COPYRECT",
@@ -210,6 +216,7 @@ public class RfbProto extends RfbConnectable {
             CHAT_OPEN = -1,
             CHAT_CLOSE = -2,
             CHAT_FINISHED = -3;
+    public static final int EXTENDED_CLIPBOARD_MESSAGE_MASK = 0x80000000;
     public static int XK_LCTRL = 0xffe3;
     public static int XK_RCTRL = 0xffe4;
     public static int XK_LSHIFT = 0xffe1;
@@ -304,6 +311,7 @@ public class RfbProto extends RfbConnectable {
     private int preferredEncoding;
     // View Only mode
     private boolean viewOnly = false;
+    private ExtendedClipboardHandler extendedClipboardHandler;
     // ExtendedDesktopSize Variables
     // ScreenId
     private int screenId;
@@ -446,7 +454,7 @@ public class RfbProto extends RfbConnectable {
         return closed;
     }
 
-    public void initializeAndAuthenticate(String host, int port, String us, String pw,
+    public synchronized void initializeAndAuthenticate(String host, int port, String us, String pw,
                                           boolean useRepeater, String repeaterID, int connType,
                                           String cert) throws Exception, AuthFailureException {
         this.host = host;
@@ -662,7 +670,7 @@ public class RfbProto extends RfbConnectable {
         throw new RfbUserPassAuthFailedOrUsernameRequiredException("Username required.");
     }
 
-    int selectSecurityType(boolean userNameSupplied, int connType) throws Exception {
+    synchronized int selectSecurityType(boolean userNameSupplied, int connType) throws Exception {
         Log.i(TAG, "(Re)Selecting security type.");
 
         int secType = SecTypeInvalid;
@@ -758,7 +766,7 @@ public class RfbProto extends RfbConnectable {
     // Initialize capability lists (TightVNC protocol extensions).
     //
 
-    int authenticateVeNCrypt(boolean userNameSupplied) throws Exception {
+    synchronized int authenticateVeNCrypt(boolean userNameSupplied) throws Exception {
         int majorVersion = is.readUnsignedByte();
         int minorVersion = is.readUnsignedByte();
         int Version = (majorVersion << 8) | minorVersion;
@@ -816,7 +824,7 @@ public class RfbProto extends RfbConnectable {
     // Negotiate authentication scheme (TightVNC protocol extensions)
     //
 
-    void authenticateVNC(String pw) throws Exception {
+    synchronized void authenticateVNC(String pw) throws Exception {
         byte[] challenge = new byte[16];
         readFully(challenge);
 
@@ -861,7 +869,7 @@ public class RfbProto extends RfbConnectable {
         setStreams(new RawInStream(sslsock.getInputStream()), new RawOutStream(sslsock.getOutputStream()));
     }
 
-    void authenticatePlain(String user, String password) throws Exception {
+    synchronized void authenticatePlain(String user, String password) throws Exception {
         // Workaround for certain servers simply closing the connection when they detect empty username
         String username = "".equals(user) ? " " : user;
         byte[] userBytes = username.getBytes();
@@ -930,7 +938,7 @@ public class RfbProto extends RfbConnectable {
         }
     }
 
-    void prepareDH() throws Exception {
+    synchronized void prepareDH() throws Exception {
         long gen = is.readLong();
         long mod = is.readLong();
         dh_resp = is.readLong();
@@ -941,7 +949,7 @@ public class RfbProto extends RfbConnectable {
         os.write(DH.longToBytes(pub));
     }
 
-    void authenticateDH(String us, String pw) throws Exception {
+    synchronized void authenticateDH(String us, String pw) throws Exception {
         long key = dh.createEncryptionKey(dh_resp);
 
         DesCipher des = new DesCipher(DH.longToBytes(key));
@@ -1107,7 +1115,7 @@ public class RfbProto extends RfbConnectable {
         }
     }
 
-    void writeInt(int value) throws IOException {
+    synchronized void writeInt(int value) throws IOException {
         writeIntBuffer[0] = (byte) ((value >> 24) & 0xff);
         writeIntBuffer[1] = (byte) ((value >> 16) & 0xff);
         writeIntBuffer[2] = (byte) ((value >> 8) & 0xff);
@@ -1120,7 +1128,7 @@ public class RfbProto extends RfbConnectable {
     // Read the server message type
     //
 
-    public void writeClientInit() throws IOException {
+    public synchronized void writeClientInit() throws IOException {
     /*- if (viewer.options.shareDesktop) {
       os.write(1);
     } else {
@@ -1309,13 +1317,41 @@ public class RfbProto extends RfbConnectable {
     // the viewer's recordFromBeginning variable is set to true.
     //
 
-    String readServerCutText() throws IOException {
+    String readServerCutTextOrNullIfExtendedClipboard() throws IOException {
         byte[] pad = new byte[3];
         readFully(pad);
         int len = is.readInt();
+
+        if ((len & EXTENDED_CLIPBOARD_MESSAGE_MASK) != 0) {
+            handleExtendedClipboardMessage(len);
+            return null;
+        }
+
+        return readServerClipboardContentsLegacyFallback(len);
+    }
+
+    @NonNull
+    private String readServerClipboardContentsLegacyFallback(int len) throws IOException {
         byte[] text = new byte[len];
         readFully(text);
-        return new String(text);
+        String str = new String(text, StandardCharsets.UTF_8);
+        return Utils.convertLF(str);
+    }
+
+    private void handleExtendedClipboardMessage(int len) throws IOException {
+        if (extendedClipboardHandler != null) {
+            extendedClipboardHandler.readExtendedClipboardMessage(is, len);
+        } else {
+            skipBytes(-len);
+        }
+    }
+
+    /**
+     * Skips the specified number of bytes in the input stream.
+     */
+    private void skipBytes(int numBytes) throws IOException {
+        byte[] skip = new byte[numBytes];
+        readFully(skip);
     }
 
 
@@ -1458,20 +1494,33 @@ public class RfbProto extends RfbConnectable {
     // Write a ClientCutText message
     //
 
+    /**
+     * Sends clipboard text to the server.
+     * Uses Extended Clipboard protocol (NOTIFY) if supported, otherwise standard format.
+     *
+     * @param text The clipboard text to send
+     * @param length The length of the text (legacy parameter, not used for Extended Clipboard)
+     * @throws IOException if an I/O error occurs
+     */
     synchronized void writeClientCutText(String text, int length) throws IOException {
         if (viewOnly)
             return;
 
-        byte[] b = new byte[8 + length];
+        if (extendedClipboardHandler != null && extendedClipboardHandler.isEnabled()) {
+            extendedClipboardHandler.announceClipboardChange(text);
+        } else {
+            writeClipboardContentsLegacyFallback(text, length);
+        }
+    }
 
+    private synchronized void writeClipboardContentsLegacyFallback(String text, int length) throws IOException {
+        byte[] b = new byte[8 + length];
         b[0] = (byte) ClientCutText;
         b[4] = (byte) ((text.length() >> 24) & 0xff);
         b[5] = (byte) ((text.length() >> 16) & 0xff);
         b[6] = (byte) ((text.length() >> 8) & 0xff);
         b[7] = (byte) (text.length() & 0xff);
-
         System.arraycopy(text.getBytes(), 0, b, 8, length);
-
         os.write(b);
     }
 
@@ -1525,7 +1574,7 @@ public class RfbProto extends RfbConnectable {
         }
     }
 
-    void writeCtrlAltDel() throws IOException {
+    synchronized void writeCtrlAltDel() throws IOException {
         final int DELETE = 0xffff;
         final int CTRLALT = RemoteKeyboard.CTRL_MASK | RemoteKeyboard.ALT_MASK;
         try {
@@ -1745,11 +1794,35 @@ public class RfbProto extends RfbConnectable {
     }
 
     public void setStreams(InStream is_, OutStream os_) {
-        // After much testing, 8192 does seem like the best compromize between
-        // responsiveness and throughput.
         Log.d(TAG, "setStreams");
         is = is_;
         os = os_;
+
+        // Initialize Extended Clipboard handler
+        try {
+            initializeExtendedClipboardHandler(os_);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to initialize Extended Clipboard handler", e);
+            extendedClipboardHandler = null;
+        }
+    }
+
+    private void initializeExtendedClipboardHandler(OutStream os_) {
+        extendedClipboardHandler = new ExtendedClipboardProtocol(
+                os_,
+                this,
+            new ExtendedClipboardHandler.ClipboardEventListener() {
+                @Override
+                public void onClipboardReceived(String text) {
+                    remoteClipboardChanged(text);
+                }
+
+                @Override
+                public void onClipboardError(String message, Exception exception) {
+                    Log.e(TAG, "Clipboard error: " + message, exception);
+                }
+            }
+        );
     }
 
     synchronized void writeOpenChat() throws Exception {
@@ -1910,6 +1983,7 @@ public class RfbProto extends RfbConnectable {
         encodings[nEncodings++] = RfbProto.EncodingLastRect;
         encodings[nEncodings++] = RfbProto.EncodingNewFBSize;
         encodings[nEncodings++] = RfbProto.EncodingExtendedDesktopSize;
+        encodings[nEncodings++] = RfbProto.EncodingExtendedClipboard;
 
         // TODO: Disabling ClientRedirect encoding for now because of
         // it being reserved for CursorWithAlpha by RealVNC and for
@@ -2050,7 +2124,10 @@ public class RfbProto extends RfbConnectable {
 
                     case RfbProto.ServerCutText:
                         Log.d(TAG, "RfbProto.ServerCutText");
-                        remoteClipboardChanged(readServerCutText());
+                        String clipboardText = readServerCutTextOrNullIfExtendedClipboard();
+                        if (clipboardText != null) {
+                            remoteClipboardChanged(clipboardText);
+                        }
                         break;
 
                     case RfbProto.TextChat:
@@ -2148,7 +2225,7 @@ public class RfbProto extends RfbConnectable {
     }
 
     @Override
-    public void requestResolution(int x, int y) throws Exception {
+    public synchronized void requestResolution(int x, int y) throws Exception {
         Log.d(TAG, "requestResolution, wxh: " + x + "x" + y);
         this.setPreferredFramebufferSize(x, y);
 
