@@ -23,9 +23,6 @@ package com.iiordanov.bVNC;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
-
-import androidx.appcompat.app.AlertDialog;
-
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -40,6 +37,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.ClipboardManager;
@@ -52,6 +50,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ScrollView;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.antlersoft.android.contentxml.SqliteElement;
@@ -107,20 +106,29 @@ public class Utils {
             if (alertDialog != null && alertDialog.isShowing() && !isContextActivityThatIsFinishing(_context)) {
                 alertDialog.dismiss();
             }
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(_context, R.style.AlertDialogTheme);
-            builder.setTitle(title);
-            builder.setIcon(android.R.drawable.ic_dialog_info);
-            builder.setMessage(message);
-            builder.setCancelable(false);
-            builder.setPositiveButton(_context.getString(android.R.string.yes), onYesListener);
-            builder.setNegativeButton(_context.getString(android.R.string.no), onNoListener);
-            if (!(alertDialog != null && alertDialog.isShowing()) && !isContextActivityThatIsFinishing(_context)) {
-                alertDialog = builder.create();
-                alertDialog.show();
-            }
+            showAlertDialog(_context, title, message, onYesListener, onNoListener);
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Could not show dialog " + Log.getStackTraceString(e));
+        }
+    }
+
+    private static void showAlertDialog(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
+        AlertDialog.Builder builder;
+        if (Constants.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            builder = new AlertDialog.Builder(_context, R.style.AlertDialogTheme);
+        } else {
+            Log.w(TAG, "No Alert Dialog theme applied on order Android version.");
+            builder = new AlertDialog.Builder(_context);
+        }
+        builder.setTitle(title);
+        builder.setIcon(android.R.drawable.ic_dialog_info);
+        builder.setMessage(message);
+        builder.setCancelable(false);
+        builder.setPositiveButton(_context.getString(android.R.string.yes), onYesListener);
+        builder.setNegativeButton(_context.getString(android.R.string.no), onNoListener);
+        if (!(alertDialog != null && alertDialog.isShowing()) && !isContextActivityThatIsFinishing(_context)) {
+            alertDialog = builder.create();
+            alertDialog.show();
         }
     }
 
