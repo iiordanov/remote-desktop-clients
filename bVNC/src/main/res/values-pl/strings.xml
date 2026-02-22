@@ -152,7 +152,7 @@
     <string name="input_mode_help">Pomoc trybu wprowadzania</string>
     <string name="intro_close">Zamknij</string>
     <string name="intro_dont_show">Nie pokazuj więcej</string>
-    <string name="intro_title">bVNC: Intuitive, secure VNC client</string>
+    <string name="intro_title">bVNC: Intuicyjny i bezpieczny klient VNC</string>
     <string name="keep_password_button">Zachowaj</string>
     <string name="keep_screen_awake_enable">Zachowaj włączony ekran</string>
     <string name="keys_caption">Przyciski</string>
@@ -785,7 +785,7 @@ Jeśli szukasz szybkiego zwiększenia wydajności, spróbuj ustawić tryb Kolor 
 
 - Ustawienia połączenia VNC:
 (a) Serwer/Port VNC: Tutaj wprowadzasz nazwę hosta lub adres IP i port komputera, na którym działa serwer VNC, z którym chcesz się skontaktować. W trybie VNC przez SSH adres ten jest widoczny z serwera SSH. Jeśli serwer SSH i serwer VNC to ten sam komputer, możesz użyć hosta lokalnego. Serwery VNC zazwyczaj nasłuchują zaczynając od portu 5900 (pierwszy ekran VNC, ekran: 0).
-(b) Użytkownik VNC: Dostępne w UltraVNC z trybem logowania Windows lub Secure VNC przez VeNCrypt. W tym miejscu wprowadza się nazwę użytkownika konta Windows/UNIX.
+(b) Użytkownik VNC: Dostępne w UltraVNC z trybem logowania Windows lub Bezpieczny VNC przez VeNCrypt. W tym miejscu wprowadza się nazwę użytkownika konta Windows/UNIX.
 (c) Hasło VNC: Jeśli konfiguracja serwera VNC wymaga hasła, wprowadź je tutaj. W UltraVNC z trybami logowania Windows/VeNCrypt wpisz tutaj hasło do konta Windows/UNIX. Bezpieczne przechowywanie nie jest używane do przechowywania haseł, a hasło będzie przechowywane tylko wtedy, gdy zaznaczysz pole Zachowaj. Hasło zostanie uzupełnione na tej stronie, jeśli nie opuściłeś aplikacji od czasu ostatniego jej wprowadzenia.
 - Tryb koloru: Klient obsługuje kilka trybów kolorów. Tryby z większą liczbą kolorów zapewniają lepsze wrażenia wizualne kosztem większej przepustowości i większej mocy obliczeniowej procesora na urządzeniu. Niektóre serwery VNC nie obsługują wszystkich głębi kolorów (np. Pulpit zdalny OS/X wymaga 24-bitowego koloru). Jeśli masz problemy z połączeniem, wypróbuj inną głębię kolorów.
 

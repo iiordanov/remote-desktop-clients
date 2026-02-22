@@ -171,7 +171,7 @@
     <string name="connection_type_caption">Tipo de conexión</string>
     <string name="connection_type_rdp_over_ssh">RDP sobre SSH</string>
     <string name="connection_type_spice_over_ssh">SPICE sobre SSH</string>
-    <string name="connection_type_vnc">Basic VNC</string>
+    <string name="connection_type_vnc">VNC simple</string>
     <string name="connection_type_vnc_over_ssh">VNC seguro a través de SSH</string>
     <string name="connection_type_vnc_over_ssl">VNC seguro a través de AnonTLS</string>
     <string name="connection_type_vnc_over_stunnel">VNC seguro a través de SSL Tunnel</string>
