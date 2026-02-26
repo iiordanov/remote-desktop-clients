@@ -1,5 +1,6 @@
-v6.2.7
+v6.2.8
 - Fix yes/no and alert dialogs crash on older Androids
+- Changed glyph cache default to false
 v6.2.6
 - Localized the app into most supported languages
 - Ensured all strings are present in existing localizations
