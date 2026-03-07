@@ -34,20 +34,19 @@
     </style>
 
     <style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="android:textStyle">bold</item>
         <item name="android:headerDividersEnabled">true</item>
         <item name="android:typeface">normal</item>
+        <item name="android:textColor">@color/primaryTextColor</item>
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
     </style>
 
     <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:background">@android:color/primary_text_light</item>
-        <item name="android:textColor">#A0A0A0</item>
+        <item name="android:textColor">@color/primaryTextColor</item>
     </style>
 
     <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:background">@android:color/primary_text_light</item>
-        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/primaryTextColor</item>
     </style>
 </resources>
