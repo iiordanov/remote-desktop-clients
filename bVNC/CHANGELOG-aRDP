@@ -1,3 +1,6 @@
+v6.2.9
+- Option and automation for disabling Battery Optimizations
+- Fix for OK button color when deleting connections
 v6.2.8
 - Fix yes/no and alert dialogs crash on older Androids
 - Changed glyph cache default to false
