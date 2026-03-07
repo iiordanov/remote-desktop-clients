@@ -695,4 +695,11 @@ Fyrirhugaðir eiginleikar:
     <string name="error_pve_timeout_communicating">Tímamörk í samskiptum við Proxmox sýndarumhverfi.</string>
     <string name="connection_type_spice_over_ssh">KRYDD yfir SSH</string>
     <string name="rdp_adv_glyph_cache">Virkja leturstafsminni</string>
+    <string name="disable_battery_optimizations_failed">
+Gat ekki opnað stillingar fyrir fínstillingu rafhlöðunnar. Slökktu á rafhlöðu fínstillingu handvirkt í kerfisstillingum.</string>
+    <string name="disable_battery_optimizations">
+🔋Slökkva á hagræðingu rafhlöðu</string>
+    <string name="disable_battery_optimizations_already_done">
+Forritið er nú þegar undanþegið hagræðingu rafhlöðunnar.</string>
 </resources>
+

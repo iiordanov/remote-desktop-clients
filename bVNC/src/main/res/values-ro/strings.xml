@@ -825,4 +825,12 @@ Mai jos este locul unde va configurati conexiunea.
     <string name="show_menu">Afiseaza Meniul</string>
     <string name="move_toolbar">Muta Bara de Instrumente</string>
     <string name="rdp_adv_glyph_cache">Activare cache glife</string>
+
+    <string name="disable_battery_optimizations_failed">
+Nu s-au putut deschide setările de optimizare a bateriei. Dezactivați manual optimizarea bateriei în setările sistemului.</string>
+    <string name="disable_battery_optimizations">
+🔋Dezactivați optimizările bateriei</string>
+    <string name="disable_battery_optimizations_already_done">
+Aplicația este deja scutită de optimizările bateriei.</string>
 </resources>
+

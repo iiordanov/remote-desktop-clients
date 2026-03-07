@@ -905,4 +905,12 @@ Abaixo está onde configura a sua ligação.
     <string name="show_menu">Mostrar Menu</string>
     <string name="move_toolbar">Mover Barra de Ferramentas</string>
     <string name="rdp_adv_glyph_cache">Ativar cache de glifos</string>
+
+    <string name="disable_battery_optimizations_failed">
+Não foi possível abrir as configurações de otimização da bateria. Desative a otimização da bateria manualmente nas configurações do sistema.</string>
+    <string name="disable_battery_optimizations">
+🔋Desativar otimizações de bateria</string>
+    <string name="disable_battery_optimizations_already_done">
+App já está isento de otimizações de bateria.</string>
 </resources>
+

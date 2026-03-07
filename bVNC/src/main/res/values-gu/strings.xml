@@ -822,4 +822,12 @@ connection ઉમેરો/edit ઉપર, connection configuration page.
     <string name="show_menu">Menu બતાવો</string>
     <string name="move_toolbar">Toolbar ખસેડો</string>
     <string name="rdp_adv_glyph_cache">ગ્લિફ કેશ સક્ષમ કરો</string>
+
+    <string name="disable_battery_optimizations_failed">
+બેટરી ઓપ્ટિમાઇઝેશન સેટિંગ્સ ખોલી શકાઈ નથી.સિસ્ટમ સેટિંગ્સમાં મેન્યુઅલી બેટરી ઓપ્ટિમાઇઝેશનને અક્ષમ કરો.</string>
+    <string name="disable_battery_optimizations">
+🔋બૅટરી ઑપ્ટિમાઇઝેશનને અક્ષમ કરો</string>
+    <string name="disable_battery_optimizations_already_done">
+એપ પહેલાથી જ બેટરી ઓપ્ટિમાઇઝેશનમાંથી મુક્ત છે.</string>
 </resources>
+

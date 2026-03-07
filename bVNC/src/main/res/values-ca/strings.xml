@@ -904,4 +904,11 @@ A continuació és on configureu la connexió.
     <string name="show_menu">Mostra el menú</string>
     <string name="move_toolbar">Mou la barra d\'eines</string>
     <string name="rdp_adv_glyph_cache">Activa la memòria cau de glifs</string>
+    <string name="disable_battery_optimizations_failed">
+No s\'ha pogut obrir la configuració d\'optimització de la bateria. Desactiveu l\'optimització de la bateria manualment a la configuració del sistema.</string>
+    <string name="disable_battery_optimizations">
+🔋Desactiva les optimitzacions de la bateria</string>
+    <string name="disable_battery_optimizations_already_done">
+L\'aplicació ja està exempta d\'optimitzacions de bateria.</string>
 </resources>
+

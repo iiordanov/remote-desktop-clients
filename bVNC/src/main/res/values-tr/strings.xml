@@ -1166,4 +1166,11 @@ Cihazdaki Ses</string>
     <string name="extra_keys_enable">
 Ekstra Anahtarları Etkinleştir</string>
     <string name="rdp_adv_glyph_cache">Glif Önbelleğini Etkinleştir</string>
+    <string name="disable_battery_optimizations_failed">
+Pil optimizasyonu ayarları açılamadı. Sistem ayarlarında pil optimizasyonunu manuel olarak devre dışı bırakın.</string>
+    <string name="disable_battery_optimizations">
+🔋Pil Optimizasyonlarını Devre Dışı Bırak</string>
+    <string name="disable_battery_optimizations_already_done">
+Uygulama zaten pil optimizasyonlarından muaf.</string>
 </resources>
+

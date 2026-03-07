@@ -902,4 +902,12 @@ Sotto si configurano i dettagli della connessione.
     <string name="show_menu">Mostra menu</string>
     <string name="move_toolbar">Sposta barra degli strumenti</string>
     <string name="rdp_adv_glyph_cache">Abilita cache dei glifi</string>
+
+    <string name="disable_battery_optimizations_failed">
+Impossibile aprire le impostazioni di ottimizzazione della batteria. Disabilita manualmente l\'ottimizzazione della batteria nelle impostazioni di sistema.</string>
+    <string name="disable_battery_optimizations">
+🔋Disabilita ottimizzazioni batteria</string>
+    <string name="disable_battery_optimizations_already_done">
+L\'app è già esente dalle ottimizzazioni della batteria.</string>
 </resources>
+

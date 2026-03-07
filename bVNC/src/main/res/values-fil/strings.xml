@@ -905,4 +905,12 @@ Sa ibaba nito ay kung saan ninyo iko-configure ang inyong koneksyon.
     <string name="show_menu">Ipakita ang Menu</string>
     <string name="move_toolbar">Ilipat ang Toolbar</string>
     <string name="rdp_adv_glyph_cache">I-enable ang Glyph Cache</string>
+
+    <string name="disable_battery_optimizations_failed">
+Hindi mabuksan ang mga setting ng pag-optimize ng baterya. I-disable nang manu-mano ang pag-optimize ng baterya sa mga setting ng system.</string>
+    <string name="disable_battery_optimizations">
+🔋Huwag paganahin ang Battery Optimizations</string>
+    <string name="disable_battery_optimizations_already_done">
+Exempt na ang app sa mga pag-optimize ng baterya.</string>
 </resources>
+

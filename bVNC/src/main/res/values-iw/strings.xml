@@ -695,4 +695,11 @@
     <string name="error_pve_timeout_communicating">פסק זמן לתקשורת עם הסביבה הווירטואלית של Proxmox.</string>
     <string name="connection_type_spice_over_ssh">SPICE מעל SSH</string>
     <string name="rdp_adv_glyph_cache">הפעל מטמון גליפים</string>
+    <string name="disable_battery_optimizations_failed">
+לא ניתן היה לפתוח את הגדרות אופטימיזציית הסוללה.השבת את אופטימיזציית הסוללה באופן ידני בהגדרות המערכת.</string>
+    <string name="disable_battery_optimizations">
+🔋השבת את אופטימיזציית הסוללה</string>
+    <string name="disable_battery_optimizations_already_done">
+האפליקציה כבר פטורה מאופטימיזציות של סוללה.</string>
 </resources>
+

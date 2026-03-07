@@ -845,4 +845,12 @@ aSPICEで対応済み機能は以下の通り：
     <string name="scroll_wheel">スクロールホイール</string>
     <string name="rdp_security_auto">自動ネゴシエーションセキュリティ</string>
     <string name="rdp_adv_glyph_cache">グリフキャッシュを有効にする</string>
+
+    <string name="disable_battery_optimizations_failed">
+バッテリーの最適化設定を開けませんでした。システム設定でバッテリーの最適化を手動で無効にします。</string>
+    <string name="disable_battery_optimizations">
+🔋バッテリーの最適化を無効にする</string>
+    <string name="disable_battery_optimizations_already_done">
+アプリはすでにバッテリーの最適化から除外されています。</string>
 </resources>
+

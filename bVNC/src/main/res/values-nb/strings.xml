@@ -825,4 +825,12 @@ Under det konfigurerer du tilkoblingen din.
     <string name="show_menu">Vis meny</string>
     <string name="move_toolbar">Flytt verktoylinjen</string>
     <string name="rdp_adv_glyph_cache">Aktiver glyph-hurtigbuffer</string>
+
+    <string name="disable_battery_optimizations_failed">
+Kunne ikke åpne innstillingene for batterioptimalisering. Deaktiver batterioptimalisering manuelt i systeminnstillingene.</string>
+    <string name="disable_battery_optimizations">
+🔋Deaktiver batterioptimaliseringer</string>
+    <string name="disable_battery_optimizations_already_done">
+Appen er allerede unntatt fra batterioptimalisering.</string>
 </resources>
+

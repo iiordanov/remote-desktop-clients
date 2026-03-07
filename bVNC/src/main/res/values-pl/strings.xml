@@ -799,4 +799,11 @@ Jeśli szukasz szybkiego zwiększenia wydajności, spróbuj ustawić tryb Kolor 
 
 - Repeater: Dostępne tylko w trybie UltraVNC. WAŻNE: Jeśli posiadasz wzmacniacz UltraVNC, wprowadź jego adres i port poza oknem dialogowym \'UltraVNC Repeater\' oraz wprowadź adres i port rzeczywistego serwera VNC w oknie dialogowym \'UltraVNC Repeater\'. Adres i port serwera VNC oddziel dwukropkiem, np.192.168.0.100:5900.</string>
     <string name="rdp_adv_glyph_cache">Włącz pamięć podręczną glifów</string>
+    <string name="disable_battery_optimizations_failed">
+Nie można otworzyć ustawień optymalizacji baterii. Wyłącz ręcznie optymalizację baterii w ustawieniach systemu.</string>
+    <string name="disable_battery_optimizations">
+🔋Wyłącz optymalizację baterii</string>
+    <string name="disable_battery_optimizations_already_done">
+Aplikacja jest już wyłączona z optymalizacji baterii.</string>
 </resources>
+

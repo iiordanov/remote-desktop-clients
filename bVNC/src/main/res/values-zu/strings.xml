@@ -825,4 +825,10 @@ Ngezansi kungalapho ulungisa khona uxhumano lwakho.
     <string name="show_menu">Bonisa Imenyu</string>
     <string name="move_toolbar">Hambisa Ibha Yamathuluzi</string>
     <string name="rdp_adv_glyph_cache">Nika amandla i-Glyph Cache</string>
+    <string name="disable_battery_optimizations_failed">
+Ayikwazanga ukuvula izilungiselelo zokuthuthukisa ibhethri. Khubaza ukulungiselelwa kwebhethri mathupha kuzilungiselelo zohlelo.</string>
+    <string name="disable_battery_optimizations">
+🔋Khubaza Ukulungiselelwa Kwebhethri</string>
+    <string name="disable_battery_optimizations_already_done">
+Uhlelo lokusebenza seluvele lukhululiwe ekulungiselelweni kwebhethri.</string>
 </resources>

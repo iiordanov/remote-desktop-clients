@@ -905,4 +905,12 @@ Di bawahnya adalah tempat Anda mengonfigurasi koneksi Anda.
     <string name="show_menu">Tampilkan Menu</string>
     <string name="move_toolbar">Pindahkan Bilah Alat</string>
     <string name="rdp_adv_glyph_cache">Aktifkan Cache Glyph</string>
+
+    <string name="disable_battery_optimizations_failed">
+Tidak dapat membuka pengaturan pengoptimalan baterai. Nonaktifkan pengoptimalan baterai secara manual di pengaturan sistem.</string>
+    <string name="disable_battery_optimizations">
+🔋Nonaktifkan Pengoptimalan Baterai</string>
+    <string name="disable_battery_optimizations_already_done">
+Aplikasi sudah dikecualikan dari pengoptimalan baterai.</string>
 </resources>
+

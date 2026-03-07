@@ -695,4 +695,11 @@ ASPICE خصوصیات کی موجودہ فہرست میں شامل ہیں:
     <string name="error_pve_timeout_communicating">Proxmox ورچوئل ماحولیات کے ساتھ بات چیت کا ٹائم آؤٹ۔</string>
     <string name="connection_type_spice_over_ssh">SSH پر مسالا</string>
     <string name="rdp_adv_glyph_cache">گلیف کیشے کو فعال کریں</string>
+    <string name="disable_battery_optimizations_failed">
+بیٹری کی اصلاح کی ترتیبات کو نہیں کھولا جا سکا۔سسٹم کی ترتیبات میں دستی طور پر بیٹری کی اصلاح کو غیر فعال کریں۔</string>
+    <string name="disable_battery_optimizations">
+🔋 بیٹری کی اصلاح کو غیر فعال کریں۔</string>
+    <string name="disable_battery_optimizations_already_done">
+ایپ پہلے ہی بیٹری کی اصلاح سے مستثنیٰ ہے۔</string>
 </resources>
+

@@ -904,4 +904,12 @@ En dessous se trouve la configuration de votre connexion.
     <string name="show_menu">Afficher le menu</string>
     <string name="move_toolbar">Déplacer la barre d\'outils</string>
     <string name="rdp_adv_glyph_cache">Activer le cache de glyphes</string>
+
+    <string name="disable_battery_optimizations_failed">
+Impossible d\'ouvrir les paramètres d\'optimisation de la batterie. Désactivez manuellement l\'optimisation de la batterie dans les paramètres système.</string>
+    <string name="disable_battery_optimizations">
+🔋Désactiver les optimisations de la batterie</string>
+    <string name="disable_battery_optimizations_already_done">
+L\'application est déjà exemptée des optimisations de la batterie.</string>
 </resources>
+

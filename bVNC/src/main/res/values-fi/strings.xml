@@ -905,4 +905,12 @@ Sen alla konfiguroit yhteytesi.
     <string name="show_menu">Näytä valikko</string>
     <string name="move_toolbar">Siirrä työkalupalkki</string>
     <string name="rdp_adv_glyph_cache">Ota käyttöön glyfikätkö</string>
+
+    <string name="disable_battery_optimizations_failed">
+Akun optimointiasetuksia ei voitu avata. Poista akun optimointi käytöstä manuaalisesti järjestelmäasetuksissa.</string>
+    <string name="disable_battery_optimizations">
+🔋Poista akun optimoinnit käytöstä</string>
+    <string name="disable_battery_optimizations_already_done">
+Sovellus on jo vapautettu akun optimoinnista.</string>
 </resources>
+

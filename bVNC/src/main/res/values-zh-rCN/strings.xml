@@ -826,4 +826,12 @@ aSPICE对应的功能如下：
     <string name="desktop_scale_percentage">自定义缩放百分比</string>
     <string name="show_menu">显示菜单</string>
     <string name="rdp_adv_glyph_cache">启用字形缓存</string>
+
+    <string name="disable_battery_optimizations_failed">
+无法打开电池优化设置。在系统设置中手动禁用电池优化。</string>
+    <string name="disable_battery_optimizations">
+🔋禁用电池优化</string>
+    <string name="disable_battery_optimizations_already_done">
+应用程序已免于电池优化。</string>
 </resources>
+

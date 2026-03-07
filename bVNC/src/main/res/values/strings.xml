@@ -930,4 +930,7 @@ Below that is where you configure your connection.
     <string name="desktop_scale_percentage">Custom Scaling Percentage</string>
     <string name="show_menu">Show Menu</string>
     <string name="move_toolbar">Move Toolbar</string>
+    <string name="disable_battery_optimizations">🔋Disable Battery Optimizations</string>
+    <string name="disable_battery_optimizations_failed">Could not open battery optimization settings. Disable battery optimization manually in system settings.</string>
+    <string name="disable_battery_optimizations_already_done">App is already exempt from battery optimizations.</string>
 </resources>

@@ -730,4 +730,11 @@ Ikiwa unatafuta nyongeza ya haraka ya utendakazi, jaribu kuweka modi ya Rangi kw
 
 - Repeater: Inapatikana tu katika hali ya UltraVNC. MUHIMU: Ikiwa una kirudia cha UltraVNC, weka anwani na mlango wake nje ya kidirisha cha \'UltraVNC Repeater\' na uweke anwani na mlango wa seva halisi ya VNC ndani ya Kidirisha cha \'UltraVNC Repeater\'. Tenganisha anwani na mlango wa seva ya VNC kwa koloni, k.m.192.168.0.100:5900.</string>
     <string name="rdp_adv_glyph_cache">Washa Hifadhi ya Glyph</string>
+    <string name="disable_battery_optimizations_failed">
+Haikuweza kufungua mipangilio ya uboreshaji wa betri. Zima uboreshaji wa betri mwenyewe katika mipangilio ya mfumo.</string>
+    <string name="disable_battery_optimizations">
+🔋Zima Uboreshaji wa Betri</string>
+    <string name="disable_battery_optimizations_already_done">
+Programu tayari imeondolewa kwenye uboreshaji wa betri.</string>
 </resources>
+

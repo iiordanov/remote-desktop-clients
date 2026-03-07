@@ -905,4 +905,12 @@ Nedenfor konfigurerer du din forbindelse.
     <string name="show_menu">Vis menu</string>
     <string name="move_toolbar">Flyt værktøjslinje</string>
     <string name="rdp_adv_glyph_cache">Aktivér glyph-cache</string>
+
+    <string name="disable_battery_optimizations_failed">
+Batterioptimeringsindstillingerne kunne ikke åbnes. Deaktiver batterioptimering manuelt i systemindstillinger.</string>
+    <string name="disable_battery_optimizations">
+🔋Deaktiver batterioptimeringer</string>
+    <string name="disable_battery_optimizations_already_done">
+Appen er allerede fritaget for batterioptimering.</string>
 </resources>
+

@@ -903,4 +903,12 @@ Alatta konfigurálhatja a kapcsolatát.
     <string name="show_menu">Menü megjelenítése</string>
     <string name="move_toolbar">Eszköztár áthelyezése</string>
     <string name="rdp_adv_glyph_cache">Glifgyorsítótár engedélyezése</string>
+
+    <string name="disable_battery_optimizations_failed">
+Nem sikerült megnyitni az akkumulátor-optimalizálási beállításokat. Az akkumulátor optimalizálás manuális letiltása a rendszerbeállításokban.</string>
+    <string name="disable_battery_optimizations">
+🔋 Az akkumulátor optimalizálás letiltása</string>
+    <string name="disable_battery_optimizations_already_done">
+Az alkalmazás már mentesül az akkumulátoroptimalizálás alól.</string>
 </resources>
+

@@ -730,4 +730,11 @@
 
 - Repeater: มีเฉพาะในโหมด UltraVNC เท่านั้นสิ่งสำคัญ: หากคุณมี UltraVNC Repeater ให้ป้อนที่อยู่และพอร์ตนอกกล่องโต้ตอบ \'UltraVNC Repeater\' แล้วป้อนที่อยู่และพอร์ตของเซิร์ฟเวอร์ VNC จริงภายในกล่องโต้ตอบ \'UltraVNC Repeater\'แยกที่อยู่และพอร์ตของเซิร์ฟเวอร์ VNC ด้วยเครื่องหมายโคลอน เช่น192.168.0.100:5900.</string>
     <string name="rdp_adv_glyph_cache">เปิดใช้งานแคชอักขระ</string>
+    <string name="disable_battery_optimizations_failed">
+ไม่สามารถเปิดการตั้งค่าการเพิ่มประสิทธิภาพแบตเตอรี่ได้ปิดใช้งานการเพิ่มประสิทธิภาพแบตเตอรี่ด้วยตนเองในการตั้งค่าระบบ</string>
+    <string name="disable_battery_optimizations">
+🔋 ปิดการใช้งานการเพิ่มประสิทธิภาพแบตเตอรี่</string>
+    <string name="disable_battery_optimizations_already_done">
+แอปได้รับการยกเว้นจากการเพิ่มประสิทธิภาพแบตเตอรี่แล้ว</string>
 </resources>
+

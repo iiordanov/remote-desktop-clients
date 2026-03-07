@@ -889,4 +889,12 @@ Debajo es donde configura su conexión.
     <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
     <string name="no_application_to_handle_vpn">Esta conexión está configurada para iniciar VPN a través de una aplicación externa.</string>
     <string name="rdp_adv_glyph_cache">Habilitar caché de glifos</string>
+
+    <string name="disable_battery_optimizations_failed">
+No se pudo abrir la configuración de optimización de la batería. Desactive la optimización de la batería manualmente en la configuración del sistema.</string>
+    <string name="disable_battery_optimizations">
+🔋Desactivar optimizaciones de batería</string>
+    <string name="disable_battery_optimizations_already_done">
+La aplicación ya está exenta de optimizaciones de batería.</string>
 </resources>
+

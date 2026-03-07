@@ -904,4 +904,12 @@
     <string name="show_menu">إظهار القائمة</string>
     <string name="move_toolbar">تحريك شريط الأدوات</string>
     <string name="rdp_adv_glyph_cache">تمكين ذاكرة التخزين المؤقت للحروف</string>
+
+    <string name="disable_battery_optimizations_failed">
+Could not open battery optimization settings.قم بتعطيل تحسين البطارية يدويًا في إعدادات النظام.</string>
+    <string name="disable_battery_optimizations">
+🔋تعطيل تحسينات البطارية</string>
+    <string name="disable_battery_optimizations_already_done">
+التطبيق معفى بالفعل من تحسينات البطارية.</string>
 </resources>
+

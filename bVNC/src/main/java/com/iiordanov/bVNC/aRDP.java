@@ -37,8 +37,8 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
-import com.iiordanov.util.PermissionGroups;
-import com.iiordanov.util.PermissionsManager;
+import com.iiordanov.permissions.AudioPermissionGroups;
+import com.iiordanov.permissions.AudioPermissionsManager;
 import com.morpheusly.common.Utilities;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.remoteClientUi.R;
@@ -323,7 +323,7 @@ public class aRDP extends MainConfiguration {
             IntroTextDialog.showIntroTextIfNecessary(this, database, true, true);
             b.setChecked(false);
         } else {
-            PermissionsManager.requestPermissions(this, PermissionGroups.RECORD_AND_MODIFY_AUDIO, true);
+            AudioPermissionsManager.requestPermissions(this, AudioPermissionGroups.RECORD_AND_MODIFY_AUDIO, true);
         }
         selected.setEnableRecording(b.isChecked());
     }

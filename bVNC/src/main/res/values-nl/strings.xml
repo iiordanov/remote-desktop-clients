@@ -827,4 +827,12 @@ Daaronder configureert u uw verbinding.
     <string name="show_menu">Menu tonen</string>
     <string name="move_toolbar">Werkbalk verplaatsen</string>
     <string name="rdp_adv_glyph_cache">Glyph-cache inschakelen</string>
+
+    <string name="disable_battery_optimizations_failed">
+Kan de instellingen voor batterijoptimalisatie niet openen. Schakel batterijoptimalisatie handmatig uit in de systeeminstellingen.</string>
+    <string name="disable_battery_optimizations">
+🔋Batterijoptimalisaties uitschakelen</string>
+    <string name="disable_battery_optimizations_already_done">
+App is al vrijgesteld van batterij-optimalisaties.</string>
 </resources>
+

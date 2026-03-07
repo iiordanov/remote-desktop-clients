@@ -887,4 +887,12 @@
     <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
     <string name="support_forum">Форум поддержки ❓</string>
     <string name="rdp_adv_glyph_cache">Включить кэш глифов</string>
+
+    <string name="disable_battery_optimizations_failed">
+Не удалось открыть настройки оптимизации батареи.Отключите оптимизацию батареи вручную в настройках системы.</string>
+    <string name="disable_battery_optimizations">
+🔋Отключить оптимизацию батареи</string>
+    <string name="disable_battery_optimizations_already_done">
+Приложение уже освобождено от оптимизации батареи.</string>
 </resources>
+

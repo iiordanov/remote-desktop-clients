@@ -905,4 +905,12 @@ O dan hynny mae lle rydych chi\'n ffurfweddu eich cysylltiad.
     <string name="show_menu">Dangos Dewislen</string>
     <string name="move_toolbar">Symud y Bar Offer</string>
     <string name="rdp_adv_glyph_cache">Galluogi Storfa Glyffau</string>
+
+    <string name="disable_battery_optimizations_failed">
+Methu agor gosodiadau optimeiddio batri. Analluogi optimeiddio batri â llaw mewn gosodiadau system.</string>
+    <string name="disable_battery_optimizations">
+🔋 Analluogi Optimeiddio Batri</string>
+    <string name="disable_battery_optimizations_already_done">
+Mae ap eisoes wedi\'i eithrio rhag optimeiddio batri.</string>
 </resources>
+

@@ -723,4 +723,11 @@
     <string name="error_pve_timeout_communicating">Час очікування зв’язку з віртуальним середовищем Proxmox.</string>
     <string name="connection_type_spice_over_ssh">SPICE через SSH</string>
     <string name="rdp_adv_glyph_cache">Увімкнути кеш гліфів</string>
+    <string name="disable_battery_optimizations_failed">
+Не вдалося відкрити налаштування оптимізації акумулятора.Вимкніть оптимізацію батареї вручну в налаштуваннях системи.</string>
+    <string name="disable_battery_optimizations">
+🔋Вимкнути оптимізацію батареї</string>
+    <string name="disable_battery_optimizations_already_done">
+Додаток уже звільнено від оптимізації акумулятора.</string>
 </resources>
+

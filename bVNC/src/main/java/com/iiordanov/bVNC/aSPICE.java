@@ -39,8 +39,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.iiordanov.bVNC.dialogs.ImportTlsCaDialog;
-import com.iiordanov.util.PermissionGroups;
-import com.iiordanov.util.PermissionsManager;
+import com.iiordanov.permissions.AudioPermissionGroups;
+import com.iiordanov.permissions.AudioPermissionsManager;
 import com.morpheusly.common.Utilities;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.util.FileUtils;
@@ -141,7 +141,7 @@ public class aSPICE extends MainConfiguration {
         }
 
         if (selected.getEnableSound()) {
-            PermissionsManager.requestPermissions(this, PermissionGroups.RECORD_AUDIO, true);
+            AudioPermissionsManager.requestPermissions(this, AudioPermissionGroups.RECORD_AUDIO, true);
         }
         checkboxEnableSound.setChecked(selected.getEnableSound());
         spinnerGeometry.setSelection(selected.getRdpResType());
@@ -210,7 +210,7 @@ public class aSPICE extends MainConfiguration {
      */
     public void toggleEnableSound(View view) {
         CheckBox b = (CheckBox) view;
-        PermissionsManager.requestPermissions(this, PermissionGroups.RECORD_AND_MODIFY_AUDIO, true);
+        AudioPermissionsManager.requestPermissions(this, AudioPermissionGroups.RECORD_AND_MODIFY_AUDIO, true);
         selected.setEnableSound(b.isChecked());
     }
 

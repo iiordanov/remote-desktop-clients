@@ -39,7 +39,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -73,6 +76,7 @@ import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.dialogs.RateOrShareFragment;
 import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
+import com.iiordanov.permissions.BatteryOptimizationDisabler;
 import com.iiordanov.util.MasterPasswordDelegate;
 import com.undatech.opaque.util.ConnectionLoader;
 import com.undatech.opaque.util.FileUtils;
@@ -105,7 +109,6 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Utils.showActionBarWithTitle(this);
-
         appContext = getApplicationContext();
         setContentView(R.layout.grid_view_activity);
 
@@ -138,6 +141,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
                 return true;
             }
         });
+        new BatteryOptimizationDisabler(this, gridView).requestBatteryOptimizationExemptionAutomaticallyOnce();
 
         search = findViewById(R.id.search);
         search.addTextChangedListener(new TextWatcher() {
@@ -517,6 +521,10 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         }
     }
 
+    public void disableBatteryOptimizations(MenuItem menuItem) {
+        Log.i(TAG, "disableBatteryOptimizations");
+        new BatteryOptimizationDisabler(this, gridView).requestBatteryOptimizationExemption(true);
+    }
 
     public void importExportSettings(MenuItem menuItem) {
         Log.i(TAG, "importExportSettings");

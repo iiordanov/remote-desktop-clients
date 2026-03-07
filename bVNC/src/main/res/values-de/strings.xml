@@ -903,4 +903,12 @@ Darunter konfigurieren Sie Ihre Verbindung.
     <string name="show_menu">Menü anzeigen</string>
     <string name="move_toolbar">Symbolleiste verschieben</string>
     <string name="rdp_adv_glyph_cache">Glyph-Cache aktivieren</string>
+
+    <string name="disable_battery_optimizations_failed">
+Die Einstellungen zur Batterieoptimierung konnten nicht geöffnet werden. Deaktivieren Sie die Batterieoptimierung manuell in den Systemeinstellungen.</string>
+    <string name="disable_battery_optimizations">
+🔋Deaktivieren Sie die Batterieoptimierungen</string>
+    <string name="disable_battery_optimizations_already_done">
+App ist bereits von Batterieoptimierungen ausgenommen.</string>
 </resources>
+

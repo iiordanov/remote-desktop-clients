@@ -730,4 +730,11 @@ Jika anda sedang mencari peningkatan prestasi pantas, cuba tetapkan mod Warna ke
 
 - Pengulang: Hanya tersedia dalam mod UltraVNC. PENTING: Jika anda mempunyai pengulang UltraVNC, masukkan alamat dan portnya di luar dialog \'UltraVNC Repeater\' dan masukkan alamat dan port pelayan VNC sebenar di dalam Dialog \'UltraVNC Repeater\'. Asingkan alamat dan port pelayan VNC dengan titik bertindih, mis.192.168.0.100:5900.</string>
     <string name="rdp_adv_glyph_cache">Dayakan Cache Glif</string>
+    <string name="disable_battery_optimizations_failed">
+Tidak dapat membuka tetapan pengoptimuman bateri. Lumpuhkan pengoptimuman bateri secara manual dalam tetapan sistem.</string>
+    <string name="disable_battery_optimizations">
+🔋Lumpuhkan Pengoptimuman Bateri</string>
+    <string name="disable_battery_optimizations_already_done">
+Apl sudah pun dikecualikan daripada pengoptimuman bateri.</string>
 </resources>
+

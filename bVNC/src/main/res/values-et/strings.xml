@@ -905,4 +905,12 @@ Allpool konfigureerite ühendust.
     <string name="show_menu">Näita menüüd</string>
     <string name="move_toolbar">Liiguta tööriistariba</string>
     <string name="rdp_adv_glyph_cache">Luba glüüfide vahemälu</string>
+
+    <string name="disable_battery_optimizations_failed">
+Aku optimeerimise seadeid ei saanud avada. Keelake süsteemiseadetes aku optimeerimine käsitsi.</string>
+    <string name="disable_battery_optimizations">
+🔋Keelake aku optimeerimine</string>
+    <string name="disable_battery_optimizations_already_done">
+Rakendus on aku optimeerimisest juba vabastatud.</string>
 </resources>
+

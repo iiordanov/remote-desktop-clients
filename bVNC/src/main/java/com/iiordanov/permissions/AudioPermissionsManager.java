@@ -1,4 +1,4 @@
-package com.iiordanov.util;
+package com.iiordanov.permissions;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,14 +22,14 @@ import java.util.Map;
  * Created by iordan on 24/06/18.
  */
 
-public class PermissionsManager {
-    private static final Map<PermissionGroups, String[]> permissionGroups;
+public class AudioPermissionsManager {
+    private static final Map<AudioPermissionGroups, String[]> permissionGroups;
     public static String TAG = "PermissionsManager";
 
     static {
-        Map<PermissionGroups, String[]> temp = new HashMap<>();
-        temp.put(PermissionGroups.RECORD_AUDIO, new String[]{"android.permission.RECORD_AUDIO"});
-        temp.put(PermissionGroups.RECORD_AND_MODIFY_AUDIO,
+        Map<AudioPermissionGroups, String[]> temp = new HashMap<>();
+        temp.put(AudioPermissionGroups.RECORD_AUDIO, new String[]{"android.permission.RECORD_AUDIO"});
+        temp.put(AudioPermissionGroups.RECORD_AND_MODIFY_AUDIO,
                 new String[]{"android.permission.RECORD_AUDIO", "android.permission.MODIFY_AUDIO_SETTINGS"});
         permissionGroups = Collections.unmodifiableMap(temp);
     }
@@ -48,7 +48,7 @@ public class PermissionsManager {
         }
     }
 
-    public static void requestPermissions(Activity activity, PermissionGroups permission_group, boolean showToast) {
+    public static void requestPermissions(Activity activity, AudioPermissionGroups permission_group, boolean showToast) {
         String[] permissions = (String[]) permissionGroups.get(permission_group);
         if (permissions == null) {
             Log.e(TAG, "Could not find permissions for permission group: " + permission_group);

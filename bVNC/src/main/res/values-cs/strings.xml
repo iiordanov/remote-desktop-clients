@@ -827,4 +827,12 @@ Pod n\u00edm je konfigurace va\u0161eho p\u0159ipojen\u00ed.
     <string name="show_menu">Zobrazit nab\u00eddku</string>
     <string name="move_toolbar">P\u0159esunout panel n\u00e1stroj\u016f</string>
     <string name="rdp_adv_glyph_cache">Povolit mezipaměť glyfů</string>
+
+    <string name="disable_battery_optimizations_failed">
+Nastavení optimalizace baterie nelze otevřít. Zakázat optimalizaci baterie ručně v nastavení systému.</string>
+    <string name="disable_battery_optimizations">
+🔋Zakažte optimalizace baterie</string>
+    <string name="disable_battery_optimizations_already_done">
+Aplikace je již osvobozena od optimalizace baterie.</string>
 </resources>
+

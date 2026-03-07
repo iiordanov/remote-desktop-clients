@@ -900,4 +900,12 @@ Abaixo, é onde você configura sua conexão.
     <string name="prefer_sending_unicode">Unicode input (Windows only)</string>
     <string name="remote_clipboard_integration">Enable Remote to Local Clipboard Integration</string>
     <string name="rdp_adv_glyph_cache">Ativar cache de glifos</string>
+
+    <string name="disable_battery_optimizations_failed">
+Could not open battery optimization settings. Disable battery optimization manually in system settings.</string>
+    <string name="disable_battery_optimizations">
+🔋Disable Battery Optimizations</string>
+    <string name="disable_battery_optimizations_already_done">
+App is already exempt from battery optimizations.</string>
 </resources>
+

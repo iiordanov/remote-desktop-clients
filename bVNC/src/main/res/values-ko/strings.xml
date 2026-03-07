@@ -826,4 +826,12 @@ aSPICEで의 대응 기능는 이하와 같다 :
     <string name="rdp_security_mode">보안 모드</string>
     <string name="rdp_security_nla">네트워크 수준 인증</string>
     <string name="rdp_adv_glyph_cache">글리프 캐시 활성화</string>
+
+    <string name="disable_battery_optimizations_failed">
+배터리 최적화 설정을 열 수 없습니다.시스템 설정에서 배터리 최적화를 수동으로 비활성화하세요.</string>
+    <string name="disable_battery_optimizations">
+🔋배터리 최적화 비활성화</string>
+    <string name="disable_battery_optimizations_already_done">
+앱은 이미 배터리 최적화에서 제외되었습니다.</string>
 </resources>
+

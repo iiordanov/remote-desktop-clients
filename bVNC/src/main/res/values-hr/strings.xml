@@ -905,4 +905,12 @@ Ispod toga je mjesto gdje konfigurirate svoju vezu.
     <string name="show_menu">Prikaži izbornik</string>
     <string name="move_toolbar">Premjesti alatnu traku</string>
     <string name="rdp_adv_glyph_cache">Omogući predmemoriju glifova</string>
+
+    <string name="disable_battery_optimizations_failed">
+Nije moguće otvoriti postavke optimizacije baterije. Ručno onemogućite optimizaciju baterije u postavkama sustava.</string>
+    <string name="disable_battery_optimizations">
+🔋Onemogući optimizaciju baterije</string>
+    <string name="disable_battery_optimizations_already_done">
+Aplikacija je već izuzeta od optimizacije baterije.</string>
 </resources>
+

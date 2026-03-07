@@ -827,4 +827,12 @@ Nedanför konfigurerar du din anslutning.
     <string name="show_menu">Visa meny</string>
     <string name="move_toolbar">Flytta verktygsfält</string>
     <string name="rdp_adv_glyph_cache">Aktivera glyph-cache</string>
+
+    <string name="disable_battery_optimizations_failed">
+Det gick inte att öppna batterioptimeringsinställningarna. Inaktivera batterioptimering manuellt i systeminställningar.</string>
+    <string name="disable_battery_optimizations">
+🔋Inaktivera batterioptimeringar</string>
+    <string name="disable_battery_optimizations_already_done">
+Appen är redan undantagen från batterioptimering.</string>
 </resources>
+

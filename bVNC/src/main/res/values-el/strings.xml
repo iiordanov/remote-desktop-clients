@@ -827,4 +827,12 @@
     <string name="show_menu">Εμφάνιση Μενού</string>
     <string name="move_toolbar">Μετακίνηση Γραμμής Εργαλείων</string>
     <string name="rdp_adv_glyph_cache">Ενεργοποίηση προσωρινής μνήμης γλυφών</string>
+
+    <string name="disable_battery_optimizations_failed">
+Δεν ήταν δυνατό το άνοιγμα των ρυθμίσεων βελτιστοποίησης μπαταρίας.Απενεργοποιήστε τη βελτιστοποίηση μπαταρίας με μη αυτόματο τρόπο στις ρυθμίσεις συστήματος.</string>
+    <string name="disable_battery_optimizations">
+🔋Απενεργοποιήστε τις βελτιστοποιήσεις μπαταρίας</string>
+    <string name="disable_battery_optimizations_already_done">
+Η εφαρμογή εξαιρείται ήδη από τις βελτιστοποιήσεις μπαταρίας.</string>
 </resources>
+

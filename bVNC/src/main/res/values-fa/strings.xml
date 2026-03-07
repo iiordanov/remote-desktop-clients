@@ -730,4 +730,11 @@
 
 - Repeater: فقط در حالت UltraVNC موجود است.مهم: اگر یک تکرارکننده UltraVNC دارید، آدرس و پورت آن را خارج از گفتگوی \'UltraVNC Repeater\' وارد کنید و آدرس و پورت سرور VNC واقعی را در کادر گفتگوی \'UltraVNC Repeater\' وارد کنید.آدرس و پورت سرور VNC را با دو نقطه جدا کنید، به عنوان مثال.192.168.0.100:5900.</string>
     <string name="rdp_adv_glyph_cache">فعال‌سازی حافظه پنهان گلیف</string>
+    <string name="disable_battery_optimizations_failed">
+تنظیمات بهینه سازی باتری باز نشد.بهینه سازی باتری را به صورت دستی در تنظیمات سیستم غیرفعال کنید.</string>
+    <string name="disable_battery_optimizations">
+🔋بهینه سازی باتری را غیرفعال کنید</string>
+    <string name="disable_battery_optimizations_already_done">
+برنامه از قبل از بهینه سازی باتری معاف است.</string>
 </resources>
+

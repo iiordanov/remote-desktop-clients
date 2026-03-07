@@ -41,8 +41,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.iiordanov.bVNC.Constants;
-import com.iiordanov.util.PermissionGroups;
-import com.iiordanov.util.PermissionsManager;
+import com.iiordanov.permissions.AudioPermissionGroups;
+import com.iiordanov.permissions.AudioPermissionsManager;
 import com.undatech.opaque.dialogs.ManageCustomCaFragment;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.remoteClientUi.R;
@@ -211,7 +211,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
     public void toggleAudioPlaybackSetting(View view) {
         ToggleButton s = (ToggleButton) view;
         if (s.isChecked()) {
-            PermissionsManager.requestPermissions(this, PermissionGroups.RECORD_AUDIO, true);
+            AudioPermissionsManager.requestPermissions(this, AudioPermissionGroups.RECORD_AUDIO, true);
         }
         currentConnection.setAudioPlaybackEnabled(s.isChecked());
     }
