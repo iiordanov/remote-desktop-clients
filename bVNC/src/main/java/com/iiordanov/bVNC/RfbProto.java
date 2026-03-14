@@ -281,7 +281,7 @@ public class RfbProto extends RfbConnectable {
     Viewable canvas;
     RemoteConnection remoteConnection;
     byte[] writeIntBuffer = new byte[4];
-    String desktopName;
+    String desktopName = "";
     int framebufferWidth, framebufferHeight;
     int preferredFramebufferWidth = 0, preferredFramebufferHeight = 0;
     int bitsPerPixel, depth;
