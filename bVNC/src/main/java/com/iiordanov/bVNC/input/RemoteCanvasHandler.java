@@ -11,11 +11,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.bVNC.CredentialsObtainer;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
@@ -301,7 +302,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
         // If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
         Log.d(TAG, "Attempting to initialize SSH HostKey.");
 
-        c.displayShortToastMessage(R.string.info_ssh_initializing_hostkey);
+        c.displayOnScreenMessageShortDuration(R.string.info_ssh_initializing_hostkey);
         // Show a dialog with the key signature.
         DialogInterface.OnClickListener signatureNo = (dialog, which) -> {
             // We were told to not continue, so stop the activity
@@ -638,8 +639,9 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 Utils.justFinish(context);
                 break;
             case RemoteClientLibConstants.SHOW_TOAST:
-                this.post(() -> Toast.makeText(context, Utils.getStringResourceByName(context, messageText),
-                        Toast.LENGTH_LONG).show());
+                View view = ((RemoteCanvasActivity) context).getWindow().getDecorView().getRootView();
+                this.post(() -> Snackbar.make(view, Utils.getStringResourceByName(context, messageText),
+                        Snackbar.LENGTH_LONG).show());
                 break;
             case RemoteClientLibConstants.SHOW_KEYBOARD:
                 ((RemoteCanvasActivity) context).showKeyboard();

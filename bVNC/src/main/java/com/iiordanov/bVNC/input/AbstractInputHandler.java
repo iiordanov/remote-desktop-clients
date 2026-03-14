@@ -60,7 +60,7 @@ public interface AbstractInputHandler {
     boolean onTouchEvent(MotionEvent evt);
 
     /**
-     * Return a user-friendly description for this mode; it will be displayed in a toaster
+     * Return a user-friendly description for this mode; it will be displayed on screen
      * when changing modes.
      * @return
      */

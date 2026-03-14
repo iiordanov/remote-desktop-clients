@@ -24,15 +24,12 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.FragmentActivity;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 import com.undatech.opaque.util.LogcatReader;
 import com.undatech.remoteClientUi.R;
@@ -217,8 +214,8 @@ public abstract class MainConfiguration extends AppCompatActivity {
             LogcatReader logcatReader = new LogcatReader();
             ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             cm.setText(logcatReader.getMyLogcat(Constants.LOGCAT_MAX_LINES));
-            Toast.makeText(getBaseContext(), getResources().getString(R.string.log_copied),
-                    Toast.LENGTH_LONG).show();
+            Snackbar.make(textNickname, getResources().getString(R.string.log_copied),
+                    Snackbar.LENGTH_LONG).show();
         });
 
         radioCursor = findViewById(R.id.radioCursor);
@@ -499,7 +496,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
                 String privateKey = (String) b.get("PrivateKey");
                 if (privateKey != null &&
                         !privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)
-                    Toast.makeText(getBaseContext(), getString(R.string.ssh_key_generated), Toast.LENGTH_LONG).show();
+                    Snackbar.make(textNickname, getString(R.string.ssh_key_generated), Snackbar.LENGTH_LONG).show();
                 selected.setSshPrivKey(privateKey);
                 selected.setSshPubKey((String) b.get("PublicKey"));
                 selected.saveAndWriteRecent(true, this);
@@ -565,7 +562,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
         if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
             saveConnectionAndCloseLayout();
         } else {
-            Toast.makeText(this, resource, Toast.LENGTH_LONG).show();
+            Snackbar.make(textNickname, resource, Snackbar.LENGTH_LONG).show();
         }
     }
 }

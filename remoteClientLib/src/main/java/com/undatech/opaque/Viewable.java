@@ -172,7 +172,13 @@ public interface Viewable {
      * Displays a short toast message on screen.
      * @param message the message to display
      */
-    void displayShortToastMessage(final CharSequence message);
+    void displayOnScreenMessageShortDuration(final CharSequence message);
+
+    /**
+     * Displays a long toast message on screen.
+     * @param message the message to display
+     */
+    void displayOnScreenMessageLongDuration(final CharSequence message);
 
     /**
      * Posts a drawable setter operation to the UI thread.
@@ -327,7 +333,13 @@ public interface Viewable {
      * Display a short toast message
      * @param messageResId the resource ID of the message
      */
-    void displayShortToastMessage(int messageResId);
+    void displayOnScreenMessageShortDuration(int messageResId);
+
+    /**
+     * Display a long toast message
+     * @param messageResId the resource ID of the message
+     */
+    void displayOnScreenMessageLongDuration(int messageResId);
 
     /**
      * Returns whether or not the viewable is in focus

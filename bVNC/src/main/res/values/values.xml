@@ -1,2 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <integer tools:override="true" name="design_snackbar_text_max_lines">10</integer>
+</resources>

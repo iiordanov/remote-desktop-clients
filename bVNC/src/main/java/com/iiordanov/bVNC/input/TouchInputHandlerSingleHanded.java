@@ -66,7 +66,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
                 startNewSingleHandedGesture();
                 dragMode = true;
                 remoteInput.getPointer().leftButtonDown(eventStartX, eventStartY, eventMeta);
-                viewable.displayShortToastMessage(R.string.single_left);
+                viewable.displayOnScreenMessageShortDuration(R.string.single_left);
             }
         });
 
@@ -77,7 +77,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
                 startNewSingleHandedGesture();
                 rightDragMode = true;
                 remoteInput.getPointer().rightButtonDown(eventStartX, eventStartY, eventMeta);
-                viewable.displayShortToastMessage(R.string.single_right);
+                viewable.displayOnScreenMessageShortDuration(R.string.single_right);
             }
         });
 
@@ -88,7 +88,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
                 startNewSingleHandedGesture();
                 middleDragMode = true;
                 remoteInput.getPointer().middleButtonDown(eventStartX, eventStartY, eventMeta);
-                viewable.displayShortToastMessage(R.string.single_middle);
+                viewable.displayOnScreenMessageShortDuration(R.string.single_middle);
             }
         });
 
@@ -101,7 +101,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
                 viewable.setCursorBeingMoved(true);
                 inSwiping = true;
                 remoteInput.getPointer().moveMouseButtonUp(eventStartX, eventStartY, eventMeta);
-                viewable.displayShortToastMessage(R.string.single_scroll);
+                viewable.displayOnScreenMessageShortDuration(R.string.single_scroll);
             }
         });
 
@@ -111,7 +111,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
             public void onClick(View arg0) {
                 startNewSingleHandedGesture();
                 inScaling = true;
-                viewable.displayShortToastMessage(R.string.single_zoom);
+                viewable.displayOnScreenMessageShortDuration(R.string.single_zoom);
             }
         });
 
@@ -120,7 +120,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
             @Override
             public void onClick(View arg0) {
                 singleHandOpts.setVisibility(View.GONE);
-                viewable.displayShortToastMessage(R.string.single_cancel);
+                viewable.displayOnScreenMessageShortDuration(R.string.single_cancel);
             }
         });
     }
@@ -169,9 +169,9 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
         initializeSingleHandedMode(e);
 
         if (buttonsVisible)
-            viewable.displayShortToastMessage(R.string.single_reposition);
+            viewable.displayOnScreenMessageShortDuration(R.string.single_reposition);
         else
-            viewable.displayShortToastMessage(R.string.single_choose);
+            viewable.displayOnScreenMessageShortDuration(R.string.single_choose);
     }
 
     private void initializeSingleHandedMode(MotionEvent e) {
@@ -201,7 +201,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
         // If the single-handed gesture buttons are visible, reposition pointer.
         if (buttonsVisible) {
             initializeSingleHandedMode(e);
-            viewable.displayShortToastMessage(R.string.single_reposition);
+            viewable.displayOnScreenMessageShortDuration(R.string.single_reposition);
             return true;
         } else
             return super.onSingleTapConfirmed(e);

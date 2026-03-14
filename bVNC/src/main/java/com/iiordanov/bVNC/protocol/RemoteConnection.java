@@ -263,7 +263,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
                 clipboard.setPrimaryClip(ClipData.newPlainText(null, s));
             } catch (Exception e) {
                 String error = context.getString(R.string.error) + ": " + e;
-                canvas.displayShortToastMessage(error);
+                canvas.displayOnScreenMessageShortDuration(error);
                 Log.e(TAG, "setClipboardText: exception: " + e);
             }
         }

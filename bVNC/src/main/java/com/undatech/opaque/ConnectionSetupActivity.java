@@ -37,10 +37,10 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Utils;
 import com.undatech.remoteClientUi.R;
@@ -311,8 +311,8 @@ public class ConnectionSetupActivity extends Activity {
             finish();
             // Otherwise, let the user know that at least a user and hostname are required.
         } else {
-            Toast toast = Toast.makeText(appContext, R.string.error_no_user_hostname, Toast.LENGTH_LONG);
-            toast.show();
+            Snackbar m = Snackbar.make(user, R.string.error_no_user_hostname, Snackbar.LENGTH_LONG);
+            m.show();
         }
     }
 }

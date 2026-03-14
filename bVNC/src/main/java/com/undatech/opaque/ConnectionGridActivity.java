@@ -57,14 +57,13 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Constants;
@@ -214,7 +213,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
             startActivityForResult(intent, LAUNCH_CONNECTION_REQUEST_CODE);
         } catch (ActivityNotFoundException e) {
             Log.e(TAG, "Error launching connection: " + e);
-            Toast.makeText(this, R.string.no_application_to_handle_vpn, Toast.LENGTH_LONG).show();
+            Snackbar.make(gridView, R.string.no_application_to_handle_vpn, Snackbar.LENGTH_LONG).show();
             startUriIntent(this, "market://search?q=pub:\"Morpheusly\"");
         }
     }
@@ -349,8 +348,8 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     public void copyLogcat(MenuItem menuItem) {
         LogcatReader logcatReader = new LogcatReader();
         setClipboard(this, logcatReader.getMyLogcat(RemoteClientLibConstants.LOGCAT_MAX_LINES));
-        Toast.makeText(getBaseContext(), getResources().getString(R.string.log_copied),
-                Toast.LENGTH_LONG).show();
+        Snackbar.make(gridView, getResources().getString(R.string.log_copied),
+                Snackbar.LENGTH_LONG).show();
     }
 
     /**
@@ -439,7 +438,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
                         InputStream in = FileUtils.getInputStreamFromUri(resolver, uri);
                         if (in == null) {
                             CharSequence error = getString(R.string.error) + ": " + uri;
-                            Toast.makeText(appContext, error, Toast.LENGTH_LONG).show();
+                            Snackbar.make(gridView, error, Snackbar.LENGTH_LONG).show();
                             break;
                         }
                         if (connectionsInSharedPrefs) {
@@ -617,7 +616,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         Log.d(TAG, "shareApp: Copying app link to clipboard");
         String url = Utils.getDonationPackageUrl(this);
         setClipboard(this, url);
-        Toast.makeText(appContext, R.string.share_app_toast, Toast.LENGTH_LONG).show();
+        Snackbar.make(gridView, R.string.share_app_toast, Snackbar.LENGTH_LONG).show();
     }
 
     public void donateToProject(View item) {

@@ -48,8 +48,8 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.morpheusly.common.Utilities;
 
 import java.io.OutputStream;
@@ -179,7 +179,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
         if (sshPrivKey != null && sshPrivKey.length() != 0) {
             decryptAndRecoverKey();
         } else {
-            Toast.makeText(getBaseContext(), getString(R.string.key_not_generated_yet), Toast.LENGTH_LONG).show();
+            Snackbar.make(generate, getString(R.string.key_not_generated_yet), Snackbar.LENGTH_LONG).show();
         }
 
         keyTypeGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -283,7 +283,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
             public void onClick(View view) {
                 hideSoftKeyboard(view);
                 cm.setText(publicKeySSHFormat);
-                Toast.makeText(getBaseContext(), getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show();
+                Snackbar.make(generate, getString(R.string.copied_to_clipboard), Snackbar.LENGTH_SHORT).show();
             }
         });
 
@@ -291,7 +291,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
             public void onClick(View view) {
                 hideSoftKeyboard(view);
                 cm.setText(privateKeySSHFormat);
-                Toast.makeText(getBaseContext(), getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show();
+                Snackbar.make(generate, getString(R.string.copied_to_clipboard), Snackbar.LENGTH_SHORT).show();
             }
         });
 
@@ -365,9 +365,9 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
         }
 
         if (recovered) {
-            Toast.makeText(getBaseContext(), getString(R.string.success_decrypting), Toast.LENGTH_LONG).show();
+            Snackbar.make(generate, getString(R.string.success_decrypting), Snackbar.LENGTH_LONG).show();
         } else {
-            Toast.makeText(getBaseContext(), getString(R.string.error_decrypting_key), Toast.LENGTH_LONG).show();
+            Snackbar.make(generate, getString(R.string.error_decrypting_key), Snackbar.LENGTH_LONG).show();
         }
         checkEntries();
         return success;
@@ -486,10 +486,10 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
                             convertToBase64AndSendIntent(pair);
                         } catch (Exception e) {
                             Log.e(TAG, "Failed to import key: " + Log.getStackTraceString(e));
-                            Toast.makeText(getBaseContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                            Snackbar.make(generate, e.getLocalizedMessage(), Snackbar.LENGTH_LONG).show();
                             return;
                         }
-                        Toast.makeText(getBaseContext(), getString(R.string.success_importing), Toast.LENGTH_LONG).show();
+                        Snackbar.make(generate, getString(R.string.success_importing), Snackbar.LENGTH_LONG).show();
                     } else {
                         Log.e(TAG, "File uri not found, not importing key");
                     }

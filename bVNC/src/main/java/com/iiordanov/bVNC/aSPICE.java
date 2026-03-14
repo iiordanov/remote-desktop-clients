@@ -36,8 +36,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.bVNC.dialogs.ImportTlsCaDialog;
 import com.iiordanov.permissions.AudioPermissionGroups;
 import com.iiordanov.permissions.AudioPermissionsManager;
@@ -227,7 +227,7 @@ public class aSPICE extends MainConfiguration {
                 && (portText.getText().length() != 0 || tlsPort.getText().length() != 0)) {
             saveConnectionAndCloseLayout();
         } else {
-            Toast.makeText(this, resource, Toast.LENGTH_LONG).show();
+            Snackbar.make(tlsPort, resource, Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -245,7 +245,7 @@ public class aSPICE extends MainConfiguration {
                     selected.saveAndWriteRecent(false, this);
                     showDialog(R.layout.import_tls_ca_dialog);
                 } else {
-                    Toast.makeText(this, R.string.ca_file_error_reading, Toast.LENGTH_LONG).show();
+                    Snackbar.make(tlsPort, R.string.ca_file_error_reading, Snackbar.LENGTH_LONG).show();
                 }
             }
         }

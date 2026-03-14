@@ -63,7 +63,6 @@ import android.widget.LinearLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.viewpager.widget.ViewPager;
 
@@ -73,6 +72,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
 import com.iiordanov.bVNC.dialogs.MetaKeyDialog;
 import com.iiordanov.bVNC.extrakeys.ExtraKeysView;
@@ -358,7 +358,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     private void showConnectionScreenOrExitIfNotReadyForConnecting(Connection connection) {
         // we need to save the connection to display the loading screen, so otherwise we should exit
         if (connection == null || !connection.isReadyForConnection()) {
-            Toast.makeText(this, getString(R.string.error_uri_noinfo_nosave), Toast.LENGTH_LONG).show();
+            Snackbar.make(canvas, getString(R.string.error_uri_noinfo_nosave), Snackbar.LENGTH_LONG).show();
             if (connection != null && connection.isReadyToBeSaved()) {
                 Log.i(TAG, "Exiting - Insufficient information to connect and connection was not saved.");
             } else {
@@ -1225,7 +1225,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     public void showPanningState(boolean showLonger) {
         if (showLonger) {
-            final Toast t = Toast.makeText(this, touchInputHandler.getDescription(), Toast.LENGTH_LONG);
+            final Snackbar t = Snackbar.make(canvas, touchInputHandler.getDescription(), Snackbar.LENGTH_LONG);
             TimerTask tt = new TimerTask() {
                 @Override
                 public void run() {
@@ -1241,7 +1241,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             new Timer().schedule(tt, 2000);
             t.show();
         } else {
-            Toast t = Toast.makeText(this, touchInputHandler.getDescription(), Toast.LENGTH_SHORT);
+            Snackbar t = Snackbar.make(canvas, touchInputHandler.getDescription(), Snackbar.LENGTH_SHORT);
             t.show();
         }
     }
@@ -1318,7 +1318,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             remoteConnection.setColorModel(cm);
             connection.setColorModel(cm.nameString());
             connection.save(RemoteCanvasActivity.this);
-            Toast.makeText(RemoteCanvasActivity.this, getString(R.string.info_update_color_model_to) + cm, Toast.LENGTH_SHORT).show();
+            Snackbar.make(canvas, getString(R.string.info_update_color_model_to) + cm, Snackbar.LENGTH_SHORT).show();
         });
         return list;
     }

@@ -70,7 +70,7 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
         endDragModesAndScrolling();
         if (viewable.isZoomerAbleToPan()) {
             touchInputDelegate.sendShortVibration();
-            viewable.displayShortToastMessage(R.string.panning);
+            viewable.displayOnScreenMessageShortDuration(R.string.panning);
             panMode = true;
         } else {
             startDragAndDropMode(e);

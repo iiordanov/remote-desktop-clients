@@ -157,7 +157,7 @@ class ZoomScaling extends AbstractScaling {
             newScale = 1.f;
             // Only if oldScale is outside the snap region, do we inform the user.
             if (oldScale < 0.90f || oldScale > 1.10f)
-                canvas.displayShortToastMessage(R.string.snap_one_to_one);
+                canvas.displayOnScreenMessageShortDuration(R.string.snap_one_to_one);
         }
 
         resetMatrix();

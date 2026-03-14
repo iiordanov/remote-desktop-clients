@@ -34,10 +34,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.morpheusly.common.Utilities;
 import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.proxmox.OvirtClient;
@@ -88,20 +88,20 @@ public class ManageCustomCaFragment extends DialogFragment
         Log.d(TAG, "onDownload");
         caTextContents = contents;
         handler.post(setCaText);
-        handler.post(() -> Toast.makeText(
-                ManageCustomCaFragment.this.getActivity(),
+        handler.post(() -> Snackbar.make(
+                caCert,
                 android.R.string.yes,
-                Toast.LENGTH_SHORT
+                Snackbar.LENGTH_SHORT
         ).show());
     }
 
     @Override
     public void onDownloadFailure() {
         Log.d(TAG, "onDownloadFailure");
-        handler.post(() -> Toast.makeText(
-                ManageCustomCaFragment.this.getActivity(),
+        handler.post(() -> Snackbar.make(
+                caCert,
                 R.string.error_connection_failed,
-                Toast.LENGTH_SHORT
+                Snackbar.LENGTH_SHORT
         ).show());
     }
 
@@ -190,10 +190,10 @@ public class ManageCustomCaFragment extends DialogFragment
                                 MAX_KEY_FILE_SIZE_BYTES);
                         caCert.setText(keyData);
                     } else {
-                        Toast.makeText(
-                                requireActivity(),
+                        Snackbar.make(
+                                caCert,
                                 R.string.ca_file_error_reading,
-                                Toast.LENGTH_LONG
+                                Snackbar.LENGTH_LONG
                         ).show();
                     }
                 }

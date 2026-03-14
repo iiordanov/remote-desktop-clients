@@ -44,10 +44,10 @@ import android.view.Display;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
-import android.widget.Toast;
 
 import androidx.appcompat.widget.AppCompatImageView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.TouchInputHandlerTouchpad;
 import com.undatech.opaque.AbstractDrawableData;
@@ -152,7 +152,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     Runnable invalidateCanvasRunnable = this::postInvalidate;
 
     /**
-     * This runnable sets the drawable (contained in myDrawable) for the VncCanvas (ImageView).
+     * This runnable sets the drawable (contained in myDrawable) for the RemoteCanvas (ImageView).
      */
     private final Runnable drawableSetter = new Runnable() {
         public void run() {
@@ -163,13 +163,20 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
                     myDrawable.setImageDrawable(RemoteCanvas.this);
                 } else {
                     Log.e(TAG, "drawableSetter myDrawable is null");
+                    displayOnScreenMessageLongDuration(R.string.error_out_of_memory);
                 }
             }
         }
     };
     private final Runnable showMessage = new Runnable() {
         public void run() {
-            Toast.makeText(getContext(), screenMessage, Toast.LENGTH_SHORT).show();
+            Snackbar.make(RemoteCanvas.this, screenMessage, Snackbar.LENGTH_SHORT).show();
+        }
+    };
+
+    private final Runnable showLongMessage = new Runnable() {
+        public void run() {
+            Snackbar.make(RemoteCanvas.this, screenMessage, Snackbar.LENGTH_LONG).show();
         }
     };
 
@@ -345,10 +352,9 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
                 } catch (Throwable e) { // If despite our efforts we fail to allocate memory, use CompactBitmapData.
                     Log.e(TAG, "Could not allocate drawable, attempting to use CompactBitmapData.");
                     if (myDrawable != null) {
-                        myDrawable.dispose();;
+                        myDrawable.dispose();
                     }
                     myDrawable = new CompactBitmapData(dx, dy, this, isSpice | isOpaque);
-
                 }
             }
         }
@@ -375,53 +381,79 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     @Override
     public void prepareFullUpdateRequest(boolean incremental) {
         synchronized (this) {
-            myDrawable.prepareFullUpdateRequest(incremental);
+            if (myDrawable != null) {
+                myDrawable.prepareFullUpdateRequest(incremental);
+            }
         }
     }
 
     @Override
     public int getXoffset() {
         synchronized (this) {
-            return myDrawable.getXoffset();
+            if (myDrawable != null) {
+                return myDrawable.getXoffset();
+            }
+            return 0;
         }
     }
 
     @Override
     public int getYoffset() {
         synchronized (this) {
-            return myDrawable.getYoffset();
+            if (myDrawable != null) {
+                return myDrawable.getYoffset();
+            }
+            return 0;
         }
     }
 
     @Override
     public int bmWidth() {
         synchronized (this) {
-            return myDrawable.bmWidth();
+            if (myDrawable != null) {
+                return myDrawable.bmWidth();
             }
+            return 0;
+         }
     }
 
     @Override
     public int bmHeight() {
         synchronized (this) {
-            return myDrawable.bmHeight();
+            if (myDrawable != null) {
+                return myDrawable.bmHeight();
+            }
+            return 0;
         }
     }
 
     /**
-     * Displays a short toast message on the screen.
+     * Displays a message on the screen for a short duration.
      */
-    public void displayShortToastMessage(final CharSequence message) {
+    public void displayOnScreenMessageShortDuration(final CharSequence message) {
         screenMessage = message;
         postMessage(showMessage);
     }
 
+    @Override
+    public void displayOnScreenMessageLongDuration(final CharSequence message) {
+        screenMessage = message;
+        postMessage(showLongMessage);
+    }
+
     /**
-     * Displays a short toast message on the screen.
+     * Displays a message on the screen for a short duration
      */
     @Override
-    public void displayShortToastMessage(final int messageID) {
+    public void displayOnScreenMessageShortDuration(final int messageID) {
         screenMessage = getResources().getText(messageID);
         postMessage(showMessage);
+    }
+
+    @Override
+    public void displayOnScreenMessageLongDuration(final int messageID) {
+        screenMessage = getResources().getText(messageID);
+        postMessage(showLongMessage);
     }
 
     private void postMessage(Runnable showMessage) {
@@ -434,7 +466,9 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      */
     public void doneWaiting() {
         synchronized (this) {
-            myDrawable.doneWaiting();
+            if (myDrawable != null) {
+                myDrawable.doneWaiting();
+            }
         }
     }
 
@@ -444,7 +478,9 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      */
     public void syncScroll() {
         synchronized (this) {
-            myDrawable.syncScroll();
+            if (myDrawable != null) {
+                myDrawable.syncScroll();
+            }
         }
     }
 
@@ -458,8 +494,10 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      */
     public void computeShiftFromFullToView() {
         synchronized (this) {
-            shiftX = (myDrawable.fbWidth() - getWidth()) / 2.0f;
-            shiftY = (myDrawable.fbHeight() - getHeight()) / 2.0f;
+            if (myDrawable != null) {
+                shiftX = (myDrawable.fbWidth() - getWidth()) / 2.0f;
+                shiftY = (myDrawable.fbHeight() - getHeight()) / 2.0f;
+            }
         }
     }
 
@@ -485,10 +523,14 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         // Don't pan in a certain direction if dimension scaled is already less
         // than the dimension of the visible part of the screen.
         synchronized (this) {
-            if (myDrawable.fbWidth() < getVisibleDesktopWidth())
-                panX = false;
-            if (myDrawable.fbHeight() < getVisibleDesktopHeight())
-                panY = false;
+            if (myDrawable != null) {
+                if (myDrawable.fbWidth() < getVisibleDesktopWidth()) {
+                    panX = false;
+                }
+                if (myDrawable.fbHeight() < getVisibleDesktopHeight()) {
+                    panY = false;
+                }
+            }
         }
 
         // We only pan if the current scaling is able to pan.
@@ -735,19 +777,27 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
     private RectF getCursorRect() {
         synchronized (this) {
-            return myDrawable.getCursorRect();
+            if (myDrawable != null) {
+                return myDrawable.getCursorRect();
+            }
+            return new RectF();
         }
     }
 
     private void moveSoftCursor(int x, int y) {
         synchronized (this) {
-            myDrawable.moveCursorRect(x, y);
+            if (myDrawable != null) {
+                myDrawable.moveCursorRect(x, y);
+            }
         }
     }
 
     private boolean isNotInitSoftCursor() {
         synchronized (this) {
-            return myDrawable.isNotInitSoftCursor();
+            if (myDrawable != null) {
+                return myDrawable.isNotInitSoftCursor();
+            }
+            return false;
         }
     }
 
@@ -767,9 +817,11 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
     private void setSoftCursorRectAndPixels(int w, int h, int[] tempPixels) {
         synchronized (this) {
-            myDrawable.setCursorRect(pointer.getX(), pointer.getY(), w, h, 0, 0);
-            // Set softCursor to whatever the resource is.
-            myDrawable.setSoftCursor(tempPixels);
+            if (myDrawable != null) {
+                myDrawable.setCursorRect(pointer.getX(), pointer.getY(), w, h, 0, 0);
+                // Set softCursor to whatever the resource is.
+                myDrawable.setSoftCursor(tempPixels);
+            }
         }
     }
 
@@ -823,25 +875,37 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
     public int getImageWidth() {
         synchronized (this) {
-            return myDrawable.fbWidth();
+            if (myDrawable != null) {
+                return myDrawable.fbWidth();
+            }
+            return 0;
         }
     }
 
     public int getImageHeight() {
         synchronized (this) {
-            return myDrawable.fbHeight();
+            if (myDrawable != null) {
+                return myDrawable.fbHeight();
+            }
+            return 0;
         }
     }
 
     public int getCenteredXOffset() {
         synchronized (this) {
-            return (myDrawable.fbWidth() - getWidth()) / 2;
+            if (myDrawable != null) {
+                return (myDrawable.fbWidth() - getWidth()) / 2;
+            }
+            return 0;
         }
     }
 
     public int getCenteredYOffset() {
         synchronized (this) {
-            return (myDrawable.fbHeight() - getHeight()) / 2;
+            if (myDrawable != null) {
+                return (myDrawable.fbHeight() - getHeight()) / 2;
+            }
+            return 0;
         }
     }
 
@@ -849,9 +913,8 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         synchronized (this) {
             if (myDrawable != null) {
                 return myDrawable.getMinimumScale();
-            } else {
-                return 1.f;
             }
+            return 1.f;
         }
     }
 
