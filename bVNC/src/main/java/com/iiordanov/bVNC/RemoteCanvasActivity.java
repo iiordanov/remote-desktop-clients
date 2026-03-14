@@ -23,6 +23,7 @@
 //
 package com.iiordanov.bVNC;
 
+import static com.iiordanov.bVNC.Constants.EXTRA_KEYS_TOUR_SHOWN;
 import static com.iiordanov.bVNC.dialogs.MetaKeyDialog.tryPopulateKeysInListWhereFieldMatchesValue;
 
 import android.animation.ObjectAnimator;
@@ -36,6 +37,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -57,12 +59,13 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import androidx.viewpager.widget.ViewPager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -72,6 +75,8 @@ import androidx.core.view.ViewCompat;
 
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
 import com.iiordanov.bVNC.dialogs.MetaKeyDialog;
+import com.iiordanov.bVNC.extrakeys.ExtraKeysView;
+import com.iiordanov.bVNC.extrakeys.ExtraKeysPagerAdapter;
 import com.iiordanov.bVNC.input.IgnoringMouseInputListener;
 import com.iiordanov.bVNC.input.MetaKeyBean;
 import com.iiordanov.bVNC.input.Panner;
@@ -97,9 +102,8 @@ import com.undatech.opaque.util.OnTouchViewMover;
 import com.undatech.opaque.util.RemoteToolbar;
 import com.undatech.remoteClientUi.R;
 
+
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Timer;
@@ -119,34 +123,22 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             R.id.itemOneToOne};
 
     static {
-        Map<Integer, String> temp = new HashMap<>();
-        temp.put(R.id.itemInputTouchpad, TouchInputHandlerTouchpad.ID);
-        temp.put(R.id.itemInputDragPanZoomMouse, TouchInputHandlerDirectDragPan.ID);
-        temp.put(R.id.itemInputTouchPanZoomMouse, TouchInputHandlerDirectSwipePan.ID);
-        temp.put(R.id.itemInputSingleHanded, TouchInputHandlerSingleHanded.ID);
-        inputModeMap = Collections.unmodifiableMap(temp);
+        inputModeMap = Map.of(
+                R.id.itemInputTouchpad, TouchInputHandlerTouchpad.ID,
+                R.id.itemInputDragPanZoomMouse, TouchInputHandlerDirectDragPan.ID,
+                R.id.itemInputTouchPanZoomMouse, TouchInputHandlerDirectSwipePan.ID,
+                R.id.itemInputSingleHanded, TouchInputHandlerSingleHanded.ID
+        );
     }
 
     final long hideToolbarDelay = 2500;
     TouchInputHandler touchInputHandler;
     Panner panner;
     Handler handler;
-    RelativeLayout layoutKeys;
-    LinearLayout layoutArrowKeys;
-    ImageButton keyCtrl;
-    boolean keyCtrlToggled;
-    ImageButton keySuper;
-    boolean keySuperToggled;
-    ImageButton keyAlt;
-    boolean keyAltToggled;
-    ImageButton keyTab;
-    ImageButton keyEsc;
-    ImageButton keyShift;
-    boolean keyShiftToggled;
-    ImageButton keyUp;
-    ImageButton keyDown;
-    ImageButton keyLeft;
-    ImageButton keyRight;
+    ViewPager extraKeysToolbar;
+    LinearLayout extraKeysPageIndicator;
+    View[] pageIndicatorDots;
+    ExtraKeysPagerAdapter extraKeysPagerAdapter;
     boolean extraKeysHidden = false;
     volatile boolean softKeyboardUp;
     RemoteToolbar toolbar;
@@ -388,8 +380,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     @SuppressLint("RtlHardcoded")
     public void continueConnecting() {
         Log.d(TAG, "continueConnecting");
-        // Initialize and define actions for on-screen keys.
-        initializeOnScreenKeys();
+        // Initialize extra keys view and pager.
+        initializeExtraKeysView();
 
         canvas.setFocusableInTouchMode(true);
         canvas.setDrawingCacheEnabled(false);
@@ -464,11 +456,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             keyboardIconForAndroidTvX = keyboardIconForAndroidTv.getX();
         }
 
-        int layoutKeysBottom = layoutKeys.getBottom();
+        int[] rootViewScreenPos = new int[2];
+        rootView.getLocationOnScreen(rootViewScreenPos);
+        int rootViewTopInScreen = rootViewScreenPos[1];
+
+        int layoutKeysBottom = extraKeysToolbar.getBottom();
         int toolbarBottom = toolbar.getBottom();
-        int rootViewBottom = layoutKeys.getRootView().getBottom();
-        int diffArrowKeysPosition = r.right - re.left - layoutArrowKeys.getRight();
-        int diffLayoutKeysPosition = r.bottom - re.top - layoutKeysBottom;
+        int rootViewBottom = extraKeysToolbar.getRootView().getBottom();
+        int diffLayoutKeysPosition = r.bottom - rootViewTopInScreen - layoutKeysBottom;
         int diffToolbarPosition = r.bottom - re.top - toolbarBottom - r.bottom / 2;
         int standardToolbarPositionX = r.right - toolbar.getWidth();
         int standardToolbarPositionY = r.bottom - re.top - toolbar.getHeight() - r.bottom / 2;
@@ -480,9 +475,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         if (r.bottom > rootViewHeight * 0.81) {
             Log.d(TAG, "onGlobalLayout: Less than 19% of screen is covered");
             String direction = "down";
-            // Soft Kbd gone, shift the meta keys and arrows down.
-            if (layoutKeys != null) {
-                shiftLayoutArrowAndToolbar(r, diffArrowKeysPosition, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
+            // Soft Kbd gone, shift the extra keys toolbar down.
+            if (extraKeysToolbar != null) {
+                shiftToolbar(r, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
                 if (softKeyboardUp) {
                     Log.d(TAG, "onGlobalLayout: softKeyboardUp was true, but keyboard is now hidden. Hiding on-screen buttons");
                     setExtraKeysVisibility(View.GONE, false);
@@ -494,9 +489,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             Log.d(TAG, "onGlobalLayout: More than 19% of screen is covered");
             softKeyboardUp = true;
             String direction = "up";
-            //  Soft Kbd up, shift the meta keys and arrows up.
-            if (layoutKeys != null) {
-                shiftLayoutArrowAndToolbar(r, diffArrowKeysPosition, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
+            //  Soft Kbd up, shift the extra keys toolbar up.
+            if (extraKeysToolbar != null) {
+                shiftToolbar(r, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
                 if (extraKeysHidden) {
                     Log.d(TAG, "onGlobalLayout: on-screen buttons should be hidden");
                     setExtraKeysVisibility(View.GONE, false);
@@ -507,9 +502,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 canvas.invalidate();
             }
         }
-        if (layoutKeys != null) {
-            layoutKeysBottom = layoutKeys.getBottom();
-            rootViewBottom = layoutKeys.getRootView().getBottom();
+        if (extraKeysToolbar != null) {
+            layoutKeysBottom = extraKeysToolbar.getBottom();
+            rootViewBottom = extraKeysToolbar.getRootView().getBottom();
         }
         Log.d(TAG, "onGlobalLayout: after: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
@@ -569,12 +564,15 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         return h == dH;
     }
 
-    private void shiftLayoutArrowAndToolbar(Rect r, int diffArrowKeysPosition, int diffLayoutKeysPosition, int diffToolbarPosition, int standardToolbarPositionX, int standardToolbarPositionY, String direction) {
+    private void shiftToolbar(Rect r, int diffLayoutKeysPosition, int diffToolbarPosition, int standardToolbarPositionX, int standardToolbarPositionY, String direction) {
         Log.d(TAG, String.format("onGlobalLayout: shifting on-screen buttons %s by: %d", direction, diffLayoutKeysPosition));
-        layoutKeys.offsetTopAndBottom(diffLayoutKeysPosition);
+        // Use setTranslationY instead of offsetTopAndBottom: unlike offsetTopAndBottom, setTranslationY
+        // is a render-layer transform that is not reset by layout passes, and does not change getBottom(),
+        // so every onGlobalLayout call sets the same absolute translation regardless of intermediate layouts.
+        extraKeysToolbar.setTranslationY(diffLayoutKeysPosition);
+        if (extraKeysPageIndicator != null)
+            extraKeysPageIndicator.setTranslationY(diffLayoutKeysPosition);
         offsetOrRestoreSavedToolbarPosition(r, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY);
-        Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
-        layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
     }
 
     private void offsetOrRestoreSavedToolbarPosition(Rect r, int diffToolbarPosition, int standardPositionX, int standardPositionY) {
@@ -594,7 +592,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     }
 
     public void extraKeysToggle(MenuItem m) {
-        if (layoutKeys.getVisibility() == View.VISIBLE) {
+        if (extraKeysToolbar.getVisibility() == View.VISIBLE) {
             extraKeysHidden = true;
             setExtraKeysVisibility(View.GONE, false);
         } else {
@@ -611,7 +609,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         }
         Drawable replacer;
         m.setVisible(connection.getExtraKeysToggleType() != Constants.EXTRA_KEYS_OFF);
-        if (layoutKeys.getVisibility() == View.GONE)
+        if (extraKeysToolbar.getVisibility() == View.GONE)
             replacer = ResourcesCompat.getDrawable(getResources(), R.drawable.showkeys, null);
         else
             replacer = ResourcesCompat.getDrawable(getResources(), R.drawable.hidekeys, null);
@@ -652,125 +650,99 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         return yPointerOffset;
     }
 
+    private void initializeExtraKeysView() {
+        extraKeysToolbar = findViewById(R.id.extraKeysToolbar);
+
+        extraKeysPagerAdapter = new ExtraKeysPagerAdapter(this, new ExtraKeysPagerAdapter.Callbacks() {
+            @Override
+            public void onSendText(String text) {
+                if (inputListener != null) {
+                    inputListener.sendText(text);
+                }
+            }
+            @Override
+            public RemoteKeyboard getKeyboard() {
+                return remoteConnection != null ? remoteConnection.getKeyboard() : null;
+            }
+        });
+        extraKeysToolbar.setAdapter(extraKeysPagerAdapter);
+
+        extraKeysToolbar.setCurrentItem(1, false);
+
+        extraKeysPageIndicator = findViewById(R.id.extraKeysPageIndicator);
+        pageIndicatorDots = new View[]{
+            findViewById(R.id.dotPage0),
+            findViewById(R.id.dotPage1),
+            findViewById(R.id.dotPage2)
+        };
+        updatePageDots(1);
+
+        extraKeysToolbar.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                updatePageDots(position);
+                if (position == 0) {
+                    if (extraKeysPagerAdapter != null && extraKeysPagerAdapter.getSendTextPanel() != null)
+                        extraKeysPagerAdapter.getSendTextPanel().requestFocusOnText();
+                } else {
+                    canvas.requestFocus();
+                }
+            }
+        });
+    }
+
     /**
-     * Initializes the on-screen keys for meta keys and arrow keys.
+     * Shows the extra-keys toolbar (if hidden) and navigates to the Send Text panel with an
+     * animated slide from the modifier-keys page, hinting that a right swipe reaches it.
      */
-    private void initializeOnScreenKeys() {
-        layoutKeys = findViewById(R.id.layoutKeys);
-        layoutArrowKeys = findViewById(R.id.layoutArrowKeys);
-        // Define action of tab key and modifier keys.
-        keyTab = findViewById(R.id.keyTab);
-        keyTab.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyTab, R.drawable.tabon, R.drawable.taboff, KeyEvent.KEYCODE_TAB));
-        keyTab.setOnGenericMotionListener(ignoringMouseInputListener);
-        keyEsc = findViewById(R.id.keyEsc);
-        keyEsc.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyEsc, R.drawable.escon, R.drawable.escoff, 111 /* KEYCODE_ESCAPE */));
-        keyEsc.setOnGenericMotionListener(ignoringMouseInputListener);
-        keyCtrl = findViewById(R.id.keyCtrl);
-        keyCtrl.setOnClickListener(arg0 -> toggleCtrl(false, remoteConnection.getKeyboard().onScreenCtrlToggle()));
-        keyCtrl.setOnLongClickListener(arg0 -> toggleCtrl(true, remoteConnection.getKeyboard().onScreenCtrlToggle()));
-        keyCtrl.setOnGenericMotionListener(ignoringMouseInputListener);
-        keySuper = findViewById(R.id.keySuper);
-        keySuper.setOnClickListener(arg0 -> toggleSuper(false, remoteConnection.getKeyboard().onScreenSuperToggle()));
-        keySuper.setOnLongClickListener(arg0 -> toggleSuper(true, remoteConnection.getKeyboard().onScreenSuperToggle()));
-        keySuper.setOnGenericMotionListener(ignoringMouseInputListener);
-        keyAlt = findViewById(R.id.keyAlt);
-        keyAlt.setOnClickListener(arg0 -> toggleAlt(false, remoteConnection.getKeyboard().onScreenAltToggle()));
-        keyAlt.setOnLongClickListener(arg0 -> toggleAlt(true, remoteConnection.getKeyboard().onScreenAltToggle()));
-        keyAlt.setOnGenericMotionListener(ignoringMouseInputListener);
-        keyShift = findViewById(R.id.keyShift);
-        keyShift.setOnClickListener(arg0 -> toggleShift(false, remoteConnection.getKeyboard().onScreenShiftToggle()));
-        keyShift.setOnLongClickListener(arg0 -> toggleShift(true, remoteConnection.getKeyboard().onScreenShiftToggle()));
-        keyShift.setOnGenericMotionListener(ignoringMouseInputListener);
-        // Define action of arrow keys.
-        keyUp = findViewById(R.id.keyUpArrow);
-        keyUp.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyUp, R.drawable.upon, R.drawable.upoff, KeyEvent.KEYCODE_DPAD_UP));
-        keyUp.setOnGenericMotionListener(ignoringMouseInputListener);
-        keyDown = findViewById(R.id.keyDownArrow);
-        keyDown.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyDown, R.drawable.downon, R.drawable.downoff, KeyEvent.KEYCODE_DPAD_DOWN));
-        keyDown.setOnGenericMotionListener(ignoringMouseInputListener);
-        keyLeft = findViewById(R.id.keyLeftArrow);
-        keyLeft.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyLeft, R.drawable.lefton, R.drawable.leftoff, KeyEvent.KEYCODE_DPAD_LEFT));
-        keyLeft.setOnGenericMotionListener(ignoringMouseInputListener);
-        keyRight = findViewById(R.id.keyRightArrow);
-        keyRight.setOnTouchListener((arg0, e) -> repeatableKeyAction(e, keyRight, R.drawable.righton, R.drawable.rightoff, KeyEvent.KEYCODE_DPAD_RIGHT));
-        keyRight.setOnGenericMotionListener(ignoringMouseInputListener);
+    private void openSendTextPanel() {
+        extraKeysHidden = false;
+        setExtraKeysVisibility(View.VISIBLE, true);
+        // Snap to the modifier-keys page (1) without animation so the subsequent animated
+        // slide always travels one page to the right, demonstrating the swipe gesture.
+        extraKeysToolbar.setCurrentItem(1, false);
+        extraKeysToolbar.post(() -> extraKeysToolbar.setCurrentItem(0, true));
     }
 
-    private boolean repeatableKeyAction(MotionEvent e, ImageButton button, int onRes, int offRes, int keyCode) {
-        RemoteKeyboard k = remoteConnection.getKeyboard();
-        if (e.getAction() == MotionEvent.ACTION_DOWN) {
-            sendShortVibration();
-            button.setImageResource(onRes);
-            k.repeatKeyEvent(keyCode, new KeyEvent(e.getAction(), keyCode));
-            return true;
-        } else if (e.getAction() == MotionEvent.ACTION_UP) {
-            button.setImageResource(offRes);
-            resetOnScreenKeys(0);
-            k.stopRepeatingKeyEvent();
-            return true;
+    /** Updates the page indicator dots so the active page's dot is bright and the others are dim. */
+    private void updatePageDots(int activePage) {
+        if (pageIndicatorDots == null) return;
+        for (int i = 0; i < pageIndicatorDots.length; i++) {
+            GradientDrawable dot = new GradientDrawable();
+            dot.setShape(GradientDrawable.OVAL);
+            dot.setColor(i == activePage ? 0xFFFFFFFF : 0x55FFFFFF);
+            pageIndicatorDots[i].setBackground(dot);
         }
-        return false;
-    }
-
-    private boolean toggleSuper(boolean toggled, boolean isOn) {
-        keySuperToggled = toggled;
-        return toggleButtonImage(isOn, toggled, keySuper, R.drawable.superon, R.drawable.superoff);
-    }
-
-    private boolean toggleShift(boolean toggled, boolean isOn) {
-        keyShiftToggled = toggled;
-        return toggleButtonImage(isOn, toggled, keyShift, R.drawable.shifton, R.drawable.shiftoff);
-    }
-
-    private boolean toggleAlt(boolean toggled, boolean isOn) {
-        keyAltToggled = toggled;
-        return toggleButtonImage(isOn, toggled, keyAlt, R.drawable.alton, R.drawable.altoff);
-    }
-
-    private boolean toggleCtrl(boolean toggled, boolean isOn) {
-        keyCtrlToggled = toggled;
-        return toggleButtonImage(isOn, toggled, keyCtrl, R.drawable.ctrlon, R.drawable.ctrloff);
-    }
-
-    private boolean toggleButtonImage(
-            boolean isOn, boolean isToggled, ImageButton button, int onResource, int offResource
-    ) {
-        if (isToggled) {
-            sendShortVibration();
-        }
-        if (isOn) {
-            button.setImageResource(onResource);
-        } else {
-            button.setImageResource(offResource);
-        }
-        return true;
     }
 
     /**
-     * Resets the state and image of the on-screen keys.
+     * On the very first launch, animates through all three pages so the user discovers the
+     * swipe gestures. Runs only once, tracked in SharedPreferences.
+     */
+    private void maybeRunExtraKeysTour() {
+        if (Utils.querySharedPreferenceBoolean(this, EXTRA_KEYS_TOUR_SHOWN, false)) {
+            return;
+        }
+        Utils.setSharedPreferenceBoolean(this, EXTRA_KEYS_TOUR_SHOWN, true);
+        // Sweep: modifier keys → F-keys → modifier keys → send text → modifier keys
+        extraKeysToolbar.postDelayed(() -> extraKeysToolbar.setCurrentItem(2, true), 1000);
+        extraKeysToolbar.postDelayed(() -> extraKeysToolbar.setCurrentItem(1, true), 2000);
+        extraKeysToolbar.postDelayed(() -> extraKeysToolbar.setCurrentItem(0, true), 3000);
+        extraKeysToolbar.postDelayed(() -> extraKeysToolbar.setCurrentItem(1, true), 4000);
+    }
+
+    /**
+     * Resets the state of the on-screen special buttons.
      */
     private int resetOnScreenKeys(int keyCode) {
-        // Do not reset on-screen keys if keycode is SHIFT.
         switch (keyCode) {
             case KeyEvent.KEYCODE_SHIFT_LEFT:
             case KeyEvent.KEYCODE_SHIFT_RIGHT:
                 return keyCode;
         }
-        if (!keyCtrlToggled) {
-            keyCtrl.setImageResource(R.drawable.ctrloff);
-            remoteConnection.getKeyboard().onScreenCtrlOff();
-        }
-        if (!keyAltToggled) {
-            keyAlt.setImageResource(R.drawable.altoff);
-            remoteConnection.getKeyboard().onScreenAltOff();
-        }
-        if (!keySuperToggled) {
-            keySuper.setImageResource(R.drawable.superoff);
-            remoteConnection.getKeyboard().onScreenSuperOff();
-        }
-        if (!keyShiftToggled) {
-            keyShift.setImageResource(R.drawable.shiftoff);
-            remoteConnection.getKeyboard().onScreenShiftOff();
+        ExtraKeysView extraKeysView = extraKeysPagerAdapter != null ? extraKeysPagerAdapter.getExtraKeysView() : null;
+        if (extraKeysView != null) {
+            extraKeysView.resetSpecialButtons();
         }
         return keyCode;
     }
@@ -787,14 +759,19 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
         if (!extraKeysHidden && makeVisible &&
                 connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
-            layoutKeys.setVisibility(View.VISIBLE);
-            layoutKeys.invalidate();
+            extraKeysToolbar.setVisibility(View.VISIBLE);
+            if (extraKeysPageIndicator != null)
+                extraKeysPageIndicator.setVisibility(View.VISIBLE);
+            extraKeysToolbar.invalidate();
+            maybeRunExtraKeysTour();
             return;
         }
 
         if (visibility == View.GONE) {
-            layoutKeys.setVisibility(View.GONE);
-            layoutKeys.invalidate();
+            extraKeysToolbar.setVisibility(View.GONE);
+            if (extraKeysPageIndicator != null)
+                extraKeysPageIndicator.setVisibility(View.GONE);
+            extraKeysToolbar.invalidate();
         }
     }
 
@@ -829,7 +806,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         Log.d(TAG, "setModes");
         setInputHandler(getInputHandlerByName(connection.getInputMode()));
         AbstractScaling.getByScaleType(connection.getScaleMode()).setScaleTypeForActivity(this);
-        initializeOnScreenKeys();
+        initializeExtraKeysView();
         try {
             COLORMODEL cm = COLORMODEL.valueOf(connection.getColorModel());
             remoteConnection.setColorModel(cm);
@@ -1151,7 +1128,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             disconnectAndFinishActivity();
             return true;
         } else if (itemId == R.id.itemEnterText) {
-            showDialog(R.layout.entertext);
+            openSendTextPanel();
             return true;
         } else if (itemId == R.id.itemCtrlAltDel) {
             remoteConnection.getKeyboard().sendMetaKey(MetaKeyBean.keyCtrlAltDel);
@@ -1397,7 +1374,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     public void hideKeyboardAndExtraKeys() {
         hideKeyboard();
-        if (layoutKeys.getVisibility() == View.VISIBLE) {
+        if (extraKeysToolbar.getVisibility() == View.VISIBLE) {
             extraKeysHidden = true;
             setExtraKeysVisibility(View.GONE, false);
         }
@@ -1426,6 +1403,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     public void onBackPressed() {
         if (GeneralUtils.isTv(this)) {
             disconnectAndFinishActivity();
+            super.onBackPressed();
         }
         if (inputListener != null) {
             inputListener.onKey(canvas, KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));

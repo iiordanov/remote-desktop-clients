@@ -194,6 +194,7 @@ public class Constants {
     public static final String scrollSpeed = "scrollSpeed";
     public static final String localToRemoteClipboardIntegration = "localToRemoteClipboardIntegration";
     public static final String remoteToLocalClipboardIntegration = "remoteToLocalClipboardIntegration";
+    public static final String EXTRA_KEYS_TOUR_SHOWN = "extraKeysTourShown";
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;
     public static final int usbDevicePermissionTimeout = 15000;
