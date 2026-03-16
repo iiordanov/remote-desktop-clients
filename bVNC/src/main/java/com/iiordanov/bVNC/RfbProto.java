@@ -454,7 +454,7 @@ public class RfbProto extends RfbConnectable {
         return closed;
     }
 
-    public synchronized void initializeAndAuthenticate(String host, int port, String us, String pw,
+    public void initializeAndAuthenticate(String host, int port, String us, String pw,
                                           boolean useRepeater, String repeaterID, int connType,
                                           String cert) throws Exception, AuthFailureException {
         this.host = host;
@@ -670,7 +670,7 @@ public class RfbProto extends RfbConnectable {
         throw new RfbUserPassAuthFailedOrUsernameRequiredException("Username required.");
     }
 
-    synchronized int selectSecurityType(boolean userNameSupplied, int connType) throws Exception {
+    int selectSecurityType(boolean userNameSupplied, int connType) throws Exception {
         Log.i(TAG, "(Re)Selecting security type.");
 
         int secType = SecTypeInvalid;
@@ -766,7 +766,7 @@ public class RfbProto extends RfbConnectable {
     // Initialize capability lists (TightVNC protocol extensions).
     //
 
-    synchronized int authenticateVeNCrypt(boolean userNameSupplied) throws Exception {
+    int authenticateVeNCrypt(boolean userNameSupplied) throws Exception {
         int majorVersion = is.readUnsignedByte();
         int minorVersion = is.readUnsignedByte();
         int Version = (majorVersion << 8) | minorVersion;
@@ -824,7 +824,7 @@ public class RfbProto extends RfbConnectable {
     // Negotiate authentication scheme (TightVNC protocol extensions)
     //
 
-    synchronized void authenticateVNC(String pw) throws Exception {
+    void authenticateVNC(String pw) throws Exception {
         byte[] challenge = new byte[16];
         readFully(challenge);
 
@@ -869,7 +869,7 @@ public class RfbProto extends RfbConnectable {
         setStreams(new RawInStream(sslsock.getInputStream()), new RawOutStream(sslsock.getOutputStream()));
     }
 
-    synchronized void authenticatePlain(String user, String password) throws Exception {
+    void authenticatePlain(String user, String password) throws Exception {
         // Workaround for certain servers simply closing the connection when they detect empty username
         String username = "".equals(user) ? " " : user;
         byte[] userBytes = username.getBytes();
@@ -938,7 +938,7 @@ public class RfbProto extends RfbConnectable {
         }
     }
 
-    synchronized void prepareDH() throws Exception {
+    void prepareDH() throws Exception {
         long gen = is.readLong();
         long mod = is.readLong();
         dh_resp = is.readLong();
@@ -949,7 +949,7 @@ public class RfbProto extends RfbConnectable {
         os.write(DH.longToBytes(pub));
     }
 
-    synchronized void authenticateDH(String us, String pw) throws Exception {
+    void authenticateDH(String us, String pw) throws Exception {
         long key = dh.createEncryptionKey(dh_resp);
 
         DesCipher des = new DesCipher(DH.longToBytes(key));
@@ -1115,7 +1115,7 @@ public class RfbProto extends RfbConnectable {
         }
     }
 
-    synchronized void writeInt(int value) throws IOException {
+    void writeInt(int value) throws IOException {
         writeIntBuffer[0] = (byte) ((value >> 24) & 0xff);
         writeIntBuffer[1] = (byte) ((value >> 16) & 0xff);
         writeIntBuffer[2] = (byte) ((value >> 8) & 0xff);
@@ -1128,7 +1128,7 @@ public class RfbProto extends RfbConnectable {
     // Read the server message type
     //
 
-    public synchronized void writeClientInit() throws IOException {
+    public void writeClientInit() throws IOException {
     /*- if (viewer.options.shareDesktop) {
       os.write(1);
     } else {
@@ -1408,7 +1408,7 @@ public class RfbProto extends RfbConnectable {
     // Write a SetPixelFormat message
     //
 
-    public synchronized void writeSetPixelFormat(int bitsPerPixel, int depth, boolean bigEndian,
+    public void writeSetPixelFormat(int bitsPerPixel, int depth, boolean bigEndian,
                                                  boolean trueColour, int redMax, int greenMax, int blueMax,
                                                  int redShift, int greenShift, int blueShift, boolean fGreyScale) // sf@2005)
     {
@@ -1444,7 +1444,7 @@ public class RfbProto extends RfbConnectable {
     // blue arrays are from 0 to 65535.
     //
 
-    synchronized void writeFixColourMapEntries(int firstColour, int nColours,
+    void writeFixColourMapEntries(int firstColour, int nColours,
                                                int[] red, int[] green, int[] blue)
             throws IOException {
         byte[] b = new byte[6 + nColours * 6];
@@ -1472,7 +1472,7 @@ public class RfbProto extends RfbConnectable {
     // Write a SetEncodings message
     //
 
-    synchronized void writeSetEncodings(int[] encs, int len) throws IOException {
+    void writeSetEncodings(int[] encs, int len) throws IOException {
         byte[] b = new byte[4 + 4 * len];
 
         b[0] = (byte) SetEncodings;
@@ -1814,7 +1814,7 @@ public class RfbProto extends RfbConnectable {
             new ExtendedClipboardHandler.ClipboardEventListener() {
                 @Override
                 public void onClipboardReceived(String text) {
-                    remoteClipboardChanged(text);
+                    receiveNewRemoteClipboard(text);
                 }
 
                 @Override
@@ -1823,6 +1823,10 @@ public class RfbProto extends RfbConnectable {
                 }
             }
         );
+    }
+
+    private synchronized void receiveNewRemoteClipboard(String text) {
+        remoteClipboardChanged(text);
     }
 
     synchronized void writeOpenChat() throws Exception {
@@ -2126,7 +2130,7 @@ public class RfbProto extends RfbConnectable {
                         Log.d(TAG, "RfbProto.ServerCutText");
                         String clipboardText = readServerCutTextOrNullIfExtendedClipboard();
                         if (clipboardText != null) {
-                            remoteClipboardChanged(clipboardText);
+                            receiveNewRemoteClipboard(clipboardText);
                         }
                         break;
 
