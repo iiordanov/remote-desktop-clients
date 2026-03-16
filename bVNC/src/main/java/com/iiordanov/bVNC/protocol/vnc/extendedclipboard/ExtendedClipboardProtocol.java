@@ -22,10 +22,15 @@ package com.iiordanov.bVNC.protocol.vnc.extendedclipboard;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.tigervnc.rdr.InStream;
 import com.tigervnc.rdr.OutStream;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.zip.DataFormatException;
 
 /**
@@ -40,8 +45,15 @@ public class ExtendedClipboardProtocol implements ExtendedClipboardHandler {
     private final ClipboardDataProcessor dataProcessor;
     private final ClipboardEventListener callback;
 
-    private boolean enabled;
-    private String pendingClipboardText;
+    // Single-thread executor for writes, used to prevent lock contention with the UI thread.
+    private final ExecutorService writeExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "ExtendedClipboard-Writer");
+        t.setDaemon(true);
+        return t;
+    });
+
+    private volatile boolean enabled;
+    private volatile String pendingClipboardText;
 
     /**
      * Creates an Extended Clipboard protocol handler.
@@ -144,6 +156,20 @@ public class ExtendedClipboardProtocol implements ExtendedClipboardHandler {
         Log.d(TAG, "Extended Clipboard " + (enabled ? "enabled" : "disabled"));
     }
 
+    @Override
+    public void shutdown() {
+        writeExecutor.shutdownNow();
+        Log.d(TAG, "Extended Clipboard writer shut down");
+    }
+
+    private void submitWrite(Runnable write) {
+        try {
+            writeExecutor.execute(write);
+        } catch (RejectedExecutionException e) {
+            Log.d(TAG, "Clipboard write rejected, connection is closing");
+        }
+    }
+
     /**
      * Handles server capabilities message.
      * Responds with client capabilities and enables Extended Clipboard.
@@ -152,13 +178,22 @@ public class ExtendedClipboardProtocol implements ExtendedClipboardHandler {
         Log.d(TAG, "Server advertised Extended Clipboard capabilities: 0x" +
                 Integer.toHexString(message.flags()));
 
-        try {
-            sendCapabilities();
-            enabled = true;
-            Log.d(TAG, "Extended Clipboard capabilities negotiated successfully");
-        } catch (IOException e) {
-            callback.onClipboardError("Failed to send capabilities", e);
-        }
+        // Enable before submitting so subsequent messages on the reader thread are accepted.
+        enabled = true;
+        submitWrite(getWriteCapabilitiesRunnable());
+    }
+
+    @NonNull
+    private Runnable getWriteCapabilitiesRunnable() {
+        return () -> {
+            try {
+                messageWriter.writeCapabilitiesMessage();
+                Log.d(TAG, "Extended Clipboard capabilities negotiated successfully");
+            } catch (IOException e) {
+                enabled = false;
+                callback.onClipboardError("Failed to send capabilities", e);
+            }
+        };
     }
 
     /**
@@ -175,12 +210,18 @@ public class ExtendedClipboardProtocol implements ExtendedClipboardHandler {
 
         Log.d(TAG, "Server notified clipboard change, requesting data. " +
                 "flags=0x" + Integer.toHexString(message.flags()));
+        submitWrite(getWriteRequestRunnable());
+    }
 
-        try {
-            messageWriter.writeRequestMessage();
-        } catch (IOException e) {
-            callback.onClipboardError("Failed to send clipboard request", e);
-        }
+    @NonNull
+    private Runnable getWriteRequestRunnable() {
+        return () -> {
+            try {
+                messageWriter.writeRequestMessage();
+            } catch (IOException e) {
+                callback.onClipboardError("Failed to send clipboard request", e);
+            }
+        };
     }
 
     /**
@@ -192,21 +233,27 @@ public class ExtendedClipboardProtocol implements ExtendedClipboardHandler {
             Log.d(TAG, "Server requested clipboard, but not UTF-8 format");
             return;
         }
-
         if (pendingClipboardText == null) {
             Log.w(TAG, "Server requested clipboard, but no pending text");
             return;
         }
-
+        // Capture and clear on the main thread to avoid a race with announceClipboardChange.
+        final String text = pendingClipboardText;
+        pendingClipboardText = null;
         Log.d(TAG, "Server requested clipboard, providing data");
+        submitWrite(getWriteProvideMessageRunnable(text));
+    }
 
-        try {
-            byte[] compressedData = dataProcessor.compressClipboardText(pendingClipboardText);
-            messageWriter.writeProvideMessage(compressedData);
-            pendingClipboardText = null;
-        } catch (IOException e) {
-            callback.onClipboardError("Failed to provide clipboard data", e);
-        }
+    @NonNull
+    private Runnable getWriteProvideMessageRunnable(String text) {
+        return () -> {
+            try {
+                byte[] compressedData = dataProcessor.compressClipboardText(text);
+                messageWriter.writeProvideMessage(compressedData);
+            } catch (IOException e) {
+                callback.onClipboardError("Failed to provide clipboard data", e);
+            }
+        };
     }
 
     /**

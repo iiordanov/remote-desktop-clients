@@ -71,6 +71,12 @@ public interface ExtendedClipboardHandler {
     void setEnabled(boolean enabled);
 
     /**
+     * Shuts down this handler and releases any background resources.
+     * Must be called when the connection is closing.
+     */
+    void shutdown();
+
+    /**
      * Callback interface for clipboard events.
      */
     interface ClipboardEventListener {

@@ -413,8 +413,7 @@ public class RfbProto extends RfbConnectable {
         setStreams(new RawInStream(sock.getInputStream()), new RawOutStream(sock.getOutputStream()));
     }
 
-    public synchronized void closeSocket() {
-        inNormalProtocol = false;
+    private synchronized void closeSocket() {
         try {
             if (sock != null) {
                 sock.close();
@@ -426,19 +425,12 @@ public class RfbProto extends RfbConnectable {
         }
     }
 
-    //
-    // Perform "no authentication".
-    //
-
     public void close() {
         inNormalProtocol = false;
         maintainConnection = false;
+        shutdownClipboardHandlerAndSetNull();
         closeSocket();
     }
-
-    //
-    // Perform standard VNC Authentication.
-    //
 
     @Override
     public boolean isCertificateAccepted() {
@@ -1666,7 +1658,7 @@ public class RfbProto extends RfbConnectable {
     public void clientRedirect(int port, String host, String x509subject) {
         Log.d(TAG, "clientRedirect");
         try {
-            closeSocket();
+            close();
             this.host = host;
             this.port = port;
             initSocket();
@@ -1797,17 +1789,20 @@ public class RfbProto extends RfbConnectable {
         Log.d(TAG, "setStreams");
         is = is_;
         os = os_;
+    }
 
-        // Initialize Extended Clipboard handler
+    private void tryInitializeExtendedClipboardHandler(OutStream os_) {
         try {
             initializeExtendedClipboardHandler(os_);
         } catch (Exception e) {
             Log.e(TAG, "Failed to initialize Extended Clipboard handler", e);
-            extendedClipboardHandler = null;
+            shutdownClipboardHandlerAndSetNull();
+            throw e;
         }
     }
 
     private void initializeExtendedClipboardHandler(OutStream os_) {
+        shutdownClipboardHandlerAndSetNull();
         extendedClipboardHandler = new ExtendedClipboardProtocol(
                 os_,
                 this,
@@ -1823,6 +1818,13 @@ public class RfbProto extends RfbConnectable {
                 }
             }
         );
+    }
+
+    private void shutdownClipboardHandlerAndSetNull() {
+        if (extendedClipboardHandler != null) {
+            extendedClipboardHandler.shutdown();
+        }
+        extendedClipboardHandler = null;
     }
 
     private synchronized void receiveNewRemoteClipboard(String text) {
@@ -2023,6 +2025,7 @@ public class RfbProto extends RfbConnectable {
         int msgType = 0;
 
         try {
+            tryInitializeExtendedClipboardHandler(RfbProto.this.os);
             setEncodings();
             remoteConnection.writeFullUpdateRequest(false);
 
@@ -2154,13 +2157,13 @@ public class RfbProto extends RfbConnectable {
             String m = e.getMessage();
             Log.e(TAG, "Exception caught while processing protocol: " + m);
             e.printStackTrace();
-            closeSocket();
+            close();
             throw e;
         } finally {
             Log.v(TAG, "Closing VNC Connection");
-            closeSocket();
+            close();
         }
-        closeSocket();
+        close();
     }
 
     private synchronized void setFrameBufferSizeAndReallocateDrawable(int updateRectW, int updateRectH) {

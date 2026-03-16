@@ -84,6 +84,9 @@ public abstract class RfbConnectable implements DrawableReallocatedListener {
 
     public abstract void writeFramebufferUpdateRequest(int x, int y, int w, int h, boolean b);
 
+    /**
+     * Close the current connection through the connectable
+     */
     public abstract void close();
 
     public abstract boolean isCertificateAccepted();
