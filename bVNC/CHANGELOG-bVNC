@@ -1,4 +1,5 @@
-v6.3.0
+v6.3.1
+- Fix for potential app freezes when connecting to unreachable hosts
 - New On-screen Modifier, F-keys, Control chars, and other special chars
 - New Send Text dialog
 - Replaced Toast messages with Snackbar messages that show full text
