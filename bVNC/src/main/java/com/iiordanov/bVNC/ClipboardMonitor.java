@@ -19,8 +19,9 @@
 
 package com.iiordanov.bVNC;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
-import android.text.ClipboardManager;
 import android.util.Log;
 
 import com.undatech.opaque.RfbConnectable;
@@ -55,10 +56,15 @@ public class ClipboardMonitor extends TimerTask {
      */
     private String getClipboardContents() {
         try {
-            return clipboard.getText().toString();
-        } catch (NullPointerException e) {
-            Log.e(TAG, "NullPointerException obtaining clipboard string");
-            return null;
+            if (!clipboard.hasPrimaryClip()) {
+                return null;
+            }
+            ClipData clip = clipboard.getPrimaryClip();
+            if (clip == null || clip.getItemCount() == 0) {
+                return null;
+            }
+            CharSequence text = clip.getItemAt(0).coerceToText(context);
+            return text != null ? text.toString() : null;
         } catch (RuntimeException e) {
             Log.e(TAG, "RuntimeException obtaining clipboard string");
             return null;
