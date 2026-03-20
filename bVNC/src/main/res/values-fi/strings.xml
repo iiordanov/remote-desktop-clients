@@ -912,6 +912,15 @@ Sovellus on jo vapautettu akun optimoinnista.</string>
     <string name="no_connections_title">Ei yhteyksiä vielä</string>
     <string name="no_connections_hint">Lisää ensimmäinen etäyhteys napauttamalla +-painiketta</string>
     <string name="no_connections_hint_tv">Lisää ensimmäinen etäyhteys painamalla yllä olevaa +-painiketta</string>
+    <string name="discovery_title">Lisää yhteys</string>
+    <string name="discovery_scanning">Etsitään palvelimia paikallisverkosta…</string>
+    <string name="discovery_scan_network">Skannaa verkko</string>
+    <string name="discovery_item_address">%1$s · portti %2$d</string>
+    <string name="discovery_none_found">Palvelimia ei löydetty vielä</string>
+    <string name="discovery_enter_manually">Syötä manuaalisesti</string>
+    <string name="discovery_scanning_progress">Skannataan verkkoa… (%1$d/%2$d isäntää)</string>
+    <string name="discovery_scan_complete">Skannaus valmis</string>
+    <string name="connection_type_prompt_title">Valitse palvelintyyppi</string>
     <string name="keyboard_layout_map">Näppäimistöasettelu</string>
     <string name="accessibility_service_menu_item">⌨  Pikanäppäinten sieppaus</string>
     <string name="accessibility_service_already_enabled">Pikanäppäinten sieppaus on jo käytössä.</string>

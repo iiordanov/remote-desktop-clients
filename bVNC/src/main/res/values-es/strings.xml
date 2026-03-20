@@ -896,6 +896,15 @@ La aplicación ya está exenta de optimizaciones de batería.</string>
     <string name="no_connections_title">Aún no hay conexiones</string>
     <string name="no_connections_hint">Toca el botón + para agregar tu primera conexión remota</string>
     <string name="no_connections_hint_tv">Pulsa el botón + de arriba para agregar tu primera conexión remota</string>
+    <string name="discovery_title">Agregar conexión</string>
+    <string name="discovery_scanning">Buscando servidores en la red local…</string>
+    <string name="discovery_scan_network">Escanear red</string>
+    <string name="discovery_item_address">%1$s · puerto %2$d</string>
+    <string name="discovery_none_found">Aún no se han encontrado servidores</string>
+    <string name="discovery_enter_manually">Ingresar manualmente</string>
+    <string name="discovery_scanning_progress">Escaneando la red… (%1$d/%2$d hosts)</string>
+    <string name="discovery_scan_complete">Escaneo completo</string>
+    <string name="connection_type_prompt_title">Seleccionar tipo de servidor</string>
     <string name="keyboard_layout_map">Disposición del teclado</string>
     <string name="accessibility_service_menu_item">⌨  Captura de atajos de teclado</string>
     <string name="accessibility_service_already_enabled">La captura de atajos de teclado ya está habilitada.</string>

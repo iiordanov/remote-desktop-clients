@@ -912,6 +912,15 @@ App já está isento de otimizações de bateria.</string>
     <string name="no_connections_title">Ainda não há ligações</string>
     <string name="no_connections_hint">Toque no botão + para adicionar a sua primeira ligação remota</string>
     <string name="no_connections_hint_tv">Prima o botão + acima para adicionar a sua primeira ligação remota</string>
+    <string name="discovery_title">Adicionar Ligação</string>
+    <string name="discovery_scanning">A procurar servidores na rede local…</string>
+    <string name="discovery_scan_network">Procurar na rede</string>
+    <string name="discovery_item_address">%1$s · porta %2$d</string>
+    <string name="discovery_none_found">Nenhum servidor encontrado ainda</string>
+    <string name="discovery_enter_manually">Introduzir manualmente</string>
+    <string name="discovery_scanning_progress">A analisar a rede… (%1$d/%2$d anfitriões)</string>
+    <string name="discovery_scan_complete">Análise concluída</string>
+    <string name="connection_type_prompt_title">Selecionar tipo de servidor</string>
     <string name="keyboard_layout_map">Disposição do teclado</string>
     <string name="accessibility_service_menu_item">⌨  Captura de atalhos de teclado</string>
     <string name="accessibility_service_already_enabled">A captura de atalhos de teclado já está ativada.</string>

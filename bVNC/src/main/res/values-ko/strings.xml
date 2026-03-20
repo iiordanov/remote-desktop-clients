@@ -833,6 +833,15 @@ aSPICEで의 대응 기능는 이하와 같다 :
     <string name="no_connections_title">아직 연결이 없습니다</string>
     <string name="no_connections_hint">+ 버튼을 탭하여 첫 번째 원격 연결을 추가하세요</string>
     <string name="no_connections_hint_tv">위의 + 버튼을 눌러 첫 번째 원격 연결을 추가하세요</string>
+    <string name="discovery_title">연결 추가</string>
+    <string name="discovery_scanning">로컬 네트워크에서 서버 검색 중…</string>
+    <string name="discovery_scan_network">네트워크 검색</string>
+    <string name="discovery_item_address">%1$s · 포트 %2$d</string>
+    <string name="discovery_none_found">아직 서버를 찾을 수 없습니다</string>
+    <string name="discovery_enter_manually">수동으로 입력</string>
+    <string name="discovery_scanning_progress">네트워크 검색 중… (%1$d/%2$d 호스트)</string>
+    <string name="discovery_scan_complete">검색 완료</string>
+    <string name="connection_type_prompt_title">서버 유형 선택</string>
     <string name="keyboard_layout_map">키보드 레이아웃</string>
     <string name="accessibility_service_menu_item">⌨  키보드 단축키 캡처</string>
     <string name="accessibility_service_already_enabled">키보드 단축키 캡처가 이미 활성화되어 있습니다.</string>

@@ -740,6 +740,15 @@
     <string name="no_connections_title">هنوز اتصالی وجود ندارد</string>
     <string name="no_connections_hint">برای افزودن اولین اتصال از راه دور، دکمه + را لمس کنید</string>
     <string name="no_connections_hint_tv">برای افزودن اولین اتصال از راه دور، دکمه + بالا را فشار دهید</string>
+    <string name="discovery_title">افزودن اتصال</string>
+    <string name="discovery_scanning">جستجو برای سرورها در شبکه محلی…</string>
+    <string name="discovery_scan_network">اسکن شبکه</string>
+    <string name="discovery_item_address">%1$s · درگاه %2$d</string>
+    <string name="discovery_none_found">هنوز سروری پیدا نشده است</string>
+    <string name="discovery_enter_manually">وارد کردن دستی</string>
+    <string name="discovery_scanning_progress">در حال اسکن شبکه… (%1$d/%2$d میزبان)</string>
+    <string name="discovery_scan_complete">اسکن کامل شد</string>
+    <string name="connection_type_prompt_title">نوع سرور را انتخاب کنید</string>
     <string name="keyboard_layout_map">چیدمان صفحه‌کلید</string>
     <string name="accessibility_service_menu_item">⌨  ضبط میانبرهای صفحه‌کلید</string>
     <string name="accessibility_service_already_enabled">ضبط میانبرهای صفحه‌کلید از قبل فعال است.</string>

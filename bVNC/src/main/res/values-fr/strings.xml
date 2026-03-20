@@ -911,6 +911,15 @@ L\'application est déjà exemptée des optimisations de la batterie.</string>
     <string name="no_connections_title">Aucune connexion pour l\'instant</string>
     <string name="no_connections_hint">Appuyez sur le bouton + pour ajouter votre première connexion distante</string>
     <string name="no_connections_hint_tv">Appuyez sur le bouton + ci-dessus pour ajouter votre première connexion distante</string>
+    <string name="discovery_title">Ajouter une connexion</string>
+    <string name="discovery_scanning">Recherche de serveurs sur le réseau local…</string>
+    <string name="discovery_scan_network">Scanner le réseau</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Aucun serveur trouvé pour l\'instant</string>
+    <string name="discovery_enter_manually">Saisir manuellement</string>
+    <string name="discovery_scanning_progress">Analyse du réseau… (%1$d/%2$d hôtes)</string>
+    <string name="discovery_scan_complete">Analyse terminée</string>
+    <string name="connection_type_prompt_title">Sélectionner le type de serveur</string>
     <string name="keyboard_layout_map">Disposition du clavier</string>
     <string name="accessibility_service_menu_item">⌨  Capture des raccourcis clavier</string>
     <string name="accessibility_service_already_enabled">La capture des raccourcis clavier est déjà activée.</string>

@@ -65,9 +65,11 @@ import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.Utils;
+import com.iiordanov.bVNC.dialogs.DiscoveryBottomSheet;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
+import com.iiordanov.bVNC.dialogs.NetworkDiscovery;
 import com.iiordanov.bVNC.dialogs.RateOrShareFragment;
 import com.iiordanov.permissions.BatteryOptimizationDisabler;
 import com.iiordanov.util.MasterPasswordDelegate;
@@ -287,7 +289,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         if (Utils.isOpaque(this)) {
             ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
             if (cs != null) {
-                intent.putExtra("com.undatech.opaque.connectionToEdit", cs.getFilename());
+                intent.putExtra(Constants.CONNECTION_TO_EDIT, cs.getFilename());
             }
 
         } else {
@@ -385,12 +387,31 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     }
 
     /**
-     * Starts a new connection.
+     * Starts a new connection, showing local network discovery first.
      */
     public void addNewConnection() {
+        DiscoveryBottomSheet sheet = new DiscoveryBottomSheet(
+                NetworkDiscovery.serviceTypeForApp(this),
+                new DiscoveryBottomSheet.Callback() {
+                    @Override
+                    public void onServerSelected(NetworkDiscovery.DiscoveredServer server) {
+                        launchConnectionSetup(server.host(), server.port());
+                    }
+
+                    @Override
+                    public void onEnterManually() {
+                        launchConnectionSetup(null, -1);
+                    }
+                });
+        sheet.show(getSupportFragmentManager(), "discovery");
+    }
+
+    private void launchConnectionSetup(String address, int port) {
         Intent intent = new Intent(ConnectionGridActivity.this,
                 Utils.getConnectionSetupClass(this));
         intent.putExtra("isNewConnection", true);
+        if (address != null) intent.putExtra(Constants.PREFILL_ADDRESS, address);
+        if (port >= 0)       intent.putExtra(Constants.PREFILL_PORT, port);
         startActivity(intent);
     }
 

@@ -837,6 +837,15 @@ Appen är redan undantagen från batterioptimering.</string>
     <string name="no_connections_title">Inga anslutningar ännu</string>
     <string name="no_connections_hint">Tryck på +-knappen för att lägga till din första fjärranslutning</string>
     <string name="no_connections_hint_tv">Tryck på +-knappen ovan för att lägga till din första fjärranslutning</string>
+    <string name="discovery_title">Lägg till anslutning</string>
+    <string name="discovery_scanning">Söker efter servrar på det lokala nätverket…</string>
+    <string name="discovery_scan_network">Skanna nätverk</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Inga servrar hittades ännu</string>
+    <string name="discovery_enter_manually">Ange manuellt</string>
+    <string name="discovery_scanning_progress">Söker igenom nätverket… (%1$d/%2$d värdar)</string>
+    <string name="discovery_scan_complete">Sökning slutförd</string>
+    <string name="connection_type_prompt_title">Välj servertyp</string>
     <string name="keyboard_layout_map">Tangentbordslayout</string>
     <string name="accessibility_service_menu_item">⌨  Tangentbordsgenvägsregistrering</string>
     <string name="accessibility_service_already_enabled">Tangentbordsgenvägsregistrering är redan aktiverad.</string>

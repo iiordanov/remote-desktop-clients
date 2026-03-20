@@ -740,6 +740,15 @@ Apl sudah pun dikecualikan daripada pengoptimuman bateri.</string>
     <string name="no_connections_title">Tiada sambungan lagi</string>
     <string name="no_connections_hint">Ketik butang + untuk menambah sambungan jauh pertama anda</string>
     <string name="no_connections_hint_tv">Tekan butang + di atas untuk menambah sambungan jauh pertama anda</string>
+    <string name="discovery_title">Tambah Sambungan</string>
+    <string name="discovery_scanning">Mencari pelayan di rangkaian tempatan…</string>
+    <string name="discovery_scan_network">Imbas rangkaian</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Tiada pelayan dijumpai lagi</string>
+    <string name="discovery_enter_manually">Masukkan secara manual</string>
+    <string name="discovery_scanning_progress">Mengimbas rangkaian… (%1$d/%2$d hos)</string>
+    <string name="discovery_scan_complete">Imbasan selesai</string>
+    <string name="connection_type_prompt_title">Pilih jenis pelayan</string>
     <string name="keyboard_layout_map">Susun Atur Papan Kekunci</string>
     <string name="accessibility_service_menu_item">⌨  Tangkap Pintasan Papan Kekunci</string>
     <string name="accessibility_service_already_enabled">Tangkap Pintasan Papan Kekunci sudah diaktifkan.</string>

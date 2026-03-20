@@ -740,6 +740,15 @@ Programu tayari imeondolewa kwenye uboreshaji wa betri.</string>
     <string name="no_connections_title">Hakuna miunganiko bado</string>
     <string name="no_connections_hint">Gonga kitufe cha + kuongeza muunganiko wako wa kwanza wa mbali</string>
     <string name="no_connections_hint_tv">Bonyeza kitufe cha + hapo juu kuongeza muunganiko wako wa kwanza wa mbali</string>
+    <string name="discovery_title">Ongeza Muunganiko</string>
+    <string name="discovery_scanning">Kutafuta seva kwenye mtandao wa ndani…</string>
+    <string name="discovery_scan_network">Chunguza mtandao</string>
+    <string name="discovery_item_address">%1$s · bandari %2$d</string>
+    <string name="discovery_none_found">Hakuna seva zilizopatikana bado</string>
+    <string name="discovery_enter_manually">Ingiza kwa mkono</string>
+    <string name="discovery_scanning_progress">Inachunguza mtandao… (%1$d/%2$d seva)</string>
+    <string name="discovery_scan_complete">Uchunguzi umekamilika</string>
+    <string name="connection_type_prompt_title">Chagua aina ya seva</string>
     <string name="keyboard_layout_map">Mpangilio wa Kibodi</string>
     <string name="accessibility_service_menu_item">⌨  Kunasa Mkato wa Kibodi</string>
     <string name="accessibility_service_already_enabled">Kunasa Mkato wa Kibodi tayari kumewashwa.</string>

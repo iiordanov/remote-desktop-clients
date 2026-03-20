@@ -912,6 +912,15 @@ Rakendus on aku optimeerimisest juba vabastatud.</string>
     <string name="no_connections_title">Ühendusi pole veel</string>
     <string name="no_connections_hint">Puudutage nuppu +, et lisada oma esimene kaugühendus</string>
     <string name="no_connections_hint_tv">Vajutage ülaloleval nupul +, et lisada oma esimene kaugühendus</string>
+    <string name="discovery_title">Lisa ühendus</string>
+    <string name="discovery_scanning">Otsin servereid kohalikus võrgus…</string>
+    <string name="discovery_scan_network">Skanni võrku</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Ühtegi serverit pole veel leitud</string>
+    <string name="discovery_enter_manually">Sisesta käsitsi</string>
+    <string name="discovery_scanning_progress">Skannin võrku… (%1$d/%2$d hosti)</string>
+    <string name="discovery_scan_complete">Skannimine lõpetatud</string>
+    <string name="connection_type_prompt_title">Vali serveri tüüp</string>
     <string name="keyboard_layout_map">Klaviatuuri paigutus</string>
     <string name="accessibility_service_menu_item">⌨  Klaviatuuri otsetee jäädvustamine</string>
     <string name="accessibility_service_already_enabled">Klaviatuuri otsetee jäädvustamine on juba lubatud.</string>

@@ -5,6 +5,14 @@
     <string name="action_import_settings">Import Settings</string>
     <string name="action_new_connection">✚ New Connection</string>
     <string name="sort_connections">Sort connections</string>
+    <string name="discovery_title">Add Connection</string>
+    <string name="discovery_scanning">Searching for servers on local network…</string>
+    <string name="discovery_scan_network">Scan network</string>
+    <string name="discovery_scanning_progress">Scanning network… (%1$d/%2$d hosts)</string>
+    <string name="discovery_scan_complete">Scan complete</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">No servers found yet</string>
+    <string name="discovery_enter_manually">Enter manually</string>
     <string name="no_connections_title">No connections yet</string>
     <string name="no_connections_hint">Tap the + button to add your first remote connection</string>
     <string name="no_connections_hint_tv">Press the + button above to add your first remote connection</string>
@@ -32,6 +40,7 @@
     <string name="connection_type_text">Virtualization Environment (RHEV/oVirt or Proxmox)</string>
     <string name="connection_type_ovirt" translatable="false">oVirt/RHEV</string>
     <string name="connection_type_pve" translatable="false">Proxmox VE</string>
+    <string name="connection_type_prompt_title">Select server type</string>
     <string-array name="connection_types" translatable="false">
         <item>@string/connection_type_ovirt</item>
         <item>@string/connection_type_pve</item>

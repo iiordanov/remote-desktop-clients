@@ -912,6 +912,15 @@ Appen er allerede fritaget for batterioptimering.</string>
     <string name="no_connections_title">Ingen forbindelser endnu</string>
     <string name="no_connections_hint">Tryk på +-knappen for at tilføje din første fjernforbindelse</string>
     <string name="no_connections_hint_tv">Tryk på +-knappen ovenfor for at tilføje din første fjernforbindelse</string>
+    <string name="discovery_title">Tilføj forbindelse</string>
+    <string name="discovery_scanning">Søger efter servere på det lokale netværk…</string>
+    <string name="discovery_scan_network">Scan netværk</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Ingen servere fundet endnu</string>
+    <string name="discovery_enter_manually">Indtast manuelt</string>
+    <string name="discovery_scanning_progress">Scanner netværket… (%1$d/%2$d værter)</string>
+    <string name="discovery_scan_complete">Scanning fuldført</string>
+    <string name="connection_type_prompt_title">Vælg servertype</string>
     <string name="keyboard_layout_map">Tastaturlayout</string>
     <string name="accessibility_service_menu_item">⌨  Opfangning af tastaturgenveje</string>
     <string name="accessibility_service_already_enabled">Opfangning af tastaturgenveje er allerede aktiveret.</string>

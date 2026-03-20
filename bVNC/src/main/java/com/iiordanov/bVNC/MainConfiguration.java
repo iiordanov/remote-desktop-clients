@@ -45,6 +45,7 @@ import java.util.Locale;
 public abstract class MainConfiguration extends AppCompatActivity {
     private final static String TAG = "MainConfiguration";
     protected ConnectionBean selected;
+    private boolean prefillApplied = false;
     protected Database database;
     protected EditText textNickname;
     protected int layoutID;
@@ -401,7 +402,19 @@ public abstract class MainConfiguration extends AppCompatActivity {
         if (selected == null) {
             selected = new ConnectionBean(this);
         }
+        if (isNewConnection && !prefillApplied) {
+            applyPrefillToSelected();
+            prefillApplied = true;
+        }
         updateViewFromSelected();
+    }
+
+    private void applyPrefillToSelected() {
+        Intent intent = getIntent();
+        String address = intent.getStringExtra(Constants.PREFILL_ADDRESS);
+        int port = intent.getIntExtra(Constants.PREFILL_PORT, -1);
+        if (address != null) selected.setAddress(address);
+        if (port >= 0) selected.setPort(port);
     }
 
     /**

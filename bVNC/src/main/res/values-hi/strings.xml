@@ -740,6 +740,15 @@
     <string name="no_connections_title">अभी तक कोई कनेक्शन नहीं</string>
     <string name="no_connections_hint">अपना पहला रिमोट कनेक्शन जोड़ने के लिए + बटन टैप करें</string>
     <string name="no_connections_hint_tv">अपना पहला रिमोट कनेक्शन जोड़ने के लिए ऊपर + बटन दबाएं</string>
+    <string name="discovery_title">कनेक्शन जोड़ें</string>
+    <string name="discovery_scanning">स्थानीय नेटवर्क पर सर्वर खोजे जा रहे हैं…</string>
+    <string name="discovery_scan_network">नेटवर्क स्कैन करें</string>
+    <string name="discovery_item_address">%1$s · पोर्ट %2$d</string>
+    <string name="discovery_none_found">अभी तक कोई सर्वर नहीं मिला</string>
+    <string name="discovery_enter_manually">मैन्युअल रूप से दर्ज करें</string>
+    <string name="discovery_scanning_progress">नेटवर्क स्कैन हो रहा है… (%1$d/%2$d होस्ट)</string>
+    <string name="discovery_scan_complete">स्कैन पूर्ण</string>
+    <string name="connection_type_prompt_title">सर्वर प्रकार चुनें</string>
     <string name="keyboard_layout_map">कीबोर्ड लेआउट</string>
     <string name="accessibility_service_menu_item">⌨  कीबोर्ड शॉर्टकट कैप्चर</string>
     <string name="accessibility_service_already_enabled">कीबोर्ड शॉर्टकट कैप्चर पहले से सक्षम है।</string>

@@ -276,4 +276,23 @@ public class Constants {
     public static final String PREF_SORT_ORDER = "sortOrder";
     public static final String PREF_ACCESSIBILITY_SERVICE_PROMPT_SHOWN = "accessibilityServicePromptShown";
 
+    public static final String PREFILL_ADDRESS   = "prefillAddress";
+    public static final String PREFILL_PORT      = "prefillPort";
+    public static final String CONNECTION_TO_EDIT = "com.undatech.opaque.connectionToEdit";
+
+    // Port ranges scanned during local network discovery. Edit these to add or remove ports.
+    public static final int[] PORT_SCAN_VNC;
+    public static int NUM_VNC_PORTS = 10;
+    public static final int[] PORT_SCAN_RDP   = {3389, 3390, 3391};
+    public static final int[] PORT_SCAN_SPICE;
+    public static int NUM_SPICE_PORTS = 10;
+    public static final int[] PORT_SCAN_OPAQUE = {443, 8006};
+
+    static {
+        PORT_SCAN_VNC = new int[NUM_VNC_PORTS+1];
+        for (int i = 0; i <= NUM_VNC_PORTS; i++) PORT_SCAN_VNC[i] = 5900 + i;
+        PORT_SCAN_SPICE = new int[NUM_SPICE_PORTS+1];
+        for (int i = 0; i <= NUM_SPICE_PORTS; i++) PORT_SCAN_SPICE[i] = 5900 + i;
+    }
+
 }

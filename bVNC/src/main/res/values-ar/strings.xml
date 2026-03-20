@@ -911,6 +911,15 @@ Could not open battery optimization settings.قم بتعطيل تحسين الب
     <string name="no_connections_title">لا توجد اتصالات بعد</string>
     <string name="no_connections_hint">اضغط على زر + لإضافة أول اتصال عن بُعد</string>
     <string name="no_connections_hint_tv">اضغط على زر + أعلاه لإضافة أول اتصال عن بُعد</string>
+    <string name="discovery_title">إضافة اتصال</string>
+    <string name="discovery_scanning">جارٍ البحث عن الخوادم على الشبكة المحلية…</string>
+    <string name="discovery_scan_network">فحص الشبكة</string>
+    <string name="discovery_item_address">%1$s · المنفذ %2$d</string>
+    <string name="discovery_none_found">لم يُعثر على خوادم بعد</string>
+    <string name="discovery_enter_manually">إدخال يدوياً</string>
+    <string name="discovery_scanning_progress">جارٍ فحص الشبكة… (%1$d/%2$d مضيفاً)</string>
+    <string name="discovery_scan_complete">اكتمل الفحص</string>
+    <string name="connection_type_prompt_title">اختر نوع الخادم</string>
     <string name="keyboard_layout_map">تخطيط لوحة المفاتيح</string>
     <string name="accessibility_service_menu_item">⌨  التقاط اختصارات لوحة المفاتيح</string>
     <string name="accessibility_service_already_enabled">التقاط اختصارات لوحة المفاتيح ممكّن بالفعل.</string>

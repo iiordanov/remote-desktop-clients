@@ -838,6 +838,15 @@ App is al vrijgesteld van batterij-optimalisaties.</string>
     <string name="no_connections_title">Nog geen verbindingen</string>
     <string name="no_connections_hint">Tik op de +-knop om uw eerste externe verbinding toe te voegen</string>
     <string name="no_connections_hint_tv">Druk op de +-knop hierboven om uw eerste externe verbinding toe te voegen</string>
+    <string name="discovery_title">Verbinding toevoegen</string>
+    <string name="discovery_scanning">Zoeken naar servers op het lokale netwerk…</string>
+    <string name="discovery_scan_network">Netwerk scannen</string>
+    <string name="discovery_item_address">%1$s · poort %2$d</string>
+    <string name="discovery_none_found">Nog geen servers gevonden</string>
+    <string name="discovery_enter_manually">Handmatig invoeren</string>
+    <string name="discovery_scanning_progress">Netwerk scannen… (%1$d/%2$d hosts)</string>
+    <string name="discovery_scan_complete">Scan voltooid</string>
+    <string name="connection_type_prompt_title">Selecteer servertype</string>
     <string name="keyboard_layout_map">Toetsenbordindeling</string>
     <string name="accessibility_service_menu_item">⌨  Sneltoetsopname</string>
     <string name="accessibility_service_already_enabled">Sneltoetsopname is al ingeschakeld.</string>

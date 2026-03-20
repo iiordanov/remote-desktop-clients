@@ -835,6 +835,15 @@ Uhlelo lokusebenza seluvele lukhululiwe ekulungiselelweni kwebhethri.</string>
     <string name="no_connections_title">Ayikho imiqhagamshelwano okwamanje</string>
     <string name="no_connections_hint">Thinta inkinobho + ukwengeza ukuxhumana kwakho kokuqala okulawulwa ngekude</string>
     <string name="no_connections_hint_tv">Cindezela inkinobho + engenhla ukwengeza ukuxhumana kwakho kokuqala okulawulwa ngekude</string>
+    <string name="discovery_title">Engeza Uxhumano</string>
+    <string name="discovery_scanning">Kusesha amaseva enethiwekhi yendawo…</string>
+    <string name="discovery_scan_network">Skena inethiwekhi</string>
+    <string name="discovery_item_address">%1$s · ichweba %2$d</string>
+    <string name="discovery_none_found">Awekho amaseva atholakele okwamanje</string>
+    <string name="discovery_enter_manually">Faka ngesandla</string>
+    <string name="discovery_scanning_progress">Iyahlola inethiwekhi… (%1$d/%2$d abasingathi)</string>
+    <string name="discovery_scan_complete">Ukuhlolwa kuphelile</string>
+    <string name="connection_type_prompt_title">Khetha uhlobo lweseva</string>
     <string name="keyboard_layout_map">Ukuhlela Ikhibhodi</string>
     <string name="accessibility_service_menu_item">⌨  Ukubamba Izinqamuleli Zekhodi Yemfingqo</string>
     <string name="accessibility_service_already_enabled">Ukubamba Izinqamuleli Zekhodi Yemfingqo sekuletshwe.</string>

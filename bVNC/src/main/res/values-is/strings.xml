@@ -705,6 +705,15 @@ Forritið er nú þegar undanþegið hagræðingu rafhlöðunnar.</string>
     <string name="no_connections_title">Engar tengingar enn</string>
     <string name="no_connections_hint">Ýttu á + hnappinn til að bæta við fyrstu fjartengingu þinni</string>
     <string name="no_connections_hint_tv">Ýttu á + hnappinn hér að ofan til að bæta við fyrstu fjartengingu þinni</string>
+    <string name="discovery_title">Bæta við tengingu</string>
+    <string name="discovery_scanning">Leitar að þjónum á staðarnetinu…</string>
+    <string name="discovery_scan_network">Skanna net</string>
+    <string name="discovery_item_address">%1$s · gátt %2$d</string>
+    <string name="discovery_none_found">Engir þjónar fundust enn</string>
+    <string name="discovery_enter_manually">Slá inn handvirkt</string>
+    <string name="discovery_scanning_progress">Skannar net… (%1$d/%2$d hýslar)</string>
+    <string name="discovery_scan_complete">Skönnun lokið</string>
+    <string name="connection_type_prompt_title">Veldu þjónsgerð</string>
     <string name="keyboard_layout_map">Lyklaborðsskipulag</string>
     <string name="accessibility_service_menu_item">⌨  Hlera lyklaborðsflýtileiðir</string>
     <string name="accessibility_service_already_enabled">Hlera lyklaborðsflýtileiðir er þegar virkt.</string>

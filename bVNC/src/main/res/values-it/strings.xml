@@ -909,6 +909,15 @@ L\'app è già esente dalle ottimizzazioni della batteria.</string>
     <string name="no_connections_title">Nessuna connessione ancora</string>
     <string name="no_connections_hint">Tocca il pulsante + per aggiungere la tua prima connessione remota</string>
     <string name="no_connections_hint_tv">Premi il pulsante + in alto per aggiungere la tua prima connessione remota</string>
+    <string name="discovery_title">Aggiungi connessione</string>
+    <string name="discovery_scanning">Ricerca server nella rete locale…</string>
+    <string name="discovery_scan_network">Scansiona rete</string>
+    <string name="discovery_item_address">%1$s · porta %2$d</string>
+    <string name="discovery_none_found">Nessun server trovato ancora</string>
+    <string name="discovery_enter_manually">Inserisci manualmente</string>
+    <string name="discovery_scanning_progress">Scansione rete… (%1$d/%2$d host)</string>
+    <string name="discovery_scan_complete">Scansione completata</string>
+    <string name="connection_type_prompt_title">Seleziona il tipo di server</string>
     <string name="keyboard_layout_map">Layout della tastiera</string>
     <string name="accessibility_service_menu_item">⌨  Acquisizione delle scorciatoie da tastiera</string>
     <string name="accessibility_service_already_enabled">L\'acquisizione delle scorciatoie da tastiera è già abilitata.</string>

@@ -912,6 +912,15 @@ Mae ap eisoes wedi\'i eithrio rhag optimeiddio batri.</string>
     <string name="no_connections_title">Dim cysylltiadau eto</string>
     <string name="no_connections_hint">Tapiwch y botwm + i ychwanegu eich cysylltiad pell cyntaf</string>
     <string name="no_connections_hint_tv">Pwyswch y botwm + uchod i ychwanegu eich cysylltiad pell cyntaf</string>
+    <string name="discovery_title">Ychwanegu Cysylltiad</string>
+    <string name="discovery_scanning">Chwilio am weinyddion ar y rhwydwaith lleol…</string>
+    <string name="discovery_scan_network">Sganio rhwydwaith</string>
+    <string name="discovery_item_address">%1$s · porth %2$d</string>
+    <string name="discovery_none_found">Dim gweinyddion wedi\'u darganfod eto</string>
+    <string name="discovery_enter_manually">Rhowch â llaw</string>
+    <string name="discovery_scanning_progress">Sganio\'r rhwydwaith… (%1$d/%2$d o westeiwr)</string>
+    <string name="discovery_scan_complete">Sganio wedi\'i gwblhau</string>
+    <string name="connection_type_prompt_title">Dewiswch fath y gweinydd</string>
     <string name="keyboard_layout_map">Cynllun Bysellfwrdd</string>
     <string name="accessibility_service_menu_item">⌨  Dal Llwybr Byr Bysellfwrdd</string>
     <string name="accessibility_service_already_enabled">Mae Dal Llwybr Byr Bysellfwrdd eisoes wedi\'i alluogi.</string>

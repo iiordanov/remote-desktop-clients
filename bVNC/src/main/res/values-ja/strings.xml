@@ -852,6 +852,15 @@ aSPICEで対応済み機能は以下の通り：
     <string name="no_connections_title">接続がまだありません</string>
     <string name="no_connections_hint">+ボタンをタップして最初のリモート接続を追加してください</string>
     <string name="no_connections_hint_tv">上の+ボタンを押して最初のリモート接続を追加してください</string>
+    <string name="discovery_title">接続を追加</string>
+    <string name="discovery_scanning">ローカルネットワーク上のサーバーを検索中…</string>
+    <string name="discovery_scan_network">ネットワークをスキャン</string>
+    <string name="discovery_item_address">%1$s · ポート %2$d</string>
+    <string name="discovery_none_found">サーバーがまだ見つかりません</string>
+    <string name="discovery_enter_manually">手動で入力</string>
+    <string name="discovery_scanning_progress">ネットワークをスキャン中… (%1$d/%2$d ホスト)</string>
+    <string name="discovery_scan_complete">スキャン完了</string>
+    <string name="connection_type_prompt_title">サーバーの種類を選択</string>
     <string name="keyboard_layout_map">キーボードレイアウト</string>
     <string name="accessibility_service_menu_item">⌨  キーボードショートカットのキャプチャ</string>
     <string name="accessibility_service_already_enabled">キーボードショートカットのキャプチャはすでに有効です。</string>

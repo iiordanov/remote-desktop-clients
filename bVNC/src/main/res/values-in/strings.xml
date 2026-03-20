@@ -912,6 +912,15 @@ Aplikasi sudah dikecualikan dari pengoptimalan baterai.</string>
     <string name="no_connections_title">Belum ada koneksi</string>
     <string name="no_connections_hint">Ketuk tombol + untuk menambahkan koneksi jarak jauh pertama Anda</string>
     <string name="no_connections_hint_tv">Tekan tombol + di atas untuk menambahkan koneksi jarak jauh pertama Anda</string>
+    <string name="discovery_title">Tambah Koneksi</string>
+    <string name="discovery_scanning">Mencari server di jaringan lokal…</string>
+    <string name="discovery_scan_network">Pindai jaringan</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Belum ada server yang ditemukan</string>
+    <string name="discovery_enter_manually">Masukkan secara manual</string>
+    <string name="discovery_scanning_progress">Memindai jaringan… (%1$d/%2$d host)</string>
+    <string name="discovery_scan_complete">Pemindaian selesai</string>
+    <string name="connection_type_prompt_title">Pilih jenis server</string>
     <string name="keyboard_layout_map">Tata Letak Keyboard</string>
     <string name="accessibility_service_menu_item">⌨  Tangkap Pintasan Keyboard</string>
     <string name="accessibility_service_already_enabled">Tangkap Pintasan Keyboard sudah diaktifkan.</string>
