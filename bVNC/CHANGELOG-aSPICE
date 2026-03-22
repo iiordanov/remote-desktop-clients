@@ -1,3 +1,6 @@
+v6.3.2
+- Faster detection of IPV6 addresses vs IPV4 addresses with host:port format
+- Improved clipboard handling
 v6.3.0
 - New On-screen Modifier, F-keys, Control chars, and other special chars
 - New Send Text dialog
