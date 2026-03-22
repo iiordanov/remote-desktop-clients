@@ -25,6 +25,14 @@
                 android:padding="10dp"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/sortButton"
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
+                android:background="?android:selectableItemBackground"
+                android:contentDescription="@string/sort_connections"
+                app:srcCompat="@drawable/ic_sort_24" />
+
         </LinearLayout>
 
         <GridView

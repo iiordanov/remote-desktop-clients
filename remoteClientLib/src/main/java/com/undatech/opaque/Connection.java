@@ -22,7 +22,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.widget.ImageView.ScaleType;
 
+import androidx.annotation.NonNull;
+
 public interface Connection {
+    @NonNull
     String getLabel();
 
     String getId();

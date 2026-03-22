@@ -34,15 +34,11 @@ import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
-import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -50,9 +46,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.PopupMenu;
@@ -74,7 +67,6 @@ import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.dialogs.RateOrShareFragment;
-import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
 import com.iiordanov.permissions.BatteryOptimizationDisabler;
 import com.iiordanov.util.MasterPasswordDelegate;
 import com.undatech.opaque.util.ConnectionLoader;
@@ -86,9 +78,15 @@ import com.undatech.remoteClientUi.R;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class ConnectionGridActivity extends AppCompatActivity implements GetTextFragment.OnFragmentDismissedListener {
-    private static String TAG = "ConnectionGridActivity";
+    private static final String TAG = "ConnectionGridActivity";
     protected Database database;
     protected boolean isStarting = true;
     FragmentManager fragmentManager = getSupportFragmentManager();
@@ -100,8 +98,28 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     private boolean togglingMasterPassword = false;
     private View addNewConnection = null;
     private AppCompatImageButton popUpMenuButton = null;
+    private AppCompatImageButton sortButton = null;
 
-    private RateOrShareFragment rateOrShareFragment = new RateOrShareFragment();
+    private enum SortOrder {
+        NONE, ASC, DESC;
+
+        SortOrder next() {
+            SortOrder[] v = values();
+            return v[(ordinal() + 1) % v.length];
+        }
+
+        static SortOrder fromString(String s) {
+            try {
+                return valueOf(s);
+            } catch (IllegalArgumentException e) {
+                return NONE;
+            }
+        }
+    }
+
+    private SortOrder sortOrder = SortOrder.NONE;
+
+    private final RateOrShareFragment rateOrShareFragment = new RateOrShareFragment();
     private boolean showMasterPasswordDialog = true;
 
     @Override
@@ -111,35 +129,24 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         appContext = getApplicationContext();
         setContentView(R.layout.grid_view_activity);
 
-        gridView = (GridView) findViewById(R.id.gridView);
+        gridView = findViewById(R.id.gridView);
         gridView.setEmptyView(findViewById(R.id.emptyState));
-        gridView.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                launchConnection(v);
-            }
-        });
-        gridView.setOnItemLongClickListener(new OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ConnectionGridActivity.this);
-                String gridItemText = (String) ((TextView) v.findViewById(R.id.grid_item_text)).getText();
-                alertDialogBuilder.setTitle(getString(R.string.connection_edit_delete_prompt) + " " + gridItemText + " ?");
-                CharSequence[] cs = {getString(R.string.connection_edit), getString(R.string.connection_delete)};
-                alertDialogBuilder.setItems(cs, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int item) {
-                        if (cs[item].toString() == getString(R.string.connection_edit)) {
-                            editConnection(v);
-                        } else if (cs[item].toString() == getString(R.string.connection_delete)) {
-                            deleteConnection(v);
-                        }
-                    }
-                });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-                return true;
-            }
+        gridView.setOnItemClickListener((parent, v, position, id) -> launchConnection(v));
+        gridView.setOnItemLongClickListener((parent, v, position, id) -> {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ConnectionGridActivity.this);
+            String gridItemText = (String) ((TextView) v.findViewById(R.id.grid_item_text)).getText();
+            alertDialogBuilder.setTitle(getString(R.string.connection_edit_delete_prompt) + " " + gridItemText + " ?");
+            CharSequence[] cs = {getString(R.string.connection_edit), getString(R.string.connection_delete)};
+            alertDialogBuilder.setItems(cs, (dialog, item) -> {
+                if (getString(R.string.connection_edit).equals(cs[item].toString())) {
+                    editConnection(v);
+                } else if (getString(R.string.connection_delete).equals(cs[item].toString())) {
+                    deleteConnection(v);
+                }
+            });
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+            return true;
         });
         new BatteryOptimizationDisabler(this, gridView).requestBatteryOptimizationExemptionAutomaticallyOnce();
 
@@ -179,22 +186,70 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         if (popUpMenuButton != null) {
             popUpMenuButton.setOnClickListener(v -> popUpMenu());
         }
+        sortButton = findViewById(R.id.sortButton);
+        if (sortButton != null) {
+            sortOrder = loadSortOrder();
+            sortButton.setOnClickListener(v -> cycleSortState());
+            updateSortIcon();
+        }
     }
 
     private ConnectionLoader getConnectionLoader(Context context) {
         boolean connectionsInSharedPrefs = Utils.isOpaque(context);
-        ConnectionLoader connectionLoader = new ConnectionLoader(appContext, connectionsInSharedPrefs);
-        return connectionLoader;
+        return new ConnectionLoader(appContext, connectionsInSharedPrefs);
     }
 
     private void createAndSetLabeledImageAdapterAndNumberOfColumns() {
         LabeledImageApapter labeledImageApapter = new LabeledImageApapter(
                 ConnectionGridActivity.this,
-                getConnectionLoader(this).loadConnectionsById(),
+                sortConnections(getConnectionLoader(this).loadConnectionsById()),
                 search.getText().toString().toLowerCase().split(" "),
                 2);
         gridView.setAdapter(labeledImageApapter);
         gridView.setNumColumns(labeledImageApapter.getNumCols());
+    }
+
+    private Map<String, Connection> sortConnections(Map<String, Connection> connections) {
+        if (sortOrder == SortOrder.NONE) return connections;
+        List<Connection> list = new ArrayList<>(connections.values());
+        Collections.sort(list, (a, b) -> {
+            String la = a.getLabel();
+            String lb = b.getLabel();
+            return sortOrder == SortOrder.ASC ? la.compareToIgnoreCase(lb) : lb.compareToIgnoreCase(la);
+        });
+        Map<String, Connection> sorted = new LinkedHashMap<>();
+        for (int i = 0; i < list.size(); i++) {
+            sorted.put(String.valueOf(i), list.get(i));
+        }
+        return sorted;
+    }
+
+    private void cycleSortState() {
+        sortOrder = sortOrder.next();
+        saveSortOrder(sortOrder);
+        updateSortIcon();
+        createAndSetLabeledImageAdapterAndNumberOfColumns();
+    }
+
+    private void updateSortIcon() {
+        int iconRes;
+        if (sortOrder == SortOrder.ASC) {
+            iconRes = R.drawable.ic_sort_asc_24;
+        } else if (sortOrder == SortOrder.DESC) {
+            iconRes = R.drawable.ic_sort_desc_24;
+        } else {
+            iconRes = R.drawable.ic_sort_24;
+        }
+        sortButton.setImageResource(iconRes);
+    }
+
+    private SortOrder loadSortOrder() {
+        return SortOrder.fromString(
+                Utils.querySharedPreferenceString(appContext, Constants.PREF_SORT_ORDER, SortOrder.NONE.name()));
+    }
+
+    private void saveSortOrder(SortOrder order) {
+        Utils.setSharedPreferenceString(appContext, Constants.PREF_SORT_ORDER, order.name());
     }
 
     private void launchConnection(View v) {
@@ -229,11 +284,15 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         Intent intent = new Intent(ConnectionGridActivity.this, Utils.getConnectionSetupClass(this));
         if (Utils.isOpaque(this)) {
             ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
-            intent.putExtra("com.undatech.opaque.connectionToEdit", cs.getFilename());
+            if (cs != null) {
+                intent.putExtra("com.undatech.opaque.connectionToEdit", cs.getFilename());
+            }
 
         } else {
             intent.putExtra("isNewConnection", false);
-            intent.putExtra("connID", conn.getId());
+            if (conn != null) {
+                intent.putExtra("connID", conn.getId());
+            }
         }
         startActivity(intent);
     }
@@ -243,39 +302,43 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         String gridItemText = (String) ((TextView) v.findViewById(R.id.grid_item_text)).getText();
         Utils.showYesNoPrompt(this, getString(R.string.delete_connection) + "?", getString(R.string.delete_connection) + " " + gridItemText + " ?",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        ConnectionLoader connectionLoader = getConnectionLoader(ConnectionGridActivity.this);
-                        if (Utils.isOpaque(ConnectionGridActivity.this)) {
+                (dialog, i) -> {
+                    ConnectionLoader connectionLoader = getConnectionLoader(ConnectionGridActivity.this);
+                    if (Utils.isOpaque(ConnectionGridActivity.this)) {
 
-                            String newListOfConnections = new String();
+                        StringBuilder newListOfConnections = new StringBuilder();
 
-                            SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-                            String currentConnectionsStr = sp.getString("connections", null);
+                        SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+                        String currentConnectionsStr = sp.getString("connections", null);
 
-                            ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
-                            if (sp != null) {
-                                String[] currentConnections = currentConnectionsStr.split(" ");
-                                for (String connection : currentConnections) {
-                                    if (!connection.equals(cs.getFilename())) {
-                                        newListOfConnections += " " + connection;
-                                    }
-                                }
-                                Log.d(TAG, "Deleted connection, current list: " + newListOfConnections);
-                                Editor editor = sp.edit();
-                                editor.putString("connections", newListOfConnections.trim());
-                                editor.apply();
-                                File toDelete = new File(getFilesDir() + "/" + cs.getFilename() + ".png");
-                                toDelete.delete();
-                            }
-                        } else {
-                            ConnectionBean conn = (ConnectionBean) connectionLoader.getConnectionsById().get(runtimeId);
-                            conn.Gen_delete(database.getWritableDatabase());
-                            database.close();
+                        ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
+                        String[] currentConnections = {};
+                        if (currentConnectionsStr != null) {
+                            currentConnections = currentConnectionsStr.split(" ");
                         }
-                        onResume();
+                        for (String connection : currentConnections) {
+                            if (cs != null && !connection.equals(cs.getFilename())) {
+                                newListOfConnections.append(" ").append(connection);
+                            }
+                        }
+                        Log.d(TAG, "Deleted connection, current list: " + newListOfConnections);
+                        Editor editor = sp.edit();
+                        editor.putString("connections", newListOfConnections.toString().trim());
+                        editor.apply();
+                        File toDelete;
+                        if (cs != null) {
+                            toDelete = new File(getFilesDir() + "/" + cs.getFilename() + ".png");
+                            boolean deleted = toDelete.delete();
+                            Log.d(TAG, "Successfully deleted connection: " + deleted);
+                        }
+                    } else {
+                        ConnectionBean conn = (ConnectionBean) connectionLoader.getConnectionsById().get(runtimeId);
+                        if (conn != null) {
+                            conn.Gen_delete(database.getWritableDatabase());
+                        }
+                        database.close();
                     }
+                    onResume();
                 }, null);
     }
 
@@ -346,7 +409,6 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     /**
      * Linked with android:onClick to the copyLogcat action bar item.
      *
-     * @param menuItem
      */
     public void copyLogcat(MenuItem menuItem) {
         LogcatReader logcatReader = new LogcatReader();
@@ -358,7 +420,6 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     /**
      * Linked with android:onClick to the edit default settings action bar item.
      *
-     * @param menuItem
      */
     public void editDefaultSettings(MenuItem menuItem) {
         editDefaultSettings();
@@ -392,7 +453,6 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     /**
      * Linked with android:onClick to share or rate action bar item.
      *
-     * @param menuItem
      */
     public void rateOrShare(MenuItem menuItem) {
         Log.d(TAG, "rateOrShare selected.");
@@ -426,8 +486,13 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
             case DEFAULT_SETTINGS_REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
                     Bundle b = data.getExtras();
-                    ConnectionSettings defaultSettings = (ConnectionSettings) b.get(Constants.opaqueConnectionSettingsClassPath);
-                    defaultSettings.saveToSharedPreferences(this);
+                    ConnectionSettings defaultSettings = null;
+                    if (b != null) {
+                        defaultSettings = (ConnectionSettings) b.get(Constants.opaqueConnectionSettingsClassPath);
+                    }
+                    if (defaultSettings != null) {
+                        defaultSettings.saveToSharedPreferences(this);
+                    }
                 } else {
                     Log.i(TAG, "Error during AdvancedSettingsActivity.");
                 }
@@ -503,9 +568,9 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         } else if (itemId == R.id.actionMasterPassword) {
             toggleMasterPassword(null);
         } else if (item.getGroupId() == R.id.itemInputModeGroup) {
-            Log.d(TAG, RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
-            Utils.setSharedPreferenceString(this, Constants.defaultInputMethodTag,
-                    RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
+            String inputMode = RemoteCanvasActivity.inputModeMap.get(item.getItemId());
+            Log.d(TAG, "Setting input mode: " + inputMode);
+            Utils.setSharedPreferenceString(this, Constants.defaultInputMethodTag, inputMode);
         }
         return true;
     }

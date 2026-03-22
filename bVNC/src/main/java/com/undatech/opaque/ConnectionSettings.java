@@ -27,6 +27,8 @@ import android.content.SharedPreferences.Editor;
 import android.util.Log;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+
 import com.iiordanov.bVNC.AbstractConnectionBean;
 import com.iiordanov.bVNC.Constants;
 
@@ -44,12 +46,14 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.UUID;
 
 public class ConnectionSettings extends AbstractConnectionBean implements Serializable {
     private static final String TAG = "ConnectionSettings";
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String id = "";
@@ -154,16 +158,16 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
                 String key = keysItr.next();
                 Object value = settings.get(key);
 
-                if (value instanceof String) {
-                    editor.putString(key, (String) value);
-                } else if (value instanceof Integer) {
-                    editor.putInt(key, ((Integer) value));
-                } else if (value instanceof Boolean) {
-                    editor.putBoolean(key, ((Boolean) value));
-                } else if (value instanceof Float) {
-                    editor.putFloat(key, ((Float) value));
-                } else if (value instanceof Long) {
-                    editor.putLong(key, ((Long) value));
+                if (value instanceof String s) {
+                    editor.putString(key, s);
+                } else if (value instanceof Integer i) {
+                    editor.putInt(key, i);
+                } else if (value instanceof Boolean b) {
+                    editor.putBoolean(key, b);
+                } else if (value instanceof Float v) {
+                    editor.putFloat(key, v);
+                } else if (value instanceof Long l) {
+                    editor.putLong(key, l);
                 }
             }
             if (!file.equals(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE)) {
@@ -202,6 +206,7 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
         }
     }
 
+    @NonNull
     @Override
     public String getLabel() {
         String address = this.getAddress();

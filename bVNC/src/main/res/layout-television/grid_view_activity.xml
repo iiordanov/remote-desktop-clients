@@ -24,11 +24,20 @@
             android:id="@+id/search"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.80"
+            android:layout_weight="0.70"
             android:hint="@string/search_connections"
             android:inputType="textNoSuggestions"
             android:padding="10dp"
             android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/sortButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.10"
+            android:background="?android:selectableItemBackground"
+            android:contentDescription="@string/sort_connections"
+            app:srcCompat="@drawable/ic_sort_24" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/addNewConnection"

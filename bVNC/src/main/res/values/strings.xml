@@ -4,6 +4,7 @@
     <string name="audio_initialized">Audio initialized</string>
     <string name="action_import_settings">Import Settings</string>
     <string name="action_new_connection">✚ New Connection</string>
+    <string name="sort_connections">Sort connections</string>
     <string name="no_connections_title">No connections yet</string>
     <string name="no_connections_hint">Tap the + button to add your first remote connection</string>
     <string name="no_connections_hint_tv">Press the + button above to add your first remote connection</string>

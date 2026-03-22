@@ -243,6 +243,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         Gen_populate(values);
     }
 
+    @NonNull
     @Override
     public String getLabel() {
         String nickname = "";
