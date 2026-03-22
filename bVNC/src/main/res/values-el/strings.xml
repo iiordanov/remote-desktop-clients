@@ -585,7 +585,6 @@
     <string name="scaling">Κλιμάκωση</string>
     <string name="scaling_zoomable">Με Ζουμ</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Αποστολή</string>
     <string name="send_key_again">Αποστολή Πλήκτρου Ξανά</string>
 
@@ -834,5 +833,8 @@
 🔋Απενεργοποιήστε τις βελτιστοποιήσεις μπαταρίας</string>
     <string name="disable_battery_optimizations_already_done">
 Η εφαρμογή εξαιρείται ήδη από τις βελτιστοποιήσεις μπαταρίας.</string>
+    <string name="no_connections_title">Δεν υπάρχουν συνδέσεις ακόμα</string>
+    <string name="no_connections_hint">Πατήστε το κουμπί + για να προσθέσετε την πρώτη σας απομακρυσμένη σύνδεση</string>
+    <string name="no_connections_hint_tv">Πατήστε το κουμπί + παραπάνω για να προσθέσετε την πρώτη σας απομακρυσμένη σύνδεση</string>
+    <string name="keyboard_layout_map">Διάταξη πληκτρολογίου</string>
 </resources>
-

@@ -736,5 +736,8 @@
 🔋بهینه سازی باتری را غیرفعال کنید</string>
     <string name="disable_battery_optimizations_already_done">
 برنامه از قبل از بهینه سازی باتری معاف است.</string>
+    <string name="no_connections_title">هنوز اتصالی وجود ندارد</string>
+    <string name="no_connections_hint">برای افزودن اولین اتصال از راه دور، دکمه + را لمس کنید</string>
+    <string name="no_connections_hint_tv">برای افزودن اولین اتصال از راه دور، دکمه + بالا را فشار دهید</string>
+    <string name="keyboard_layout_map">چیدمان صفحه‌کلید</string>
 </resources>
-

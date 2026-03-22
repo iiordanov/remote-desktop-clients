@@ -736,5 +736,8 @@ Tidak dapat membuka tetapan pengoptimuman bateri. Lumpuhkan pengoptimuman bateri
 🔋Lumpuhkan Pengoptimuman Bateri</string>
     <string name="disable_battery_optimizations_already_done">
 Apl sudah pun dikecualikan daripada pengoptimuman bateri.</string>
+    <string name="no_connections_title">Tiada sambungan lagi</string>
+    <string name="no_connections_hint">Ketik butang + untuk menambah sambungan jauh pertama anda</string>
+    <string name="no_connections_hint_tv">Tekan butang + di atas untuk menambah sambungan jauh pertama anda</string>
+    <string name="keyboard_layout_map">Susun Atur Papan Kekunci</string>
 </resources>
-

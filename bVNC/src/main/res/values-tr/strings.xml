@@ -1172,5 +1172,8 @@ Pil optimizasyonu ayarları açılamadı. Sistem ayarlarında pil optimizasyonun
 🔋Pil Optimizasyonlarını Devre Dışı Bırak</string>
     <string name="disable_battery_optimizations_already_done">
 Uygulama zaten pil optimizasyonlarından muaf.</string>
+    <string name="no_connections_title">Henüz bağlantı yok</string>
+    <string name="no_connections_hint">İlk uzak bağlantınızı eklemek için + düğmesine dokunun</string>
+    <string name="no_connections_hint_tv">İlk uzak bağlantınızı eklemek için yukarıdaki + düğmesine basın</string>
+    <string name="keyboard_layout_map">Klavye Düzeni</string>
 </resources>
-

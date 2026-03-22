@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Benutzerdefiniert</string>
     <string name="auto_x_title">AutoX konfigurieren</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -657,7 +654,6 @@ Wenn Sie eine Verbindung hinzufügen oder bearbeiten, sehen Sie eine Verbindungs
     <string name="scaling">Skalierung</string>
     <string name="scaling_zoomable">Zoombar</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Senden</string>
     <string name="send_key_again">Taste erneut senden</string>
 
@@ -910,5 +906,8 @@ Die Einstellungen zur Batterieoptimierung konnten nicht geöffnet werden. Deakti
 🔋Deaktivieren Sie die Batterieoptimierungen</string>
     <string name="disable_battery_optimizations_already_done">
 App ist bereits von Batterieoptimierungen ausgenommen.</string>
+    <string name="no_connections_title">Noch keine Verbindungen</string>
+    <string name="no_connections_hint">Tippe auf die +-Schaltfläche, um deine erste Fernverbindung hinzuzufügen</string>
+    <string name="no_connections_hint_tv">Drücke die +-Schaltfläche oben, um deine erste Fernverbindung hinzuzufügen</string>
+    <string name="keyboard_layout_map">Tastaturlayout</string>
 </resources>
-

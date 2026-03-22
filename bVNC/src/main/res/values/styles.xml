@@ -2,10 +2,10 @@
 <resources>
 
     <!-- Application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        <!-- Toolbar background color -->
-        <item name="colorPrimary">#808080</item>
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#1976D2</item>
+        <item name="colorPrimaryVariant">#1565C0</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
         <item name="android:toolbarStyle">@style/ToolbarStyle</item>
         <item name="toolbarStyle">@style/ToolbarStyle</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
@@ -13,11 +13,22 @@
 
     <style name="ToolbarStyle" parent="@style/Widget.AppCompat.Toolbar">
         <item name="contentInsetStart">0dp</item>
-        <item name="android:background">@android:color/transparent</item>
+        <item name="android:background">#808080</item>
     </style>
 
     <style name="ActionBarStyle" parent="@style/Widget.AppCompat.ActionBar">
         <item name="android:background">@android:color/darker_gray</item>
+    </style>
+
+    <style name="IntroDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog" />
+
+    <style name="ConnectionCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardElevation">2dp</item>
+        <item name="cardCornerRadius">8dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="contentPadding">12dp</item>
     </style>
 
 </resources>

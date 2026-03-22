@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:text="@string/shift_check"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <CheckBox
             android:id="@+id/checkboxCtrl"
@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:text="@string/control_check"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <CheckBox
             android:id="@+id/checkboxAlt"
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:text="@string/alt_check"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <CheckBox
             android:id="@+id/checkboxSuper"
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:text="@string/super_check"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <Spinner
             android:id="@+id/spinnerKeySelect"

@@ -736,5 +736,8 @@
 🔋Онемогућите оптимизацију батерије</string>
     <string name="disable_battery_optimizations_already_done">
 Апликација је већ изузета од оптимизације батерије.</string>
+    <string name="no_connections_title">Нема веза за сада</string>
+    <string name="no_connections_hint">Додирните дугме + да бисте додали прву удаљену везу</string>
+    <string name="no_connections_hint_tv">Притисните дугме + изнад да бисте додали прву удаљену везу</string>
+    <string name="keyboard_layout_map">Распоред тастатуре</string>
 </resources>
-

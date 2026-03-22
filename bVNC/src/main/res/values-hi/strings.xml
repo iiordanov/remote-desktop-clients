@@ -736,5 +736,8 @@
 🔋बैटरी अनुकूलन अक्षम करें</string>
     <string name="disable_battery_optimizations_already_done">
 ऐप को पहले से ही बैटरी अनुकूलन से छूट प्राप्त है।</string>
+    <string name="no_connections_title">अभी तक कोई कनेक्शन नहीं</string>
+    <string name="no_connections_hint">अपना पहला रिमोट कनेक्शन जोड़ने के लिए + बटन टैप करें</string>
+    <string name="no_connections_hint_tv">अपना पहला रिमोट कनेक्शन जोड़ने के लिए ऊपर + बटन दबाएं</string>
+    <string name="keyboard_layout_map">कीबोर्ड लेआउट</string>
 </resources>
-

@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Personalizzato</string>
     <string name="auto_x_title">Configura AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -657,7 +654,6 @@ Quando si aggiunge o modifica una connessione, verrà visualizzata una pagina di
     <string name="scaling">Scala</string>
     <string name="scaling_zoomable">Con zoom</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Invia</string>
     <string name="send_key_again">Invia tasto di nuovo</string>
 
@@ -909,5 +905,8 @@ Impossibile aprire le impostazioni di ottimizzazione della batteria. Disabilita 
 🔋Disabilita ottimizzazioni batteria</string>
     <string name="disable_battery_optimizations_already_done">
 L\'app è già esente dalle ottimizzazioni della batteria.</string>
+    <string name="no_connections_title">Nessuna connessione ancora</string>
+    <string name="no_connections_hint">Tocca il pulsante + per aggiungere la tua prima connessione remota</string>
+    <string name="no_connections_hint_tv">Premi il pulsante + in alto per aggiungere la tua prima connessione remota</string>
+    <string name="keyboard_layout_map">Layout della tastiera</string>
 </resources>
-

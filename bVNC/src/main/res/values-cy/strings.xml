@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Arferol</string>
     <string name="auto_x_title">Ffurfweddu AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -659,7 +656,6 @@ Pan fyddwch chi\'n ychwanegu neu\'n golygu cysylltiad, byddwch chi\'n gweld tuda
     <string name="scaling">Sgalu</string>
     <string name="scaling_zoomable">Chwyddadwy</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Anfon</string>
     <string name="send_key_again">Anfon Allwedd Eto</string>
 
@@ -912,5 +908,8 @@ Methu agor gosodiadau optimeiddio batri. Analluogi optimeiddio batri â llaw mew
 🔋 Analluogi Optimeiddio Batri</string>
     <string name="disable_battery_optimizations_already_done">
 Mae ap eisoes wedi\'i eithrio rhag optimeiddio batri.</string>
+    <string name="no_connections_title">Dim cysylltiadau eto</string>
+    <string name="no_connections_hint">Tapiwch y botwm + i ychwanegu eich cysylltiad pell cyntaf</string>
+    <string name="no_connections_hint_tv">Pwyswch y botwm + uchod i ychwanegu eich cysylltiad pell cyntaf</string>
+    <string name="keyboard_layout_map">Cynllun Bysellfwrdd</string>
 </resources>
-

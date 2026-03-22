@@ -583,7 +583,6 @@ Nar du legger til eller redigerer en tilkobling, vil du se en tilkoblingskonfigu
     <string name="scaling">Skalering</string>
     <string name="scaling_zoomable">Skalerbar</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Send</string>
     <string name="send_key_again">Send tast igjen</string>
 
@@ -832,5 +831,8 @@ Kunne ikke åpne innstillingene for batterioptimalisering. Deaktiver batteriopti
 🔋Deaktiver batterioptimaliseringer</string>
     <string name="disable_battery_optimizations_already_done">
 Appen er allerede unntatt fra batterioptimalisering.</string>
+    <string name="no_connections_title">Ingen tilkoblinger ennå</string>
+    <string name="no_connections_hint">Trykk på +-knappen for å legge til din første eksterne tilkobling</string>
+    <string name="no_connections_hint_tv">Trykk på +-knappen ovenfor for å legge til din første eksterne tilkobling</string>
+    <string name="keyboard_layout_map">Tastaturlayout</string>
 </resources>
-

@@ -1,66 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:gravity="top|center"
-    android:orientation="vertical"
-    android:stretchMode="columnWidth"
-    android:fitsSystemWindows="true"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/popUpMenuButton"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.15"
-            android:contentDescription="@string/show_menu"
-            android:title="@string/show_menu"
-            android:background="?android:selectableItemBackground"
-            app:srcCompat="@drawable/ic_baseline_menu_48">
-        </androidx.appcompat.widget.AppCompatImageButton>
+            android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/search"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.70"
-            android:hint="@string/search_connections"
-            android:padding="10dp"
-            android:inputType="textNoSuggestions"
-            android:textAppearance="?android:attr/textAppearanceMedium">
-        </EditText>
+            <EditText
+                android:id="@+id/search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/search_connections"
+                android:inputType="textNoSuggestions"
+                android:padding="10dp"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/addNewConnection"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.15"
-            android:contentDescription="@string/action_new_connection"
-            android:title="@string/action_new_connection"
-            android:background="?android:selectableItemBackground"
-            app:srcCompat="@drawable/ic_add_connection_48">
-        </androidx.appcompat.widget.AppCompatImageButton>
+        </LinearLayout>
+
+        <GridView
+            android:id="@+id/gridView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:gravity="top|center"
+            android:horizontalSpacing="6dp"
+            android:numColumns="2"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="3dp" />
+
+        <LinearLayout
+            android:id="@+id/emptyState"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="32dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_marginBottom="24dp"
+                android:alpha="0.4"
+                android:contentDescription="@null"
+                app:srcCompat="@drawable/ic_add_connection_48" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_connections_title"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_connections_hint"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:gravity="center"
+                android:alpha="0.7" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <GridView
-        android:id="@+id/gridView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:gravity="top|center"
-        android:numColumns="2"
-        android:stretchMode="columnWidth"
-        android:layout_margin="10dp"
-        android:verticalSpacing="3dp"
-        android:horizontalSpacing="6dp"
-        >
-    </GridView>
-</LinearLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addNewConnection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/action_new_connection"
+        app:srcCompat="@drawable/ic_add_24" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

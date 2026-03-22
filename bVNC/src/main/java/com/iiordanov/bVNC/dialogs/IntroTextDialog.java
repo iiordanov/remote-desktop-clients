@@ -61,7 +61,7 @@ public class IntroTextDialog extends Dialog {
      * @param context -- Containing dialog
      */
     private IntroTextDialog(Activity context, PackageInfo pi, Database database, boolean proFeature) {
-        super(context);
+        super(context, R.style.IntroDialogTheme);
         setOwnerActivity(context);
         packageInfo = pi;
         this.database = database;

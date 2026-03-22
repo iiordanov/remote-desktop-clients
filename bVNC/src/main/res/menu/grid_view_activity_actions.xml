@@ -24,7 +24,6 @@
         android:title="@string/copy_logcat"
         app:showAsAction="never" />
 
-    <!-- New Connection, should appear as action button -->
     <item
         android:id="@+id/actionNewConnection"
         android:icon="@drawable/ic_baseline_add_to_queue_24"

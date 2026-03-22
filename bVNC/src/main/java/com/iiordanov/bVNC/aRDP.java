@@ -28,14 +28,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.permissions.AudioPermissionGroups;
 import com.iiordanov.permissions.AudioPermissionsManager;
@@ -59,21 +60,21 @@ public class aRDP extends MainConfiguration {
     private EditText rdpGatewayDomain;
     private EditText rdpGatewayPassword;
     private CheckBox checkboxKeepRdpGatewayPassword;
-    private RadioGroup groupRemoteSoundType;
-    private CheckBox checkboxEnableRecording;
-    private CheckBox checkboxConsoleMode;
-    private CheckBox checkboxRedirectSdCard;
-    private CheckBox checkboxRemoteFx;
-    private CheckBox checkboxDesktopBackground;
-    private CheckBox checkboxFontSmoothing;
-    private CheckBox checkboxDesktopComposition;
-    private CheckBox checkboxWindowContents;
-    private CheckBox checkboxMenuAnimation;
-    private CheckBox checkboxVisualStyles;
-    private CheckBox checkboxEnableGfx;
-    private CheckBox checkboxEnableGfxH264;
-    private CheckBox checkboxEnableGlyphCache;
-    private CheckBox checkboxPreferSendingUnicode;
+    private MaterialButtonToggleGroup groupRemoteSoundType;
+    private CompoundButton checkboxEnableRecording;
+    private CompoundButton checkboxConsoleMode;
+    private CompoundButton checkboxRedirectSdCard;
+    private CompoundButton checkboxRemoteFx;
+    private CompoundButton checkboxDesktopBackground;
+    private CompoundButton checkboxFontSmoothing;
+    private CompoundButton checkboxDesktopComposition;
+    private CompoundButton checkboxWindowContents;
+    private CompoundButton checkboxMenuAnimation;
+    private CompoundButton checkboxVisualStyles;
+    private CompoundButton checkboxEnableGfx;
+    private CompoundButton checkboxEnableGfxH264;
+    private CompoundButton checkboxEnableGlyphCache;
+    private CompoundButton checkboxPreferSendingUnicode;
     private Spinner spinnerRdpColor;
     private Spinner spinnerRdpSecurity;
     private List<String> rdpColorArray;
@@ -127,8 +128,8 @@ public class aRDP extends MainConfiguration {
             }
         });
         groupRemoteSoundType = findViewById(R.id.groupRemoteSoundType);
-        groupRemoteSoundType.setOnCheckedChangeListener((radioGroup, selection) -> {
-            if (Utils.isFree(aRDP.this) && selection != R.id.radioRemoteSoundDisabled) {
+        groupRemoteSoundType.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked && Utils.isFree(aRDP.this) && checkedId != R.id.radioRemoteSoundDisabled) {
                 setRemoteSoundTypeFromSelected(Constants.REMOTE_SOUND_DISABLED);
                 IntroTextDialog.showIntroTextIfNecessary(aRDP.this, database, true, true);
             }
@@ -283,7 +284,7 @@ public class aRDP extends MainConfiguration {
         try {
             selected.setRdpGatewayPort(Integer.parseInt(rdpGatewayPort.getText().toString()));
         } catch (NumberFormatException nfe) {
-            logAndPrintStacktrace(nfe);
+            debugLogAndPrintStacktrace(nfe);
         }
         selected.setRdpGatewayUsername(rdpGatewayUsername.getText().toString());
         selected.setRdpGatewayDomain(rdpGatewayDomain.getText().toString());
@@ -318,7 +319,7 @@ public class aRDP extends MainConfiguration {
      * Automatically linked with android:onClick in the layout.
      */
     public void toggleEnableRecording(View view) {
-        CheckBox b = (CheckBox) view;
+        CompoundButton b = (CompoundButton) view;
         if (Utils.isFree(this)) {
             IntroTextDialog.showIntroTextIfNecessary(this, database, true, true);
             b.setChecked(false);
@@ -341,8 +342,8 @@ public class aRDP extends MainConfiguration {
      * Sets the remote sound type in the settings from the specified parameter.
      */
     public void setRemoteSoundTypeFromView(View view) {
-        RadioGroup g = (RadioGroup) view;
-        int id = g.getCheckedRadioButtonId();
+        MaterialButtonToggleGroup g = (MaterialButtonToggleGroup) view;
+        int id = g.getCheckedButtonId();
         int soundType = Constants.REMOTE_SOUND_DISABLED;
         if (id == R.id.radioRemoteSoundOnServer) {
             soundType = Constants.REMOTE_SOUND_ON_SERVER;
@@ -353,22 +354,17 @@ public class aRDP extends MainConfiguration {
     }
 
     public void setRemoteSoundTypeFromSelected(int type) {
+        int typeToSet = type;
         if (Utils.isFree(this)) {
-            type = Constants.REMOTE_SOUND_DISABLED;
+            typeToSet = Constants.REMOTE_SOUND_DISABLED;
         }
 
-        int id = 0;
-        switch (type) {
-            case Constants.REMOTE_SOUND_DISABLED:
-                id = R.id.radioRemoteSoundDisabled;
-                break;
-            case Constants.REMOTE_SOUND_ON_DEVICE:
-                id = R.id.radioRemoteSoundOnDevice;
-                break;
-            case Constants.REMOTE_SOUND_ON_SERVER:
-                id = R.id.radioRemoteSoundOnServer;
-                break;
-        }
+        int id = switch (typeToSet) {
+            case Constants.REMOTE_SOUND_DISABLED -> R.id.radioRemoteSoundDisabled;
+            case Constants.REMOTE_SOUND_ON_DEVICE -> R.id.radioRemoteSoundOnDevice;
+            case Constants.REMOTE_SOUND_ON_SERVER -> R.id.radioRemoteSoundOnServer;
+            default -> 0;
+        };
         groupRemoteSoundType.check(id);
     }
 

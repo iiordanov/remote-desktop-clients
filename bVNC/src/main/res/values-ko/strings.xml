@@ -132,9 +132,6 @@
     <string name="auto_x_session_custom">커스텀</string>
     <string name="auto_x_title">AutoX설정</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-            declared in VncConstants for conversion bet. selection and commands
-            to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -597,7 +594,6 @@ aRDP지원 예정 기능:
     <string name="save_as_copy">복사본을 저장</string>
     <string name="scaling">스케일링</string>
     <string name="scaling_zoomable">확대 축소 가능</string>
-    <!-- Send selected metakey -->
     <string name="send_button">전송</string>
     <string name="send_key_again">키를 다시 전송</string>
     <string name="shift_check">Shift</string>
@@ -833,5 +829,8 @@ aSPICEで의 대응 기능는 이하와 같다 :
 🔋배터리 최적화 비활성화</string>
     <string name="disable_battery_optimizations_already_done">
 앱은 이미 배터리 최적화에서 제외되었습니다.</string>
+    <string name="no_connections_title">아직 연결이 없습니다</string>
+    <string name="no_connections_hint">+ 버튼을 탭하여 첫 번째 원격 연결을 추가하세요</string>
+    <string name="no_connections_hint_tv">위의 + 버튼을 눌러 첫 번째 원격 연결을 추가하세요</string>
+    <string name="keyboard_layout_map">키보드 레이아웃</string>
 </resources>
-

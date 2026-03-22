@@ -834,5 +834,8 @@ Kan de instellingen voor batterijoptimalisatie niet openen. Schakel batterijopti
 🔋Batterijoptimalisaties uitschakelen</string>
     <string name="disable_battery_optimizations_already_done">
 App is al vrijgesteld van batterij-optimalisaties.</string>
+    <string name="no_connections_title">Nog geen verbindingen</string>
+    <string name="no_connections_hint">Tik op de +-knop om uw eerste externe verbinding toe te voegen</string>
+    <string name="no_connections_hint_tv">Druk op de +-knop hierboven om uw eerste externe verbinding toe te voegen</string>
+    <string name="keyboard_layout_map">Toetsenbordindeling</string>
 </resources>
-

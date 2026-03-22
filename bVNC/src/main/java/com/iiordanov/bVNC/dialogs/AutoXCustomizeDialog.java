@@ -32,13 +32,12 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.Spinner;
-import android.widget.ToggleButton;
 
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.bVNC;
@@ -62,18 +61,19 @@ public class AutoXCustomizeDialog extends AlertDialog {
     private String geometry = "";
     private String sessionProg = "";
     private String pw = "";
-    private ToggleButton toggleAutoXAdvanced;
+    private SwitchMaterial toggleAutoXAdvanced;
     private LinearLayout layoutAdvancedSettings;
     private Spinner spinnerAutoXGeometry;
     private EditText autoXWidth;
     private EditText autoXHeight;
     private Spinner spinnerAutoXSession;
     private EditText autoXSessionProg;
-    private CheckBox checkboxAutoXUnixpw;
-    private CheckBox checkboxAutoXUnixAuth;
+    private SwitchMaterial checkboxAutoXUnixpw;
+    private SwitchMaterial checkboxAutoXUnixAuth;
     private final RandomString rnd;
 
     /**
+     *
      */
     public AutoXCustomizeDialog(Context context) {
         super(context);

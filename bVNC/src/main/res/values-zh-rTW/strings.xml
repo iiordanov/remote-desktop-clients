@@ -130,9 +130,6 @@
     <string name="auto_x_session_custom">自訂</string>
     <string name="auto_x_title">AutoX設定</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-            declared in VncConstants for conversion bet. selection and commands
-            to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -599,7 +596,6 @@ aRDP對應預定的功能：
     <string name="save_as_copy">另存為副本</string>
     <string name="scaling">縮放</string>
     <string name="scaling_zoomable">可縮放</string>
-    <!-- Send selected metakey -->
     <string name="send_button">發送</string>
     <string name="send_key_again">再次發送鍵</string>
     <string name="shift_check">Shift</string>
@@ -833,5 +829,8 @@ aSPICE對應的功能如下：
 🔋禁用電池優化</string>
     <string name="disable_battery_optimizations_already_done">
 應用程式已免於電池優化。</string>
+    <string name="no_connections_title">尚無連線</string>
+    <string name="no_connections_hint">點擊 + 按鈕以新增您的第一個遠端連線</string>
+    <string name="no_connections_hint_tv">按上方的 + 按鈕以新增您的第一個遠端連線</string>
+    <string name="keyboard_layout_map">鍵盤配置</string>
 </resources>
-

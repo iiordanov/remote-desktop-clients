@@ -701,5 +701,8 @@
 🔋השבת את אופטימיזציית הסוללה</string>
     <string name="disable_battery_optimizations_already_done">
 האפליקציה כבר פטורה מאופטימיזציות של סוללה.</string>
+    <string name="no_connections_title">אין חיבורים עדיין</string>
+    <string name="no_connections_hint">הקש על כפתור + כדי להוסיף את החיבור המרוחק הראשון שלך</string>
+    <string name="no_connections_hint_tv">לחץ על כפתור + למעלה כדי להוסיף את החיבור המרוחק הראשון שלך</string>
+    <string name="keyboard_layout_map">פריסת המקלדת</string>
 </resources>
-

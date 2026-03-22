@@ -32,7 +32,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -60,7 +60,7 @@ public class aSPICE extends MainConfiguration {
 
     private EditText tlsPort;
     private Spinner spinnerGeometry;
-    private CheckBox checkboxEnableSound;
+    private CompoundButton checkboxEnableSound;
     private Spinner layoutMapSpinner = null;
     private List<String> spinnerArray = null;
 
@@ -188,7 +188,7 @@ public class aSPICE extends MainConfiguration {
         try {
             selected.setTlsPort(Integer.parseInt(tlsPort.getText().toString()));
         } catch (NumberFormatException nfe) {
-            logAndPrintStacktrace(nfe);
+            debugLogAndPrintStacktrace(nfe);
         }
         String tlsPort = this.tlsPort.getText().toString();
         if (tlsPort.equals("")) {
@@ -209,7 +209,7 @@ public class aSPICE extends MainConfiguration {
      * Automatically linked with android:onClick in the layout.
      */
     public void toggleEnableSound(View view) {
-        CheckBox b = (CheckBox) view;
+        CompoundButton b = (CompoundButton) view;
         AudioPermissionsManager.requestPermissions(this, AudioPermissionGroups.RECORD_AND_MODIFY_AUDIO, true);
         selected.setEnableSound(b.isChecked());
     }

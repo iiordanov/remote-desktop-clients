@@ -1,126 +1,165 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fullscreen_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dip"
-    tools:context="com.undatech.opaque.ConnectionSetupActivity"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context="com.undatech.opaque.ConnectionSetupActivity">
 
-    <TableLayout
-        android:id="@+id/fullscreen_content_controls"
-        style="?buttonBarStyle"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|center_horizontal"
-        android:orientation="horizontal"
-        tools:ignore="UselessParent">
+        android:orientation="vertical"
+        android:paddingBottom="16dp">
 
-        <TextView
-            android:id="@+id/textViewConnectionType"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/connection_type_text"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <Spinner
-            android:id="@+id/spinnerConnectionType"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/connection_types" />
-
-        <EditText
-            android:id="@+id/hostname"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ConnectionCard"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/connection_setup_host_name"
-            android:inputType="textVisiblePassword"
-            android:singleLine="true">
-
-            <requestFocus />
-        </EditText>
-
-        <EditText
-            android:id="@+id/vmname"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/connection_setup_vm_name"
-            android:inputType="textVisiblePassword"
-            android:singleLine="true" />
-
-        <EditText
-            android:id="@+id/user"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/connection_setup_user"
-            android:inputType="textVisiblePassword"
-            android:singleLine="true" />
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:singleLine="true">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
-                <EditText
-                    android:id="@+id/password"
+                <TextView
+                    android:id="@+id/textViewConnectionType"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/connection_setup_password"
-                    android:inputType="textPassword"
-                    android:singleLine="true" />
+                    android:paddingBottom="4dp"
+                    android:text="@string/connection_type_text"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textStyle="bold" />
 
-                <CheckBox
+                <Spinner
+                    android:id="@+id/spinnerConnectionType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/connection_types" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="@string/connection_setup_host_name">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/hostname"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:inputType="textVisiblePassword"
+                        android:nextFocusDown="@+id/vmname"
+                        android:singleLine="true">
+
+                        <requestFocus />
+
+                    </com.google.android.material.textfield.TextInputEditText>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/connection_setup_vm_name">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/vmname"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:inputType="textVisiblePassword"
+                        android:nextFocusDown="@+id/user"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/connection_setup_user">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/user"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:inputType="textVisiblePassword"
+                        android:nextFocusDown="@+id/password"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/connection_setup_password"
+                    app:endIconMode="password_toggle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:inputType="textPassword"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/checkboxKeepPassword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:singleLine="true"
-                    android:text="@string/keep_password_button"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:layout_marginTop="4dp"
+                    android:text="@string/keep_password_button" />
+
             </LinearLayout>
-        </TableRow>
+        </com.google.android.material.card.MaterialCardView>
 
         <Button
             android:id="@+id/advancedSettingsButton"
-            style="?buttonBarButtonStyle"
-            android:layout_width="0dp"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
             android:text="@string/advanced_settings" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="8dp">
+
             <Button
                 android:id="@+id/helpButton"
-                style="?buttonBarButtonStyle"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
                 android:onClick="showConnectionScreenHelp"
-                android:text="@string/menu_help" />
+                android:text="@string/menu_help"
+                tools:ignore="ButtonStyle,UsingOnClickInXml" />
+
             <Button
                 android:id="@+id/saveButton"
-                style="?buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="save"
-                android:text="@string/save_button" />
+                android:text="@string/save_button"
+                tools:ignore="ButtonStyle,UsingOnClickInXml" />
+
         </LinearLayout>
 
-    </TableLayout>
-</FrameLayout>
+    </LinearLayout>
+</ScrollView>

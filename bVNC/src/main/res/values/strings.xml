@@ -4,6 +4,9 @@
     <string name="audio_initialized">Audio initialized</string>
     <string name="action_import_settings">Import Settings</string>
     <string name="action_new_connection">✚ New Connection</string>
+    <string name="no_connections_title">No connections yet</string>
+    <string name="no_connections_hint">Tap the + button to add your first remote connection</string>
+    <string name="no_connections_hint_tv">Press the + button above to add your first remote connection</string>
     <string name="action_edit_default_settings">⚙ Edit Default Settings</string>
     <string name="action_export_settings">Export Settings</string>
     <string name="action_delete_connection">Delete Connection</string>
@@ -155,7 +158,7 @@
     <string name="auto_x_title">Configure AutoX</string>
     <string-array name="auto_x_type" translatable="false">
         <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
+        declared in VncConstants for conversion between selection and commands
         to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
@@ -411,7 +414,7 @@ Known issues:
     <string name="intro_title">bVNC: Intuitive, secure VNC client</string>
     <string name="intro_version_text" translatable="false" />
 
-    <string name="keep_password_button">Keep</string>
+    <string name="keep_password_button">Save password</string>
     <string name="keep_screen_awake_enable">Keep Screen Awake</string>
 
     <string name="keys_caption">Keys</string>
@@ -918,6 +921,7 @@ Below that is where you configure your connection.
     <string name="donate_app">Donate ❤</string>
     <string name="more_apps">More Apps 📱</string>
     <string name="previous_versions">Previous Versions ⍼</string>
+    <string name="keyboard_layout_map">Keyboard Layout</string>
     <string name="keyboard_type">Software Keyboard Type</string>
     <string name="pref_keyboard_type_label_TYPE_NULL">Default (TYPE_NULL)</string>
     <string name="pref_keyboard_type_label_VISIBLE_PASSWORD">Text/Numbers No Suggestions (VISIBLE_PASSWORD)</string>

@@ -909,5 +909,8 @@ Kon nie batteryoptimering-instellings oopmaak nie. Deaktiveer batteryoptimaliser
 🔋Deaktiveer batteryoptimalisering</string>
     <string name="disable_battery_optimizations_already_done">
 Die toepassing is reeds vrygestel van batteryoptimalisering.</string>
+    <string name="no_connections_title">Nog geen verbindings nie</string>
+    <string name="no_connections_hint">Tik die +-knoppie om jou eerste afstandverbinding by te voeg</string>
+    <string name="no_connections_hint_tv">Druk die +-knoppie hierbo om jou eerste afstandverbinding by te voeg</string>
+    <string name="keyboard_layout_map">Sleutelborduitleg</string>
 </resources>
-

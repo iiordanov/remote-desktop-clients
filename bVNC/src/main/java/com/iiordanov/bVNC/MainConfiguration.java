@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.text.ClipboardManager;
+import android.text.Editable;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -19,9 +20,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -29,6 +30,7 @@ import android.widget.ToggleButton;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 import com.undatech.opaque.util.LogcatReader;
@@ -50,7 +52,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
     protected int selectedConnType;
     protected EditText ipText;
     protected boolean isNewConnection;
-    private RadioGroup radioCursor;
+    private MaterialButtonToggleGroup radioCursor;
     private TextView sshCaption;
     private LinearLayout sshCredentials;
     private LinearLayout layoutUseSshPubkey;
@@ -69,9 +71,9 @@ public abstract class MainConfiguration extends AppCompatActivity {
     protected EditText resWidth;
     protected EditText resHeight;
     protected CheckBox checkboxKeepPassword;
-    protected CheckBox checkboxUseDpadAsArrows;
-    protected CheckBox checkboxRotateDpad;
-    protected CheckBox checkboxUseLastPositionToolbar;
+    protected CompoundButton checkboxUseDpadAsArrows;
+    protected CompoundButton checkboxRotateDpad;
+    protected CompoundButton checkboxUseLastPositionToolbar;
     protected CheckBox checkboxUseSshPubkey;
     protected LinearLayout layoutAdvancedSettings;
 
@@ -97,7 +99,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
         } else {
             sshPassphrase.setText("");
         }
-        if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals("")) {
+        if (selectedConnType == Constants.CONN_TYPE_SSH && "".equals(selected.getAddress())) {
             ipText.setText("localhost");
         } else {
             ipText.setText(selected.getAddress());
@@ -132,7 +134,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
         try {
             selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
         } catch (NumberFormatException nfe) {
-            logAndPrintStacktrace(nfe);
+            debugLogAndPrintStacktrace(nfe);
         }
         selected.setSshUser(sshUser.getText().toString());
         selected.setSshPassPhrase(sshPassphrase.getText().toString());
@@ -147,14 +149,14 @@ public abstract class MainConfiguration extends AppCompatActivity {
         try {
             selected.setPort(Integer.parseInt(portText.getText().toString()));
         } catch (NumberFormatException nfe) {
-            logAndPrintStacktrace(nfe);
+            debugLogAndPrintStacktrace(nfe);
         }
 
-        if (radioCursor.getCheckedRadioButtonId() == R.id.radioCursorAuto) {
+        if (radioCursor.getCheckedButtonId() == R.id.radioCursorAuto) {
             selected.setUseLocalCursor(Constants.CURSOR_AUTO);
-        } else if (radioCursor.getCheckedRadioButtonId() == R.id.radioCursorForceLocal) {
+        } else if (radioCursor.getCheckedButtonId() == R.id.radioCursorForceLocal) {
             selected.setUseLocalCursor(Constants.CURSOR_FORCE_LOCAL);
-        } else if (radioCursor.getCheckedRadioButtonId() == R.id.radioCursorForceDisable) {
+        } else if (radioCursor.getCheckedButtonId() == R.id.radioCursorForceDisable) {
             selected.setUseLocalCursor(Constants.CURSOR_FORCE_DISABLE);
         }
 
@@ -170,7 +172,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
             selected.setRdpWidth(Integer.parseInt(resWidth.getText().toString()));
             selected.setRdpHeight(Integer.parseInt(resHeight.getText().toString()));
         } catch (NumberFormatException nfe) {
-            logAndPrintStacktrace(nfe);
+            debugLogAndPrintStacktrace(nfe);
         }
     }
 
@@ -238,8 +240,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
                     setVisibilityOfSshWidgets(View.GONE);
                 } else if (selectedConnType == Constants.CONN_TYPE_SSH) {
                     setVisibilityOfSshWidgets(View.VISIBLE);
-                    if (ipText.getText().toString().equals(""))
-                        ipText.setText("localhost");
+                    setIpTextToLocalhostIfEmpty();
                 }
                 updateViewFromSelected();
             }
@@ -260,6 +261,13 @@ public abstract class MainConfiguration extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("SetTextI18n")
+    protected void setIpTextToLocalhostIfEmpty() {
+        Editable ipTextEditable = ipText.getText();
+        if (ipTextEditable != null && ipTextEditable.toString().isEmpty())
+            ipText.setText("localhost");
+    }
+
     private void initializeConnId(String connIdStr) {
         if (!isNewConnection && connIdStr != null) {
             try {
@@ -267,7 +275,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
             } catch (NumberFormatException e) {
                 connID = 0;
                 Log.e(TAG, "Could not parse connection to edit from connID!");
-                e.printStackTrace();
+                Log.e(TAG, Log.getStackTraceString(e));
             }
         }
     }
@@ -423,10 +431,9 @@ public abstract class MainConfiguration extends AppCompatActivity {
         Point outSize = new Point();
         d.getSize(outSize);
         int height = outSize.y;
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-            android.view.ViewConfiguration vc = ViewConfiguration.get(this);
-            if (vc.hasPermanentMenuKey())
-                height = bottom;
+        ViewConfiguration vc = ViewConfiguration.get(this);
+        if (vc.hasPermanentMenuKey()) {
+            height = bottom;
         }
         if (Utils.isBlackBerry()) {
             height = bottom;
@@ -449,10 +456,9 @@ public abstract class MainConfiguration extends AppCompatActivity {
         Point outSize = new Point();
         d.getSize(outSize);
         int width = outSize.x;
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-            android.view.ViewConfiguration vc = ViewConfiguration.get(this);
-            if (vc.hasPermanentMenuKey())
-                return right;
+        ViewConfiguration vc = ViewConfiguration.get(this);
+        if (vc.hasPermanentMenuKey()) {
+            return right;
         }
         return width;
     }
@@ -477,7 +483,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
         try {
             menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected != null && !selected.isNew());
         } catch (NullPointerException e) {
-            logAndPrintStacktrace(e);
+            debugLogAndPrintStacktrace(e);
         }
         return true;
     }
@@ -552,9 +558,9 @@ public abstract class MainConfiguration extends AppCompatActivity {
         return sp.getBoolean(Constants.positionToolbarLastUsed, true);
     }
 
-    protected static void logAndPrintStacktrace(Exception e) {
-        e.printStackTrace();
+    protected static void debugLogAndPrintStacktrace(Exception e) {
         Log.d(TAG, "Ignoring Exception: " + e);
+        Log.d(TAG, Log.getStackTraceString(e));
     }
 
     public void save(int resource) {

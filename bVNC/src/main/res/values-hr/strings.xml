@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Prilagođeno</string>
     <string name="auto_x_title">Konfiguriraj AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -659,7 +656,6 @@ Kada dodajete ili uređujete vezu, vidjet ćete stranicu za konfiguraciju veze. 
     <string name="scaling">Skaliranje</string>
     <string name="scaling_zoomable">Sa zumiranjem</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Pošalji</string>
     <string name="send_key_again">Pošalji tipku ponovo</string>
 
@@ -912,5 +908,8 @@ Nije moguće otvoriti postavke optimizacije baterije. Ručno onemogućite optimi
 🔋Onemogući optimizaciju baterije</string>
     <string name="disable_battery_optimizations_already_done">
 Aplikacija je već izuzeta od optimizacije baterije.</string>
+    <string name="no_connections_title">Još nema veza</string>
+    <string name="no_connections_hint">Dodirnite gumb + za dodavanje prve udaljene veze</string>
+    <string name="no_connections_hint_tv">Pritisnite gumb + iznad za dodavanje prve udaljene veze</string>
+    <string name="keyboard_layout_map">Raspored tipkovnice</string>
 </resources>
-

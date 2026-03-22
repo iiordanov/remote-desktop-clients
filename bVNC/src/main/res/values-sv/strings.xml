@@ -585,7 +585,6 @@ När du lägger till eller redigerar en anslutning ser du en anslutningskonfigur
     <string name="scaling">Skalning</string>
     <string name="scaling_zoomable">Zoombar</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Skicka</string>
     <string name="send_key_again">Skicka tangent igen</string>
 
@@ -834,5 +833,8 @@ Det gick inte att öppna batterioptimeringsinställningarna. Inaktivera batterio
 🔋Inaktivera batterioptimeringar</string>
     <string name="disable_battery_optimizations_already_done">
 Appen är redan undantagen från batterioptimering.</string>
+    <string name="no_connections_title">Inga anslutningar ännu</string>
+    <string name="no_connections_hint">Tryck på +-knappen för att lägga till din första fjärranslutning</string>
+    <string name="no_connections_hint_tv">Tryck på +-knappen ovan för att lägga till din första fjärranslutning</string>
+    <string name="keyboard_layout_map">Tangentbordslayout</string>
 </resources>
-

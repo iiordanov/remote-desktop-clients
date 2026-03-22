@@ -5,291 +5,320 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <FrameLayout
-        android:id="@+id/fullscreen_content"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="10dip">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="16dp">
 
-        <TableLayout
-            android:id="@+id/fullscreen_content_controls"
-            style="?buttonBarStyle"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ConnectionCard"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:orientation="horizontal"
-            tools:ignore="UselessParent">
-
-            <Spinner
-                android:id="@+id/layoutMaps"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
+            android:layout_height="wrap_content">
 
             <LinearLayout
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip">
+                android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:text="@string/audio"
+                    android:paddingBottom="4dp"
+                    android:text="@string/keyboard_layout_map"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <ToggleButton
-                    android:id="@+id/toggleAudioPlayback"
-                    android:layout_width="0dp"
+                <Spinner
+                    android:id="@+id/layoutMaps"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="toggleAudioPlaybackSetting" />
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/audio"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/toggleAudioPlayback"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="toggleAudioPlaybackSetting"
+                        tools:ignore="UsingOnClickInXml" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/usb"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/toggleUsbEnabled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="toggleUsbEnabledSetting"
+                        tools:ignore="UsingOnClickInXml" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="4dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/auto_rotation"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/toggleAutoRotation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="toggleAutoRotation"
+                        tools:ignore="UsingOnClickInXml" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/auto_request_new_res"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/toggleAutoRequestDisplayResolution"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="toggleAutoRequestDisplayResolution"
+                        tools:ignore="UsingOnClickInXml" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutToggleCustomRemoteResolution"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/rdp_geom_custom"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/toggleCustomDisplayResolution"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="toggleCustomDisplayResolution"
+                        tools:ignore="UsingOnClickInXml" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutCustomRemoteResolution"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="4dp"
+                    android:visibility="gone">
+
+                    <EditText
+                        android:id="@+id/rdpWidth"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        tools:ignore="LabelFor" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
+                        android:text="x"
+                        tools:ignore="HardcodedText" />
+
+                    <EditText
+                        android:id="@+id/rdpHeight"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        tools:ignore="LabelFor" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/ssl_strict"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/toggleSslStrict"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="toggleSslStrict"
+                        tools:ignore="UsingOnClickInXml" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutToggleUsingCustomOvirtCa"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/ca_ovirt_use_custom"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/toggleUsingCustomOvirtCa"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="toggleUsingCustomOvirtCa"
+                        tools:ignore="UsingOnClickInXml" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutManageOvirtCa"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="4dp"
+                    android:visibility="gone">
+
+                    <Button
+                        android:id="@+id/buttonManageOvirtCa"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="showManageOvirtCaDialog"
+                        android:text="@string/ca_ovirt_manage"
+                        tools:ignore="UsingOnClickInXml" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutDpadAsArrows"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/dpad_as_arrows"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/dpadAsArrows"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="dpadAsArrows"
+                        tools:ignore="UsingOnClickInXml" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutAppliesForNewConnections"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <TextView
+                        android:id="@+id/textAppliesForNewConnections"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/applies_to_new_connections_only"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutUseLastPositionToolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <TextView
+                        android:id="@+id/textUseLastPositionToolbar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/toggleUseLastPositionToolbar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="toggleUseLastPositionToolbar"
+                        tools:ignore="UsingOnClickInXml" />
+
+                </LinearLayout>
 
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:text="@string/usb"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <ToggleButton
-                    android:id="@+id/toggleUsbEnabled"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="toggleUsbEnabledSetting" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip"
-                android:visibility="gone">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:text="@string/auto_rotation"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <ToggleButton
-                    android:id="@+id/toggleAutoRotation"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="toggleAutoRotation" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:text="@string/auto_request_new_res"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <ToggleButton
-                    android:id="@+id/toggleAutoRequestDisplayResolution"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="toggleAutoRequestDisplayResolution" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layoutToggleCustomRemoteResolution"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:text="@string/rdp_geom_custom"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <ToggleButton
-                    android:id="@+id/toggleCustomDisplayResolution"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="toggleCustomDisplayResolution" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layoutCustomRemoteResolution"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="5dp"
-                android:visibility="gone">
-
-                <EditText
-                    android:id="@+id/rdpWidth"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
-                    android:singleLine="true"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="x"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <EditText
-                    android:id="@+id/rdpHeight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
-                    android:singleLine="true"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="60dp"
-                    android:layout_weight="4"
-                    android:text="@string/ssl_strict"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <ToggleButton
-                    android:id="@+id/toggleSslStrict"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="toggleSslStrict" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layoutToggleUsingCustomOvirtCa"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:text="@string/ca_ovirt_use_custom"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <ToggleButton
-                    android:id="@+id/toggleUsingCustomOvirtCa"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="toggleUsingCustomOvirtCa" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layoutManageOvirtCa"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip">
-
-                <Button
-                    android:id="@+id/buttonManageOvirtCa"
-                    style="?buttonBarButtonStyle"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:onClick="showManageOvirtCaDialog"
-                    android:text="@string/ca_ovirt_manage" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layoutDpadAsArrows"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:text="@string/dpad_as_arrows"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <ToggleButton
-                    android:id="@+id/dpadAsArrows"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="dpadAsArrows" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layoutAppliesForNewConnections"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip">
-
-                <TextView
-                    android:id="@+id/textAppliesForNewConnections"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/applies_to_new_connections_only"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layoutUseLastPositionToolbar"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip">
-
-                <TextView
-                    android:id="@+id/textUseLastPositionToolbar"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="4"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <ToggleButton
-                    android:id="@+id/toggleUseLastPositionToolbar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="toggleUseLastPositionToolbar" />
-
-            </LinearLayout>
-
-        </TableLayout>
-    </FrameLayout>
+    </LinearLayout>
 </ScrollView>

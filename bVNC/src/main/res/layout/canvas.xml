@@ -109,7 +109,6 @@
         android:layout_gravity="bottom|center"
         android:visibility="gone" />
 
-    <!-- Page indicator dots: overlaid at the top edge of the ViewPager (marginBottom = 88dp - 10dp height). -->
     <LinearLayout
         android:id="@+id/extraKeysPageIndicator"
         android:layout_width="wrap_content"

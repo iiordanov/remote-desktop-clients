@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Egyéni</string>
     <string name="auto_x_title">AutoX konfigurálása</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -657,7 +654,6 @@ Amikor kapcsolatot ad hozzá vagy szerkeszt, megjelenik a kapcsolat konfiguráci
     <string name="scaling">Méretezés</string>
     <string name="scaling_zoomable">Zoomolható</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Küldés</string>
     <string name="send_key_again">Billentyű újraküldése</string>
 
@@ -910,5 +906,8 @@ Nem sikerült megnyitni az akkumulátor-optimalizálási beállításokat. Az ak
 🔋 Az akkumulátor optimalizálás letiltása</string>
     <string name="disable_battery_optimizations_already_done">
 Az alkalmazás már mentesül az akkumulátoroptimalizálás alól.</string>
+    <string name="no_connections_title">Még nincsenek kapcsolatok</string>
+    <string name="no_connections_hint">Az első távoli kapcsolat hozzáadásához érintse meg a + gombot</string>
+    <string name="no_connections_hint_tv">Az első távoli kapcsolat hozzáadásához nyomja meg a fenti + gombot</string>
+    <string name="keyboard_layout_map">Billentyűzet-kiosztás</string>
 </resources>
-

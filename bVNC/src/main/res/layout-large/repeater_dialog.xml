@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -9,16 +10,19 @@
         android:id="@+id/textRepeaterCaption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:hint="@string/repeater_caption"
         android:text="@string/repeater_caption"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <EditText
         android:id="@+id/textRepeaterInfo"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_weight="1"
+        android:inputType="textNoSuggestions"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        tools:ignore="LabelFor" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -30,16 +34,18 @@
             android:id="@+id/buttonSaveRepeater"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="left|center_vertical"
+            android:gravity="start|center_vertical"
             android:text="@string/repeater_save"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:ignore="ButtonStyle" />
 
         <Button
             android:id="@+id/buttonClearRepeater"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="right|center_vertical"
+            android:gravity="start|center_vertical"
             android:text="@string/repeater_clear"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:ignore="ButtonStyle" />
     </LinearLayout>
 </LinearLayout>

@@ -736,5 +736,8 @@ Không thể mở cài đặt tối ưu hóa pin. Tắt tối ưu hóa pin theo 
 🔋Tắt tối ưu hóa pin</string>
     <string name="disable_battery_optimizations_already_done">
 Ứng dụng đã được miễn tối ưu hóa pin.</string>
+    <string name="no_connections_title">Chưa có kết nối nào</string>
+    <string name="no_connections_hint">Nhấn nút + để thêm kết nối từ xa đầu tiên của bạn</string>
+    <string name="no_connections_hint_tv">Nhấn nút + ở trên để thêm kết nối từ xa đầu tiên của bạn</string>
+    <string name="keyboard_layout_map">Bố cục bàn phím</string>
 </resources>
-

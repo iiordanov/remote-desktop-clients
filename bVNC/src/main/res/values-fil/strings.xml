@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Custom</string>
     <string name="auto_x_title">I-configure ang AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -659,7 +656,6 @@ Kapag nagdagdag o nag-edit kayo ng koneksyon, makikita ninyo ang pahina ng confi
     <string name="scaling">Scaling</string>
     <string name="scaling_zoomable">Zoomable</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Ipadala</string>
     <string name="send_key_again">Ipadala Muli ang Key</string>
 
@@ -912,5 +908,8 @@ Hindi mabuksan ang mga setting ng pag-optimize ng baterya. I-disable nang manu-m
 🔋Huwag paganahin ang Battery Optimizations</string>
     <string name="disable_battery_optimizations_already_done">
 Exempt na ang app sa mga pag-optimize ng baterya.</string>
+    <string name="no_connections_title">Wala pang mga koneksyon</string>
+    <string name="no_connections_hint">I-tap ang button na + upang idagdag ang iyong unang remote na koneksyon</string>
+    <string name="no_connections_hint_tv">Pindutin ang button na + sa itaas upang idagdag ang iyong unang remote na koneksyon</string>
+    <string name="keyboard_layout_map">Layout ng Keyboard</string>
 </resources>
-

@@ -68,9 +68,6 @@
     <string name="auto_x_session_xfce">Xfce</string>
     <string name="auto_x_title">Настроить AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -564,7 +561,6 @@
     <string name="scaling">Масштаб</string>
     <string name="scaling_zoomable">Масштабируемый</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Отправить</string>
     <string name="send_key_again">Отправить клавиши заново</string>
 
@@ -894,5 +890,8 @@
 🔋Отключить оптимизацию батареи</string>
     <string name="disable_battery_optimizations_already_done">
 Приложение уже освобождено от оптимизации батареи.</string>
+    <string name="no_connections_title">Подключений пока нет</string>
+    <string name="no_connections_hint">Нажмите кнопку +, чтобы добавить первое удалённое подключение</string>
+    <string name="no_connections_hint_tv">Нажмите кнопку + выше, чтобы добавить первое удалённое подключение</string>
+    <string name="keyboard_layout_map">Раскладка клавиатуры</string>
 </resources>
-

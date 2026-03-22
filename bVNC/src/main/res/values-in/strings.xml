@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Kustom</string>
     <string name="auto_x_title">Konfigurasi AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -659,7 +656,6 @@ Saat Anda menambahkan atau mengedit koneksi, Anda akan melihat halaman konfigura
     <string name="scaling">Skala</string>
     <string name="scaling_zoomable">Zoomable</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Kirim</string>
     <string name="send_key_again">Kirim Tombol Lagi</string>
 
@@ -912,5 +908,8 @@ Tidak dapat membuka pengaturan pengoptimalan baterai. Nonaktifkan pengoptimalan 
 🔋Nonaktifkan Pengoptimalan Baterai</string>
     <string name="disable_battery_optimizations_already_done">
 Aplikasi sudah dikecualikan dari pengoptimalan baterai.</string>
+    <string name="no_connections_title">Belum ada koneksi</string>
+    <string name="no_connections_hint">Ketuk tombol + untuk menambahkan koneksi jarak jauh pertama Anda</string>
+    <string name="no_connections_hint_tv">Tekan tombol + di atas untuk menambahkan koneksi jarak jauh pertama Anda</string>
+    <string name="keyboard_layout_map">Tata Letak Keyboard</string>
 </resources>
-

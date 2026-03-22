@@ -1,775 +1,1165 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
     <LinearLayout
         android:id="@+id/mainLayout"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="0dip">
+        android:paddingBottom="16dp">
 
-        <TableLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="5dip">
-
-            <TableRow>
-
-                <TextView
-                    android:id="@+id/connectionTypeLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/connection_type_caption"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </TableRow>
-
-            <TableRow>
-
-                <Spinner
-                    android:id="@+id/connectionType"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:entries="@array/rdp_connection_type"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </TableRow>
-
-            <TableRow>
-
-                <EditText
-                    android:id="@+id/textNickname"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/nickname_caption_hint"
-                    android:singleLine="true"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </TableRow>
-
-            <TableRow>
-
-                <TextView
-                    android:id="@+id/sshCaption"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ssh_tunnel_settings"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </TableRow>
-
-            <TableRow>
-
-                <LinearLayout
-                    android:id="@+id/sshServerEntry"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <EditText
-                        android:id="@+id/sshServer"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="@string/address_caption_ssh_hint"
-                        android:inputType="textNoSuggestions|textVisiblePassword"
-                        android:nextFocusDown="@+id/sshPort"
-                        android:singleLine="true"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                    <EditText
-                        android:id="@+id/sshPort"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:hint="@string/port_ssh_hint"
-                        android:inputType="textNoSuggestions|textVisiblePassword"
-                        android:nextFocusDown="@+id/sshUser"
-                        android:singleLine="true"
-                        android:text="22"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
-                </LinearLayout>
-            </TableRow>
-
-            <TableRow>
-
-                <LinearLayout
-                    android:id="@+id/sshCredentials"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <LinearLayout
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="0dp"
-                        android:singleLine="true">
-
-                        <EditText
-                            android:id="@+id/sshUser"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:hint="@string/username_hint_ssh"
-                            android:inputType="textNoSuggestions|textVisiblePassword"
-                            android:nextFocusDown="@+id/sshPassword"
-                            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                        <EditText
-                            android:id="@+id/sshPassword"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0"
-                            android:hint="@string/password_hint_ssh"
-                            android:inputType="textNoSuggestions|textPassword"
-                            android:textAppearance="?android:attr/textAppearanceLarge" />
-                    </LinearLayout>
-
-                    <EditText
-                        android:id="@+id/sshPassphrase"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/ssh_passphrase_hint"
-                        android:inputType="textNoSuggestions|textPassword"
-                        android:singleLine="true"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
-                </LinearLayout>
-            </TableRow>
-
-            <TableRow>
-
-                <LinearLayout
-                    android:id="@+id/layoutUseSshPubkey"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <LinearLayout
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <CheckBox
-                            android:id="@+id/checkboxUseSshPubkey"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight=".5"
-                            android:checked="false"
-                            android:singleLine="true"
-                            android:text="@string/ssh_use_pubkey"
-                            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                        <CheckBox
-                            android:id="@+id/checkboxKeepSshPass"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight=".5"
-                            android:checked="false"
-                            android:singleLine="true"
-                            android:text="@string/keep_password_button"
-                            android:textAppearance="?android:attr/textAppearanceLarge" />
-                    </LinearLayout>
-
-                    <Button
-                        android:id="@+id/buttonGeneratePubkey"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:enabled="true"
-                        android:text="@string/ssh_pubkey_button"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
-                </LinearLayout>
-            </TableRow>
-
-            <TableRow>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/rdp_connection_settings"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </TableRow>
-
-            <TableRow>
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal">
-
-                    <EditText
-                        android:id="@+id/textIP"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="@string/rdp_address_caption_hint"
-                        android:inputType="textNoSuggestions|textVisiblePassword"
-                        android:nextFocusDown="@+id/textPORT"
-                        android:singleLine="true"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                    <EditText
-                        android:id="@+id/textPORT"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:hint="@string/port_hint"
-                        android:inputType="textNoSuggestions|textVisiblePassword"
-                        android:singleLine="true"
-                        android:text="3389"
-                        android:nextFocusDown="@+id/textUsername"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
-                </LinearLayout>
-            </TableRow>
-
-            <TableRow>
-
-                <EditText
-                    android:id="@+id/textUsername"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/rdp_username_hint"
-                    android:inputType="textNoSuggestions|textVisiblePassword"
-                    android:singleLine="true"
-                    android:nextFocusDown="@+id/rdpDomain"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </TableRow>
-
-            <TableRow>
-
-                <EditText
-                    android:id="@+id/rdpDomain"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/rdp_domain_hint"
-                    android:inputType="textNoSuggestions|textVisiblePassword"
-                    android:singleLine="true"
-                    android:nextFocusDown="@+id/textPASSWORD"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </TableRow>
-
-            <TableRow>
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal">
-
-                    <EditText
-                        android:id="@+id/textPASSWORD"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="@string/rdp_password_hint"
-                        android:inputType="textNoSuggestions|textPassword"
-                        android:singleLine="true"
-                        android:nextFocusDown="@+id/checkboxKeepPassword"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                    <CheckBox
-                        android:id="@+id/checkboxKeepPassword"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:singleLine="true"
-                        android:text="@string/keep_password_button"
-                        android:nextFocusDown="@+id/toggleAdvancedSettings"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
-                </LinearLayout>
-            </TableRow>
-        </TableLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="5dip">
-
-            <ToggleButton
-                android:id="@+id/rdpGatewayEnabled"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textOff="@string/no"
-                android:textOn="@string/yes" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/enable_gateway"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/layoutRdpGatewaySettings"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="5dip"
-            android:visibility="gone">
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ConnectionCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <LinearLayout
-                android:id="@+id/rdpGatewayHostnameAndPortLayout"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/rdpGatewayHostname"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/rdp_address_caption_hint"
-                    android:inputType="textNoSuggestions|textVisiblePassword"
-                    android:singleLine="true"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <EditText
-                    android:id="@+id/rdpGatewayPort"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:hint="@string/port_ssh_hint"
-                    android:inputType="textNoSuggestions|textVisiblePassword"
-                    android:nextFocusDown="@+id/rdpGatewayUsername"
-                    android:singleLine="true"
-                    android:text="22"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/rdpGatewayUsername"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/rdp_username_hint"
-                android:inputType="textNoSuggestions|textVisiblePassword"
-                android:singleLine="true"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <EditText
-                android:id="@+id/rdpGatewayDomain"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/rdp_domain_hint"
-                android:inputType="textNoSuggestions|textVisiblePassword"
-                android:singleLine="true"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/rdpGatewayPassword"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/rdp_password_hint"
-                    android:inputType="textNoSuggestions|textPassword"
-                    android:singleLine="true"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <CheckBox
-                    android:id="@+id/checkboxKeepRdpGatewayPassword"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:singleLine="true"
-                    android:text="@string/keep_password_button"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="5dip">
-
-            <ToggleButton
-                android:id="@+id/toggleAdvancedSettings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textOff="@string/show"
-                android:textOn="@string/hide" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/show_advanced_settings"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/layoutAdvancedSettings"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="5dip"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.4"
-                    android:text="@string/color_mode"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <Spinner
-                    android:id="@+id/spinnerRdpColor"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.6"
-                    android:entries="@array/rdp_colors"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/textDescriptGeom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/rdp_descript_geom"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Spinner
-                    android:id="@+id/spinnerRdpGeometry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.4"
-                    android:entries="@array/rdp_geometry"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <EditText
-                    android:id="@+id/rdpWidth"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
-                    android:singleLine="true"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="x"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <EditText
-                    android:id="@+id/rdpHeight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
-                    android:singleLine="true"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/desktop_scale_percentage"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-            <TextView
-                android:id="@+id/desktopScaleProgressTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-            <SeekBar
-                android:id="@+id/desktopScaleSeekBar"
-                android:max="300"
-                android:title="@string/desktop_scale_percentage"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"/>
-
-            <CheckBox
-                android:id="@+id/checkboxPreferSendingUnicode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/prefer_sending_unicode"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <RadioGroup
-                android:id="@+id/groupRemoteSoundType"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <RadioButton
-                    android:id="@+id/radioRemoteSoundDisabled"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="remoteSoundTypeToggled"
-                    android:text="@string/remote_sound_disabled"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <RadioButton
-                    android:id="@+id/radioRemoteSoundOnServer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="remoteSoundTypeToggled"
-                    android:text="@string/remote_sound_on_server"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <RadioButton
-                    android:id="@+id/radioRemoteSoundOnDevice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="remoteSoundTypeToggled"
-                    android:text="@string/remote_sound_on_device"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </RadioGroup>
-
-            <CheckBox
-                android:id="@+id/checkboxEnableRecording"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:onClick="toggleEnableRecording"
-                android:text="@string/enable_recording"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxConsoleMode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_console_mode"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxRedirectSdCard"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_redirect_sdcard"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxRemoteFx"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_remotefx"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxDesktopBackground"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_desktop_background"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxFontSmoothing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_font_smoothing"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxDesktopComposition"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_desktop_composition"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxWindowContents"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_window_contents"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxMenuAnimation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_menu_animation"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxVisualStyles"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_visual_styles"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxEnableGfx"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_gfx"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxEnableGfxH264"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_gfxh264"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <CheckBox
-                android:id="@+id/checkboxEnableGlyphCache"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rdp_adv_glyph_cache"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
                 <TextView
-                    android:layout_width="fill_parent"
+                    android:id="@+id/connectionTypeLabel"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.4"
-                    android:text="@string/rdp_security_mode"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
+                    android:paddingBottom="4dp"
+                    android:text="@string/connection_type_caption"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textStyle="bold" />
 
                 <Spinner
-                    android:id="@+id/spinnerRdpSecurity"
-                    android:layout_width="fill_parent"
+                    android:id="@+id/connectionType"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.6"
-                    android:entries="@array/rdp_security"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
+                    android:entries="@array/rdp_connection_type" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="@string/nickname_caption_hint">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/textNickname"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:inputType="text"
+                        android:nextFocusDown="@+id/sshServer"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/sshCaption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:paddingBottom="4dp"
+                    android:text="@string/ssh_tunnel_settings"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/sshServerEntry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:hint="@string/address_caption_ssh_hint">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/sshServer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:inputType="textNoSuggestions|textVisiblePassword"
+                            android:nextFocusDown="@+id/sshPort"
+                            android:singleLine="true" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        android:layout_width="90dp"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/port_ssh_hint">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/sshPort"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:inputType="textNoSuggestions|textVisiblePassword"
+                            android:nextFocusDown="@+id/sshUser"
+                            android:singleLine="true"
+                            android:text="22"
+                            tools:ignore="HardcodedText" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/sshCredentials"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:hint="@string/username_hint_ssh">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/sshUser"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:imeOptions="actionNext"
+                                android:inputType="textNoSuggestions|textVisiblePassword"
+                                android:nextFocusDown="@+id/sshPassword"
+                                android:singleLine="true" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_weight="1"
+                            android:hint="@string/password_hint_ssh"
+                            app:endIconMode="password_toggle">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/sshPassword"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:imeOptions="actionNext"
+                                android:inputType="textNoSuggestions|textPassword"
+                                android:nextFocusDown="@+id/sshPassphrase"
+                                android:singleLine="true" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="@string/ssh_passphrase_hint"
+                        app:endIconMode="password_toggle">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/sshPassphrase"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:inputType="textNoSuggestions|textPassword"
+                            android:nextFocusDown="@+id/textIP"
+                            android:singleLine="true" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/checkboxKeepSshPass"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/keep_password_button" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutUseSshPubkey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/checkboxUseSshPubkey"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ssh_use_pubkey" />
+
+                    <Button
+                        android:id="@+id/buttonGeneratePubkey"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/ssh_pubkey_button" />
+
+                </LinearLayout>
+
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:layout_width="wrap_content"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ConnectionCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/local_device_tweaks"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:orientation="vertical">
 
-            <CheckBox
-                android:id="@+id/checkboxUseDpadAsArrows"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/dpad_as_arrows"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
+                    android:text="@string/rdp_connection_settings"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textStyle="bold" />
 
-            <CheckBox
-                android:id="@+id/checkboxRotateDpad"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/rotate_dpad"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
 
-            <CheckBox
-                android:id="@+id/checkboxUseLastPositionToolbar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/position_toolbar_last_used"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:hint="@string/rdp_address_caption_hint">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/cursor_mode"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/textIP"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:inputType="textNoSuggestions|textVisiblePassword"
+                            android:nextFocusDown="@+id/textPORT"
+                            android:singleLine="true" />
 
-            <RadioGroup
-                android:id="@+id/radioCursor"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                <RadioButton
-                    android:id="@+id/radioCursorAuto"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        android:layout_width="90dp"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/port_hint">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/textPORT"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:inputType="textNoSuggestions|textVisiblePassword"
+                            android:nextFocusDown="@+id/textUsername"
+                            android:singleLine="true"
+                            android:text="3389"
+                            tools:ignore="HardcodedText" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/rdp_username_hint">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/textUsername"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:inputType="textNoSuggestions|textVisiblePassword"
+                        android:nextFocusDown="@+id/rdpDomain"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/rdp_domain_hint">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/rdpDomain"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:inputType="textNoSuggestions|textVisiblePassword"
+                        android:nextFocusDown="@+id/textPASSWORD"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/rdp_password_hint"
+                    app:endIconMode="password_toggle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/textPASSWORD"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:inputType="textNoSuggestions|textPassword"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/checkboxKeepPassword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/auto"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
+                    android:layout_marginTop="4dp"
+                    android:text="@string/keep_password_button" />
 
-                <RadioButton
-                    android:id="@+id/radioCursorForceLocal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/cursor_force_local"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-                <RadioButton
-                    android:id="@+id/radioCursorForceDisable"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/cursor_force_disable"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </RadioGroup>
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ConnectionCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/versionAndCode"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-        </LinearLayout>
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/enable_gateway"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textStyle="bold" />
+
+                    <ToggleButton
+                        android:id="@+id/rdpGatewayEnabled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textOff="@string/no"
+                        android:textOn="@string/yes" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutRdpGatewaySettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/rdpGatewayHostnameAndPortLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:hint="@string/rdp_address_caption_hint">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/rdpGatewayHostname"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:imeOptions="actionNext"
+                                android:inputType="textNoSuggestions|textVisiblePassword"
+                                android:nextFocusDown="@+id/rdpGatewayPort"
+                                android:singleLine="true" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                            android:layout_width="90dp"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/port_ssh_hint">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/rdpGatewayPort"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:imeOptions="actionNext"
+                                android:inputType="textNoSuggestions|textVisiblePassword"
+                                android:nextFocusDown="@+id/rdpGatewayUsername"
+                                android:singleLine="true"
+                                android:text="22"
+                                tools:ignore="HardcodedText" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="@string/rdp_username_hint">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/rdpGatewayUsername"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:inputType="textNoSuggestions|textVisiblePassword"
+                            android:nextFocusDown="@+id/rdpGatewayDomain"
+                            android:singleLine="true" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="@string/rdp_domain_hint">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/rdpGatewayDomain"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:inputType="textNoSuggestions|textVisiblePassword"
+                            android:nextFocusDown="@+id/rdpGatewayPassword"
+                            android:singleLine="true" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="@string/rdp_password_hint"
+                        app:endIconMode="password_toggle">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/rdpGatewayPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionDone"
+                            android:inputType="textNoSuggestions|textPassword"
+                            android:singleLine="true" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/checkboxKeepRdpGatewayPassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/keep_password_button" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ConnectionCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/show_advanced_settings"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textStyle="bold" />
+
+                    <ToggleButton
+                        android:id="@+id/toggleAdvancedSettings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textOff="@string/show"
+                        android:textOn="@string/hide" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutAdvancedSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="4dp"
+                        android:text="@string/color_mode"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <Spinner
+                        android:id="@+id/spinnerRdpColor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:entries="@array/rdp_colors" />
+
+                    <TextView
+                        android:id="@+id/textDescriptGeom"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/rdp_descript_geom"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <Spinner
+                            android:id="@+id/spinnerRdpGeometry"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:entries="@array/rdp_geometry" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/rdpWidth"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:singleLine="true" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            android:text="x"
+                            tools:ignore="HardcodedText" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/rdpHeight"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:singleLine="true" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/desktop_scale_percentage"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <TextView
+                        android:id="@+id/desktopScaleProgressTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <SeekBar
+                        android:id="@+id/desktopScaleSeekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="300" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:paddingBottom="4dp"
+                        android:text="@string/rdp_adv_remotefx"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp"
+                        tools:ignore="TooManyViews">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_remotefx"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxRemoteFx"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_gfx"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxEnableGfx"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_gfxh264"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxEnableGfxH264"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_glyph_cache"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxEnableGlyphCache"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_desktop_background"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxDesktopBackground"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_font_smoothing"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxFontSmoothing"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_desktop_composition"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxDesktopComposition"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_window_contents"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxWindowContents"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_menu_animation"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxMenuAnimation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_visual_styles"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxVisualStyles"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:paddingBottom="4dp"
+                        android:text="@string/audio"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/groupRemoteSoundType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:selectionRequired="true"
+                        app:singleSelection="true">
+
+                        <Button
+                            android:id="@+id/radioRemoteSoundDisabled"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/remote_sound_disabled" />
+
+                        <Button
+                            android:id="@+id/radioRemoteSoundOnServer"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/remote_sound_on_server" />
+
+                        <Button
+                            android:id="@+id/radioRemoteSoundOnDevice"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/remote_sound_on_device" />
+
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/enable_recording"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxEnableRecording"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="toggleEnableRecording"
+                            tools:ignore="UsingOnClickInXml" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_console_mode"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxConsoleMode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rdp_adv_redirect_sdcard"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxRedirectSdCard"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/prefer_sending_unicode"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxPreferSendingUnicode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:paddingBottom="4dp"
+                        android:text="@string/rdp_security_mode"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <Spinner
+                        android:id="@+id/spinnerRdpSecurity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:entries="@array/rdp_security" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:paddingBottom="4dp"
+                        android:text="@string/local_device_tweaks"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/dpad_as_arrows"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxUseDpadAsArrows"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/rotate_dpad"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxRotateDpad"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/position_toolbar_last_used"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxUseLastPositionToolbar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/cursor_mode"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/radioCursor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:selectionRequired="true"
+                        app:singleSelection="true">
+
+                        <Button
+                            android:id="@+id/radioCursorAuto"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/auto" />
+
+                        <Button
+                            android:id="@+id/radioCursorForceLocal"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/cursor_force_local" />
+
+                        <Button
+                            android:id="@+id/radioCursorForceDisable"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/cursor_force_disable" />
+
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                    <TextView
+                        android:id="@+id/versionAndCode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <Button
             android:id="@+id/copyLogcat"
+            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/copy_logcat"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/copy_logcat" />
 
         <LinearLayout
+            style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="8dp">
+
             <Button
                 android:id="@+id/helpButton"
-                style="?buttonBarButtonStyle"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
                 android:onClick="showConnectionScreenHelp"
-                android:text="@string/menu_help" />
+                android:text="@string/menu_help"
+                tools:ignore="UsingOnClickInXml" />
+
             <Button
                 android:id="@+id/saveButton"
-                style="?buttonBarButtonStyle"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="save"
-                android:text="@string/save_button" />
+                android:text="@string/save_button"
+                tools:ignore="UsingOnClickInXml" />
+
         </LinearLayout>
+
     </LinearLayout>
 </ScrollView>

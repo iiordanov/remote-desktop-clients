@@ -35,7 +35,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.ToggleButton;
+import android.widget.CompoundButton;
+
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -57,6 +59,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
     private ConnectionSettings currentConnection;
 
     private Button buttonManageOvirtCa;
+    private LinearLayout layoutManageOvirtCa;
     private Spinner layoutMapSpinner;
     private LinearLayout layoutCustomRemoteResolution;
     private LinearLayout layoutToggleCustomRemoteResolution;
@@ -70,40 +73,40 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         Intent i = getIntent();
         currentConnection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
 
-        ToggleButton toggleAudioPlayback = findViewById(R.id.toggleAudioPlayback);
+        SwitchMaterial toggleAudioPlayback = findViewById(R.id.toggleAudioPlayback);
         toggleAudioPlayback.setChecked(currentConnection.isAudioPlaybackEnabled());
 
-        ToggleButton toggleUsbEnabled = findViewById(R.id.toggleUsbEnabled);
+        SwitchMaterial toggleUsbEnabled = findViewById(R.id.toggleUsbEnabled);
         toggleUsbEnabled.setChecked(currentConnection.isUsbEnabled());
 
-        ToggleButton toggleAutoRotation = findViewById(R.id.toggleAutoRotation);
+        SwitchMaterial toggleAutoRotation = findViewById(R.id.toggleAutoRotation);
         toggleAutoRotation.setChecked(currentConnection.isRotationEnabled());
 
-        ToggleButton toggleAutoRequestDisplayResolution = findViewById(R.id.toggleAutoRequestDisplayResolution);
+        SwitchMaterial toggleAutoRequestDisplayResolution = findViewById(R.id.toggleAutoRequestDisplayResolution);
         toggleAutoRequestDisplayResolution.setChecked(currentConnection.isRequestingNewDisplayResolution());
 
-        ToggleButton toggleCustomDisplayResolution = findViewById(R.id.toggleCustomDisplayResolution);
+        SwitchMaterial toggleCustomDisplayResolution = findViewById(R.id.toggleCustomDisplayResolution);
         toggleCustomDisplayResolution.setChecked(currentConnection.getRdpResType() == RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
 
-        ToggleButton toggleSslStrict = findViewById(R.id.toggleSslStrict);
+        SwitchMaterial toggleSslStrict = findViewById(R.id.toggleSslStrict);
         toggleSslStrict.setChecked(currentConnection.isSslStrict());
 
-        LinearLayout layoutManageOvirtCa = findViewById(R.id.layoutManageOvirtCa);
+        layoutManageOvirtCa = findViewById(R.id.layoutManageOvirtCa);
         LinearLayout layoutToggleUsingCustomOvirtCa = findViewById(R.id.layoutToggleUsingCustomOvirtCa);
 
-        ToggleButton toggleUsingCustomOvirtCa = findViewById(R.id.toggleUsingCustomOvirtCa);
+        SwitchMaterial toggleUsingCustomOvirtCa = findViewById(R.id.toggleUsingCustomOvirtCa);
         toggleUsingCustomOvirtCa.setChecked(currentConnection.isUsingCustomOvirtCa());
 
-        ToggleButton useDpadForArrows = findViewById(R.id.dpadAsArrows);
+        SwitchMaterial useDpadForArrows = findViewById(R.id.dpadAsArrows);
         useDpadForArrows.setChecked(currentConnection.getUseDpadAsArrows());
 
         TextView textUseLastPositionToolbar = findViewById(R.id.textUseLastPositionToolbar);
         textUseLastPositionToolbar.setText(getString(R.string.position_toolbar_last_used));
-        ToggleButton toggleUseLastPositionToolbar = findViewById(R.id.toggleUseLastPositionToolbar);
+        SwitchMaterial toggleUseLastPositionToolbar = findViewById(R.id.toggleUseLastPositionToolbar);
         toggleUseLastPositionToolbar.setChecked(currentConnection.getUseLastPositionToolbar());
 
         buttonManageOvirtCa = findViewById(R.id.buttonManageOvirtCa);
-        buttonManageOvirtCa.setEnabled(currentConnection.isUsingCustomOvirtCa());
+        layoutManageOvirtCa.setVisibility(currentConnection.isUsingCustomOvirtCa() ? View.VISIBLE : View.GONE);
 
         if (currentConnection.getConnectionTypeString()
                 .equals(getResources().getString(R.string.connection_type_pve))) {
@@ -209,7 +212,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * @param view the view that was clicked on
      */
     public void toggleAudioPlaybackSetting(View view) {
-        ToggleButton s = (ToggleButton) view;
+        CompoundButton s = (CompoundButton) view;
         if (s.isChecked()) {
             AudioPermissionsManager.requestPermissions(this, AudioPermissionGroups.RECORD_AUDIO, true);
         }
@@ -221,7 +224,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * @param view the view that was clicked on
      */
     public void toggleUsbEnabledSetting(View view) {
-        ToggleButton s = (ToggleButton) view;
+        CompoundButton s = (CompoundButton) view;
         currentConnection.setUsbEnabled(s.isChecked());
     }
 
@@ -230,7 +233,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * @param view the view that was clicked on
      */
     public void toggleAutoRotation(View view) {
-        ToggleButton s = (ToggleButton) view;
+        CompoundButton s = (CompoundButton) view;
         currentConnection.setRotationEnabled(s.isChecked());
     }
 
@@ -239,7 +242,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * @param view the view that was clicked on
      */
     public void toggleAutoRequestDisplayResolution(View view) {
-        ToggleButton s = (ToggleButton) view;
+        CompoundButton s = (CompoundButton) view;
         boolean autoDisplayResolution = s.isChecked();
         currentConnection.setRequestingNewDisplayResolution(autoDisplayResolution);
         if (autoDisplayResolution) {
@@ -256,7 +259,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * @param view the view that was clicked on
      */
     public void toggleCustomDisplayResolution(View view) {
-        ToggleButton s = (ToggleButton) view;
+        CompoundButton s = (CompoundButton) view;
         boolean customDisplayResolution = s.isChecked();
         int resType = 0;
         if (customDisplayResolution) {
@@ -275,7 +278,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * @param view the view that was clicked on
      */
     public void toggleSslStrict(View view) {
-        ToggleButton s = (ToggleButton) view;
+        CompoundButton s = (CompoundButton) view;
         currentConnection.setSslStrict(s.isChecked());
     }
 
@@ -284,10 +287,10 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * @param view the view that was clicked on
      */
     public void toggleUsingCustomOvirtCa(View view) {
-        ToggleButton s = (ToggleButton) view;
+        CompoundButton s = (CompoundButton) view;
         boolean usingCustomOvirtCa = s.isChecked();
         currentConnection.setUsingCustomOvirtCa(usingCustomOvirtCa);
-        buttonManageOvirtCa.setEnabled(usingCustomOvirtCa);
+        layoutManageOvirtCa.setVisibility(usingCustomOvirtCa ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -295,7 +298,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * @param view the view that was clicked on
      */
     public void toggleUseLastPositionToolbar(View view) {
-        ToggleButton s = (ToggleButton) view;
+        CompoundButton s = (CompoundButton) view;
         currentConnection.setUseLastPositionToolbar(s.isChecked());
     }
 
@@ -304,7 +307,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * @param view the view that was clicked on
      */
     public void dpadAsArrows(View view) {
-        ToggleButton s = (ToggleButton) view;
+        CompoundButton s = (CompoundButton) view;
         currentConnection.setUseDpadAsArrows(s.isChecked());
     }
 

@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Row 1: text input + history navigation -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -44,7 +43,6 @@
 
     </LinearLayout>
 
-    <!-- Row 2: send actions -->
     <LinearLayout
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"

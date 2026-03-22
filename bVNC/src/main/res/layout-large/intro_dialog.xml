@@ -3,7 +3,8 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:padding="0sp">
+    android:background="?attr/colorSurface"
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/textIntroText"

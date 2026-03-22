@@ -701,5 +701,8 @@ ASPICE خصوصیات کی موجودہ فہرست میں شامل ہیں:
 🔋 بیٹری کی اصلاح کو غیر فعال کریں۔</string>
     <string name="disable_battery_optimizations_already_done">
 ایپ پہلے ہی بیٹری کی اصلاح سے مستثنیٰ ہے۔</string>
+    <string name="no_connections_title">ابھی تک کوئی کنکشن نہیں</string>
+    <string name="no_connections_hint">اپنا پہلا ریموٹ کنکشن شامل کرنے کے لیے + بٹن تھپتھپائیں</string>
+    <string name="no_connections_hint_tv">اپنا پہلا ریموٹ کنکشن شامل کرنے کے لیے اوپر + بٹن دبائیں</string>
+    <string name="keyboard_layout_map">کی بورڈ لے آؤٹ</string>
 </resources>
-

@@ -24,18 +24,19 @@ package com.iiordanov.bVNC;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.iiordanov.bVNC.dialogs.AutoXCustomizeDialog;
 import com.iiordanov.bVNC.dialogs.RepeaterDialog;
 import com.undatech.remoteClientUi.R;
@@ -48,11 +49,11 @@ public class bVNC extends MainConfiguration {
     private LinearLayout layoutUseX11Vnc;
     private LinearLayout repeaterEntry;
     private TextView repeaterText;
-    private RadioGroup groupForceFullScreen;
+    private MaterialButtonToggleGroup groupForceFullScreen;
     private Spinner colorSpinner;
     private TextView autoXStatus;
-    private CheckBox checkboxPreferHextile;
-    private CheckBox checkboxViewOnly;
+    private CompoundButton checkboxPreferHextile;
+    private CompoundButton checkboxViewOnly;
     private boolean repeaterTextSet;
     private Spinner spinnerVncGeometry;
 
@@ -97,8 +98,7 @@ public class bVNC extends MainConfiguration {
                 } else if (selectedConnType == Constants.CONN_TYPE_SSH) {
                     setVisibilityOfSshWidgets(View.VISIBLE);
                     setVisibilityOfUltraVncWidgets(View.GONE);
-                    if (ipText.getText().toString().equals(""))
-                        ipText.setText("localhost");
+                    setIpTextToLocalhostIfEmpty();
                     ipText.setHint(R.string.address_caption_hint_tunneled);
                     textUsername.setHint(R.string.username_hint_optional);
                 } else if (selectedConnType == Constants.CONN_TYPE_ULTRAVNC) {
@@ -110,8 +110,10 @@ public class bVNC extends MainConfiguration {
                     setVisibilityOfSshWidgets(View.GONE);
                     textUsername.setVisibility(View.VISIBLE);
                     repeaterEntry.setVisibility(View.GONE);
-                    if (passwordText.getText().toString().equals(""))
+                    Editable passwordTextEditable = passwordText.getText();
+                    if (passwordTextEditable != null && passwordTextEditable.toString().isEmpty()) {
                         checkboxKeepPassword.setChecked(false);
+                    }
                     ipText.setHint(R.string.address_caption_hint);
                     textUsername.setHint(R.string.username_hint_vencrypt);
                 }
@@ -220,7 +222,8 @@ public class bVNC extends MainConfiguration {
         try {
             cm = COLORMODEL.valueOf(selected.getColorModel());
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error setting color model");
+            Log.e(TAG, Log.getStackTraceString(e));
         }
         COLORMODEL[] colors = COLORMODEL.values();
 
@@ -262,7 +265,7 @@ public class bVNC extends MainConfiguration {
         super.updateSelectedFromView();
 
         selected.setUserName(textUsername.getText().toString());
-        selected.setForceFull(groupForceFullScreen.getCheckedRadioButtonId() == R.id.radioForceFullScreenAuto ? BitmapImplHint.AUTO : (groupForceFullScreen.getCheckedRadioButtonId() == R.id.radioForceFullScreenOn ? BitmapImplHint.FULL : BitmapImplHint.TILE));
+        selected.setForceFull(groupForceFullScreen.getCheckedButtonId() == R.id.radioForceFullScreenAuto ? BitmapImplHint.AUTO : (groupForceFullScreen.getCheckedButtonId() == R.id.radioForceFullScreenOn ? BitmapImplHint.FULL : BitmapImplHint.TILE));
 
         if (checkboxPreferHextile.isChecked())
             selected.setPrefEncoding(RfbProto.EncodingHextile);

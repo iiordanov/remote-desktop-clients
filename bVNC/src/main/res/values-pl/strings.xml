@@ -805,5 +805,8 @@ Nie można otworzyć ustawień optymalizacji baterii. Wyłącz ręcznie optymali
 🔋Wyłącz optymalizację baterii</string>
     <string name="disable_battery_optimizations_already_done">
 Aplikacja jest już wyłączona z optymalizacji baterii.</string>
+    <string name="no_connections_title">Brak połączeń</string>
+    <string name="no_connections_hint">Dotknij przycisku +, aby dodać pierwsze połączenie zdalne</string>
+    <string name="no_connections_hint_tv">Naciśnij przycisk + powyżej, aby dodać pierwsze połączenie zdalne</string>
+    <string name="keyboard_layout_map">Układ klawiatury</string>
 </resources>
-

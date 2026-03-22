@@ -5,5 +5,5 @@
     android:layout_height="fill_parent"
     android:padding="1dp"
     android:singleLine="true"
-    android:textColor="#FFBBBBBB"
+    android:textColor="?android:attr/textColorPrimary"
     android:textSize="20sp" />

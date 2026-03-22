@@ -131,9 +131,6 @@
     <string name="auto_x_session_custom">カスタム</string>
     <string name="auto_x_title">AutoX設定</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-            declared in VncConstants for conversion bet. selection and commands
-            to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -615,7 +612,6 @@ aRDP対応予定機能：
     <string name="save_as_copy">コピーを保存</string>
     <string name="scaling">スケーリング</string>
     <string name="scaling_zoomable">拡大縮小可能</string>
-    <!-- Send selected metakey -->
     <string name="send_button">送信</string>
     <string name="send_key_again">キーを再度送信</string>
     <string name="shift_check">Shift</string>
@@ -852,5 +848,8 @@ aSPICEで対応済み機能は以下の通り：
 🔋バッテリーの最適化を無効にする</string>
     <string name="disable_battery_optimizations_already_done">
 アプリはすでにバッテリーの最適化から除外されています。</string>
+    <string name="no_connections_title">接続がまだありません</string>
+    <string name="no_connections_hint">+ボタンをタップして最初のリモート接続を追加してください</string>
+    <string name="no_connections_hint_tv">上の+ボタンを押して最初のリモート接続を追加してください</string>
+    <string name="keyboard_layout_map">キーボードレイアウト</string>
 </resources>
-

@@ -736,5 +736,8 @@
 🔋 ปิดการใช้งานการเพิ่มประสิทธิภาพแบตเตอรี่</string>
     <string name="disable_battery_optimizations_already_done">
 แอปได้รับการยกเว้นจากการเพิ่มประสิทธิภาพแบตเตอรี่แล้ว</string>
+    <string name="no_connections_title">ยังไม่มีการเชื่อมต่อ</string>
+    <string name="no_connections_hint">แตะปุ่ม + เพื่อเพิ่มการเชื่อมต่อระยะไกลครั้งแรกของคุณ</string>
+    <string name="no_connections_hint_tv">กดปุ่ม + ด้านบนเพื่อเพิ่มการเชื่อมต่อระยะไกลครั้งแรกของคุณ</string>
+    <string name="keyboard_layout_map">รูปแบบแป้นพิมพ์</string>
 </resources>
-

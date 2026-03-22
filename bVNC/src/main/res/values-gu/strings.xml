@@ -127,9 +127,6 @@
     <string name="auto_x_session_custom">કસ્ટમ</string>
     <string name="auto_x_title">AutoX ગોઠવો</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -592,7 +589,6 @@ connection ઉમેરો/edit ઉપર, connection configuration page. નવ
     <string name="save_as_copy">Copy તરીકે Save</string>
     <string name="scaling">Scaling</string>
     <string name="scaling_zoomable">Zoomable</string>
-    <!-- Send selected metakey -->
     <string name="send_button">મોકલો</string>
     <string name="send_key_again">Key ફરી મોકલો</string>
     <string name="shift_check">Shift</string>
@@ -829,5 +825,8 @@ connection ઉમેરો/edit ઉપર, connection configuration page.
 🔋બૅટરી ઑપ્ટિમાઇઝેશનને અક્ષમ કરો</string>
     <string name="disable_battery_optimizations_already_done">
 એપ પહેલાથી જ બેટરી ઓપ્ટિમાઇઝેશનમાંથી મુક્ત છે.</string>
+    <string name="no_connections_title">હજી સુધી કોઈ જોડાણ નથી</string>
+    <string name="no_connections_hint">તમારું પ્રથમ રિમોટ જોડાણ ઉમેરવા + બટન ટૅપ કરો</string>
+    <string name="no_connections_hint_tv">તમારું પ્રથમ રિમોટ જોડાણ ઉમેરવા ઉપરનું + બટન દબાવો</string>
+    <string name="keyboard_layout_map">કીબોર્ડ લેઆઉટ</string>
 </resources>
-

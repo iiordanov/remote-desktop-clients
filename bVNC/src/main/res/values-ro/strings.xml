@@ -583,7 +583,6 @@ Cand adaugati sau editati o conexiune, veti vedea o pagina de configurare a cone
     <string name="scaling">Scalare</string>
     <string name="scaling_zoomable">Zoomabil</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Trimite</string>
     <string name="send_key_again">Trimite Tasta Din Nou</string>
 
@@ -832,5 +831,8 @@ Nu s-au putut deschide setările de optimizare a bateriei. Dezactivați manual o
 🔋Dezactivați optimizările bateriei</string>
     <string name="disable_battery_optimizations_already_done">
 Aplicația este deja scutită de optimizările bateriei.</string>
+    <string name="no_connections_title">Nicio conexiune încă</string>
+    <string name="no_connections_hint">Atingeți butonul + pentru a adăuga prima conexiune la distanță</string>
+    <string name="no_connections_hint_tv">Apăsați butonul + de mai sus pentru a adăuga prima conexiune la distanță</string>
+    <string name="keyboard_layout_map">Aspect tastatură</string>
 </resources>
-

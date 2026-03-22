@@ -831,4 +831,8 @@ Ayikwazanga ukuvula izilungiselelo zokuthuthukisa ibhethri. Khubaza ukulungisele
 🔋Khubaza Ukulungiselelwa Kwebhethri</string>
     <string name="disable_battery_optimizations_already_done">
 Uhlelo lokusebenza seluvele lukhululiwe ekulungiselelweni kwebhethri.</string>
+    <string name="no_connections_title">Ayikho imiqhagamshelwano okwamanje</string>
+    <string name="no_connections_hint">Thinta inkinobho + ukwengeza ukuxhumana kwakho kokuqala okulawulwa ngekude</string>
+    <string name="no_connections_hint_tv">Cindezela inkinobho + engenhla ukwengeza ukuxhumana kwakho kokuqala okulawulwa ngekude</string>
+    <string name="keyboard_layout_map">Ukuhlela Ikhibhodi</string>
 </resources>

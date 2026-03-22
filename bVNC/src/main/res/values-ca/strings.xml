@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Personalitzat</string>
     <string name="auto_x_title">Configura AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -659,7 +656,6 @@ Quan afegiu o editeu una connexió, veureu una pàgina de configuració de conne
     <string name="scaling">Escala</string>
     <string name="scaling_zoomable">Ampliable</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Envia</string>
     <string name="send_key_again">Torna a enviar la tecla</string>
 
@@ -910,5 +906,8 @@ No s\'ha pogut obrir la configuració d\'optimització de la bateria. Desactiveu
 🔋Desactiva les optimitzacions de la bateria</string>
     <string name="disable_battery_optimizations_already_done">
 L\'aplicació ja està exempta d\'optimitzacions de bateria.</string>
+    <string name="no_connections_title">Encara no hi ha connexions</string>
+    <string name="no_connections_hint">Toca el botó + per afegir la teva primera connexió remota</string>
+    <string name="no_connections_hint_tv">Prem el botó + a dalt per afegir la teva primera connexió remota</string>
+    <string name="keyboard_layout_map">Disposició del teclat</string>
 </resources>
-

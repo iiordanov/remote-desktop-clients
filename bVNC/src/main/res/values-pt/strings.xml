@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Personalizado</string>
     <string name="auto_x_title">Configurar AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -659,7 +656,6 @@ Quando adiciona ou edita uma ligação, verá uma página de configuração de l
     <string name="scaling">Escala</string>
     <string name="scaling_zoomable">Zoomable</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Enviar</string>
     <string name="send_key_again">Enviar Tecla Novamente</string>
 
@@ -912,5 +908,8 @@ Não foi possível abrir as configurações de otimização da bateria. Desative
 🔋Desativar otimizações de bateria</string>
     <string name="disable_battery_optimizations_already_done">
 App já está isento de otimizações de bateria.</string>
+    <string name="no_connections_title">Ainda não há ligações</string>
+    <string name="no_connections_hint">Toque no botão + para adicionar a sua primeira ligação remota</string>
+    <string name="no_connections_hint_tv">Prima o botão + acima para adicionar a sua primeira ligação remota</string>
+    <string name="keyboard_layout_map">Disposição do teclado</string>
 </resources>
-

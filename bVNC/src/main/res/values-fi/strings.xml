@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Mukautettu</string>
     <string name="auto_x_title">Määritä AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -659,7 +656,6 @@ Kun lisäät tai muokkaat yhteyttä, näet yhteyden määrityssivun. Täällä v
     <string name="scaling">Skaalaus</string>
     <string name="scaling_zoomable">Zoomattava</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Lähetä</string>
     <string name="send_key_again">Lähetä näppäin uudelleen</string>
 
@@ -912,5 +908,8 @@ Akun optimointiasetuksia ei voitu avata. Poista akun optimointi käytöstä manu
 🔋Poista akun optimoinnit käytöstä</string>
     <string name="disable_battery_optimizations_already_done">
 Sovellus on jo vapautettu akun optimoinnista.</string>
+    <string name="no_connections_title">Ei yhteyksiä vielä</string>
+    <string name="no_connections_hint">Lisää ensimmäinen etäyhteys napauttamalla +-painiketta</string>
+    <string name="no_connections_hint_tv">Lisää ensimmäinen etäyhteys painamalla yllä olevaa +-painiketta</string>
+    <string name="keyboard_layout_map">Näppäimistöasettelu</string>
 </resources>
-

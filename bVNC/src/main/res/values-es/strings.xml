@@ -129,9 +129,6 @@
     <string name="auto_x_session_custom">Personalizado</string>
     <string name="auto_x_title">Configure AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -626,7 +623,6 @@ Problemas conocidos:
     <string name="scaling">Escalando</string>
     <string name="scaling_zoomable">Ampliable</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Enviar</string>
     <string name="send_key_again">Enviar clave de nuevo</string>
 
@@ -896,5 +892,8 @@ No se pudo abrir la configuración de optimización de la batería. Desactive la
 🔋Desactivar optimizaciones de batería</string>
     <string name="disable_battery_optimizations_already_done">
 La aplicación ya está exenta de optimizaciones de batería.</string>
+    <string name="no_connections_title">Aún no hay conexiones</string>
+    <string name="no_connections_hint">Toca el botón + para agregar tu primera conexión remota</string>
+    <string name="no_connections_hint_tv">Pulsa el botón + de arriba para agregar tu primera conexión remota</string>
+    <string name="keyboard_layout_map">Disposición del teclado</string>
 </resources>
-

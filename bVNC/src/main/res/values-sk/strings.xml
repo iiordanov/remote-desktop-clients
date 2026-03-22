@@ -736,5 +736,8 @@ Nepodarilo sa otvoriť nastavenia optimalizácie batérie. Zakázať optimalizá
 🔋Zakázať optimalizáciu batérie</string>
     <string name="disable_battery_optimizations_already_done">
 Aplikácia je už oslobodená od optimalizácie batérie.</string>
+    <string name="no_connections_title">Zatiaľ žiadne pripojenia</string>
+    <string name="no_connections_hint">Klepnutím na tlačidlo + pridáte prvé vzdialené pripojenie</string>
+    <string name="no_connections_hint_tv">Stlačením tlačidla + vyššie pridáte prvé vzdialené pripojenie</string>
+    <string name="keyboard_layout_map">Rozloženie klávesnice</string>
 </resources>
-

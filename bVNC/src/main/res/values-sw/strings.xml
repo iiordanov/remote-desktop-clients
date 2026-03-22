@@ -736,5 +736,8 @@ Haikuweza kufungua mipangilio ya uboreshaji wa betri. Zima uboreshaji wa betri m
 🔋Zima Uboreshaji wa Betri</string>
     <string name="disable_battery_optimizations_already_done">
 Programu tayari imeondolewa kwenye uboreshaji wa betri.</string>
+    <string name="no_connections_title">Hakuna miunganiko bado</string>
+    <string name="no_connections_hint">Gonga kitufe cha + kuongeza muunganiko wako wa kwanza wa mbali</string>
+    <string name="no_connections_hint_tv">Bonyeza kitufe cha + hapo juu kuongeza muunganiko wako wa kwanza wa mbali</string>
+    <string name="keyboard_layout_map">Mpangilio wa Kibodi</string>
 </resources>
-

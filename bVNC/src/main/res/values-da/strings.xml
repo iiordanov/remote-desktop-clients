@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Brugerdefineret</string>
     <string name="auto_x_title">Konfigurer AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -659,7 +656,6 @@ Når du tilføjer eller redigerer en forbindelse, vises en forbindelseskonfigura
     <string name="scaling">Skalering</string>
     <string name="scaling_zoomable">Zoombar</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Send</string>
     <string name="send_key_again">Send tast igen</string>
 
@@ -912,5 +908,8 @@ Batterioptimeringsindstillingerne kunne ikke åbnes. Deaktiver batterioptimering
 🔋Deaktiver batterioptimeringer</string>
     <string name="disable_battery_optimizations_already_done">
 Appen er allerede fritaget for batterioptimering.</string>
+    <string name="no_connections_title">Ingen forbindelser endnu</string>
+    <string name="no_connections_hint">Tryk på +-knappen for at tilføje din første fjernforbindelse</string>
+    <string name="no_connections_hint_tv">Tryk på +-knappen ovenfor for at tilføje din første fjernforbindelse</string>
+    <string name="keyboard_layout_map">Tastaturlayout</string>
 </resources>
-

@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">Kohandatud</string>
     <string name="auto_x_title">SeadistaNa AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -659,7 +656,6 @@ Kui lisate või redigeerite ühendust, kuvatakse ühenduse konfiguratsiooni leht
     <string name="scaling">Skaleerimine</string>
     <string name="scaling_zoomable">Suumitav</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Saada</string>
     <string name="send_key_again">Saada klahv uuesti</string>
 
@@ -912,5 +908,8 @@ Aku optimeerimise seadeid ei saanud avada. Keelake süsteemiseadetes aku optimee
 🔋Keelake aku optimeerimine</string>
     <string name="disable_battery_optimizations_already_done">
 Rakendus on aku optimeerimisest juba vabastatud.</string>
+    <string name="no_connections_title">Ühendusi pole veel</string>
+    <string name="no_connections_hint">Puudutage nuppu +, et lisada oma esimene kaugühendus</string>
+    <string name="no_connections_hint_tv">Vajutage ülaloleval nupul +, et lisada oma esimene kaugühendus</string>
+    <string name="keyboard_layout_map">Klaviatuuri paigutus</string>
 </resources>
-

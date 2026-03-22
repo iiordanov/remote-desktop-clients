@@ -729,5 +729,8 @@
 🔋Вимкнути оптимізацію батареї</string>
     <string name="disable_battery_optimizations_already_done">
 Додаток уже звільнено від оптимізації акумулятора.</string>
+    <string name="no_connections_title">Підключень поки немає</string>
+    <string name="no_connections_hint">Натисніть кнопку +, щоб додати перше віддалене підключення</string>
+    <string name="no_connections_hint_tv">Натисніть кнопку + вище, щоб додати перше віддалене підключення</string>
+    <string name="keyboard_layout_map">Розкладка клавіатури</string>
 </resources>
-

@@ -98,7 +98,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     private GridView gridView;
     private EditText search;
     private boolean togglingMasterPassword = false;
-    private AppCompatImageButton addNewConnection = null;
+    private View addNewConnection = null;
     private AppCompatImageButton popUpMenuButton = null;
 
     private RateOrShareFragment rateOrShareFragment = new RateOrShareFragment();
@@ -112,6 +112,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         setContentView(R.layout.grid_view_activity);
 
         gridView = (GridView) findViewById(R.id.gridView);
+        gridView.setEmptyView(findViewById(R.id.emptyState));
         gridView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -175,7 +176,9 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         addNewConnection = findViewById(R.id.addNewConnection);
         addNewConnection.setOnClickListener(v -> addNewConnection());
         popUpMenuButton = findViewById(R.id.popUpMenuButton);
-        popUpMenuButton.setOnClickListener(v -> popUpMenu());
+        if (popUpMenuButton != null) {
+            popUpMenuButton.setOnClickListener(v -> popUpMenu());
+        }
     }
 
     private ConnectionLoader getConnectionLoader(Context context) {
@@ -380,7 +383,8 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
      * Used to programmatically show the menu from a button. Mainly needed for Android TV
      */
     public void popUpMenu() {
-        PopupMenu popupMenu = new PopupMenu(ConnectionGridActivity.this, popUpMenuButton);
+        View anchor = popUpMenuButton != null ? popUpMenuButton : addNewConnection;
+        PopupMenu popupMenu = new PopupMenu(ConnectionGridActivity.this, anchor);
         popupMenu.getMenuInflater().inflate(R.menu.grid_view_activity_actions, popupMenu.getMenu());
         popupMenu.show();
     }

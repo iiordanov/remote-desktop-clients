@@ -138,9 +138,6 @@
     <string name="auto_x_session_custom">مخصص</string>
     <string name="auto_x_title">ضبط AutoX</string>
     <string-array name="auto_x_type">
-        <!-- If adding selections, they need to be in sync with values
-        declared in VncConstants for conversion bet. selection and commands
-        to work properly. -->
         <item>@string/auto_x_disabled_selection</item>
         <item>@string/auto_x_xvfb</item>
         <item>@string/auto_x_xvnc</item>
@@ -659,7 +656,6 @@
     <string name="scaling">التحجيم</string>
     <string name="scaling_zoomable">قابل للتكبير</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">إرسال</string>
     <string name="send_key_again">إرسال المفتاح مجدداً</string>
 
@@ -911,5 +907,8 @@ Could not open battery optimization settings.قم بتعطيل تحسين الب
 🔋تعطيل تحسينات البطارية</string>
     <string name="disable_battery_optimizations_already_done">
 التطبيق معفى بالفعل من تحسينات البطارية.</string>
+    <string name="no_connections_title">لا توجد اتصالات بعد</string>
+    <string name="no_connections_hint">اضغط على زر + لإضافة أول اتصال عن بُعد</string>
+    <string name="no_connections_hint_tv">اضغط على زر + أعلاه لإضافة أول اتصال عن بُعد</string>
+    <string name="keyboard_layout_map">تخطيط لوحة المفاتيح</string>
 </resources>
-

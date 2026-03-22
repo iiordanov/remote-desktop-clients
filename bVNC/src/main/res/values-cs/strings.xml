@@ -585,7 +585,6 @@ Kdy\u017e p\u0159id\u00e1te nebo uprav\u00edte p\u0159ipojen\u00ed, uvid\u00edte
     <string name="scaling">M\u011b\u0159\u00edtko</string>
     <string name="scaling_zoomable">Zoomovateln\u00e9</string>
 
-    <!-- Send selected metakey -->
     <string name="send_button">Odeslat</string>
     <string name="send_key_again">Odeslat kl\u00e1vesu znovu</string>
 
@@ -834,5 +833,8 @@ Nastavení optimalizace baterie nelze otevřít. Zakázat optimalizaci baterie r
 🔋Zakažte optimalizace baterie</string>
     <string name="disable_battery_optimizations_already_done">
 Aplikace je již osvobozena od optimalizace baterie.</string>
+    <string name="no_connections_title">Zatím žádná připojení</string>
+    <string name="no_connections_hint">Klepnutím na tlačítko + přidáte první vzdálené připojení</string>
+    <string name="no_connections_hint_tv">Stisknutím tlačítka + nahoře přidáte první vzdálené připojení</string>
+    <string name="keyboard_layout_map">Rozložení klávesnice</string>
 </resources>
-
