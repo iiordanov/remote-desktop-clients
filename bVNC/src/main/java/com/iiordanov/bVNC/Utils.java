@@ -65,6 +65,7 @@ import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.ConnectionSetupActivity;
 import com.undatech.remoteClientUi.R;
 
+import jcifs.netbios.NbtAddress;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.xml.sax.SAXException;
@@ -80,6 +81,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -740,6 +742,25 @@ public class Utils {
         ActionBar bar = activity.getSupportActionBar();
         if (bar != null) {
             bar.setDisplayShowTitleEnabled(true);
+        }
+    }
+
+    /**
+     * Attempts to resolve the given address via NetBIOS and returns the IP string, or null on failure.
+     */
+    public static String resolveNetbiosAddress(String address) {
+        try {
+            NbtAddress nbtAddress = NbtAddress.getByName(address);
+            if (nbtAddress == null) {
+                Log.d(TAG, "NetBIOS returned null address");
+                return null;
+            }
+            String ip = nbtAddress.getHostAddress();
+            Log.d(TAG, "NetBIOS resolved address " + address + " -> " + ip);
+            return ip;
+        } catch (UnknownHostException e) {
+            Log.d(TAG, "NetBIOS failed to resolve address " + address);
+            return null;
         }
     }
 
