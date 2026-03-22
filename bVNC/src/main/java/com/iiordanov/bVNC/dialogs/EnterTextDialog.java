@@ -37,7 +37,7 @@ public class EnterTextDialog extends Dialog {
     private SendTextPanel panel;
 
     public EnterTextDialog(Context context) {
-        super(context);
+        super(context, R.style.AppDialogTheme);
         setOwnerActivity((Activity) context);
         _canvasActivity = (RemoteCanvasActivity) context;
     }

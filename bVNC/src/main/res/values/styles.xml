@@ -20,7 +20,7 @@
         <item name="android:background">@android:color/darker_gray</item>
     </style>
 
-    <style name="IntroDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog" />
+    <style name="AppDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog" />
 
     <style name="ConnectionCard" parent="Widget.MaterialComponents.CardView">
         <item name="cardElevation">2dp</item>

@@ -107,6 +107,7 @@
         android:layout_width="match_parent"
         android:layout_height="88dp"
         android:layout_gravity="bottom|center"
+        android:background="@android:color/background_dark"
         android:visibility="gone" />
 
     <LinearLayout
