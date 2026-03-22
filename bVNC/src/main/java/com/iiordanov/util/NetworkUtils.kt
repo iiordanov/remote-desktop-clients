@@ -20,50 +20,13 @@
 package com.iiordanov.util
 
 
-import android.util.Log
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
-import java.net.Inet6Address
-import java.net.InetAddress
-
-private const val networkTimeout = 1800L
-
 object NetworkUtils {
-    private const val tag: String = "NetworkUtils"
-
+    /**
+     * Returns true if the address string is an IPv6 address (literal or bracket-enclosed).
+     * IPv6 addresses always contain more than one colon; an IPV4 host:port string has exactly one.
+     */
     fun isValidIpv6Address(address: String?): Boolean {
-        return tryRunningCoroutineWithTimeout(
-            {
-                InetAddress.getByName(address) is Inet6Address
-            },
-            Dispatchers.IO
-        )
-    }
-
-    fun tryRunningCoroutineWithTimeout(
-        block: (CoroutineScope) -> Boolean?, dispatcher: CoroutineDispatcher
-    ): Boolean {
-        return runBlocking {
-            this.tryRunningWithTimeoutAsync(block, false, networkTimeout, dispatcher)
-        } ?: false
-    }
-
-    private suspend inline fun <T, R> T.tryRunningWithTimeoutAsync(
-        crossinline block: T.() -> R, default: R, timeout: Long, dispatcher: CoroutineDispatcher
-    ): R {
-        return try {
-            withTimeout(timeout) {
-                withContext(dispatcher) {
-                    block()
-                }
-            }
-        } catch (e: Exception) {
-            Log.w(tag, "tryRunningWithTimeoutAsync: Exception caught, default $default returned. Exception: '$e'")
-            default
-        }
+        if (address == null) return false
+        return address.count { it == ':' } > 1
     }
 }
