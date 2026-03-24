@@ -75,29 +75,29 @@ public class ClipboardMonitor extends TimerTask {
      * (non-Javadoc)
      * @see java.util.TimerTask#run()
      */
+    /*
+     * Called when the server sends clipboard text to the device. Updates knownClipboardContents
+     * immediately so the monitor does not echo the server's text back on the next tick.
+     */
+    public void setKnownClipboardContents(String text) {
+        knownClipboardContents = text;
+        Log.v(TAG, "Server sent clipboard, known length now: " + knownClipboardContents.length());
+    }
+
     @Override
     public void run() {
         if (!viewable.isForegrounded()) {
             Log.v(TAG, "App backgrounded, not monitoring clipboard");
             return;
         }
-        
+
         String currentClipboardContents = getClipboardContents();
-        //Log.v(TAG, "Current clipboard contents: " + currentClipboardContents);
-        //Log.v(TAG, "Previously known clipboard contents: " + knownClipboardContents);
-        if (rfbConnectable != null) {
-            if (!rfbConnectable.serverJustCutText && currentClipboardContents != null &&
-                    !currentClipboardContents.equals(knownClipboardContents)) {
-                if (rfbConnectable.isInNormalProtocol()) {
-                    rfbConnectable.writeClientCutText(currentClipboardContents);
-                    knownClipboardContents = currentClipboardContents;
-                    //Log.v(TAG, "Wrote: " + knownClipboardContents + " to remote clipboard.");
-                }
-            } else if (rfbConnectable.serverJustCutText && currentClipboardContents != null) {
-                knownClipboardContents = currentClipboardContents;
-                rfbConnectable.serverJustCutText = false;
-                //Log.v(TAG, "Set knownClipboardContents to equal whatever the server just sent over.");
-            }
+        if (rfbConnectable != null && currentClipboardContents != null
+                && !currentClipboardContents.equals(knownClipboardContents)
+                && rfbConnectable.isInNormalProtocol()) {
+            rfbConnectable.writeClientCutText(currentClipboardContents);
+            knownClipboardContents = currentClipboardContents;
+            Log.v(TAG, "Wrote clipboard to remote, length: " + knownClipboardContents.length());
         }
     }
 }

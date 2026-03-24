@@ -413,9 +413,7 @@ public class SpiceCommunicator extends RfbConnectable {
 
     public void writeClientCutText(String text) {
         Log.i(TAG, "writeClientCutText: clipboard");
-        if (isInNormalProtocol()) {
-            handler.postDelayed(() -> SpiceClientCutText(text), CLIPBOARD_DELAY);
-        }
+        handler.postDelayed(() -> SpiceClientCutText(text), CLIPBOARD_DELAY);
     }
 
     public void setIsInNormalProtocol(boolean state) {

@@ -471,7 +471,6 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
             case RemoteClientLibConstants.SERVER_CUT_TEXT:
                 Log.i(TAG, "SERVER_CUT_TEXT");
                 messageData = (Bundle) msg.obj;
-                remoteConnection.serverJustCutText = true;
                 remoteConnection.setClipboardText(messageData.getString("text"));
                 break;
             case RemoteClientLibConstants.REINIT_SESSION:

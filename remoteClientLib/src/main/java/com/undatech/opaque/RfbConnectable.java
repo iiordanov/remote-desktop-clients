@@ -36,7 +36,6 @@ public abstract class RfbConnectable implements DrawableReallocatedListener {
     protected boolean debugLogging;
     protected int metaState = 0;
     protected Handler handler;
-    public boolean serverJustCutText;
     protected boolean receivedFirstGraphicsFrame = false;
     protected boolean isRemoteToLocalClipboardIntegrationEnabled;
 

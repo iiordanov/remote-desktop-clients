@@ -73,7 +73,6 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
     public boolean maintainConnection = true;
     // Progress dialog shown at connection time.
     public ProgressDialog pd;
-    public boolean serverJustCutText = false;
     public Runnable hideKeyboardAndExtraKeys;
     public boolean graphicsSettingsReceived = false;
     /**
@@ -255,12 +254,16 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
     }
 
     /**
-     * Set the device clipboard text with the string parameter.
+     * Set the device clipboard text with the string parameter. Also updates the clipboard monitor
+     * so it does not echo the server's text back on the next polling tick.
      */
     public void setClipboardText(String s) {
         if (s != null && !s.isEmpty()) {
             try {
                 clipboard.setPrimaryClip(ClipData.newPlainText(null, s));
+                if (clipboardMonitor != null) {
+                    clipboardMonitor.setKnownClipboardContents(s);
+                }
             } catch (Exception e) {
                 String error = context.getString(R.string.error) + ": " + e;
                 canvas.displayOnScreenMessageShortDuration(error);
