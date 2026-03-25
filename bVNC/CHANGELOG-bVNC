@@ -1,4 +1,4 @@
-v6.3.2
+v6.3.3
 - Faster detection of IPV6 addresses vs IPV4 addresses with host:port format
 - Improved clipboard handling
 v6.3.1
