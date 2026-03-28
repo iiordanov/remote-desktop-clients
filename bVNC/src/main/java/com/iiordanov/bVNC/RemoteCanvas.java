@@ -506,10 +506,27 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      */
     void resetScroll() {
         float scale = getZoomFactor();
-        Log.d(TAG, "resetScroll: " + (absoluteXPosition - shiftX) * scale + ", "
-                                                + (absoluteYPosition - shiftY) * scale);
-        scrollTo((int) ((absoluteXPosition - shiftX) * scale),
-                (int) ((absoluteYPosition - shiftY) * scale));
+        int scrollX = (int) ((absoluteXPosition - shiftX) * scale);
+        int scrollY = (int) ((absoluteYPosition - shiftY) * scale);
+
+        // When the viewport is larger than the framebuffer on an axis, zero the scroll
+        // and reset the absolute position on that axis so the matrix translation
+        // (which centers the image) is not overridden by a residual scroll value.
+        synchronized (this) {
+            if (myDrawable != null) {
+                if (myDrawable.fbWidth() <= getWidth()) {
+                    scrollX = 0;
+                    absoluteXPosition = 0;
+                }
+                if (myDrawable.fbHeight() <= getHeight()) {
+                    scrollY = 0;
+                    absoluteYPosition = 0;
+                }
+            }
+        }
+
+        Log.d(TAG, "resetScroll: " + scrollX + ", " + scrollY);
+        scrollTo(scrollX, scrollY);
     }
 
     /**
@@ -988,6 +1005,14 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         if (w > 0 && h > 0) {
             synchronized (this) {
                 this.notify();
+            }
+            // Recalculate scaling parameters when view size changes
+            // (DeX, freeform window, split-screen, rotation, etc.)
+            // This fixes coordinate mapping so clicks land in the right place.
+            if (canvasZoomer != null && myDrawable != null) {
+                Log.d(TAG, "onSizeChanged: recalculating for " + w + "x" + h
+                        + " (was " + oldW + "x" + oldH + ")");
+                canvasZoomer.handleViewSizeChange(this);
             }
         }
     }

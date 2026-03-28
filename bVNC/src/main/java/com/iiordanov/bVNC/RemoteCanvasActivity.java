@@ -121,6 +121,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             R.id.itemInputSingleHanded};
     public static final Map<Integer, String> inputModeMap;
     private final static String TAG = "RemoteCanvasActivity";
+    /** Width in dp of the overflow menu button (3 dots) rendered outside toolbar.getWidth() by the system */
+    private static final int OVERFLOW_MENU_BUTTON_DP = 48;
     private static final int[] scalingModeIds = {R.id.itemZoomable, R.id.itemFitToScreen,
             R.id.itemOneToOne};
 
@@ -469,9 +471,16 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         int toolbarBottom = toolbar.getBottom();
         int rootViewBottom = extraKeysToolbar.getRootView().getBottom();
         int diffLayoutKeysPosition = r.bottom - rootViewTopInScreen - layoutKeysBottom;
-        int diffToolbarPosition = r.bottom - re.top - toolbarBottom - r.bottom / 2;
-        int standardToolbarPositionX = r.right - toolbar.getWidth();
-        int standardToolbarPositionY = r.bottom - re.top - toolbar.getHeight() - r.bottom / 2;
+        // Use the bottom of the canvas (not the window) as the reference for toolbar positioning.
+        // When the window is larger than the canvas (e.g., DeX freeform mode), using r.bottom/2
+        // would place the toolbar outside the visible canvas area.
+        int[] canvasLocation = new int[2];
+        canvas.getLocationOnScreen(canvasLocation);
+        int canvasBottom = canvasLocation[1] + canvas.getHeight();
+        int usableBottom = Math.min(r.bottom, canvasBottom);
+        int diffToolbarPosition = usableBottom - re.top - toolbarBottom;
+        int standardToolbarPositionX = r.width() - toolbar.getWidth();
+        int standardToolbarPositionY = usableBottom - re.top - toolbar.getHeight();
         Log.d(TAG, "onGlobalLayout: before: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
@@ -580,20 +589,63 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         offsetOrRestoreSavedToolbarPosition(r, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY);
     }
 
+    /**
+     * If the toolbar's bottom edge overlaps the extra keys area, moves the toolbar up
+     * so its bottom edge is at or above the extra keys top.
+     * Called when extra keys become visible.
+     */
+    private void ensureToolbarAboveExtraKeys() {
+        if (toolbar == null || extraKeysToolbar == null) return;
+        android.graphics.Rect r = new android.graphics.Rect();
+        rootView.getWindowVisibleDisplayFrame(r);
+        int maxY = getToolbarMaxY(r.height());
+        float currentY = toolbar.getY();
+        if (currentY > maxY) {
+            toolbar.setY(maxY);
+        }
+    }
+
+    private int getOverflowMenuWidthPx() {
+        return (int) (OVERFLOW_MENU_BUTTON_DP * getResources().getDisplayMetrics().density);
+    }
+
+    /**
+     * Returns the maximum allowed Y for the toolbar, considering extra keys area if visible.
+     */
+    private int getToolbarMaxY(int windowBottom) {
+        int maxY = windowBottom - toolbar.getHeight();
+        if (extraKeysToolbar != null && extraKeysToolbar.getVisibility() == View.VISIBLE) {
+            int extraKeysTop = (int) extraKeysToolbar.getY();
+            if (extraKeysTop > 0) {
+                maxY = Math.min(maxY, extraKeysTop - toolbar.getHeight());
+            }
+        }
+        return Math.max(0, maxY);
+    }
+
     private void offsetOrRestoreSavedToolbarPosition(Rect r, int diffToolbarPosition, int standardPositionX, int standardPositionY) {
         boolean useLastPosition = connection.getUseLastPositionToolbar();
         boolean toolbarMoved = connection.getUseLastPositionToolbarMoved();
+
+        float currentX = toolbar.getX();
+        float currentY = toolbar.getY();
+
         if (!useLastPosition || !toolbarMoved) {
-            toolbar.offsetTopAndBottom(diffToolbarPosition);
-        } else {
-            toolbar.setPositionToMakeVisible(
-                    connection.getUseLastPositionToolbarX(),
-                    connection.getUseLastPositionToolbarY(),
-                    r.right,
-                    r.bottom,
-                    standardPositionX,
-                    standardPositionY);
+            // No saved position — place at standard position, clamped to window bounds
+            toolbar.setX(Math.max(0, standardPositionX));
+            toolbar.setY(Math.max(0, standardPositionY));
+            return;
         }
+
+        int maxX = Math.max(0, r.width() - toolbar.getWidth());
+        int maxY = getToolbarMaxY(r.height());
+
+        // Clamp to all four edges of the window
+        float newX = Math.max(0, Math.min(currentX, maxX));
+        float newY = Math.max(0, Math.min(currentY, maxY));
+
+        toolbar.setX(newX);
+        toolbar.setY(newY);
     }
 
     public void extraKeysToggle(MenuItem m) {
@@ -772,6 +824,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 extraKeysPageIndicator.setVisibility(View.VISIBLE);
             extraKeysToolbar.invalidate();
             maybeRunExtraKeysTour();
+            // If toolbar overlaps the newly visible extra keys, move it above them
+            ensureToolbarAboveExtraKeys();
             return;
         }
 
@@ -985,6 +1039,16 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_enable);
 
             toolbarMover = new OnTouchViewMover(toolbar, handler, toolbarPositionSaver, actionBarHider, hideToolbarDelay);
+            toolbarMover.setBoundsProvider(() -> {
+                android.graphics.Rect r2 = new android.graphics.Rect();
+                rootView.getWindowVisibleDisplayFrame(r2);
+                // Right excludes overflow menu button.
+                // Bottom excludes extra keys area when visible.
+                int maxY = getToolbarMaxY(r2.height());
+                return new android.graphics.Rect(0, 0,
+                        r2.width(),
+                        maxY + toolbar.getHeight());
+            });
             ImageButton moveButton = new ImageButton(this);
 
             moveButton.setBackgroundResource(R.drawable.ic_all_out_gray_36dp);
