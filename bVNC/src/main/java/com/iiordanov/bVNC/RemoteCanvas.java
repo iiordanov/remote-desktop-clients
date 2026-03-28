@@ -491,12 +491,24 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
     /**
      * Computes the X and Y offset for converting coordinates from full-frame coordinates to view coordinates.
+     * Delegates to the scale-aware overload with scale=1.0f (used by OneToOneScaling).
      */
     public void computeShiftFromFullToView() {
+        computeShiftFromFullToView(1.0f);
+    }
+
+    /**
+     * Computes the X and Y shift for the given scale factor so that the scaled image is centered in the view.
+     * The formula ensures the image center maps to the view center at any scale:
+     *   shiftX = fbWidth/2 - viewWidth/(2*scale)
+     * At scale=1 this reduces to (fbWidth - viewWidth)/2, identical to the original formula.
+     * @param scale the current zoom/scale factor
+     */
+    public void computeShiftFromFullToView(float scale) {
         synchronized (this) {
             if (myDrawable != null) {
-                shiftX = (myDrawable.fbWidth() - getWidth()) / 2.0f;
-                shiftY = (myDrawable.fbHeight() - getHeight()) / 2.0f;
+                shiftX = myDrawable.fbWidth() / 2.0f - getWidth() / (2.0f * scale);
+                shiftY = myDrawable.fbHeight() / 2.0f - getHeight() / (2.0f * scale);
             }
         }
     }
@@ -949,6 +961,16 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
     public int getAbsY() {
         return absoluteYPosition;
+    }
+
+    @Override
+    public float getShiftX() {
+        return shiftX;
+    }
+
+    @Override
+    public float getShiftY() {
+        return shiftY;
     }
 
     @Override

@@ -147,7 +147,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
 
     private int getScaledX(MotionEvent e, float scale) {
         int xoff = touchInputDelegate.getxPointerOffset();
-        return (int) (viewable.getAbsX() + (e.getX() - (float)xoff)/ scale);
+        return (int) ((e.getX() - (float) xoff + viewable.getScrollX()) / scale + viewable.getShiftX());
     }
 
     /**
@@ -160,7 +160,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
 
     private int getScaledY(MotionEvent e, float scale) {
         int yoff = touchInputDelegate.getyPointerOffset();
-        return (int) (viewable.getAbsY() + (e.getY() - (float)yoff) / scale);
+        return (int) ((e.getY() - (float) yoff + viewable.getScrollY()) / scale + viewable.getShiftY());
     }
 
     /**
