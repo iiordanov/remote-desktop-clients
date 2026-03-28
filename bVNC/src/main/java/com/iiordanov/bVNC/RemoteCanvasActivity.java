@@ -122,8 +122,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             R.id.itemInputSingleHanded};
     public static final Map<Integer, String> inputModeMap;
     private final static String TAG = "RemoteCanvasActivity";
-    /** Width in dp of the overflow menu button (3 dots) rendered outside toolbar.getWidth() by the system */
-    private static final int OVERFLOW_MENU_BUTTON_DP = 48;
     private static final int[] scalingModeIds = {R.id.itemZoomable, R.id.itemFitToScreen,
             R.id.itemOneToOne};
 
@@ -598,10 +596,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         if (currentY > maxY) {
             toolbar.setY(maxY);
         }
-    }
-
-    private int getOverflowMenuWidthPx() {
-        return (int) (OVERFLOW_MENU_BUTTON_DP * getResources().getDisplayMetrics().density);
     }
 
     /**
