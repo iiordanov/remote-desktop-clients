@@ -73,6 +73,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
@@ -154,6 +155,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     private FrameLayout canvasLayout;
     private RemoteCanvas canvas;
     private RemoteConnection remoteConnection;
+    private MenuItem showKeyboardMenuItem;
     private MenuItem[] inputModeMenuItems;
     private MenuItem[] scalingModeMenuItems;
     private TouchInputHandler[] inputModeHandlers;
@@ -441,12 +443,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
         if (r.top == 0 || re.top > 0) {
             if (canvas.getDrawable() != null) {
-                int extraKeysHeight = (extraKeysToolbar != null) ? extraKeysToolbar.getHeight() : 0;
-                int usableHeight = r.bottom - re.top - extraKeysHeight;
-                Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + usableHeight +
-                        ", extraKeysHeight: " + extraKeysHeight);
-                canvas.setVisibleDesktopHeight(usableHeight);
+                int extraKeysHeight = (extraKeysToolbar != null && extraKeysToolbar.getVisibility() == View.VISIBLE)
+                        ? extraKeysToolbar.getHeight() : 0;
+                int visibleHeight = r.bottom - re.top - extraKeysHeight;
+                Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + visibleHeight);
+                canvas.setVisibleDesktopHeight(visibleHeight);
                 canvas.relativePan(0, 0);
+                canvas.resetScroll();
             } else {
                 Log.d(TAG, "onGlobalLayout: canvas.myDrawable is null");
             }
@@ -486,34 +489,26 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
                 " diffLayoutKeysPosition: " + diffLayoutKeysPosition + " diffToolbarPosition: " + diffToolbarPosition);
 
-        if (r.bottom > rootViewHeight * 0.81) {
-            Log.d(TAG, "onGlobalLayout: Less than 19% of screen is covered");
+        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(rootView);
+        boolean imeVisible = insets != null && insets.isVisible(WindowInsetsCompat.Type.ime());
+
+        if (!imeVisible) {
+            Log.d(TAG, "onGlobalLayout: IME not visible");
             String direction = "down";
             // Soft Kbd gone, shift the extra keys toolbar down.
+            // Do NOT touch extra keys visibility — the user's toggle controls that.
             if (extraKeysToolbar != null) {
                 shiftToolbar(r, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
-                if (softKeyboardUp) {
-                    Log.d(TAG, "onGlobalLayout: softKeyboardUp was true, but keyboard is now hidden. Hiding on-screen buttons");
-                    setExtraKeysVisibility(View.GONE, false);
-                    canvas.invalidate();
-                }
             }
             softKeyboardUp = false;
         } else {
-            Log.d(TAG, "onGlobalLayout: More than 19% of screen is covered");
+            Log.d(TAG, "onGlobalLayout: IME visible");
             softKeyboardUp = true;
             String direction = "up";
             //  Soft Kbd up, shift the extra keys toolbar up.
+            // Do NOT touch extra keys visibility — the user's toggle controls that.
             if (extraKeysToolbar != null) {
                 shiftToolbar(r, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
-                if (extraKeysHidden) {
-                    Log.d(TAG, "onGlobalLayout: on-screen buttons should be hidden");
-                    setExtraKeysVisibility(View.GONE, false);
-                } else {
-                    Log.d(TAG, "onGlobalLayout: on-screen buttons should be showing");
-                    setExtraKeysVisibility(View.VISIBLE, true);
-                }
-                canvas.invalidate();
             }
         }
         if (extraKeysToolbar != null) {
@@ -682,6 +677,15 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         }
     }
 
+    private void updateKeyboardButtonVisibility(Configuration config) {
+        if (showKeyboardMenuItem == null) return;
+        boolean hasPhysicalKeyboard = config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO;
+        showKeyboardMenuItem.setVisible(!hasPhysicalKeyboard);
+        // Toolbar width changes when items are shown/hidden. Post relayout
+        // so the toolbar position is re-clamped after the width recalculation.
+        toolbar.post(() -> relayoutViews(rootView));
+    }
+
     @Override
     public <T extends View> T findViewById(int id) {
         return super.findViewById(id);
@@ -709,6 +713,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     private void initializeExtraKeysView() {
         extraKeysToolbar = findViewById(R.id.extraKeysToolbar);
+        // Consume all touch events so they don't fall through to the canvas behind.
+        // Let the ViewPager process the event first (for page swiping), then consume it.
+        extraKeysToolbar.setOnTouchListener((v, event) -> {
+            v.onTouchEvent(event);
+            return true;
+        });
         float extraKeysAlpha = Color.alpha(ContextCompat.getColor(this, R.color.extra_keys_background)) / 255f;
         extraKeysToolbar.setAlpha(extraKeysAlpha);
 
@@ -811,11 +821,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
      * Sets the visibility of the extra keys appropriately.
      */
     private void setExtraKeysVisibility(int visibility, boolean forceVisible) {
-        Configuration config = getResources().getConfiguration();
-
         boolean makeVisible = forceVisible;
-        if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
-            makeVisible = true;
 
         if (!extraKeysHidden && makeVisible &&
                 connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
@@ -943,7 +949,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         super.onConfigurationChanged(newConfig);
         controlImmersive();
         try {
-            setExtraKeysVisibility(View.GONE, false);
+            updateKeyboardButtonVisibility(newConfig);
             handler.postDelayed(rotationCorrector, 300);
         } catch (NullPointerException e) {
             Log.d(TAG, "Ignoring NullPointerException during onConfigurationChanged");
@@ -1001,6 +1007,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         // Make sure extra keys stow item is gone if extra keys are disabled and vice versa.
         setKeyStowDrawableAndVisibility(menu.findItem(R.id.extraKeysToggle));
         menu.findItem(R.id.itemColorMode).setVisible(remoteConnection.canUpdateColorModelConnected());
+        // Re-clamp toolbar position after potential width change from item visibility changes.
+        toolbar.post(() -> relayoutViews(rootView));
         return true;
     }
 
@@ -1037,6 +1045,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_disable);
             else
                 menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_enable);
+
+            showKeyboardMenuItem = menu.findItem(R.id.actionShowKeyboard);
+            updateKeyboardButtonVisibility(getResources().getConfiguration());
 
             toolbarMover = new OnTouchViewMover(toolbar, handler, toolbarPositionSaver, actionBarHider, hideToolbarDelay);
             toolbarMover.setBoundsProvider(() -> {

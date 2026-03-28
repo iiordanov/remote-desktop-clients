@@ -138,7 +138,6 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      */
     boolean isOpaque;
     long lastDraw;
-    boolean userPanned = false;
 
     boolean isForegrounded = false;
 
@@ -536,12 +535,24 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         // (which centers the image) is not overridden by a residual scroll value.
         synchronized (this) {
             if (myDrawable != null) {
-                if (myDrawable.fbWidth() <= getWidth()) {
+                if (myDrawable.fbWidth() <= getVisibleDesktopWidth()) {
                     scrollX = 0;
                     absoluteXPosition = 0;
                 }
-                if (myDrawable.fbHeight() <= getHeight()) {
-                    scrollY = 0;
+                if (myDrawable.fbHeight() <= getVisibleDesktopHeight()) {
+                    // Image fits in visible area. But keyboard/extra keys may have
+                    // reduced the visible area below the full view height. The matrix
+                    // centers the image in the full view, which can push the bottom
+                    // below the visible boundary. Compute a scroll to shift up.
+                    if (visibleHeight > 0 && visibleHeight < getHeight()) {
+                        int imageBottomPx = (int) (scale * (myDrawable.fbHeight() - shiftY));
+                        scrollY = Math.max(0, imageBottomPx - visibleHeight);
+                        // Don't scroll past the image top (top = -shiftY * scale)
+                        int maxScroll = Math.max(0, (int) (-shiftY * scale));
+                        scrollY = Math.min(scrollY, maxScroll);
+                    } else {
+                        scrollY = 0;
+                    }
                     absoluteYPosition = 0;
                 }
             }
@@ -549,6 +560,16 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
         Log.d(TAG, "resetScroll: " + scrollX + ", " + scrollY);
         scrollTo(scrollX, scrollY);
+    }
+
+    private boolean contentExceedsVisibleArea() {
+        synchronized (this) {
+            if (myDrawable != null) {
+                return myDrawable.fbWidth() > getVisibleDesktopWidth()
+                        || myDrawable.fbHeight() > getVisibleDesktopHeight();
+            }
+        }
+        return false;
     }
 
     /**
@@ -572,8 +593,9 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
             }
         }
 
-        // We only pan if the current scaling is able to pan.
-        if (canvasZoomer != null && !canvasZoomer.isAbleToPan())
+        // We only pan if the current scaling is able to pan, or content exceeds
+        // visible area (e.g., IME or extra keys reduce available space).
+        if (canvasZoomer != null && !canvasZoomer.isAbleToPan() && !contentExceedsVisibleArea())
             return;
 
         int x = pointer.getX();
@@ -583,8 +605,8 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         int h = getVisibleDesktopHeight();
         int iw = getImageWidth();
         int ih = getImageHeight();
-        int wThresh = Constants.H_THRESH;
-        int hThresh = Constants.W_THRESH;
+        int wThresh = Math.min(Constants.H_THRESH, w / 4);
+        int hThresh = Math.min(Constants.W_THRESH, h / 4);
 
         int newX = absoluteXPosition;
         int newY = absoluteYPosition;
@@ -623,14 +645,6 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         }
     }
 
-    public int getTopMargin(double scale) {
-        return (int) (Constants.TOP_MARGIN / scale);
-    }
-
-    public int getBottomMargin(double scale) {
-        return (int) (Constants.BOTTOM_MARGIN / scale);
-    }
-
     /**
      * Pan by a number of pixels (relative pan)
      * @return True if the pan changed the view (did not move view out of bounds); false otherwise
@@ -638,8 +652,9 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     public boolean relativePan(float dX, float dY) {
         Log.d(TAG, "relativePan: " + dX + ", " + dY);
 
-        // We only pan if the current scaling is able to pan.
-        if (canvasZoomer != null && !canvasZoomer.isAbleToPan())
+        // We only pan if the current scaling is able to pan, or content exceeds
+        // visible area (e.g., IME or extra keys reduce available space).
+        if (canvasZoomer != null && !canvasZoomer.isAbleToPan() && !contentExceedsVisibleArea())
             return false;
 
         double scale = getZoomFactor();
@@ -647,27 +662,16 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         double sX = (double) dX / scale;
         double sY = (double) dY / scale;
 
-        int buttonAndCurveOffset = getBottomMargin(scale);
-        int curveOffset = 0;
-        if (userPanned) {
-            curveOffset = getTopMargin(scale);
-        }
-
-        userPanned = dX != 0.0 || dY != 0.0;
-
-        // Prevent panning above the desktop image except for provision for curved screens.
+        // Prevent panning beyond the desktop image edges.
         if (absoluteXPosition + sX < 0)
-            // dX = diff to 0
             sX = -absoluteXPosition;
-        if (absoluteYPosition + sY < -curveOffset)
-            sY = -absoluteYPosition - curveOffset;
+        if (absoluteYPosition + sY < 0)
+            sY = -absoluteYPosition;
 
-        // Prevent panning right or below desktop image except for provision for on-screen
-        // buttons and curved screens
         if (absoluteXPosition + getVisibleDesktopWidth() + sX > getImageWidth())
             sX = getImageWidth() - getVisibleDesktopWidth() - absoluteXPosition;
-        if (absoluteYPosition + getVisibleDesktopHeight() + sY > getImageHeight() + buttonAndCurveOffset)
-            sY = getImageHeight() - getVisibleDesktopHeight() - absoluteYPosition + buttonAndCurveOffset;
+        if (absoluteYPosition + getVisibleDesktopHeight() + sY > getImageHeight())
+            sY = getImageHeight() - getVisibleDesktopHeight() - absoluteYPosition;
 
         absoluteXPosition += (int) sX;
         absoluteYPosition += (int) sY;
