@@ -36,6 +36,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -48,6 +49,8 @@ import android.view.inputmethod.InputConnection;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.concurrent.CountDownLatch;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.TouchInputHandlerTouchpad;
 import com.undatech.opaque.AbstractDrawableData;
@@ -78,6 +81,13 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      * Also shows the dialogs which show various connection failures.
      */
     public Handler handler;
+
+    // Handler on main thread for layout-stability detection in waitUntilInflated().
+    // We use Handler.postDelayed() to cancel/reschedule the stable-latch trigger
+    // each time onSizeChanged() fires, so we only unblock after 150ms of stability.
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final CountDownLatch layoutStableLatch = new CountDownLatch(1);
+    private final Runnable layoutStableRunnable = () -> layoutStableLatch.countDown();
 
     // The remote pointer and keyboard
     RemotePointer pointer;
@@ -1005,17 +1015,19 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     }
 
     /**
-     * Used to wait until getWidth and getHeight return sane values.
+     * Waits until the view has stable, non-zero dimensions.
+     *
+     * In simple cases (phone full-screen) the view is measured once and
+     * stabilises immediately. In DeX/freeform mode the window can go through
+     * several layout passes (initial size → adjusted for taskbar/decorations).
+     * We wait until no further onSizeChanged() events arrive for 150ms, which
+     * guarantees the connection thread captures the final settled dimensions.
      */
     public void waitUntilInflated() {
-        synchronized (this) {
-            while (getWidth() == 0 || getHeight() == 0) {
-                try {
-                    this.wait();
-                } catch (InterruptedException e) {
-                    Log.e(TAG, Log.getStackTraceString(e));
-                }
-            }
+        try {
+            layoutStableLatch.await();
+        } catch (InterruptedException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
@@ -1025,9 +1037,14 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     @Override
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
         if (w > 0 && h > 0) {
-            synchronized (this) {
-                this.notify();
-            }
+            // Reschedule the layout-stable trigger on every dimension change.
+            // In DeX/freeform mode the window can go through multiple layout passes
+            // (e.g., full height first, then reduced by the taskbar). By cancelling
+            // and reposting, waitUntilInflated() only unblocks after 150ms of no
+            // further changes — so the connection thread always sees final dimensions.
+            mainHandler.removeCallbacks(layoutStableRunnable);
+            mainHandler.postDelayed(layoutStableRunnable, 150);
+
             // Recalculate scaling parameters when view size changes
             // (DeX, freeform window, split-screen, rotation, etc.)
             // This fixes coordinate mapping so clicks land in the right place.
