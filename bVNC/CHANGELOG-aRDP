@@ -1,3 +1,7 @@
+v6.3.4
+- Updated UI for adding new connections
+- Implemented a connection sorting widget
+- Fix for background of Send Text dialog
 v6.3.3
 - Attempt NetBIOS name resolution when address prefixed with \\
 - Faster detection of IPV6 addresses vs IPV4 addresses with host:port format
