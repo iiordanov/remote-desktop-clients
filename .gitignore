@@ -131,6 +131,7 @@ obj/
 .idea/gradle.xml
 .idea/deploymentTargetSelector.xml
 .idea/assetWizardSettings.xml
+.idea/deviceManager.xml
 
 Opaque/.idea/libraries/
 Opaque/.idea/workspace.xml

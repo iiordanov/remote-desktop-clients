@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -69,6 +70,7 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
 
@@ -655,6 +657,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     private void initializeExtraKeysView() {
         extraKeysToolbar = findViewById(R.id.extraKeysToolbar);
+        float extraKeysAlpha = Color.alpha(ContextCompat.getColor(this, R.color.extra_keys_background)) / 255f;
+        extraKeysToolbar.setAlpha(extraKeysAlpha);
 
         extraKeysPagerAdapter = new ExtraKeysPagerAdapter(this, new ExtraKeysPagerAdapter.Callbacks() {
             @Override
@@ -673,6 +677,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         extraKeysToolbar.setCurrentItem(1, false);
 
         extraKeysPageIndicator = findViewById(R.id.extraKeysPageIndicator);
+        extraKeysPageIndicator.setAlpha(extraKeysAlpha);
         pageIndicatorDots = new View[]{
             findViewById(R.id.dotPage0),
             findViewById(R.id.dotPage1),
