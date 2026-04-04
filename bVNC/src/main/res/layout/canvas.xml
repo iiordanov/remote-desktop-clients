@@ -105,7 +105,7 @@
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/extraKeysToolbar"
         android:layout_width="match_parent"
-        android:layout_height="88dp"
+        android:layout_height="@dimen/extra_keys_height"
         android:layout_gravity="bottom|center"
         android:background="@android:color/background_dark"
         android:visibility="gone" />
@@ -115,7 +115,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="78dp"
+        android:layout_marginBottom="@dimen/extra_keys_indicator_margin_bottom"
         android:orientation="horizontal"
         android:background="#55000000"
         android:padding="2dp"

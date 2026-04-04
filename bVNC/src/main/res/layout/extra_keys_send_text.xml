@@ -17,7 +17,7 @@
             android:layout_weight="1"
             android:background="@android:color/background_dark"
             android:hint="@string/enter_text_title"
-            android:imeOptions="actionSend"
+            android:imeOptions="actionSend|flagNoExtractUi"
             android:inputType="text"
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceSmall"
