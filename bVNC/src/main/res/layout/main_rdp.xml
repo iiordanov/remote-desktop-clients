@@ -642,6 +642,89 @@
                         android:layout_height="wrap_content"
                         android:max="300" />
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/prefer_sending_unicode"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxPreferSendingUnicode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:paddingBottom="4dp"
+                        android:text="@string/audio"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/groupRemoteSoundType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:selectionRequired="true"
+                        app:singleSelection="true">
+
+                        <Button
+                            android:id="@+id/radioRemoteSoundDisabled"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/remote_sound_disabled" />
+
+                        <Button
+                            android:id="@+id/radioRemoteSoundOnServer"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/remote_sound_on_server" />
+
+                        <Button
+                            android:id="@+id/radioRemoteSoundOnDevice"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/remote_sound_on_device" />
+
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/enable_recording"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/checkboxEnableRecording"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="toggleEnableRecording"
+                            tools:ignore="UsingOnClickInXml" />
+
+                    </LinearLayout>
+
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -861,68 +944,6 @@
 
                     </LinearLayout>
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:paddingBottom="4dp"
-                        android:text="@string/audio"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                    <com.google.android.material.button.MaterialButtonToggleGroup
-                        android:id="@+id/groupRemoteSoundType"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        app:selectionRequired="true"
-                        app:singleSelection="true">
-
-                        <Button
-                            android:id="@+id/radioRemoteSoundDisabled"
-                            style="?attr/materialButtonOutlinedStyle"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/remote_sound_disabled" />
-
-                        <Button
-                            android:id="@+id/radioRemoteSoundOnServer"
-                            style="?attr/materialButtonOutlinedStyle"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/remote_sound_on_server" />
-
-                        <Button
-                            android:id="@+id/radioRemoteSoundOnDevice"
-                            style="?attr/materialButtonOutlinedStyle"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/remote_sound_on_device" />
-
-                    </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="4dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/enable_recording"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/checkboxEnableRecording"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:onClick="toggleEnableRecording"
-                            tools:ignore="UsingOnClickInXml" />
-
-                    </LinearLayout>
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -961,27 +982,6 @@
 
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/checkboxRedirectSdCard"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="4dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/prefer_sending_unicode"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/checkboxPreferSendingUnicode"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
 
