@@ -1,7 +1,11 @@
-v6.3.4
+v6.3.5
 - Updated UI for adding new connections
 - Implemented a connection sorting widget
 - Fix for background of Send Text dialog
+- Extra Keys and Send Text translucency
+- Extra Keys and Send Text height reduced
+- Send Text textbox in landscape mode not fullscreen anymore
+- Fix for Simulated Touchpad bottom pan with Extra Keys up
 v6.3.3
 - Improved clipboard handling
 v6.3.0
