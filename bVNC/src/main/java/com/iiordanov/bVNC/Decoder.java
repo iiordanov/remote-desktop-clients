@@ -46,59 +46,56 @@ import java.util.zip.Inflater;
 
 public class Decoder {
     private final static String TAG = "Decoder";
-
+    // Tight decoder's data.
+    private final Inflater[] tightInflaters = new Inflater[4];
+    private final Paint handleTightRectPaint = new Paint();
+    private final byte[] solidColorBuf = new byte[3];
+    private final byte[] tightPalette8 = new byte[2];
+    private final int[] tightPalette24 = new int[256];
+    private final byte[] colorBuf = new byte[768];
+    private final byte[] uncompDataBuf = new byte[RfbProto.TightMinToCompress * 3];
+    private final BitmapFactory.Options bitmapopts = new BitmapFactory.Options();
+    private final Paint handleZRLERectPaint = new Paint();
+    private final int[] handleZRLERectPalette = new int[128];
+    // RRE decoder's data.
+    private final Paint handleRREPaint = new Paint();
+    private final byte[] bg_buf = new byte[4];
+    private final Paint handleHextileSubrectPaint = new Paint();
+    private final byte[] backgroundColorBuffer = new byte[4];
+    private final Viewable vncCanvas;
+    private final InputCarriable remoteInput;
+    private final boolean discardCursorShapeUpdates;
     // Color Model settings
     private COLORMODEL pendingColorModel = COLORMODEL.C24bit;
     private COLORMODEL colorModel = null;
     private int bytesPerPixel = 0;
     private int[] colorPalette = null;
-
-    // Tight decoder's data.
-    private Inflater[] tightInflaters = new Inflater[4];
-    private Paint handleTightRectPaint = new Paint();
-    private byte[] solidColorBuf = new byte[3];
-    private byte[] tightPalette8 = new byte[2];
-    private int[] tightPalette24 = new int[256];
-    private byte[] colorBuf = new byte[768];
-    private byte[] uncompDataBuf = new byte[RfbProto.TightMinToCompress * 3];
     private byte[] zlibData = new byte[4096];
     private byte[] inflBuf = new byte[8192];
-    private BitmapFactory.Options bitmapopts = new BitmapFactory.Options();
-    private boolean valid, useGradient;
-    private int c, dx, dy, offset, boffset, idx, stream_id, comp_ctl, numColors, rowSize, dataSize, jpegDataLen;
-
     // ZRLE decoder's data.
     private byte[] zrleBuf;
     private int[] zrleTilePixels;
     private ZlibInStream zrleInStream;
-    private Paint handleZRLERectPaint = new Paint();
-    private int[] handleZRLERectPalette = new int[128];
     private byte[] readPixelsBuffer = new byte[128];
-
     // Zlib decoder's data.
     private byte[] zlibBuf;
     private Inflater zlibInflater;
     private byte[] handleZlibRectBuffer = new byte[128];
-
-    // RRE decoder's data.
-    private Paint handleRREPaint = new Paint();
-    private byte[] bg_buf = new byte[4];
     private byte[] rre_buf = new byte[128];
-
     // Raw decoder's data.
     private byte[] handleRawRectBuffer = new byte[128];
-
     // Hextile decoder's data.
     // These colors should be kept between handleHextileSubrect() calls.
     private int hextile_bg, hextile_fg;
-    private Paint handleHextileSubrectPaint = new Paint();
-    private byte[] backgroundColorBuffer = new byte[4];
-
     private AbstractDrawableData bitmapData;
-    private Viewable vncCanvas;
-    private InputCarriable remoteInput;
-    private boolean discardCursorShapeUpdates;
 
+    /**
+     * Creates a new Decoder bound to the given canvas and input handler.
+     *
+     * @param v                         canvas that receives decoded framebuffer updates
+     * @param c                         input handler used to obtain the current pointer position for cursor updates
+     * @param discardCursorShapeUpdates when {@code true}, cursor shape updates are decoded but not rendered
+     */
     public Decoder(Viewable v, InputCarriable c, boolean discardCursorShapeUpdates) {
         this.discardCursorShapeUpdates = discardCursorShapeUpdates;
         handleRREPaint.setStyle(Style.FILL);
@@ -116,6 +113,14 @@ public class Decoder {
         bitmapData = b;
     }
 
+    /**
+     * Applies the pending color model to the connection's pixel format and updates internal
+     * bytes-per-pixel and palette state. Must be called before decoding any rectangles after a
+     * color model change.
+     *
+     * @param rfb the active RFB connection whose pixel format will be updated
+     * @throws IOException if writing the SetPixelFormat message fails
+     */
     public void setPixelFormat(RfbProto rfb) throws IOException {
         pendingColorModel.setPixelFormat(rfb);
         bytesPerPixel = pendingColorModel.bpp();
@@ -128,12 +133,22 @@ public class Decoder {
         return colorModel;
     }
 
+    /**
+     * Schedules a color model change. The change takes effect on the next call to
+     * {@link #setPixelFormat(RfbProto)}. Has no effect if {@code cm} matches the current model.
+     *
+     * @param cm the new color model to use
+     */
     public void setColorModel(COLORMODEL cm) {
         // Only update if color model changes
         if (colorModel == null || !colorModel.equals(cm))
             pendingColorModel = cm;
     }
 
+    /**
+     * Returns {@code true} if a color model change is pending and has not yet been applied
+     * via {@link #setPixelFormat(RfbProto)}.
+     */
     public boolean isChangedColorModel() {
         return (pendingColorModel != null);
     }
@@ -308,6 +323,7 @@ public class Decoder {
     //
     // Handle a Hextile-encoded rectangle.
     //
+    @SuppressWarnings("ManualMinMaxCalculation")
     void handleHextileRect(RfbProto rfb, int x, int y, int w, int h) throws IOException {
 
         hextile_bg = Color.BLACK;
@@ -726,15 +742,16 @@ public class Decoder {
     void handleTightRect(RfbProto rfb, int x, int y, int w, int h, boolean zstd) throws Exception {
 
         int[] pixels = bitmapData.getBitmapPixels();
-        valid = bitmapData.validDraw(x, y, w, h);
-        comp_ctl = rfb.is.readUnsignedByte();
+        boolean valid = bitmapData.validDraw(x, y, w, h);
+        int comp_ctl = rfb.is.readUnsignedByte();
 
-        rowSize = w;
-        boffset = 0;
-        numColors = 0;
-        useGradient = false;
+        int rowSize = w;
+        int boffset = 0;
+        int numColors = 0;
+        boolean useGradient = false;
 
         // Flush zlib streams if we are told by the server to do so.
+        int stream_id;
         for (stream_id = 0; stream_id < 4; stream_id++) {
             if ((comp_ctl & 1) != 0) {
                 tightInflaters[stream_id] = null;
@@ -748,6 +765,7 @@ public class Decoder {
         }
 
         // Handle solid-color rectangles.
+        int idx;
         if (comp_ctl == RfbProto.TightFill) {
             if (bytesPerPixel == 1) {
                 idx = rfb.is.readUnsignedByte();
@@ -766,7 +784,7 @@ public class Decoder {
 
         if (comp_ctl == RfbProto.TightJpeg) {
             // Read JPEG data.
-            jpegDataLen = rfb.readCompactLen();
+            int jpegDataLen = rfb.readCompactLen();
             if (jpegDataLen > inflBuf.length) {
                 inflBuf = new byte[2 * jpegDataLen];
             }
@@ -801,6 +819,7 @@ public class Decoder {
 
                 } else {
                     rfb.is.readBytes(colorBuf, 0, numColors * 3);
+                    int c;
                     for (c = 0; c < numColors; c++) {
                         idx = c * 3;
                         tightPalette24[c] = ((colorBuf[idx] & 0xFF) << 16 |
@@ -823,8 +842,11 @@ public class Decoder {
             rowSize *= 3;
 
         // Read, optionally uncompress and decode data.
-        dataSize = h * rowSize;
+        int dataSize = h * rowSize;
 
+        int dx;
+        int dy;
+        int offset;
         if (dataSize < RfbProto.TightMinToCompress) {
             // Data size is small - not compressed with zlib.
             rfb.is.readBytes(uncompDataBuf, 0, dataSize);
@@ -842,7 +864,6 @@ public class Decoder {
                     }
                 } else {
                     // 3..255 colors (assuming bytesPerPixel == 4).
-                    boffset = 0;
                     for (dy = y; dy < y + h; dy++) {
                         offset = bitmapData.offset(x, dy);
                         for (dx = x; dx < x + w; dx++) {
@@ -854,7 +875,6 @@ public class Decoder {
                 // "Gradient"-processed data
                 decodeGradientData(x, y, w, h, uncompDataBuf);
             } else {
-                boffset = 0;
                 // Raw true-color data.
                 if (bytesPerPixel == 1) {
                     for (dy = y; dy < y + h; dy++) {
@@ -890,7 +910,7 @@ public class Decoder {
                 try {
                     Zstd.decompress(inflBuf, zlibData);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(TAG, Log.getStackTraceString(e));
                     return;
                 }
             } else {
@@ -916,7 +936,7 @@ public class Decoder {
                 try {
                     myInflater.inflate(inflBuf, 0, dataSize);
                 } catch (DataFormatException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, Log.getStackTraceString(e));
                 }
             }
 
@@ -934,7 +954,6 @@ public class Decoder {
                     }
                 } else {
                     // More than two colors (assuming bytesPerPixel == 4).
-                    boffset = 0;
                     for (dy = y; dy < y + h; dy++) {
                         offset = bitmapData.offset(x, dy);
                         for (dx = x; dx < x + w; dx++) {
@@ -946,7 +965,6 @@ public class Decoder {
                 // Compressed "Gradient"-filtered data (assuming bytesPerPixel == 4).
                 decodeGradientData(x, y, w, h, inflBuf);
             } else {
-                boffset = 0;
                 // Compressed true-color data.
                 if (bytesPerPixel == 1) {
                     for (dy = y; dy < y + h; dy++) {
@@ -1024,6 +1042,7 @@ public class Decoder {
     //
     // Decode data processed with the "Gradient" filter.
     //
+    @SuppressWarnings("DuplicateExpressions")
     void decodeGradientData(int x, int y, int w, int h, byte[] buf) {
 
         int dx, dy, c;
@@ -1078,19 +1097,6 @@ public class Decoder {
         if (w * h == 0)
             return;
 
-        // Ignore cursor shape data if requested by user.
-        /*if (ignoreCursorUpdates) {
-            int bytesPerRow = (w + 7) / 8;
-            int bytesMaskData = bytesPerRow * h;
-
-            if (encodingType == RfbProto.EncodingXCursor) {
-                rfb.is.skipBytes(6 + bytesMaskData * 2);
-            } else {
-                // RfbProto.EncodingRichCursor
-                rfb.is.skipBytes(w * h * bytesPerPixel + bytesMaskData);
-            }
-            return;
-        }*/
         int[] cursorShape = decodeCursorShape(rfb, encodingType, w, h);
 
         if (!discardCursorShapeUpdates) {
@@ -1107,12 +1113,15 @@ public class Decoder {
     }
 
     /**
-     * Decode cursor pixel data and return it in an int array.
-     * @param encodingType
-     * @param width
-     * @param height
-     * @return
-     * @throws IOException
+     * Decodes cursor pixel data for an XCursor or RichCursor encoding and returns it as a
+     * packed ARGB int array.
+     *
+     * @param rfb          the active RFB connection to read pixel and mask data from
+     * @param encodingType {@link RfbProto#EncodingXCursor} or {@link RfbProto#EncodingRichCursor}
+     * @param width        cursor width in pixels
+     * @param height       cursor height in pixels
+     * @return packed ARGB pixel array of length {@code width * height}
+     * @throws IOException if reading from the stream fails
      */
     synchronized int[] decodeCursorShape(RfbProto rfb, int encodingType, int width, int height) throws IOException {
 

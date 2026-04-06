@@ -58,7 +58,7 @@ import javax.net.ssl.SSLSocket;
  * This class has no knowledge of the android-specific UI; it sees framebuffer updates
  * and input events as defined in the RFB protocol.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "FieldCanBeLocal"})
 public class RfbProto extends RfbConnectable {
 
     public static final int SecTypeRA2 = 5;
@@ -79,6 +79,7 @@ public class RfbProto extends RfbConnectable {
     /* RSA-AES subtypes */
     public static final int secTypeRA2UserPass = 1;
     public static final int secTypeRA2Pass = 2;
+    public static final int EXTENDED_CLIPBOARD_MESSAGE_MASK = 0x80000000;
     final static String TAG = "RfbProto";
     final static String
             versionMsg_3_3 = "RFB 003.003\n",
@@ -216,7 +217,6 @@ public class RfbProto extends RfbConnectable {
             CHAT_OPEN = -1,
             CHAT_CLOSE = -2,
             CHAT_FINISHED = -3;
-    public static final int EXTENDED_CLIPBOARD_MESSAGE_MASK = 0x80000000;
     public static int XK_LCTRL = 0xffe3;
     public static int XK_RCTRL = 0xffe4;
     public static int XK_LSHIFT = 0xffe1;
@@ -229,17 +229,39 @@ public class RfbProto extends RfbConnectable {
     // maxStringLength protects against allocating a huge buffer.  Set it
     // higher if you need longer strings.
     public static int maxStringLength = 65535;
+    // Tight encoding parameters
+    private final int compressLevel = 6;
+    private final int jpegQuality = 7;
+    // Handle for decoder object
+    private final Decoder decoder;
+    // Suggests to the server whether the desktop should be shared or not
+    private final int shareDesktop = 1;
+    // Suggests to the server a preferred encoding
+    private final int preferredEncoding;
+    // View Only mode
+    private final boolean viewOnly;
+    private final boolean sslTunneled;
+    //
+    // Read server's protocol version message
+    //
+    private final int hashAlgorithm;
+    //
+    // Write our protocol version message
+    //
+    private final String hash;
+    //
+    // Negotiate the authentication scheme.
+    //
+    private final String cert;
     String host;
     //- VncViewer viewer;
     int port;
-
     // This will be set to true on the first framebuffer update
     // containing Zlib-, ZRLE- or Tight-encoded data.
     //boolean wereZlibUpdates = false;
     Socket sock;
     InStream is;
     OutStream os;
-
     // Before starting to record each saved session, we set this field
     // to 0, and increment on each framebuffer update. We don't flush
     // the SessionRecorder data into the file before the second update.
@@ -270,7 +292,6 @@ public class RfbProto extends RfbConnectable {
     long timedKbits;
     // Protocol version and TightVNC-specific protocol options.
     int serverMajor, serverMinor;
-
     // VNC Encoding parameters
     int clientMajor, clientMinor;
     boolean protocolTightVNC;
@@ -297,20 +318,9 @@ public class RfbProto extends RfbConnectable {
     private boolean closed;
     // The main processing loop continues while this is set to true;
     private boolean maintainConnection = true;
-    // Tight encoding parameters
-    private int compressLevel = 6;
-    private int jpegQuality = 7;
     // Used to determine if encoding update is necessary
     private int[] encodingsSaved = null;
     private int nEncodingsSaved = 0;
-    // Handle for decoder object
-    private Decoder decoder;
-    // Suggests to the server whether the desktop should be shared or not
-    private int shareDesktop = 1;
-    // Suggests to the server a preferred encoding
-    private int preferredEncoding;
-    // View Only mode
-    private boolean viewOnly = false;
     private ExtendedClipboardHandler extendedClipboardHandler;
     // ExtendedDesktopSize Variables
     // ScreenId
@@ -321,23 +331,6 @@ public class RfbProto extends RfbConnectable {
     // security certificate. Used to control progress while the dialog asking the user
     // to confirm the authenticity of a certificate is displayed.
     private boolean certificateAccepted = false;
-    private boolean sslTunneled = false;
-    //
-    // Read server's protocol version message
-    //
-    private int hashAlgorithm;
-
-
-    //
-    // Write our protocol version message
-    //
-    private String hash;
-
-
-    //
-    // Negotiate the authentication scheme.
-    //
-    private String cert;
 
     //
     // Read security type from the server (protocol version 3.3).
@@ -346,6 +339,25 @@ public class RfbProto extends RfbConnectable {
     //
     // Constructor
     //
+
+    /**
+     * Creates a new RFB protocol handler. Call {@link #initializeAndAuthenticate} to establish
+     * the connection.
+     *
+     * @param decoder                                    decoder that handles framebuffer updates
+     * @param canvas                                     canvas that receives rendered output
+     * @param remoteConnection                           connection object used to issue update requests
+     * @param handler                                    Android handler for posting UI messages (e.g. certificate dialogs)
+     * @param preferredEncoding                          preferred RFB encoding (one of the {@code Encoding*} constants)
+     * @param viewOnly                                   when {@code true}, no input events are sent to the server
+     * @param sslTunneled                                when {@code true}, the connection is wrapped in a SecureTunnel
+     * @param hashAlgorithm                              hash algorithm for certificate fingerprint verification
+     * @param hash                                       expected certificate fingerprint, or {@code null} to skip verification
+     * @param cert                                       PEM certificate for verification, or {@code null}
+     * @param debugLogging                               when {@code true}, verbose protocol logging is enabled
+     * @param isRemoteToLocalClipboardIntegrationEnabled when {@code true}, clipboard content received from the server
+     *                                                   is pushed to the local clipboard
+     */
     public RfbProto(Decoder decoder, Viewable canvas, RemoteConnection remoteConnection, Handler handler, int preferredEncoding,
                     boolean viewOnly, boolean sslTunneled, int hashAlgorithm,
                     String hash, String cert, boolean debugLogging, boolean isRemoteToLocalClipboardIntegrationEnabled) {
@@ -392,7 +404,7 @@ public class RfbProto extends RfbConnectable {
                     try {
                         this.wait();
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, Log.getStackTraceString(e));
                     }
                 }
             }
@@ -421,10 +433,13 @@ public class RfbProto extends RfbConnectable {
             closed = true;
             Log.v(TAG, "RFB socket closed");
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
+    /**
+     * Closes the RFB connection and stops the protocol loop. Safe to call from any thread.
+     */
     public void close() {
         inNormalProtocol = false;
         maintainConnection = false;
@@ -446,6 +461,21 @@ public class RfbProto extends RfbConnectable {
         return closed;
     }
 
+    /**
+     * Opens the TCP connection, negotiates the RFB protocol version, and authenticates with
+     * the server. Blocks until authentication succeeds or an exception is thrown.
+     *
+     * @param host        hostname or IP address of the VNC server
+     * @param port        TCP port of the VNC server
+     * @param us          username (used for schemes that require one, e.g. Plain/DH)
+     * @param pw          password
+     * @param useRepeater {@code true} to route through a UltraVNC repeater
+     * @param repeaterID  repeater ID string (ignored when {@code useRepeater} is {@code false})
+     * @param connType    connection type constant (controls repeater handshake variant)
+     * @param cert        PEM certificate for SSL verification, or {@code null}
+     * @throws Exception            on protocol or I/O errors
+     * @throws AuthFailureException if authentication is rejected by the server
+     */
     public void initializeAndAuthenticate(String host, int port, String us, String pw,
                                           boolean useRepeater, String repeaterID, int connType,
                                           String cert) throws Exception, AuthFailureException {
@@ -616,7 +646,7 @@ public class RfbProto extends RfbConnectable {
         if (serverMajor > 3 || serverMinor >= 8) {
             clientMinor = 8;
             os.writeBytes(versionMsg_3_8.getBytes());
-        } else if (serverMinor >= 7) {
+        } else if (serverMinor == 7) {
             clientMinor = 7;
             os.writeBytes(versionMsg_3_7.getBytes());
         } else {
@@ -946,8 +976,8 @@ public class RfbProto extends RfbConnectable {
 
         DesCipher des = new DesCipher(DH.longToBytes(key));
 
-        byte user[] = new byte[256];
-        byte passwd[] = new byte[64];
+        byte[] user = new byte[256];
+        byte[] passwd = new byte[64];
         int i;
         System.arraycopy(us.getBytes(), 0, user, 0, us.length());
         if (us.length() < 256) {
@@ -1120,6 +1150,11 @@ public class RfbProto extends RfbConnectable {
     // Read the server message type
     //
 
+    /**
+     * Sends the ClientInit message, indicating whether the session should be shared.
+     *
+     * @throws IOException if writing to the stream fails
+     */
     public void writeClientInit() throws IOException {
     /*- if (viewer.options.shareDesktop) {
       os.writeBytes(1);
@@ -1136,6 +1171,13 @@ public class RfbProto extends RfbConnectable {
     // Read a FramebufferUpdate message
     //
 
+    /**
+     * Reads the ServerInit message and populates framebuffer dimensions, pixel format, and
+     * desktop name. Also reads TightVNC capability lists when the TightVNC protocol extension
+     * is active.
+     *
+     * @throws IOException if reading from the stream fails
+     */
     public void readServerInit() throws IOException {
         Log.i(TAG, "Reading server init.");
         int framebufferWidth = is.readUnsignedShort();
@@ -1185,8 +1227,8 @@ public class RfbProto extends RfbConnectable {
     /**
      * Sets the desired framebuffer size if we want to request a custom resolution from the server.
      *
-     * @param width
-     * @param height
+     * @param width  preferred width of framebuffer
+     * @param height preferred height of framebuffer
      */
     public void setPreferredFramebufferSize(int width, int height) {
         Log.d(TAG, "setPreferredFramebufferSize, wxh: " + width + "x" + height);
@@ -1313,6 +1355,15 @@ public class RfbProto extends RfbConnectable {
         return len;
     }
 
+    /**
+     * Sends a FramebufferUpdateRequest message asking the server for updates in the given region.
+     *
+     * @param x           left edge of the requested region
+     * @param y           top edge of the requested region
+     * @param w           width of the requested region
+     * @param h           height of the requested region
+     * @param incremental {@code true} to request only changed pixels; {@code false} for a full refresh
+     */
     public synchronized void writeFramebufferUpdateRequest(int x, int y, int w, int h,
                                                            boolean incremental) {
         framebufferUpdateRequest[0] = (byte) FramebufferUpdateRequest;
@@ -1334,9 +1385,24 @@ public class RfbProto extends RfbConnectable {
     // Write a SetPixelFormat message
     //
 
+    /**
+     * Sends a SetPixelFormat message telling the server which pixel encoding to use.
+     *
+     * @param bitsPerPixel total bits per pixel (e.g. 8 or 32)
+     * @param depth        colour depth (significant bits per pixel)
+     * @param bigEndian    {@code true} if multi-byte pixel values are big-endian
+     * @param trueColour   {@code true} for true-colour mode; {@code false} for indexed colour
+     * @param redMax       maximum red value
+     * @param greenMax     maximum green value
+     * @param blueMax      maximum blue value
+     * @param redShift     bit offset of the red component
+     * @param greenShift   bit offset of the green component
+     * @param blueShift    bit offset of the blue component
+     * @param fGreyScale   {@code true} to request greyscale rendering (server hint)
+     */
     public void writeSetPixelFormat(int bitsPerPixel, int depth, boolean bigEndian,
-                                                 boolean trueColour, int redMax, int greenMax, int blueMax,
-                                                 int redShift, int greenShift, int blueShift, boolean fGreyScale) // sf@2005)
+                                    boolean trueColour, int redMax, int greenMax, int blueMax,
+                                    int redShift, int greenShift, int blueShift, boolean fGreyScale) // sf@2005)
     {
         byte[] b = new byte[20];
 
@@ -1362,7 +1428,7 @@ public class RfbProto extends RfbConnectable {
     private void tryOsWriteBuf(byte[] b, String msg) {
         try {
             os.writeBytes(b, 0, b.length);
-        } catch (NullPointerException|IOException e) {
+        } catch (NullPointerException | IOException e) {
             Log.e(TAG, msg);
             Log.e(TAG, Log.getStackTraceString(e));
         }
@@ -1371,7 +1437,7 @@ public class RfbProto extends RfbConnectable {
     private void tryOsWriteEventBuf(String msg) {
         try {
             os.writeBytes(eventBuf, 0, eventBufLen);
-        } catch (NullPointerException|IOException e) {
+        } catch (NullPointerException | IOException e) {
             Log.e(TAG, msg);
             Log.e(TAG, Log.getStackTraceString(e));
         }
@@ -1383,7 +1449,7 @@ public class RfbProto extends RfbConnectable {
     //
 
     void writeFixColourMapEntries(int firstColour, int nColours,
-                                               int[] red, int[] green, int[] blue)
+                                  int[] red, int[] green, int[] blue)
             throws IOException {
         byte[] b = new byte[6 + nColours * 6];
 
@@ -1436,7 +1502,7 @@ public class RfbProto extends RfbConnectable {
      * Sends clipboard text to the server.
      * Uses Extended Clipboard protocol (NOTIFY) if supported, otherwise standard format.
      *
-     * @param text The clipboard text to send
+     * @param text   The clipboard text to send
      * @param length The length of the text (legacy parameter, not used for Extended Clipboard)
      * @throws IOException if an I/O error occurs
      */
@@ -1475,11 +1541,11 @@ public class RfbProto extends RfbConnectable {
      * Write a pointer event message.  We may need to send modifier key events
      * around it to set the correct modifier state.
      *
-     * @param x
-     * @param y
-     * @param modifiers
-     * @param pointerMask
-     * @throws IOException
+     * @param x           x coordinate
+     * @param y           y coordinate
+     * @param modifiers   modifier state
+     * @param pointerMask what buttons are pressed
+     * @param rel         {@code true} if the coordinates are relative to the current pointer position
      */
     public synchronized void writePointerEvent(int x, int y, int modifiers, int pointerMask,
                                                boolean rel) {
@@ -1507,7 +1573,7 @@ public class RfbProto extends RfbConnectable {
         tryOsWriteEventBuf("Failed to write pointer event to VNC server.");
     }
 
-    synchronized void writeCtrlAltDel() throws IOException {
+    synchronized void writeCtrlAltDel() {
         final int DELETE = 0xffff;
         final int CTRLALT = RemoteKeyboard.CTRL_MASK | RemoteKeyboard.ALT_MASK;
         try {
@@ -1526,7 +1592,7 @@ public class RfbProto extends RfbConnectable {
             //writeModifierKeyEvents(0, false);
             os.writeBytes(eventBuf, 0, eventBufLen);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
@@ -1535,13 +1601,22 @@ public class RfbProto extends RfbConnectable {
     // around it to set the correct modifier state.  Also we need to translate
     // from the Java key values to the X keysym values used by the RFB protocol.
     //
+
+    /**
+     * Sends a key event to the server, preceded and followed by the necessary modifier key
+     * events to match the given meta state.
+     *
+     * @param keySym    X11 keysym of the key
+     * @param metaState bitmask of active modifiers (Ctrl, Alt, Shift, Super)
+     * @param down      {@code true} for key-press; {@code false} for key-release
+     */
     public synchronized void writeKeyEvent(int keySym, int metaState, boolean down) {
         if (viewOnly)
             return;
 
         eventBufLen = 0;
         if (down) {
-            writeModifierKeyEvents(metaState, down);
+            writeModifierKeyEvents(metaState, true);
         }
 
         if (keySym > 0)
@@ -1549,7 +1624,7 @@ public class RfbProto extends RfbConnectable {
 
         // Always release all modifiers after an "up" event
         if (!down) {
-            writeModifierKeyEvents(metaState, down);
+            writeModifierKeyEvents(metaState, false);
         }
 
         tryOsWriteEventBuf("Failed to write key event to VNC server.");
@@ -1590,7 +1665,14 @@ public class RfbProto extends RfbConnectable {
     // Add a raw key event with the given X keysym to eventBuf.
     //
 
-    // clientRedirect() migrates the client to another host/port
+    /**
+     * Migrates the client to a different VNC server. Closes the current connection and
+     * reconnects to the specified host and port.
+     *
+     * @param port        TCP port of the target server
+     * @param host        hostname or IP address of the target server
+     * @param x509subject expected X.509 subject of the target server's certificate, or empty string
+     */
     public void clientRedirect(int port, String host, String x509subject) {
         Log.d(TAG, "clientRedirect");
         try {
@@ -1602,14 +1684,14 @@ public class RfbProto extends RfbConnectable {
             readServerInit();
             processProtocol();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
     void writeModifierKeyEvents(int metaState, boolean down) {
         for (int modifierMask : modifierMap.keySet()) {
             if (remoteKeyboardState.shouldSendModifier(metaState, modifierMask, down)) {
-                int modifier = modifierMap.get(modifierMask);
+                @SuppressWarnings("DataFlowIssue") int modifier = modifierMap.get(modifierMask);
                 GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys, modifierMask:" +
                         modifierMask + ", sending: " + modifier + ", down: " + down);
                 writeKeyEventToEventBuf(modifier, down);
@@ -1618,6 +1700,9 @@ public class RfbProto extends RfbConnectable {
         }
     }
 
+    /**
+     * Starts bandwidth timing. Carries over up to one second of prior data for smoothing.
+     */
     public void startTiming() {
         timing = true;
 
@@ -1633,6 +1718,9 @@ public class RfbProto extends RfbConnectable {
     // Write key events to set the correct modifier state.
     //
 
+    /**
+     * Stops bandwidth timing.
+     */
     public void stopTiming() {
         timing = false;
         if (timeWaitedIn100us < timedKbits / 2)
@@ -1643,10 +1731,17 @@ public class RfbProto extends RfbConnectable {
     // method assumes the recording is on (rec != null).
     //
 
+    /**
+     * Returns the estimated receive throughput in kilobits per second based on the current
+     * timing window. Only meaningful between calls to {@link #startTiming()} and {@link #stopTiming()}.
+     */
     public long kbitsPerSecond() {
         return timedKbits * 10000 / timeWaitedIn100us;
     }
 
+    /**
+     * Returns the total time spent waiting for data in units of 100 microseconds.
+     */
     public long timeWaited() {
         return timeWaitedIn100us;
     }
@@ -1663,7 +1758,12 @@ public class RfbProto extends RfbConnectable {
         return is.readInt();
     }
 
-    // readString() reads a string - a U32 length followed by the data.
+    /**
+     * Reads a length-prefixed UTF-8 string from the stream (U32 length followed by the bytes).
+     *
+     * @return the decoded string
+     * @throws Exception if the string exceeds {@link #maxStringLength} or an I/O error occurs
+     */
     public final String readString() throws Exception {
         int len = readU32();
         if (len > maxStringLength)
@@ -1671,12 +1771,8 @@ public class RfbProto extends RfbConnectable {
 
         byte[] str = new byte[len];
         is.readBytes(str, 0, len);
-        String utf8string = new String();
-        try {
-            utf8string = new String(str, "UTF8");
-        } catch (java.io.UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        String utf8string;
+        utf8string = new String(str, StandardCharsets.UTF_8);
         return utf8string;
     }
 
@@ -1688,6 +1784,14 @@ public class RfbProto extends RfbConnectable {
         return os;
     }
 
+    /**
+     * Replaces the active input and output streams and re-initializes the Extended Clipboard
+     * handler against the new output stream. Used after establishing or switching the underlying
+     * transport (e.g. SSL tunnel setup).
+     *
+     * @param is_ new input stream
+     * @param os_ new output stream
+     */
     public void setStreams(InStream is_, OutStream os_) {
         Log.d(TAG, "setStreams");
         is = is_;
@@ -1709,17 +1813,17 @@ public class RfbProto extends RfbConnectable {
         extendedClipboardHandler = new ExtendedClipboardProtocol(
                 os_,
                 this,
-            new ExtendedClipboardHandler.ClipboardEventListener() {
-                @Override
-                public void onClipboardReceived(String text) {
-                    receiveNewRemoteClipboard(text);
-                }
+                new ExtendedClipboardHandler.ClipboardEventListener() {
+                    @Override
+                    public void onClipboardReceived(String text) {
+                        receiveNewRemoteClipboard(text);
+                    }
 
-                @Override
-                public void onClipboardError(String message, Exception exception) {
-                    Log.e(TAG, "Clipboard error: " + message, exception);
+                    @Override
+                    public void onClipboardError(String message, Exception exception) {
+                        Log.e(TAG, "Clipboard error: " + message, exception);
+                    }
                 }
-            }
         );
     }
 
@@ -1787,12 +1891,19 @@ public class RfbProto extends RfbConnectable {
         return null;
     }
 
+    /**
+     * Sends a UltraVNC text chat message to the server.
+     * The message is truncated to 4096 bytes if necessary.
+     *
+     * @param msg the message text to send
+     * @throws Exception if writing to the stream fails
+     */
     public synchronized void writeChatMessage(String msg) throws Exception {
         os.writeU8(TextChat); // byte type
         os.writeU8(0); // byte pad 1
         os.writeU8(0); // byte pad 2
         os.writeU8(0); // byte pad 2
-        byte[] bytes = msg.getBytes("8859_1");
+        byte[] bytes = msg.getBytes(StandardCharsets.ISO_8859_1);
         byte[] outgoing = bytes;
         if (bytes.length > 4096) {
             outgoing = new byte[4096];
@@ -1823,13 +1934,19 @@ public class RfbProto extends RfbConnectable {
         writeFramebufferUpdateRequest(0, 0, framebufferWidth, framebufferHeight, incremental);
     }
 
+    /**
+     * Sends local clipboard text to the server. Uses Extended Clipboard protocol if negotiated,
+     * otherwise falls back to standard ClientCutText. I/O errors are logged and swallowed.
+     *
+     * @param text clipboard text to send
+     */
     @Override
     public void writeClientCutText(String text) {
         try {
             writeClientCutText(text, text.length());
         } catch (IOException e) {
             Log.e(TAG, "Could not write text to VNC server clipboard.");
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
@@ -1843,7 +1960,12 @@ public class RfbProto extends RfbConnectable {
         return this.inNormalProtocol;
     }
 
+    /**
+     * Returns a human-readable name of the preferred encoding (e.g. "TIGHT", "ZRLE").
+     * Returns an empty string for unrecognised encoding values.
+     */
     public String getEncoding() {
+        //noinspection EnhancedSwitchMigration
         switch (preferredEncoding) {
             case RfbProto.EncodingRaw:
                 return "RAW";
@@ -1916,16 +2038,23 @@ public class RfbProto extends RfbConnectable {
             try {
                 writeSetEncodings(encodings, nEncodings);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, Log.getStackTraceString(e));
             }
             encodingsSaved = encodings;
             nEncodingsSaved = nEncodings;
         }
     }
 
+    /**
+     * Runs the main RFB message dispatch loop. Initialises the Extended Clipboard handler,
+     * sends the initial encoding and update requests, then continuously reads and processes
+     * server messages until the connection is closed. Throws on unrecoverable errors.
+     *
+     * @throws Exception on protocol or I/O errors
+     */
     public void processProtocol() throws Exception {
         boolean exitforloop;
-        int msgType = 0;
+        int msgType;
 
         try {
             tryInitializeExtendedClipboardHandler(RfbProto.this.os);
@@ -2043,7 +2172,7 @@ public class RfbProto extends RfbConnectable {
                         // UltraVNC extension
                         String msg = readTextChatMsg();
                         if (msg != null && msg.length() > 0) {
-                            // TODO implement chat interface
+                            Log.w(TAG, "Chat not implemented");
                         }
                         break;
 
@@ -2058,7 +2187,7 @@ public class RfbProto extends RfbConnectable {
         } catch (Exception e) {
             String m = e.getMessage();
             Log.e(TAG, "Exception caught while processing protocol: " + m);
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
             close();
             throw e;
         } finally {
@@ -2077,7 +2206,7 @@ public class RfbProto extends RfbConnectable {
 
     /**
      * This method handles the pseudo encoding ExtendedDesktopSize enabling a remote resizing of the vnc session
-     * Protocol: https://github.com/rfbproto/rfbproto/blob/master/rfbproto.rst#extendeddesktopsize-pseudo-encoding
+     * Protocol: <a href="https://github.com/rfbproto/rfbproto/blob/master/rfbproto.rst#extendeddesktopsize-pseudo-encoding">...</a>
      */
     private void handleExtendedDesktopSize() throws Exception {
         Log.d(TAG, "handleExtendedDesktopSize");
@@ -2133,8 +2262,16 @@ public class RfbProto extends RfbConnectable {
         }
     }
 
+    /**
+     * Requests that the server resize the framebuffer to the given dimensions.
+     * Has no effect if ExtendedDesktopSize is not supported by the server or if the
+     * framebuffer is already the requested size.
+     *
+     * @param x desired framebuffer width in pixels
+     * @param y desired framebuffer height in pixels
+     */
     @Override
-    public synchronized void requestResolution(int x, int y) throws Exception {
+    public synchronized void requestResolution(int x, int y) {
         Log.d(TAG, "requestResolution, wxh: " + x + "x" + y);
         this.setPreferredFramebufferSize(x, y);
 
@@ -2200,24 +2337,11 @@ public class RfbProto extends RfbConnectable {
         tryOsWriteBuf(setDesktopSizeBuff, "Sending the ExtendedDesktopSize Frame failed");
     }
 
-    public class RfbPasswordAuthenticationException extends Exception {
-        public RfbPasswordAuthenticationException(String errorMessage) {
-            super(errorMessage);
-        }
-    }
-
-    public class RfbUserPassAuthFailedOrUsernameRequiredException extends Exception {
-        public RfbUserPassAuthFailedOrUsernameRequiredException(String errorMessage) {
-            super(errorMessage);
-        }
-    }
-
-    public class RfbUltraVncColorMapException extends Exception {
-        public RfbUltraVncColorMapException(String errorMessage) {
-            super(errorMessage);
-        }
-    }
-
+    /**
+     * Sets the drawable data target that the decoder writes decoded framebuffer pixels into.
+     *
+     * @param drawable the new drawable data target
+     */
     @Override
     public void setBitmapData(AbstractDrawableData drawable) {
         decoder.setBitmapData(drawable);
@@ -2229,5 +2353,32 @@ public class RfbProto extends RfbConnectable {
 
     public int getFramebufferHeight() {
         return framebufferHeight;
+    }
+
+    /**
+     * Thrown when the server rejects a password-only authentication attempt.
+     */
+    public static class RfbPasswordAuthenticationException extends Exception {
+        public RfbPasswordAuthenticationException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+
+    /**
+     * Thrown when username/password authentication fails or when a username is required but was not provided.
+     */
+    public static class RfbUserPassAuthFailedOrUsernameRequiredException extends Exception {
+        public RfbUserPassAuthFailedOrUsernameRequiredException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+
+    /**
+     * Thrown when the server sends an UltraVNC colour map that the client cannot handle.
+     */
+    public static class RfbUltraVncColorMapException extends Exception {
+        public RfbUltraVncColorMapException(String errorMessage) {
+            super(errorMessage);
+        }
     }
 }
