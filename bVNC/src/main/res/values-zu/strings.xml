@@ -4,6 +4,7 @@
     <string name="audio_initialized">Umsindo uqaliswe</string>
     <string name="action_import_settings">Ngenisa Izilungiselelo</string>
     <string name="action_new_connection">✚ Uxhumano Olusha</string>
+    <string name="sort_connections">Hlelela izixhumanisi</string>
     <string name="action_edit_default_settings">⚙ Hlela Izilungiselelo Ezivamile</string>
     <string name="action_export_settings">Thumela Izilungiselelo</string>
     <string name="action_delete_connection">Susa Uxhumano</string>
@@ -835,4 +836,12 @@ Uhlelo lokusebenza seluvele lukhululiwe ekulungiselelweni kwebhethri.</string>
     <string name="no_connections_hint">Thinta inkinobho + ukwengeza ukuxhumana kwakho kokuqala okulawulwa ngekude</string>
     <string name="no_connections_hint_tv">Cindezela inkinobho + engenhla ukwengeza ukuxhumana kwakho kokuqala okulawulwa ngekude</string>
     <string name="keyboard_layout_map">Ukuhlela Ikhibhodi</string>
+    <string name="accessibility_service_menu_item">⌨  Ukubamba Izinqamuleli Zekhodi Yemfingqo</string>
+    <string name="accessibility_service_already_enabled">Ukubamba Izinqamuleli Zekhodi Yemfingqo sekuletshwe.</string>
+    <string name="accessibility_service_label">Ukubamba Ukufaka Okukude</string>
+    <string name="accessibility_service_description">Ibamba ukufaka kwekhibhodi yangempela futhi iyiqondise kusesha yakho yedeskithophu eyiphelele ekude. Imicimbi yamaqhinga ekhompiutha yomzimba kuphela iyenziwa. Akukho okuqukethwe kwesikrini, okuqukethwe kwewindi, noma idatha yomuntu siqu okuqoqiwe, okugcinwe, noma okwabelwene ngako.</string>
+    <string name="accessibility_service_prompt_title">Vumela ukubamba kwezinqamuleli zekhodi yemfingqo?</string>
+    <string name="accessibility_service_prompt_message">Ukuze uthumele izinqamuleli zekhodi yemfingqo (njengo-Alt+Tab) kudeskithophu yakho ekude esikhundleni se-Android ukuphula, lolu hlelo lokusebenza lunakho ukusebenzisa iSevisi Yokufinyeleleka ukubamba imicimbi yamaqhinga yangempela.\n\nLesi sevisi lifikela ini: imicimbi yamaqhinga ekhompiutha yomzimba uvela ekhibhodini yakho yangempela noma wedivayisi yokufaka.\n\nIdatha isetshenziswa kanjani: imicimbi yamaqhinga idluliselwa ngqo kuseshini yakho yedeskithophu ekude ngokunxenxwa kwakho okukhona. Ayigcinwa, ayirekodiwe, noma ayabelwene nayo noma ubani.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Vula Izilungiselelo Zokufinyeleleka</string>
+    <string name="accessibility_service_prompt_not_now">Hhayi manje</string>
 </resources>

@@ -283,6 +283,7 @@ Všetky režimy vstupu:
     <string name="error_connection_interrupted">Spojenie prerušené.</string>
     <string name="auto_x_descript_session">Typ vzdialenej relácie</string>
     <string name="action_new_connection">✚ Nové pripojenie</string>
+    <string name="sort_connections">Zoradiť pripojenia</string>
     <string name="enter_text_title">Zadajte text na odoslanie</string>
     <string name="shortcut_label_rdp">Pripojenie RDP</string>
     <string name="spice_address_caption_hint">Server SPICE</string>
@@ -740,4 +741,12 @@ Aplikácia je už oslobodená od optimalizácie batérie.</string>
     <string name="no_connections_hint">Klepnutím na tlačidlo + pridáte prvé vzdialené pripojenie</string>
     <string name="no_connections_hint_tv">Stlačením tlačidla + vyššie pridáte prvé vzdialené pripojenie</string>
     <string name="keyboard_layout_map">Rozloženie klávesnice</string>
+    <string name="accessibility_service_menu_item">⌨  Zachytávanie klávesových skratiek</string>
+    <string name="accessibility_service_already_enabled">Zachytávanie klávesových skratiek je už povolené.</string>
+    <string name="accessibility_service_label">Zachytávanie vzdáleného vstupu</string>
+    <string name="accessibility_service_description">Zachytáva fyzický vstup z klávesnice a posiela ho do aktívnej relácie vzdialenej plochy. Spracúvajú sa iba udalosti hardvérových kláves. Nezachytáva sa, neukladá a nezdieľa sa žiadny obsah obrazovky, obsah okien ani osobné údaje.</string>
+    <string name="accessibility_service_prompt_title">Povoliť zachytávanie klávesových skratiek?</string>
+    <string name="accessibility_service_prompt_message">Ak chcete odosielať klávesové skratky (napríklad Alt+Tab) na vzdialenú plochu namiesto ich zachytenia systémom Android, táto aplikácia môže na zachytávanie fyzických udalostí kláves používať Službu dostupnosti.\n\nK čomu má táto služba prístup: udalosti hardvérových kláves z fyzickej klávesnice alebo vstupného zariadenia.\n\nAko sa dáta používajú: udalosti kláves sa prenášajú priamo do relácie vzdialenej plochy cez existujúce pripojenie. Neukladajú sa, nezaznamenávajú sa ani nezdieľajú sa s nikým.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Otvoriť nastavenia dostupnosti</string>
+    <string name="accessibility_service_prompt_not_now">Teraz nie</string>
 </resources>

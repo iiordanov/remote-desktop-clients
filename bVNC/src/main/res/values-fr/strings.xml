@@ -4,6 +4,7 @@
     <string name="audio_initialized">Audio initialisé</string>
     <string name="action_import_settings">Importer les paramètres</string>
     <string name="action_new_connection">✚ Nouvelle connexion</string>
+    <string name="sort_connections">Trier les connexions</string>
     <string name="action_edit_default_settings">⚙ Modifier les paramètres par défaut</string>
     <string name="action_export_settings">Exporter les paramètres</string>
     <string name="action_delete_connection">Supprimer la connexion</string>
@@ -911,4 +912,12 @@ L\'application est déjà exemptée des optimisations de la batterie.</string>
     <string name="no_connections_hint">Appuyez sur le bouton + pour ajouter votre première connexion distante</string>
     <string name="no_connections_hint_tv">Appuyez sur le bouton + ci-dessus pour ajouter votre première connexion distante</string>
     <string name="keyboard_layout_map">Disposition du clavier</string>
+    <string name="accessibility_service_menu_item">⌨  Capture des raccourcis clavier</string>
+    <string name="accessibility_service_already_enabled">La capture des raccourcis clavier est déjà activée.</string>
+    <string name="accessibility_service_label">Capture de saisie à distance</string>
+    <string name="accessibility_service_description">Capture les saisies physiques du clavier et les transmet à votre session de bureau à distance active. Seuls les événements de touches matérielles sont traités. Aucun contenu d\'écran, contenu de fenêtre ou donnée personnelle n\'est collecté, stocké ou partagé.</string>
+    <string name="accessibility_service_prompt_title">Autoriser la capture des raccourcis clavier ?</string>
+    <string name="accessibility_service_prompt_message">Pour envoyer des raccourcis clavier (comme Alt+Tab) à votre bureau à distance au lieu qu\'Android les intercepte, cette application peut utiliser un Service d\'accessibilité pour capturer les événements de touches physiques.\n\nCe à quoi ce service accède : les événements de touches matérielles de votre clavier physique ou de votre périphérique de saisie.\n\nComment les données sont utilisées : les événements de touches sont transmis directement à votre session de bureau à distance via votre connexion existante. Ils ne sont pas stockés, enregistrés ou partagés avec quiconque.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Ouvrir les paramètres d\'accessibilité</string>
+    <string name="accessibility_service_prompt_not_now">Pas maintenant</string>
 </resources>

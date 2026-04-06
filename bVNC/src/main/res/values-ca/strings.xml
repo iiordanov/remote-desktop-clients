@@ -4,6 +4,7 @@
     <string name="audio_initialized">Àudio inicialitzat</string>
     <string name="action_import_settings">Importa la configuració</string>
     <string name="action_new_connection">✚ Nova connexió</string>
+    <string name="sort_connections">Ordena les connexions</string>
     <string name="action_edit_default_settings">⚙ Edita la configuració predeterminada</string>
     <string name="action_export_settings">Exporta la configuració</string>
     <string name="action_delete_connection">Suprimeix la connexió</string>
@@ -910,4 +911,12 @@ L\'aplicació ja està exempta d\'optimitzacions de bateria.</string>
     <string name="no_connections_hint">Toca el botó + per afegir la teva primera connexió remota</string>
     <string name="no_connections_hint_tv">Prem el botó + a dalt per afegir la teva primera connexió remota</string>
     <string name="keyboard_layout_map">Disposició del teclat</string>
+    <string name="accessibility_service_menu_item">⌨  Captura de dreceres de teclat</string>
+    <string name="accessibility_service_already_enabled">La captura de dreceres de teclat ja està habilitada.</string>
+    <string name="accessibility_service_label">Captura d\'entrada remota</string>
+    <string name="accessibility_service_description">Captura l\'entrada física del teclat i la remet a la sessió d\'escriptori remot activa. Només es processen els esdeveniments de tecles de maquinari. No es recopila, emmagatzema ni comparteix cap contingut de pantalla, contingut de finestres ni dades personals.</string>
+    <string name="accessibility_service_prompt_title">Voleu permetre la captura de dreceres de teclat?</string>
+    <string name="accessibility_service_prompt_message">Per enviar dreceres de teclat (com ara Alt+Tab) a l\'escriptori remot en lloc que Android les intercepti, aquesta aplicació pot usar un Servei d\'accessibilitat per capturar esdeveniments de tecles físiques.\n\nQuè accedeix aquest servei: esdeveniments de tecles de maquinari del teclat físic o dispositiu d\'entrada.\n\nCom s\'usen les dades: els esdeveniments de tecles es remeten directament a la sessió d\'escriptori remot a través de la connexió existent. No s\'emmagatzemen, no es registren ni es comparteixen amb ningú.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Obre la configuració d\'accessibilitat</string>
+    <string name="accessibility_service_prompt_not_now">Ara no</string>
 </resources>

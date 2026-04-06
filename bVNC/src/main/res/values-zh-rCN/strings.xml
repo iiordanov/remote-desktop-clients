@@ -4,6 +4,7 @@
     <string name="audio_initialized">音频初始化</string>
     <string name="action_import_settings">导入设定</string>
     <string name="action_new_connection">新连接</string>
+    <string name="sort_connections">排序连接</string>
     <string name="action_edit_default_settings">编辑默认设定</string>
     <string name="action_export_settings">导出设定</string>
     <string name="action_delete_connection">删除连接设定</string>
@@ -833,4 +834,12 @@ aSPICE对应的功能如下：
     <string name="no_connections_hint">点击 + 按钮添加您的第一个远程连接</string>
     <string name="no_connections_hint_tv">按上方的 + 按钮添加您的第一个远程连接</string>
     <string name="keyboard_layout_map">键盘布局</string>
+    <string name="accessibility_service_menu_item">⌨  键盘快捷键捕获</string>
+    <string name="accessibility_service_already_enabled">键盘快捷键捕获已启用。</string>
+    <string name="accessibility_service_label">远程输入捕获</string>
+    <string name="accessibility_service_description">捕获物理键盘输入并将其转发到您的活动远程桌面会话。仅处理硬件按键事件。不会收集、存储或共享任何屏幕内容、窗口内容或个人数据。</string>
+    <string name="accessibility_service_prompt_title">允许键盘快捷键捕获？</string>
+    <string name="accessibility_service_prompt_message">为了将键盘快捷键（如 Alt+Tab）发送到您的远程桌面而不是被 Android 拦截，此应用可以使用无障碍服务来捕获物理按键事件。\n\n此服务访问的内容：来自物理键盘或输入设备的硬件按键事件。\n\n数据使用方式：按键事件通过您现有的连接直接转发到您的远程桌面会话。它们不会被存储、记录或与任何人共享。</string>
+    <string name="accessibility_service_prompt_go_to_settings">打开无障碍设置</string>
+    <string name="accessibility_service_prompt_not_now">暂不</string>
 </resources>

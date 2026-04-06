@@ -4,6 +4,7 @@
     <string name="audio_initialized">Audio gestart</string>
     <string name="action_import_settings">Instellingen importeren</string>
     <string name="action_new_connection">✚ Nieuwe verbinding</string>
+    <string name="sort_connections">Verbindingen sorteren</string>
     <string name="action_edit_default_settings">⚙ Standaardinstellingen bewerken</string>
     <string name="action_export_settings">Instellingen exporteren</string>
     <string name="action_delete_connection">Verbinding verwijderen</string>
@@ -838,4 +839,12 @@ App is al vrijgesteld van batterij-optimalisaties.</string>
     <string name="no_connections_hint">Tik op de +-knop om uw eerste externe verbinding toe te voegen</string>
     <string name="no_connections_hint_tv">Druk op de +-knop hierboven om uw eerste externe verbinding toe te voegen</string>
     <string name="keyboard_layout_map">Toetsenbordindeling</string>
+    <string name="accessibility_service_menu_item">⌨  Sneltoetsopname</string>
+    <string name="accessibility_service_already_enabled">Sneltoetsopname is al ingeschakeld.</string>
+    <string name="accessibility_service_label">Externe invoer vastleggen</string>
+    <string name="accessibility_service_description">Legt fysieke toetsenbordinvoer vast en stuurt deze door naar uw actieve externe bureaubladsessie. Alleen hardwaretoetsgebeurtenissen worden verwerkt. Er wordt geen scherminhoud, vensterinhoud of persoonlijke gegevens verzameld, opgeslagen of gedeeld.</string>
+    <string name="accessibility_service_prompt_title">Sneltoetsopname toestaan?</string>
+    <string name="accessibility_service_prompt_message">Om toetsenbordsneltoetsen (zoals Alt+Tab) naar uw externe bureaublad te sturen in plaats van dat Android ze onderschept, kan deze app een toegankelijkheidsservice gebruiken om fysieke toetsgebeurtenissen vast te leggen.\n\nWat deze service toegang heeft: hardwaretoetsgebeurtenissen van uw fysiek toetsenbord of invoerapparaat.\n\nHoe de gegevens worden gebruikt: toetsgebeurtenissen worden direct via uw bestaande verbinding doorgestuurd naar uw externe bureaubladsessie. Ze worden niet opgeslagen, geregistreerd of gedeeld met iemand.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Toegankelijkheidsinstellingen openen</string>
+    <string name="accessibility_service_prompt_not_now">Niet nu</string>
 </resources>

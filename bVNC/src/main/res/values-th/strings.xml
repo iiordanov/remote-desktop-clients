@@ -283,6 +283,7 @@
     <string name="error_connection_interrupted">การเชื่อมต่อถูกขัดจังหวะ</string>
     <string name="auto_x_descript_session">ประเภทเซสชันระยะไกล</string>
     <string name="action_new_connection">✚ การเชื่อมต่อใหม่</string>
+    <string name="sort_connections">เรียงลำดับการเชื่อมต่อ</string>
     <string name="enter_text_title">ป้อนข้อความที่จะส่ง</string>
     <string name="shortcut_label_rdp">การเชื่อมต่อ RDP</string>
     <string name="spice_address_caption_hint">เซิร์ฟเวอร์เครื่องเทศ</string>
@@ -740,4 +741,12 @@
     <string name="no_connections_hint">แตะปุ่ม + เพื่อเพิ่มการเชื่อมต่อระยะไกลครั้งแรกของคุณ</string>
     <string name="no_connections_hint_tv">กดปุ่ม + ด้านบนเพื่อเพิ่มการเชื่อมต่อระยะไกลครั้งแรกของคุณ</string>
     <string name="keyboard_layout_map">รูปแบบแป้นพิมพ์</string>
+    <string name="accessibility_service_menu_item">⌨  จับภาพทางลัดแป้นพิมพ์</string>
+    <string name="accessibility_service_already_enabled">จับภาพทางลัดแป้นพิมพ์เปิดใช้งานแล้ว</string>
+    <string name="accessibility_service_label">จับภาพอินพุตระยะไกล</string>
+    <string name="accessibility_service_description">จับภาพอินพุตแป้นพิมพ์จริงและส่งต่อไปยังเซสชันเดสก์ท็อประยะไกลที่ใช้งานอยู่ มีการประมวลผลเฉพาะเหตุการณ์คีย์ฮาร์ดแวร์เท่านั้น ไม่มีการรวบรวม จัดเก็บ หรือแบ่งปันเนื้อหาหน้าจอ เนื้อหาหน้าต่าง หรือข้อมูลส่วนบุคคล</string>
+    <string name="accessibility_service_prompt_title">อนุญาตให้จับภาพทางลัดแป้นพิมพ์?</string>
+    <string name="accessibility_service_prompt_message">เพื่อส่งทางลัดแป้นพิมพ์ (เช่น Alt+Tab) ไปยังเดสก์ท็อประยะไกลของคุณแทนที่ Android จะสกัดกั้น แอปนี้สามารถใช้บริการการช่วยเหลือพิเศษเพื่อจับเหตุการณ์คีย์จริงได้\n\nสิ่งที่บริการนี้เข้าถึง: เหตุการณ์คีย์ฮาร์ดแวร์จากแป้นพิมพ์จริงหรืออุปกรณ์อินพุตของคุณ\n\nวิธีการใช้ข้อมูล: เหตุการณ์คีย์จะถูกส่งต่อโดยตรงไปยังเซสชันเดสก์ท็อประยะไกลของคุณผ่านการเชื่อมต่อที่มีอยู่ ไม่มีการจัดเก็บ บันทึก หรือแบ่งปันกับใคร</string>
+    <string name="accessibility_service_prompt_go_to_settings">เปิดการตั้งค่าการช่วยเหลือพิเศษ</string>
+    <string name="accessibility_service_prompt_not_now">ไม่ใช่ตอนนี้</string>
 </resources>

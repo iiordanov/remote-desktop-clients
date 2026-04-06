@@ -4,6 +4,7 @@
     <string name="audio_initialized">Nainitialize na ang audio</string>
     <string name="action_import_settings">I-import ang Mga Setting</string>
     <string name="action_new_connection">✚ Bagong Koneksyon</string>
+    <string name="sort_connections">Pagbukud-bukurin ang mga koneksyon</string>
     <string name="action_edit_default_settings">⚙ I-edit ang Mga Default na Setting</string>
     <string name="action_export_settings">I-export ang Mga Setting</string>
     <string name="action_delete_connection">Burahin ang Koneksyon</string>
@@ -912,4 +913,12 @@ Exempt na ang app sa mga pag-optimize ng baterya.</string>
     <string name="no_connections_hint">I-tap ang button na + upang idagdag ang iyong unang remote na koneksyon</string>
     <string name="no_connections_hint_tv">Pindutin ang button na + sa itaas upang idagdag ang iyong unang remote na koneksyon</string>
     <string name="keyboard_layout_map">Layout ng Keyboard</string>
+    <string name="accessibility_service_menu_item">⌨  Pagkuha ng Shortcut sa Keyboard</string>
+    <string name="accessibility_service_already_enabled">Ang pagkuha ng shortcut sa keyboard ay naka-enable na.</string>
+    <string name="accessibility_service_label">Pagkuha ng Remote na Input</string>
+    <string name="accessibility_service_description">Kinikuha ang pisikal na input ng keyboard at ipinapasa ito sa iyong aktibong session ng remote na desktop. Ang mga hardware key event lamang ang pinoproseso. Walang nilalaman ng screen, nilalaman ng window, o personal na data ang kinokolekta, iniimbak, o ibinabahagi.</string>
+    <string name="accessibility_service_prompt_title">Pahintulutan ang pagkuha ng shortcut sa keyboard?</string>
+    <string name="accessibility_service_prompt_message">Upang makapagpadala ng mga shortcut sa keyboard (tulad ng Alt+Tab) sa iyong remote na desktop sa halip na harangan ng Android, maaaring gumamit ang app na ito ng Accessibility Service upang makuha ang mga pisikal na key event.\n\nAno ang ina-access ng serbisyong ito: mga hardware key event mula sa iyong pisikal na keyboard o input device.\n\nPaano ginagamit ang data: ang mga key event ay direktang ipinapasa sa iyong session ng remote na desktop sa pamamagitan ng iyong kasalukuyang koneksyon. Hindi sila iniimbak, nila-log, o ibinabahagi sa sinuman.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Buksan ang Mga Setting ng Accessibility</string>
+    <string name="accessibility_service_prompt_not_now">Hindi ngayon</string>
 </resources>

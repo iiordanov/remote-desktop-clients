@@ -283,6 +283,7 @@ Semua Mod Input:
     <string name="error_connection_interrupted">Sambungan terputus.</string>
     <string name="auto_x_descript_session">Jenis Sesi Jauh</string>
     <string name="action_new_connection">✚ Sambungan Baharu</string>
+    <string name="sort_connections">Susun sambungan</string>
     <string name="enter_text_title">Masukkan Teks untuk Dihantar</string>
     <string name="shortcut_label_rdp">Sambungan RDP</string>
     <string name="spice_address_caption_hint">Pelayan SPICE</string>
@@ -740,4 +741,12 @@ Apl sudah pun dikecualikan daripada pengoptimuman bateri.</string>
     <string name="no_connections_hint">Ketik butang + untuk menambah sambungan jauh pertama anda</string>
     <string name="no_connections_hint_tv">Tekan butang + di atas untuk menambah sambungan jauh pertama anda</string>
     <string name="keyboard_layout_map">Susun Atur Papan Kekunci</string>
+    <string name="accessibility_service_menu_item">⌨  Tangkap Pintasan Papan Kekunci</string>
+    <string name="accessibility_service_already_enabled">Tangkap Pintasan Papan Kekunci sudah diaktifkan.</string>
+    <string name="accessibility_service_label">Tangkap Input Jauh</string>
+    <string name="accessibility_service_description">Menangkap input papan kekunci fizikal dan menghantar ke sesi desktop jauh aktif anda. Hanya peristiwa kekunci perkakasan yang diproses. Tiada kandungan skrin, kandungan tetingkap atau data peribadi dikumpulkan, disimpan atau dikongsi.</string>
+    <string name="accessibility_service_prompt_title">Benarkan tangkap pintasan papan kekunci?</string>
+    <string name="accessibility_service_prompt_message">Untuk menghantar pintasan papan kekunci (seperti Alt+Tab) ke desktop jauh anda daripada dipintas Android, aplikasi ini boleh menggunakan Perkhidmatan Kebolehaksesan untuk menangkap peristiwa kekunci fizikal.\n\nApa yang diakses perkhidmatan ini: peristiwa kekunci perkakasan daripada papan kekunci fizikal atau peranti input anda.\n\nBagaimana data digunakan: peristiwa kekunci dihantar terus ke sesi desktop jauh anda melalui sambungan sedia ada anda. Ia tidak disimpan, dilog atau dikongsi dengan sesiapa.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Buka Tetapan Kebolehaksesan</string>
+    <string name="accessibility_service_prompt_not_now">Bukan sekarang</string>
 </resources>

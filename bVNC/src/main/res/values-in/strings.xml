@@ -4,6 +4,7 @@
     <string name="audio_initialized">Audio telah diinisialisasi</string>
     <string name="action_import_settings">Impor Pengaturan</string>
     <string name="action_new_connection">✚ Koneksi Baru</string>
+    <string name="sort_connections">Urutkan koneksi</string>
     <string name="action_edit_default_settings">⚙ Edit Pengaturan Default</string>
     <string name="action_export_settings">Ekspor Pengaturan</string>
     <string name="action_delete_connection">Hapus Koneksi</string>
@@ -912,4 +913,12 @@ Aplikasi sudah dikecualikan dari pengoptimalan baterai.</string>
     <string name="no_connections_hint">Ketuk tombol + untuk menambahkan koneksi jarak jauh pertama Anda</string>
     <string name="no_connections_hint_tv">Tekan tombol + di atas untuk menambahkan koneksi jarak jauh pertama Anda</string>
     <string name="keyboard_layout_map">Tata Letak Keyboard</string>
+    <string name="accessibility_service_menu_item">⌨  Tangkap Pintasan Keyboard</string>
+    <string name="accessibility_service_already_enabled">Tangkap Pintasan Keyboard sudah diaktifkan.</string>
+    <string name="accessibility_service_label">Tangkap Input Jarak Jauh</string>
+    <string name="accessibility_service_description">Menangkap input keyboard fisik dan meneruskannya ke sesi desktop jarak jauh Anda yang aktif. Hanya peristiwa tombol perangkat keras yang diproses. Tidak ada konten layar, konten jendela, atau data pribadi yang dikumpulkan, disimpan, atau dibagikan.</string>
+    <string name="accessibility_service_prompt_title">Izinkan tangkap pintasan keyboard?</string>
+    <string name="accessibility_service_prompt_message">Untuk mengirim pintasan keyboard (seperti Alt+Tab) ke desktop jarak jauh Anda alih-alih Android yang mencegatnya, aplikasi ini dapat menggunakan Layanan Aksesibilitas untuk menangkap peristiwa tombol fisik.\n\nApa yang diakses layanan ini: peristiwa tombol perangkat keras dari keyboard fisik atau perangkat input Anda.\n\nBagaimana data digunakan: peristiwa tombol diteruskan langsung ke sesi desktop jarak jauh Anda melalui koneksi yang ada. Peristiwa tersebut tidak disimpan, dicatat, atau dibagikan kepada siapa pun.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Buka Pengaturan Aksesibilitas</string>
+    <string name="accessibility_service_prompt_not_now">Belum sekarang</string>
 </resources>

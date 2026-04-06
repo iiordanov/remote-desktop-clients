@@ -284,6 +284,7 @@
     <string name="error_connection_interrupted">З\'єднання перервано.</string>
     <string name="auto_x_descript_session">Тип віддаленого сеансу</string>
     <string name="action_new_connection">✚ Нове підключення</string>
+    <string name="sort_connections">Сортувати підключення</string>
     <string name="enter_text_title">Введіть текст для надсилання</string>
     <string name="shortcut_label_rdp">Підключення RDP</string>
     <string name="spice_address_caption_hint">Сервер SPICE</string>
@@ -733,4 +734,12 @@
     <string name="no_connections_hint">Натисніть кнопку +, щоб додати перше віддалене підключення</string>
     <string name="no_connections_hint_tv">Натисніть кнопку + вище, щоб додати перше віддалене підключення</string>
     <string name="keyboard_layout_map">Розкладка клавіатури</string>
+    <string name="accessibility_service_menu_item">⌨  Захоплення гарячих клавіш</string>
+    <string name="accessibility_service_already_enabled">Захоплення гарячих клавіш вже увімкнено.</string>
+    <string name="accessibility_service_label">Захоплення віддаленого введення</string>
+    <string name="accessibility_service_description">Захоплює фізичне введення з клавіатури та пересилає його у вашу активну сесію віддаленого робочого столу. Обробляються лише апаратні події клавіш. Жодний вміст екрана, вміст вікон або особисті дані не збираються, не зберігаються та не передаються.</string>
+    <string name="accessibility_service_prompt_title">Дозволити захоплення гарячих клавіш?</string>
+    <string name="accessibility_service_prompt_message">Щоб надсилати сполучення клавіш (наприклад, Alt+Tab) на віддалений робочий стіл замість того, щоб Android їх перехоплював, цей застосунок може використовувати Службу доступності для захоплення фізичних подій клавіш.\n\nДо чого ця служба має доступ: апаратні події клавіш з фізичної клавіатури або пристрою введення.\n\nЯк використовуються дані: події клавіш передаються безпосередньо у сесію віддаленого робочого столу через існуюче підключення. Вони не зберігаються, не реєструються та не передаються нікому.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Відкрити налаштування доступності</string>
+    <string name="accessibility_service_prompt_not_now">Не зараз</string>
 </resources>

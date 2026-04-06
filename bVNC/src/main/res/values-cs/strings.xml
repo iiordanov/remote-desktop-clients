@@ -4,6 +4,7 @@
     <string name="audio_initialized">Zvuk inicializov\u00e1n</string>
     <string name="action_import_settings">Importovat nastaven\u00ed</string>
     <string name="action_new_connection">✚ Nov\u00e9 p\u0159ipojen\u00ed</string>
+    <string name="sort_connections">Seřadit připojení</string>
     <string name="action_edit_default_settings">⚙ Upravit v\u00fdchoz\u00ed nastaven\u00ed</string>
     <string name="action_export_settings">Exportovat nastaven\u00ed</string>
     <string name="action_delete_connection">Smazat p\u0159ipojen\u00ed</string>
@@ -837,4 +838,12 @@ Aplikace je již osvobozena od optimalizace baterie.</string>
     <string name="no_connections_hint">Klepnutím na tlačítko + přidáte první vzdálené připojení</string>
     <string name="no_connections_hint_tv">Stisknutím tlačítka + nahoře přidáte první vzdálené připojení</string>
     <string name="keyboard_layout_map">Rozložení klávesnice</string>
+    <string name="accessibility_service_menu_item">⌨  Zachycení klávesových zkratek</string>
+    <string name="accessibility_service_already_enabled">Zachycení klávesových zkratek je již povoleno.</string>
+    <string name="accessibility_service_label">Zachycení vzdáleného vstupu</string>
+    <string name="accessibility_service_description">Zachycuje fyzický vstup z klávesnice a přeposílá jej do aktivní relace vzdálené plochy. Zpracovávají se pouze hardwarové klávesové události. Nezaznamenává se, neukládá ani nesdílí žádný obsah obrazovky, obsah oken ani osobní údaje.</string>
+    <string name="accessibility_service_prompt_title">Povolit zachycení klávesových zkratek?</string>
+    <string name="accessibility_service_prompt_message">Aby bylo možné odesílat klávesové zkratky (jako Alt+Tab) na vzdálenou plochu namísto jejich zachycení systémem Android, může tato aplikace použít Službu dostupnosti k zachycení fyzických klávesových událostí.\n\nCo tato služba přistupuje: hardwarové klávesové události z fyzické klávesnice nebo vstupního zařízení.\n\nJak jsou data používána: klávesové události jsou přeposílány přímo do relace vzdálené plochy prostřednictvím stávajícího připojení. Nejsou ukládány, protokolovány ani sdíleny s nikým.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Otevřít nastavení dostupnosti</string>
+    <string name="accessibility_service_prompt_not_now">Teď ne</string>
 </resources>

@@ -99,6 +99,7 @@ import com.iiordanov.util.SamsungDexUtils;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
+import com.iiordanov.bVNC.input.RemoteInputAccessibilityService;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.opaque.util.OnTouchViewMover;
 import com.undatech.opaque.util.RemoteToolbar;
@@ -1208,6 +1209,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 connection.getUseDpadAsArrows()
         );
         canvas.setOnKeyListener(inputListener);
+        RemoteInputAccessibilityService.setKeyInterceptListener(inputListener);
     }
 
     private void sendSpecialKeyAgain() {
@@ -1226,6 +1228,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "onDestroy called.");
+        RemoteInputAccessibilityService.setKeyInterceptListener(null);
         if (remoteConnection != null)
             remoteConnection.closeConnection();
         System.gc();

@@ -4,6 +4,7 @@
     <string name="audio_initialized">Lyd initialisert</string>
     <string name="action_import_settings">Importer innstillinger</string>
     <string name="action_new_connection">✚ Ny tilkobling</string>
+    <string name="sort_connections">Sorter tilkoblinger</string>
     <string name="action_edit_default_settings">⚙ Rediger standardinnstillinger</string>
     <string name="action_export_settings">Eksporter innstillinger</string>
     <string name="action_delete_connection">Slett tilkobling</string>
@@ -835,4 +836,12 @@ Appen er allerede unntatt fra batterioptimalisering.</string>
     <string name="no_connections_hint">Trykk på +-knappen for å legge til din første eksterne tilkobling</string>
     <string name="no_connections_hint_tv">Trykk på +-knappen ovenfor for å legge til din første eksterne tilkobling</string>
     <string name="keyboard_layout_map">Tastaturlayout</string>
+    <string name="accessibility_service_menu_item">⌨  Tastatursnarveiopptak</string>
+    <string name="accessibility_service_already_enabled">Tastatursnarveiopptak er allerede aktivert.</string>
+    <string name="accessibility_service_label">Ekstern inndataopptak</string>
+    <string name="accessibility_service_description">Tar opp fysisk tastaturinndata og videresender det til din aktive fjernskrivebordsøkt. Bare maskinvaretastehendelser behandles. Ingen skjerminnhold, vindusinnhold eller personlige data samles inn, lagres eller deles.</string>
+    <string name="accessibility_service_prompt_title">Tillate opptak av tastatursnarveier?</string>
+    <string name="accessibility_service_prompt_message">For å sende tastatursnarveier (som Alt+Tab) til fjernskrivebordet i stedet for at Android fanger dem opp, kan denne appen bruke en tilgjengelighetstjeneste til å ta opp fysiske tastehendelser.\n\nHva denne tjenesten har tilgang til: maskinvaretastehendelser fra ditt fysiske tastatur eller inndataenhet.\n\nHvordan dataene brukes: tastehendelser videresendes direkte til fjernskrivebordsøkten din via den eksisterende tilkoblingen. De lagres ikke, logges ikke og deles ikke med noen.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Åpne tilgjengelighetsinnstillinger</string>
+    <string name="accessibility_service_prompt_not_now">Ikke nå</string>
 </resources>

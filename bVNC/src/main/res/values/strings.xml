@@ -934,6 +934,14 @@ Below that is where you configure your connection.
     <string name="desktop_scale_percentage">Custom Scaling Percentage</string>
     <string name="show_menu">Show Menu</string>
     <string name="move_toolbar">Move Toolbar</string>
+    <string name="accessibility_service_menu_item">⌨  Keyboard Shortcut Capture</string>
+    <string name="accessibility_service_already_enabled">Keyboard Shortcut Capture is already enabled.</string>
+    <string name="accessibility_service_label">Remote Input Capture</string>
+    <string name="accessibility_service_description">Captures physical keyboard input and forwards it to your active remote desktop session. Only hardware key events are processed. No screen content, window content, or personal data is collected, stored, or shared.</string>
+    <string name="accessibility_service_prompt_title">Allow keyboard shortcut capture?</string>
+    <string name="accessibility_service_prompt_message">To send keyboard shortcuts (such as Alt+Tab) to your remote desktop instead of having Android intercept them, this app can use an Accessibility Service to capture physical key events.\n\nWhat this service accesses: hardware key events from your physical keyboard or input device.\n\nHow the data is used: key events are forwarded directly to your remote desktop session over your existing connection. They are not stored, logged, or shared with anyone.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Open Accessibility Settings</string>
+    <string name="accessibility_service_prompt_not_now">Not Now</string>
     <string name="disable_battery_optimizations">🔋Disable Battery Optimizations</string>
     <string name="disable_battery_optimizations_failed">Could not open battery optimization settings. Disable battery optimization manually in system settings.</string>
     <string name="disable_battery_optimizations_already_done">App is already exempt from battery optimizations.</string>

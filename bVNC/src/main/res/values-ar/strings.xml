@@ -4,6 +4,7 @@
     <string name="audio_initialized">تم تهيئة الصوت</string>
     <string name="action_import_settings">استيراد الإعدادات</string>
     <string name="action_new_connection">✚ اتصال جديد</string>
+    <string name="sort_connections">ترتيب الاتصالات</string>
     <string name="action_edit_default_settings">⚙ تعديل الإعدادات الافتراضية</string>
     <string name="action_export_settings">تصدير الإعدادات</string>
     <string name="action_delete_connection">حذف الاتصال</string>
@@ -911,4 +912,12 @@ Could not open battery optimization settings.قم بتعطيل تحسين الب
     <string name="no_connections_hint">اضغط على زر + لإضافة أول اتصال عن بُعد</string>
     <string name="no_connections_hint_tv">اضغط على زر + أعلاه لإضافة أول اتصال عن بُعد</string>
     <string name="keyboard_layout_map">تخطيط لوحة المفاتيح</string>
+    <string name="accessibility_service_menu_item">⌨  التقاط اختصارات لوحة المفاتيح</string>
+    <string name="accessibility_service_already_enabled">التقاط اختصارات لوحة المفاتيح ممكّن بالفعل.</string>
+    <string name="accessibility_service_label">التقاط الإدخال عن بُعد</string>
+    <string name="accessibility_service_description">يلتقط إدخال لوحة المفاتيح الفعلية ويعيد توجيهه إلى جلسة سطح المكتب البعيد النشطة. تتم معالجة أحداث المفاتيح الصلبة فقط. لا يتم جمع أي محتوى للشاشة أو محتوى النوافذ أو البيانات الشخصية أو تخزينها أو مشاركتها.</string>
+    <string name="accessibility_service_prompt_title">السماح بالتقاط اختصارات لوحة المفاتيح؟</string>
+    <string name="accessibility_service_prompt_message">لإرسال اختصارات لوحة المفاتيح (مثل Alt+Tab) إلى سطح المكتب البعيد بدلاً من اعتراضها بواسطة Android، يمكن لهذا التطبيق استخدام خدمة إمكانية الوصول لالتقاط أحداث المفاتيح الفعلية.\n\nما تصل إليه هذه الخدمة: أحداث المفاتيح الصلبة من لوحة المفاتيح الفعلية أو جهاز الإدخال الخاص بك.\n\nكيفية استخدام البيانات: يتم إعادة توجيه أحداث المفاتيح مباشرةً إلى جلسة سطح المكتب البعيد عبر اتصالك الحالي. لا يتم تخزينها أو تسجيلها أو مشاركتها مع أي شخص.</string>
+    <string name="accessibility_service_prompt_go_to_settings">فتح إعدادات إمكانية الوصول</string>
+    <string name="accessibility_service_prompt_not_now">ليس الآن</string>
 </resources>

@@ -4,6 +4,7 @@
     <string name="audio_initialized">Ljud initierat</string>
     <string name="action_import_settings">Importera inställningar</string>
     <string name="action_new_connection">✚ Ny anslutning</string>
+    <string name="sort_connections">Sortera anslutningar</string>
     <string name="action_edit_default_settings">⚙ Redigera standardinställningar</string>
     <string name="action_export_settings">Exportera inställningar</string>
     <string name="action_delete_connection">Ta bort anslutning</string>
@@ -837,4 +838,12 @@ Appen är redan undantagen från batterioptimering.</string>
     <string name="no_connections_hint">Tryck på +-knappen för att lägga till din första fjärranslutning</string>
     <string name="no_connections_hint_tv">Tryck på +-knappen ovan för att lägga till din första fjärranslutning</string>
     <string name="keyboard_layout_map">Tangentbordslayout</string>
+    <string name="accessibility_service_menu_item">⌨  Tangentbordsgenvägsregistrering</string>
+    <string name="accessibility_service_already_enabled">Tangentbordsgenvägsregistrering är redan aktiverad.</string>
+    <string name="accessibility_service_label">Fjärrinmatningsregistrering</string>
+    <string name="accessibility_service_description">Registrerar fysisk tangentbordsinmatning och vidarebefordrar den till din aktiva fjärrskrivbordssession. Endast maskinvarutangentbordshändelser bearbetas. Inget skärminnehåll, fönsterinnehåll eller personuppgifter samlas in, lagras eller delas.</string>
+    <string name="accessibility_service_prompt_title">Tillåta registrering av tangentbordsgenvägar?</string>
+    <string name="accessibility_service_prompt_message">För att skicka tangentbordsgenvägar (som Alt+Tab) till ditt fjärrskrivbord istället för att Android fångar upp dem kan den här appen använda en tillgänglighetstjänst för att registrera fysiska tangentbordshändelser.\n\nVad den här tjänsten har åtkomst till: maskinvarutangentbordshändelser från ditt fysiska tangentbord eller inmatningsenhet.\n\nHur data används: tangentbordshändelser vidarebefordras direkt till din fjärrskrivbordssession via din befintliga anslutning. De lagras inte, loggas inte och delas inte med någon.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Öppna tillgänglighetsinställningar</string>
+    <string name="accessibility_service_prompt_not_now">Inte nu</string>
 </resources>

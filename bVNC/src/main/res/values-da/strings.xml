@@ -4,6 +4,7 @@
     <string name="audio_initialized">Lyd initialiseret</string>
     <string name="action_import_settings">Importer indstillinger</string>
     <string name="action_new_connection">✚ Ny forbindelse</string>
+    <string name="sort_connections">Sorter forbindelser</string>
     <string name="action_edit_default_settings">⚙ Rediger standardindstillinger</string>
     <string name="action_export_settings">Eksporter indstillinger</string>
     <string name="action_delete_connection">Slet forbindelse</string>
@@ -912,4 +913,12 @@ Appen er allerede fritaget for batterioptimering.</string>
     <string name="no_connections_hint">Tryk på +-knappen for at tilføje din første fjernforbindelse</string>
     <string name="no_connections_hint_tv">Tryk på +-knappen ovenfor for at tilføje din første fjernforbindelse</string>
     <string name="keyboard_layout_map">Tastaturlayout</string>
+    <string name="accessibility_service_menu_item">⌨  Opfangning af tastaturgenveje</string>
+    <string name="accessibility_service_already_enabled">Opfangning af tastaturgenveje er allerede aktiveret.</string>
+    <string name="accessibility_service_label">Opfangning af fjerninput</string>
+    <string name="accessibility_service_description">Opfanger fysisk tastaturinput og videresender det til din aktive fjernskrivebordsession. Kun hardwaretastaturhændelser behandles. Intet skærmindhold, vinduesindhold eller personlige data indsamles, gemmes eller deles.</string>
+    <string name="accessibility_service_prompt_title">Tillad opfangning af tastaturgenveje?</string>
+    <string name="accessibility_service_prompt_message">For at sende tastaturgenveje (såsom Alt+Tab) til dit fjernskrivebord i stedet for at lade Android opfange dem, kan denne app bruge en tilgængelighedstjeneste til at opfange fysiske tastaturhændelser.\n\nHvad denne tjeneste tilgår: hardwaretastaturhændelser fra dit fysiske tastatur eller inputenhed.\n\nHvordan dataene bruges: tastaturhændelser videresendes direkte til din fjernskrivebordsession over din eksisterende forbindelse. De gemmes ikke, logges ikke og deles ikke med nogen.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Åbn tilgængelighedsindstillinger</string>
+    <string name="accessibility_service_prompt_not_now">Ikke nu</string>
 </resources>

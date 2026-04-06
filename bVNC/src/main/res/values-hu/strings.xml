@@ -4,6 +4,7 @@
     <string name="audio_initialized">Hang inicializálva</string>
     <string name="action_import_settings">Beállítások importálása</string>
     <string name="action_new_connection">✚ Új kapcsolat</string>
+    <string name="sort_connections">Kapcsolatok rendezése</string>
     <string name="action_edit_default_settings">⚙ Alapértelmezett beállítások szerkesztése</string>
     <string name="action_export_settings">Beállítások exportálása</string>
     <string name="action_delete_connection">Kapcsolat törlése</string>
@@ -910,4 +911,12 @@ Az alkalmazás már mentesül az akkumulátoroptimalizálás alól.</string>
     <string name="no_connections_hint">Az első távoli kapcsolat hozzáadásához érintse meg a + gombot</string>
     <string name="no_connections_hint_tv">Az első távoli kapcsolat hozzáadásához nyomja meg a fenti + gombot</string>
     <string name="keyboard_layout_map">Billentyűzet-kiosztás</string>
+    <string name="accessibility_service_menu_item">⌨  Billentyűparancsok rögzítése</string>
+    <string name="accessibility_service_already_enabled">A billentyűparancsok rögzítése már engedélyezve van.</string>
+    <string name="accessibility_service_label">Távoli bevitel rögzítése</string>
+    <string name="accessibility_service_description">Rögzíti a fizikai billentyűzet bevitelét és továbbítja az aktív távoli asztali munkamenetbe. Csak hardver billentyűesemények kerülnek feldolgozásra. Nem gyűjt, tárol vagy oszt meg képernyőtartalmat, ablaktartalmat vagy személyes adatokat.</string>
+    <string name="accessibility_service_prompt_title">Engedélyezi a billentyűparancsok rögzítését?</string>
+    <string name="accessibility_service_prompt_message">Ha billentyűparancsokat (például Alt+Tab) szeretne küldeni a távoli asztalra ahelyett, hogy az Android elfogná azokat, ez az alkalmazás Akadálymentesítési szolgáltatást használhat a fizikai billentyűesemények rögzítéséhez.\n\nMihez fér hozzá ez a szolgáltatás: hardver billentyűesemények a fizikai billentyűzetéről vagy beviteli eszközéről.\n\nHogyan használják fel az adatokat: a billentyűesemények közvetlenül a meglévő kapcsolaton keresztül kerülnek továbbításra a távoli asztali munkamenetbe. Nem tárolják, nem naplózzák, és nem osztják meg senkivel.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Akadálymentesítési beállítások megnyitása</string>
+    <string name="accessibility_service_prompt_not_now">Most nem</string>
 </resources>

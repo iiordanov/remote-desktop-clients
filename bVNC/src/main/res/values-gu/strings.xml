@@ -4,6 +4,7 @@
     <string name="audio_initialized">ઑડિયો પ્રારંભ થયો</string>
     <string name="action_import_settings">સેટિંગ્સ આયાત કરો</string>
     <string name="action_new_connection">✚ નવું કનેક્શન</string>
+    <string name="sort_connections">કનેક્શન સૉર્ટ કરો</string>
     <string name="action_edit_default_settings">⚙ મૂળભૂત સેટિંગ્સ સંપાદિત કરો</string>
     <string name="action_export_settings">સેટિંગ્સ નિકાસ કરો</string>
     <string name="action_delete_connection">કનેક્શન કાઢી નાખો</string>
@@ -829,4 +830,12 @@ connection ઉમેરો/edit ઉપર, connection configuration page.
     <string name="no_connections_hint">તમારું પ્રથમ રિમોટ જોડાણ ઉમેરવા + બટન ટૅપ કરો</string>
     <string name="no_connections_hint_tv">તમારું પ્રથમ રિમોટ જોડાણ ઉમેરવા ઉપરનું + બટન દબાવો</string>
     <string name="keyboard_layout_map">કીબોર્ડ લેઆઉટ</string>
+    <string name="accessibility_service_menu_item">⌨  કીબોર્ડ શૉર્ટકટ કૅપ્ચર</string>
+    <string name="accessibility_service_already_enabled">કીબોર્ડ શૉર્ટકટ કૅપ્ચર પહેલેથી જ સક્ષમ છે.</string>
+    <string name="accessibility_service_label">રિમોટ ઇનપુટ કૅપ્ચર</string>
+    <string name="accessibility_service_description">ભૌતિક કીબોર્ડ ઇનપુટ કૅપ્ચર કરે છે અને તમારા સક્રિય રિમોટ ડેસ્કટૉપ સૅશન પર ફૉર્વર્ડ કરે છે. ફક્ત હાર્ડવૅર કી ઇવેન્ટ્સ પ્રૉસૅસ થાય છે. કોઈ સ્ક્રીન સામગ્રી, વિન્ડો સામગ્રી, અથવા વ્યક્તિગત ડૅટા એકત્ર, સ્ટૉર, અથવા શૅર કરવામાં આવતું નથી.</string>
+    <string name="accessibility_service_prompt_title">કીબોર્ડ શૉર્ટકટ કૅપ્ચરની મંજૂરી આપવી?</string>
+    <string name="accessibility_service_prompt_message">Android ને બદલે તમારા રિમોટ ડેસ્કટૉપ પર કીબોર્ડ શૉર્ટકટ (Alt+Tab જેવા) મોકલવા માટે, આ ઍૅપ ભૌતિક કી ઇવેન્ટ્સ કૅપ્ચર કરવા Accessibility Service નો ઉપયોગ કરી શકે છે.\n\nઆ સૅવિસ શું ઍૅક્સૅસ કરે છે: તમારા ભૌતિક કીબોર્ડ અથવા ઇનપુટ ઉપકરણ પરથી હાર્ડવૅર કી ઇવેન્ટ્સ.\n\nડૅટા કેવી રીતે ઉપયોગ થાય છે: કી ઇવેન્ટ્સ તમારા હાલના કનૅક્શન દ્વારા સીધા તમારા રિમોટ ડેસ્કટૉપ સૅશન પર ફૉર્વર્ડ કરવામાં આવે છે. તેઓ સ્ટૉર, લૉગ, અથવા કોઈ સાથે શૅર કરવામાં આવ્યાં નથી.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Accessibility Settings ખોલો</string>
+    <string name="accessibility_service_prompt_not_now">હવે નહીં</string>
 </resources>

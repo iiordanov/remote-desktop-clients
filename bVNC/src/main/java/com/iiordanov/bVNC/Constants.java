@@ -274,5 +274,6 @@ public class Constants {
     public static final String remoteCanvasActivityClassPath = "com.iiordanov.bVNC.RemoteCanvasActivity";
 
     public static final String PREF_SORT_ORDER = "sortOrder";
+    public static final String PREF_ACCESSIBILITY_SERVICE_PROMPT_SHOWN = "accessibilityServicePromptShown";
 
 }

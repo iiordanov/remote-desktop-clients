@@ -283,6 +283,7 @@
     <string name="error_connection_interrupted">कनेक्शन बाधित.</string>
     <string name="auto_x_descript_session">दूरस्थ सत्र प्रकार</string>
     <string name="action_new_connection">✚ नया कनेक्शन</string>
+    <string name="sort_connections">कनेक्शन सॉर्ट करें</string>
     <string name="enter_text_title">भेजने के लिए टेक्स्ट दर्ज करें</string>
     <string name="shortcut_label_rdp">आरडीपी कनेक्शन</string>
     <string name="spice_address_caption_hint">SPICE सर्वर</string>
@@ -740,4 +741,12 @@
     <string name="no_connections_hint">अपना पहला रिमोट कनेक्शन जोड़ने के लिए + बटन टैप करें</string>
     <string name="no_connections_hint_tv">अपना पहला रिमोट कनेक्शन जोड़ने के लिए ऊपर + बटन दबाएं</string>
     <string name="keyboard_layout_map">कीबोर्ड लेआउट</string>
+    <string name="accessibility_service_menu_item">⌨  कीबोर्ड शॉर्टकट कैप्चर</string>
+    <string name="accessibility_service_already_enabled">कीबोर्ड शॉर्टकट कैप्चर पहले से सक्षम है।</string>
+    <string name="accessibility_service_label">रिमोट इनपुट कैप्चर</string>
+    <string name="accessibility_service_description">भौतिक कीबोर्ड इनपुट को कैप्चर करता है और आपके सक्रिय रिमोट डेस्कटॉप सत्र में अग्रेषित करता है। केवल हार्डवेयर कुंजी घटनाओं को संसाधित किया जाता है। कोई भी स्क्रीन सामग्री, विंडो सामग्री, या व्यक्तिगत डेटा एकत्र, संग्रहीत या साझा नहीं किया जाता।</string>
+    <string name="accessibility_service_prompt_title">कीबोर्ड शॉर्टकट कैप्चर की अनुमति दें?</string>
+    <string name="accessibility_service_prompt_message">Android के बजाय अपने रिमोट डेस्कटॉप पर कीबोर्ड शॉर्टकट (जैसे Alt+Tab) भेजने के लिए, यह ऐप भौतिक कुंजी घटनाओं को कैप्चर करने के लिए एक Accessibility Service का उपयोग कर सकता है।\n\nयह सेवा क्या एक्सेस करती है: आपके भौतिक कीबोर्ड या इनपुट डिवाइस से हार्डवेयर कुंजी घटनाएं।\n\nडेटा का उपयोग कैसे किया जाता है: कुंजी घटनाओं को आपके मौजूदा कनेक्शन के माध्यम से सीधे आपके रिमोट डेस्कटॉप सत्र में अग्रेषित किया जाता है। इन्हें संग्रहीत, लॉग या किसी के साथ साझा नहीं किया जाता।</string>
+    <string name="accessibility_service_prompt_go_to_settings">एक्सेसिबिलिटी सेटिंग्स खोलें</string>
+    <string name="accessibility_service_prompt_not_now">अभी नहीं</string>
 </resources>

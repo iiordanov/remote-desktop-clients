@@ -8,6 +8,11 @@
         android:title="@string/disable_battery_optimizations"
         app:showAsAction="never" />
     <item
+        android:id="@+id/actionKeyboardShortcutCapture"
+        android:onClick="enableKeyboardShortcutCapture"
+        android:title="@string/accessibility_service_menu_item"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/actionExportImport"
         android:onClick="importExportSettings"
         android:title="@string/import_export_settings"

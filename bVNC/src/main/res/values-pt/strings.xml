@@ -4,6 +4,7 @@
     <string name="audio_initialized">Áudio inicializado</string>
     <string name="action_import_settings">Importar Definições</string>
     <string name="action_new_connection">✚ Nova Ligação</string>
+    <string name="sort_connections">Ordenar ligações</string>
     <string name="action_edit_default_settings">⚙ Editar Definições Padrão</string>
     <string name="action_export_settings">Exportar Definições</string>
     <string name="action_delete_connection">Eliminar Ligação</string>
@@ -912,4 +913,12 @@ App já está isento de otimizações de bateria.</string>
     <string name="no_connections_hint">Toque no botão + para adicionar a sua primeira ligação remota</string>
     <string name="no_connections_hint_tv">Prima o botão + acima para adicionar a sua primeira ligação remota</string>
     <string name="keyboard_layout_map">Disposição do teclado</string>
+    <string name="accessibility_service_menu_item">⌨  Captura de atalhos de teclado</string>
+    <string name="accessibility_service_already_enabled">A captura de atalhos de teclado já está ativada.</string>
+    <string name="accessibility_service_label">Captura de entrada remota</string>
+    <string name="accessibility_service_description">Captura a entrada física do teclado e encaminha-a para a sua sessão ativa de ambiente de trabalho remoto. Apenas os eventos de teclas de hardware são processados. Nenhum conteúdo de ecrã, conteúdo de janela ou dados pessoais são recolhidos, armazenados ou partilhados.</string>
+    <string name="accessibility_service_prompt_title">Permitir captura de atalhos de teclado?</string>
+    <string name="accessibility_service_prompt_message">Para enviar atalhos de teclado (como Alt+Tab) para o seu ambiente de trabalho remoto em vez de o Android os interceptar, esta aplicação pode usar um Serviço de acessibilidade para capturar eventos de teclas físicas.\n\nO que este serviço acede: eventos de teclas de hardware do seu teclado físico ou dispositivo de entrada.\n\nComo os dados são utilizados: os eventos de teclas são encaminhados diretamente para a sua sessão de ambiente de trabalho remoto através da sua ligação existente. Não são armazenados, registados ou partilhados com ninguém.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Abrir definições de acessibilidade</string>
+    <string name="accessibility_service_prompt_not_now">Agora não</string>
 </resources>

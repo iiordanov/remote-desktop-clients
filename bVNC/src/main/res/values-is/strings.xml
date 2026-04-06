@@ -282,6 +282,7 @@ Allar inntaksstillingar:
     <string name="error_connection_interrupted">Tenging rofin.</string>
     <string name="auto_x_descript_session">Tegund fjarfundar</string>
     <string name="action_new_connection">✚ Ný tenging</string>
+    <string name="sort_connections">Raða tengingum</string>
     <string name="enter_text_title">Sláðu inn texta til að senda</string>
     <string name="shortcut_label_rdp">RDP tenging</string>
     <string name="spice_address_caption_hint">SPICE Server</string>
@@ -705,4 +706,12 @@ Forritið er nú þegar undanþegið hagræðingu rafhlöðunnar.</string>
     <string name="no_connections_hint">Ýttu á + hnappinn til að bæta við fyrstu fjartengingu þinni</string>
     <string name="no_connections_hint_tv">Ýttu á + hnappinn hér að ofan til að bæta við fyrstu fjartengingu þinni</string>
     <string name="keyboard_layout_map">Lyklaborðsskipulag</string>
+    <string name="accessibility_service_menu_item">⌨  Hlera lyklaborðsflýtileiðir</string>
+    <string name="accessibility_service_already_enabled">Hlera lyklaborðsflýtileiðir er þegar virkt.</string>
+    <string name="accessibility_service_label">Hlera fjarinnslátt</string>
+    <string name="accessibility_service_description">Hlerir innslag af líkamlegu lyklaborði og sendir það á virku fjarskjáborðslotuna þína. Aðeins vélbúnaðarlyklatilvik eru unnin. Ekkert skjáinnihald, gluggarinnihald eða persónuleg gögn eru safnað, geymd eða deilt.</string>
+    <string name="accessibility_service_prompt_title">Leyfa hlera lyklaborðsflýtileiðir?</string>
+    <string name="accessibility_service_prompt_message">Til að senda lyklaborðsflýtileiðir (eins og Alt+Tab) á fjarskjáborðið þitt í stað þess að Android hlere þær, getur þessi smáforrit notað aðgengisþjónustu til að hlera líkamlegar lyklatilvik.\n\nHvað þessi þjónusta nálgast: vélbúnaðarlyklatilvik frá líkamlega lyklaborðinu þínu eða innsláttartæki.\n\nHvernig gögn eru notuð: lyklatilvik eru send beint á fjarskjáborðslotuna þína yfir núverandi tengingu þína. Þau eru ekki geymd, skráð eða deilt með neinum.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Opna aðgengistillingar</string>
+    <string name="accessibility_service_prompt_not_now">Ekki núna</string>
 </resources>

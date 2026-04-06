@@ -795,6 +795,7 @@
     <string name="ca_file_not_found">Файл не найден. Введите допустимое имя файла в текстовое поле (например, /sdcard/ca.crt).</string>
     <string name="error_pve_failed_to_parse_json">Не удалось проанализировать ответ от виртуальной среды Proxmox.</string>
     <string name="action_new_connection">✚ Новое соединение</string>
+    <string name="sort_connections">Сортировка подключений</string>
     <string name="share_app">Поделитесь 🔗</string>
     <string name="input_methods">Метод ввода</string>
     <string name="local_clipboard_integration">Включить интеграцию локального и удаленного буфера обмена</string>
@@ -894,4 +895,12 @@
     <string name="no_connections_hint">Нажмите кнопку +, чтобы добавить первое удалённое подключение</string>
     <string name="no_connections_hint_tv">Нажмите кнопку + выше, чтобы добавить первое удалённое подключение</string>
     <string name="keyboard_layout_map">Раскладка клавиатуры</string>
+    <string name="accessibility_service_menu_item">⌨  Захват горячих клавиш</string>
+    <string name="accessibility_service_already_enabled">Захват горячих клавиш уже включён.</string>
+    <string name="accessibility_service_label">Захват удалённого ввода</string>
+    <string name="accessibility_service_description">Захватывает физический ввод с клавиатуры и перенаправляет его в активную сессию удалённого рабочего стола. Обрабатываются только аппаратные события клавиш. Содержимое экрана, окон и личные данные не собираются, не хранятся и не передаются.</string>
+    <string name="accessibility_service_prompt_title">Разрешить захват горячих клавиш?</string>
+    <string name="accessibility_service_prompt_message">Чтобы отправлять сочетания клавиш (например, Alt+Tab) на удалённый рабочий стол, а не позволять Android их перехватывать, это приложение может использовать Службу специальных возможностей для захвата физических событий клавиш.\n\nК чему этот сервис имеет доступ: аппаратные события клавиш с физической клавиатуры или устройства ввода.\n\nКак используются данные: события клавиш передаются напрямую в сессию удалённого рабочего стола через существующее соединение. Они не сохраняются, не записываются в журнал и не передаются кому-либо.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Открыть настройки специальных возможностей</string>
+    <string name="accessibility_service_prompt_not_now">Не сейчас</string>
 </resources>

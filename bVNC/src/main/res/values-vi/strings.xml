@@ -283,6 +283,7 @@ Tất cả các chế độ đầu vào:
     <string name="error_connection_interrupted">Kết nối bị gián đoạn.</string>
     <string name="auto_x_descript_session">Loại phiên từ xa</string>
     <string name="action_new_connection">✚ Kết nối mới</string>
+    <string name="sort_connections">Sắp xếp kết nối</string>
     <string name="enter_text_title">Nhập văn bản để gửi</string>
     <string name="shortcut_label_rdp">Kết nối RDP</string>
     <string name="spice_address_caption_hint">Máy chủ SPICE</string>
@@ -740,4 +741,12 @@ Không thể mở cài đặt tối ưu hóa pin. Tắt tối ưu hóa pin theo 
     <string name="no_connections_hint">Nhấn nút + để thêm kết nối từ xa đầu tiên của bạn</string>
     <string name="no_connections_hint_tv">Nhấn nút + ở trên để thêm kết nối từ xa đầu tiên của bạn</string>
     <string name="keyboard_layout_map">Bố cục bàn phím</string>
+    <string name="accessibility_service_menu_item">⌨  Chụp phím tắt bàn phím</string>
+    <string name="accessibility_service_already_enabled">Chụp phím tắt bàn phím đã được bật.</string>
+    <string name="accessibility_service_label">Chụp đầu vào từ xa</string>
+    <string name="accessibility_service_description">Chụp đầu vào bàn phím vật lý và chuyển tiếp đến phiên máy tính để bàn từ xa đang hoạt động của bạn. Chỉ các sự kiện phím phần cứng mới được xử lý. Không có nội dung màn hình, nội dung cửa sổ hoặc dữ liệu cá nhân nào được thu thập, lưu trữ hoặc chia sẻ.</string>
+    <string name="accessibility_service_prompt_title">Cho phép chụp phím tắt bàn phím?</string>
+    <string name="accessibility_service_prompt_message">Để gửi phím tắt bàn phím (như Alt+Tab) đến máy tính để bàn từ xa của bạn thay vì để Android chặn chúng, ứng dụng này có thể sử dụng Dịch vụ trợ năng để chụp các sự kiện phím vật lý.\n\nDịch vụ này truy cập gì: các sự kiện phím phần cứng từ bàn phím vật lý hoặc thiết bị nhập của bạn.\n\nDữ liệu được sử dụng như thế nào: các sự kiện phím được chuyển tiếp trực tiếp đến phiên máy tính để bàn từ xa của bạn qua kết nối hiện có. Chúng không được lưu trữ, ghi nhật ký hoặc chia sẻ với bất kỳ ai.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Mở Cài đặt trợ năng</string>
+    <string name="accessibility_service_prompt_not_now">Không phải bây giờ</string>
 </resources>

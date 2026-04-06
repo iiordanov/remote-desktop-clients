@@ -283,6 +283,7 @@
     <string name="error_connection_interrupted">رابطہ منقطع ہوگیا۔</string>
     <string name="auto_x_descript_session">ریموٹ سیشن کی قسم</string>
     <string name="action_new_connection">✚ نیا کنکشن</string>
+    <string name="sort_connections">کنکشن ترتیب دیں</string>
     <string name="enter_text_title">بھیجنے کے لیے متن درج کریں۔</string>
     <string name="shortcut_label_rdp">آر ڈی پی کنکشن</string>
     <string name="spice_address_caption_hint">اسپائس سرور</string>
@@ -705,4 +706,12 @@ ASPICE خصوصیات کی موجودہ فہرست میں شامل ہیں:
     <string name="no_connections_hint">اپنا پہلا ریموٹ کنکشن شامل کرنے کے لیے + بٹن تھپتھپائیں</string>
     <string name="no_connections_hint_tv">اپنا پہلا ریموٹ کنکشن شامل کرنے کے لیے اوپر + بٹن دبائیں</string>
     <string name="keyboard_layout_map">کی بورڈ لے آؤٹ</string>
+    <string name="accessibility_service_menu_item">⌨  کی بورڈ شارٹ کٹ کیپچر</string>
+    <string name="accessibility_service_already_enabled">کی بورڈ شارٹ کٹ کیپچر پہلے سے فعال ہے۔</string>
+    <string name="accessibility_service_label">ریموٹ ان پٹ کیپچر</string>
+    <string name="accessibility_service_description">فزیکل کی بورڈ ان پٹ کیپچر کرتا ہے اور اسے آپ کے فعال ریموٹ ڈیسک ٹاپ سیشن میں بھیجتا ہے۔ صرف ہارڈویئر کی ایونٹس پروسیس کیے جاتے ہیں۔ کوئی اسکرین مواد، ونڈو مواد یا ذاتی ڈیٹا اکٹھا، محفوظ یا شیئر نہیں کیا جاتا۔</string>
+    <string name="accessibility_service_prompt_title">کی بورڈ شارٹ کٹ کیپچر کی اجازت دیں؟</string>
+    <string name="accessibility_service_prompt_message">Android کی بجائے اپنے ریموٹ ڈیسک ٹاپ پر کی بورڈ شارٹ کٹ (جیسے Alt+Tab) بھیجنے کے لیے، یہ ایپ فزیکل کی ایونٹس کیپچر کرنے کے لیے Accessibility Service استعمال کر سکتی ہے۔\n\nیہ سروس کیا رسائی حاصل کرتی ہے: آپ کے فزیکل کی بورڈ یا ان پٹ ڈیوائس سے ہارڈویئر کی ایونٹس۔\n\nڈیٹا کیسے استعمال ہوتا ہے: کی ایونٹس آپ کے موجودہ کنکشن کے ذریعے براہ راست آپ کے ریموٹ ڈیسک ٹاپ سیشن میں بھیجے جاتے ہیں۔ انہیں محفوظ، لاگ یا کسی کے ساتھ شیئر نہیں کیا جاتا۔</string>
+    <string name="accessibility_service_prompt_go_to_settings">ایکسیسبیلیٹی سیٹنگز کھولیں</string>
+    <string name="accessibility_service_prompt_not_now">ابھی نہیں</string>
 </resources>

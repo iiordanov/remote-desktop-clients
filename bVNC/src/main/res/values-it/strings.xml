@@ -4,6 +4,7 @@
     <string name="audio_initialized">Audio inizializzato</string>
     <string name="action_import_settings">Importa impostazioni</string>
     <string name="action_new_connection">✚ Nuova connessione</string>
+    <string name="sort_connections">Ordina connessioni</string>
     <string name="action_edit_default_settings">⚙ Modifica impostazioni predefinite</string>
     <string name="action_export_settings">Esporta impostazioni</string>
     <string name="action_delete_connection">Elimina connessione</string>
@@ -909,4 +910,12 @@ L\'app è già esente dalle ottimizzazioni della batteria.</string>
     <string name="no_connections_hint">Tocca il pulsante + per aggiungere la tua prima connessione remota</string>
     <string name="no_connections_hint_tv">Premi il pulsante + in alto per aggiungere la tua prima connessione remota</string>
     <string name="keyboard_layout_map">Layout della tastiera</string>
+    <string name="accessibility_service_menu_item">⌨  Acquisizione delle scorciatoie da tastiera</string>
+    <string name="accessibility_service_already_enabled">L\'acquisizione delle scorciatoie da tastiera è già abilitata.</string>
+    <string name="accessibility_service_label">Acquisizione dell\'input remoto</string>
+    <string name="accessibility_service_description">Acquisisce l\'input fisico della tastiera e lo invia alla sessione del desktop remoto attiva. Vengono elaborati solo gli eventi dei tasti hardware. Non vengono raccolti, memorizzati o condivisi contenuti dello schermo, contenuti delle finestre o dati personali.</string>
+    <string name="accessibility_service_prompt_title">Consentire l\'acquisizione delle scorciatoie da tastiera?</string>
+    <string name="accessibility_service_prompt_message">Per inviare le scorciatoie da tastiera (come Alt+Tab) al desktop remoto anziché farle intercettare da Android, questa app può utilizzare un Servizio di accessibilità per acquisire gli eventi dei tasti fisici.\n\nA cosa accede questo servizio: eventi dei tasti hardware dalla tastiera fisica o dal dispositivo di input.\n\nCome vengono utilizzati i dati: gli eventi dei tasti vengono inoltrati direttamente alla sessione del desktop remoto tramite la connessione esistente. Non vengono memorizzati, registrati o condivisi con nessuno.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Apri le impostazioni di accessibilità</string>
+    <string name="accessibility_service_prompt_not_now">Non ora</string>
 </resources>

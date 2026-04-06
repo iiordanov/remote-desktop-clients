@@ -4,6 +4,7 @@
     <string name="audio_initialized">音訊初始化</string>
     <string name="action_import_settings">匯入設定</string>
     <string name="action_new_connection">新連接</string>
+    <string name="sort_connections">排序連線</string>
     <string name="action_edit_default_settings">編輯默認設定</string>
     <string name="action_export_settings">匯出設定</string>
     <string name="action_delete_connection">刪除連接設定</string>
@@ -833,4 +834,12 @@ aSPICE對應的功能如下：
     <string name="no_connections_hint">點擊 + 按鈕以新增您的第一個遠端連線</string>
     <string name="no_connections_hint_tv">按上方的 + 按鈕以新增您的第一個遠端連線</string>
     <string name="keyboard_layout_map">鍵盤配置</string>
+    <string name="accessibility_service_menu_item">⌨  鍵盤快捷鍵擷取</string>
+    <string name="accessibility_service_already_enabled">鍵盤快捷鍵擷取已啟用。</string>
+    <string name="accessibility_service_label">遠端輸入擷取</string>
+    <string name="accessibility_service_description">擷取實體鍵盤輸入並將其轉送到您的使用中遠端桌面工作階段。僅處理硬體按鍵事件。不會收集、儲存或共用任何螢幕內容、視窗內容或個人資料。</string>
+    <string name="accessibility_service_prompt_title">允許鍵盤快捷鍵擷取？</string>
+    <string name="accessibility_service_prompt_message">為了將鍵盤快捷鍵（例如 Alt+Tab）傳送到您的遠端桌面，而非讓 Android 攔截，此應用程式可以使用協助工具服務來擷取實體按鍵事件。\n\n此服務存取的內容：來自您實體鍵盤或輸入裝置的硬體按鍵事件。\n\n資料的使用方式：按鍵事件透過您現有的連線直接轉送到您的遠端桌面工作階段。它們不會被儲存、記錄或與任何人共用。</string>
+    <string name="accessibility_service_prompt_go_to_settings">開啟協助工具設定</string>
+    <string name="accessibility_service_prompt_not_now">暫時不要</string>
 </resources>

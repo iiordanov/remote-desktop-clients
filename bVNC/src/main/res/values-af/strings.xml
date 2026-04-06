@@ -4,6 +4,7 @@
     <string name="audio_initialized">Oudio geïnisialiseer</string>
     <string name="action_import_settings">Voer instellings in</string>
     <string name="action_new_connection">✚ Nuwe verbinding</string>
+    <string name="sort_connections">Sorteer verbindings</string>
     <string name="action_edit_default_settings">⚙ Wysig versteksinstellings</string>
     <string name="action_export_settings">Voer instellings uit</string>
     <string name="action_delete_connection">Verwyder verbinding</string>
@@ -913,4 +914,12 @@ Die toepassing is reeds vrygestel van batteryoptimalisering.</string>
     <string name="no_connections_hint">Tik die +-knoppie om jou eerste afstandverbinding by te voeg</string>
     <string name="no_connections_hint_tv">Druk die +-knoppie hierbo om jou eerste afstandverbinding by te voeg</string>
     <string name="keyboard_layout_map">Sleutelborduitleg</string>
+    <string name="accessibility_service_menu_item">⌨  Sleutelbordkortpad Vaslegging</string>
+    <string name="accessibility_service_already_enabled">Sleutelbordkortpad Vaslegging is reeds geaktiveer.</string>
+    <string name="accessibility_service_label">Afgeleë Invoer Vaslegging</string>
+    <string name="accessibility_service_description">Vasleg fisiese sleutelbordinvoer en stuur dit na u aktiewe afgeleë lessenaar-sessie. Slegs hardeware-sleutelgebeurtenisse word verwerk. Geen skerminhoud, vensterinhoud of persoonlike data word ingesamel, gestoor of gedeel nie.</string>
+    <string name="accessibility_service_prompt_title">Laat sleutelbordkortpad vaslegging toe?</string>
+    <string name="accessibility_service_prompt_message">Om sleutelbordkortpaaie (soos Alt+Tab) na u afgeleë lessenaar te stuur in plaas daarvan dat Android dit onderskep, kan hierdie app \'n Toeganklikheidsdiens gebruik om fisiese sleutelgebeurtenisse vas te lê.\n\nWat hierdie diens benader: hardeware-sleutelgebeurtenisse van u fisiese sleutelbord of invoertoestel.\n\nHoe die data gebruik word: sleutelgebeurtenisse word direk na u afgeleë lessenaar-sessie aangestuur oor u bestaande verbinding. Hulle word nie gestoor, aangeteken of met enigiemand gedeel nie.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Maak Toeganklikheidsinstellings oop</string>
+    <string name="accessibility_service_prompt_not_now">Nie nou nie</string>
 </resources>

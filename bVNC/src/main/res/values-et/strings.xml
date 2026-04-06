@@ -4,6 +4,7 @@
     <string name="audio_initialized">Heli lähtestatud</string>
     <string name="action_import_settings">Impordi seaded</string>
     <string name="action_new_connection">✚ Uus ühendus</string>
+    <string name="sort_connections">Sordi ühendused</string>
     <string name="action_edit_default_settings">⚙ Muuda vaikimisi seadeid</string>
     <string name="action_export_settings">Ekspordi seaded</string>
     <string name="action_delete_connection">Kustuta ühendus</string>
@@ -912,4 +913,12 @@ Rakendus on aku optimeerimisest juba vabastatud.</string>
     <string name="no_connections_hint">Puudutage nuppu +, et lisada oma esimene kaugühendus</string>
     <string name="no_connections_hint_tv">Vajutage ülaloleval nupul +, et lisada oma esimene kaugühendus</string>
     <string name="keyboard_layout_map">Klaviatuuri paigutus</string>
+    <string name="accessibility_service_menu_item">⌨  Klaviatuuri otsetee jäädvustamine</string>
+    <string name="accessibility_service_already_enabled">Klaviatuuri otsetee jäädvustamine on juba lubatud.</string>
+    <string name="accessibility_service_label">Kaugsisendi jäädvustamine</string>
+    <string name="accessibility_service_description">Jäädvustab füüsilise klaviatuuri sisendi ja edastab selle teie aktiivsele kaugtöölaua seansile. Töödeldakse ainult riistvara klahvisündmusi. Ekraanil kuvatavat sisu, aknasisu ega isiklikke andmeid ei koguta, ei salvestata ega jagata.</string>
+    <string name="accessibility_service_prompt_title">Lubada klaviatuuri otsetee jäädvustamine?</string>
+    <string name="accessibility_service_prompt_message">Klaviatuuri otsetede (nt Alt+Tab) saatmiseks kaugtöölaudale, selle asemel et Android need kinni püüaks, saab see rakendus kasutada juurdepääsetavusteenust füüsiliste klahvisündmuste jäädvustamiseks.\n\nMillele see teenus juurde pääseb: riistvara klahvisündmused teie füüsiliselt klaviatuurilt või sisendseadmelt.\n\nKuidas andmeid kasutatakse: klahvisündmused edastatakse otse teie kaugtöölaua seansile olemasoleva ühenduse kaudu. Neid ei salvestata, ei logita ega jagata kellegagi.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Ava juurdepääsetavuse seaded</string>
+    <string name="accessibility_service_prompt_not_now">Mitte praegu</string>
 </resources>

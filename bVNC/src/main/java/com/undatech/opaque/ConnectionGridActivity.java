@@ -24,6 +24,8 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.iiordanov.bVNC.Utils.createMainScreenDialog;
 import static com.iiordanov.bVNC.Utils.setClipboard;
 import static com.iiordanov.bVNC.Utils.startUriIntent;
+import static com.iiordanov.bVNC.input.RemoteInputAccessibilityService.enableOrReportKeyboardShortcutCapture;
+import static com.iiordanov.bVNC.input.RemoteInputAccessibilityService.promptForAccessibilityServiceIfNeeded;
 import static com.undatech.opaque.RemoteClientLibConstants.DEFAULT_SETTINGS_REQUEST_CODE;
 import static com.undatech.opaque.RemoteClientLibConstants.LAUNCH_CONNECTION_REQUEST_CODE;
 
@@ -83,7 +85,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class ConnectionGridActivity extends AppCompatActivity implements GetTextFragment.OnFragmentDismissedListener {
     private static final String TAG = "ConnectionGridActivity";
@@ -192,6 +193,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
             sortButton.setOnClickListener(v -> cycleSortState());
             updateSortIcon();
         }
+        promptForAccessibilityServiceIfNeeded(this);
     }
 
     private ConnectionLoader getConnectionLoader(Context context) {
@@ -592,6 +594,10 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     public void disableBatteryOptimizations(MenuItem menuItem) {
         Log.i(TAG, "disableBatteryOptimizations");
         new BatteryOptimizationDisabler(this, gridView).requestBatteryOptimizationExemption(true);
+    }
+
+    public void enableKeyboardShortcutCapture(MenuItem menuItem) {
+        enableOrReportKeyboardShortcutCapture(this, gridView);
     }
 
     public void importExportSettings(MenuItem menuItem) {

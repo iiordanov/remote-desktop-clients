@@ -4,6 +4,7 @@
     <string name="audio_initialized">Ääni alustettu</string>
     <string name="action_import_settings">Tuo asetukset</string>
     <string name="action_new_connection">✚ Uusi yhteys</string>
+    <string name="sort_connections">Lajittele yhteydet</string>
     <string name="action_edit_default_settings">⚙ Muokkaa oletusasetuksia</string>
     <string name="action_export_settings">Vie asetukset</string>
     <string name="action_delete_connection">Poista yhteys</string>
@@ -912,4 +913,12 @@ Sovellus on jo vapautettu akun optimoinnista.</string>
     <string name="no_connections_hint">Lisää ensimmäinen etäyhteys napauttamalla +-painiketta</string>
     <string name="no_connections_hint_tv">Lisää ensimmäinen etäyhteys painamalla yllä olevaa +-painiketta</string>
     <string name="keyboard_layout_map">Näppäimistöasettelu</string>
+    <string name="accessibility_service_menu_item">⌨  Pikanäppäinten sieppaus</string>
+    <string name="accessibility_service_already_enabled">Pikanäppäinten sieppaus on jo käytössä.</string>
+    <string name="accessibility_service_label">Etäsyötteen sieppaus</string>
+    <string name="accessibility_service_description">Sieppaa fyysisen näppäimistön syötteen ja lähettää sen aktiiviseen etätyöpöytäistuntoosi. Vain laitteiston näppäintapahtumat käsitellään. Näyttöjen sisältöä, ikkunoiden sisältöä tai henkilötietoja ei kerätä, tallenneta tai jaeta.</string>
+    <string name="accessibility_service_prompt_title">Sallitaanko pikanäppäinten sieppaus?</string>
+    <string name="accessibility_service_prompt_message">Lähettääksesi pikanäppäimiä (kuten Alt+Tab) etätyöpöydällesi Androidin sieppaamisen sijaan, tämä sovellus voi käyttää esteettömyyspalvelua fyysisten näppäintapahtumien sieppaamiseen.\n\nMihin tämä palvelu pääsee käsiksi: laitteiston näppäintapahtumat fyysiseltä näppäimistöltäsi tai syöttölaitteeltasi.\n\nMiten tietoja käytetään: näppäintapahtumat lähetetään suoraan etätyöpöytäistuntoosi olemassa olevan yhteytesi kautta. Niitä ei tallenneta, kirjata lokiin eikä jaeta kenellekään.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Avaa esteettömyysasetukset</string>
+    <string name="accessibility_service_prompt_not_now">Ei nyt</string>
 </resources>

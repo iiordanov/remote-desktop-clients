@@ -283,6 +283,7 @@
     <string name="error_connection_interrupted">اتصال قطع شد.</string>
     <string name="auto_x_descript_session">نوع جلسه از راه دور</string>
     <string name="action_new_connection">✚ اتصال جدید</string>
+    <string name="sort_connections">مرتب‌سازی اتصالات</string>
     <string name="enter_text_title">متنی را برای ارسال وارد کنید</string>
     <string name="shortcut_label_rdp">اتصال RDP</string>
     <string name="spice_address_caption_hint">سرور SPICE</string>
@@ -740,4 +741,12 @@
     <string name="no_connections_hint">برای افزودن اولین اتصال از راه دور، دکمه + را لمس کنید</string>
     <string name="no_connections_hint_tv">برای افزودن اولین اتصال از راه دور، دکمه + بالا را فشار دهید</string>
     <string name="keyboard_layout_map">چیدمان صفحه‌کلید</string>
+    <string name="accessibility_service_menu_item">⌨  ضبط میانبرهای صفحه‌کلید</string>
+    <string name="accessibility_service_already_enabled">ضبط میانبرهای صفحه‌کلید از قبل فعال است.</string>
+    <string name="accessibility_service_label">ضبط ورودی از راه دور</string>
+    <string name="accessibility_service_description">ورودی صفحه‌کلید فیزیکی را ضبط کرده و به جلسه دسکتاپ از راه دور فعال شما ارسال می‌کند. فقط رویدادهای کلید سخت‌افزاری پردازش می‌شوند. هیچ محتوای صفحه نمایش، محتوای پنجره یا داده‌های شخصی جمع‌آوری، ذخیره یا به اشتراک گذاشته نمی‌شود.</string>
+    <string name="accessibility_service_prompt_title">اجازه ضبط میانبرهای صفحه‌کلید؟</string>
+    <string name="accessibility_service_prompt_message">برای ارسال میانبرهای صفحه‌کلید (مانند Alt+Tab) به دسکتاپ از راه دور به جای اینکه Android آن‌ها را رهگیری کند، این برنامه می‌تواند از یک سرویس دسترسی‌پذیری برای ضبط رویدادهای کلید فیزیکی استفاده کند.\n\nاین سرویس به چه چیزی دسترسی دارد: رویدادهای کلید سخت‌افزاری از صفحه‌کلید فیزیکی یا دستگاه ورودی شما.\n\nنحوه استفاده از داده‌ها: رویدادهای کلید مستقیماً از طریق اتصال موجود شما به جلسه دسکتاپ از راه دور ارسال می‌شوند. آن‌ها ذخیره، ثبت یا با کسی به اشتراک گذاشته نمی‌شوند.</string>
+    <string name="accessibility_service_prompt_go_to_settings">باز کردن تنظیمات دسترسی‌پذیری</string>
+    <string name="accessibility_service_prompt_not_now">نه در حال حاضر</string>
 </resources>

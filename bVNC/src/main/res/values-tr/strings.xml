@@ -78,6 +78,7 @@ Devam etmek için lütfen doğru Ana Şifreyi girin.</string>
 Sertifika kodlaması oluşturulamadı.</string>
     <string name="action_new_connection">
 ✚ Yeni Bağlantı</string>
+    <string name="sort_connections">Bağlantıları sırala</string>
     <string name="share_app_toast">
 Uygulamanın bağlantısını sosyal medyadaki tüm arkadaşlarınızla paylaşın!</string>
     <string name="arrow_left">
@@ -1176,4 +1177,12 @@ Uygulama zaten pil optimizasyonlarından muaf.</string>
     <string name="no_connections_hint">İlk uzak bağlantınızı eklemek için + düğmesine dokunun</string>
     <string name="no_connections_hint_tv">İlk uzak bağlantınızı eklemek için yukarıdaki + düğmesine basın</string>
     <string name="keyboard_layout_map">Klavye Düzeni</string>
+    <string name="accessibility_service_menu_item">⌨  Klavye Kısayolu Yakalama</string>
+    <string name="accessibility_service_already_enabled">Klavye Kısayolu Yakalama zaten etkin.</string>
+    <string name="accessibility_service_label">Uzak Girdi Yakalama</string>
+    <string name="accessibility_service_description">Fiziksel klavye girişini yakalar ve aktif uzak masaüstü oturumunuza iletir. Yalnızca donanım tuşu olayları işlenir. Ekran içeriği, pencere içeriği veya kişisel veriler toplanmaz, depolanmaz veya paylaşılmaz.</string>
+    <string name="accessibility_service_prompt_title">Klavye kısayolu yakalamaya izin verilsin mi?</string>
+    <string name="accessibility_service_prompt_message">Android bunları engellemek yerine uzak masaüstünüze klavye kısayolları (Alt+Tab gibi) göndermek için bu uygulama, fiziksel tuş olaylarını yakalamak üzere bir Erişilebilirlik Hizmeti kullanabilir.\n\nBu hizmetin eriştiği şeyler: fiziksel klavyenizden veya giriş aygıtınızdan gelen donanım tuşu olayları.\n\nVeriler nasıl kullanılır: tuş olayları, mevcut bağlantınız üzerinden doğrudan uzak masaüstü oturumunuza iletilir. Bunlar depolanmaz, kaydedilmez veya kimseyle paylaşılmaz.</string>
+    <string name="accessibility_service_prompt_go_to_settings">Erişilebilirlik Ayarlarını Aç</string>
+    <string name="accessibility_service_prompt_not_now">Şimdi değil</string>
 </resources>
