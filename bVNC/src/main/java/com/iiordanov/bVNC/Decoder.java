@@ -152,7 +152,7 @@ public class Decoder {
             }
             int i, offset;
             for (int dy = y; dy < y + h; dy++) {
-                rfb.readFully(handleRawRectBuffer, 0, w);
+                rfb.is.readBytes(handleRawRectBuffer, 0, w);
                 if (!valid)
                     continue;
                 offset = bitmapData.offset(x, dy);
@@ -169,7 +169,7 @@ public class Decoder {
             }
             int i, offset;
             for (int dy = y; dy < y + h; dy++) {
-                rfb.readFully(handleRawRectBuffer, 0, l);
+                rfb.is.readBytes(handleRawRectBuffer, 0, l);
                 if (!valid)
                     continue;
                 offset = bitmapData.offset(x, dy);
@@ -211,7 +211,7 @@ public class Decoder {
         boolean valid = bitmapData.validDraw(x, y, w, h);
         int nSubrects = rfb.is.readInt();
 
-        rfb.readFully(bg_buf, 0, bytesPerPixel);
+        rfb.is.readBytes(bg_buf, 0, bytesPerPixel);
         int pixel;
         if (bytesPerPixel == 1) {
             pixel = colorPalette[0xFF & bg_buf[0]];
@@ -226,7 +226,7 @@ public class Decoder {
         if (len > rre_buf.length)
             rre_buf = new byte[len];
 
-        rfb.readFully(rre_buf, 0, len);
+        rfb.is.readBytes(rre_buf, 0, len);
         if (!valid)
             return;
 
@@ -264,7 +264,7 @@ public class Decoder {
         boolean valid = bitmapData.validDraw(x, y, w, h);
         int nSubrects = rfb.is.readInt();
 
-        rfb.readFully(bg_buf, 0, bytesPerPixel);
+        rfb.is.readBytes(bg_buf, 0, bytesPerPixel);
         int pixel;
         if (bytesPerPixel == 1) {
             pixel = colorPalette[0xFF & bg_buf[0]];
@@ -279,7 +279,7 @@ public class Decoder {
         if (len > rre_buf.length)
             rre_buf = new byte[len];
 
-        rfb.readFully(rre_buf, 0, len);
+        rfb.is.readBytes(rre_buf, 0, len);
         if (!valid)
             return;
 
@@ -350,7 +350,7 @@ public class Decoder {
             throw new RuntimeException("impossible colordepth");
         }
         if ((subencoding & RfbProto.HextileBackgroundSpecified) != 0) {
-            rfb.readFully(backgroundColorBuffer, 0, bytesPerPixel);
+            rfb.is.readBytes(backgroundColorBuffer, 0, bytesPerPixel);
             if (bytesPerPixel == 1) {
                 hextile_bg = colorPalette[0xFF & backgroundColorBuffer[0]];
             } else {
@@ -364,7 +364,7 @@ public class Decoder {
 
         // Read the foreground color if specified.
         if ((subencoding & RfbProto.HextileForegroundSpecified) != 0) {
-            rfb.readFully(backgroundColorBuffer, 0, bytesPerPixel);
+            rfb.is.readBytes(backgroundColorBuffer, 0, bytesPerPixel);
             if (bytesPerPixel == 1) {
                 hextile_fg = colorPalette[0xFF & backgroundColorBuffer[0]];
             } else {
@@ -383,7 +383,7 @@ public class Decoder {
         }
         if (rre_buf.length < bufsize)
             rre_buf = new byte[bufsize];
-        rfb.readFully(rre_buf, 0, bufsize);
+        rfb.is.readBytes(rre_buf, 0, bufsize);
 
         int b1, b2, sx, sy, sw, sh;
         int i = 0;
@@ -453,7 +453,7 @@ public class Decoder {
             zrleBuf = new byte[nBytes + 4096];
         }
 
-        rfb.readFully(zrleBuf, 0, nBytes);
+        rfb.is.readBytes(zrleBuf, 0, nBytes);
 
         zrleInStream.setUnderlying(new MemInStream(zrleBuf, 0, nBytes), nBytes);
 
@@ -517,7 +517,7 @@ public class Decoder {
             zlibBuf = new byte[nBytes * 2];
         }
 
-        rfb.readFully(zlibBuf, 0, nBytes);
+        rfb.is.readBytes(zlibBuf, 0, nBytes);
 
         if (zlibInflater == null) {
             zlibInflater = new Inflater();
@@ -753,7 +753,7 @@ public class Decoder {
                 idx = rfb.is.readUnsignedByte();
                 handleTightRectPaint.setColor(colorPalette[0xFF & idx]);
             } else {
-                rfb.readFully(solidColorBuf, 0, 3);
+                rfb.is.readBytes(solidColorBuf, 0, 3);
                 handleTightRectPaint.setColor(0xFF000000 | (solidColorBuf[0] & 0xFF) << 16
                         | (solidColorBuf[1] & 0xFF) << 8 | (solidColorBuf[2] & 0xFF));
             }
@@ -770,7 +770,7 @@ public class Decoder {
             if (jpegDataLen > inflBuf.length) {
                 inflBuf = new byte[2 * jpegDataLen];
             }
-            rfb.readFully(inflBuf, 0, jpegDataLen);
+            rfb.is.readBytes(inflBuf, 0, jpegDataLen);
             if (!valid)
                 return;
 
@@ -797,10 +797,10 @@ public class Decoder {
                     if (numColors != 2) {
                         throw new Exception("Incorrect tight palette size: " + numColors);
                     }
-                    rfb.readFully(tightPalette8, 0, 2);
+                    rfb.is.readBytes(tightPalette8, 0, 2);
 
                 } else {
-                    rfb.readFully(colorBuf, 0, numColors * 3);
+                    rfb.is.readBytes(colorBuf, 0, numColors * 3);
                     for (c = 0; c < numColors; c++) {
                         idx = c * 3;
                         tightPalette24[c] = ((colorBuf[idx] & 0xFF) << 16 |
@@ -827,7 +827,7 @@ public class Decoder {
 
         if (dataSize < RfbProto.TightMinToCompress) {
             // Data size is small - not compressed with zlib.
-            rfb.readFully(uncompDataBuf, 0, dataSize);
+            rfb.is.readBytes(uncompDataBuf, 0, dataSize);
             if (!valid)
                 return;
 
@@ -883,7 +883,7 @@ public class Decoder {
                 // Data was compressed with zstd.
                 int zlibDataLen = rfb.readCompactLen();
                 zlibData = new byte[zlibDataLen];
-                rfb.readFully(zlibData);
+                rfb.is.readBytes(zlibData, 0, zlibDataLen);
 
                 inflBuf = new byte[dataSize];
 
@@ -899,7 +899,7 @@ public class Decoder {
                 if (zlibDataLen > zlibData.length) {
                     zlibData = new byte[zlibDataLen * 2];
                 }
-                rfb.readFully(zlibData, 0, zlibDataLen);
+                rfb.is.readBytes(zlibData, 0, zlibDataLen);
 
                 stream_id = comp_ctl & 0x03;
                 if (tightInflaters[stream_id] == null) {
@@ -1125,7 +1125,7 @@ public class Decoder {
 
             // Read foreground and background colors of the cursor.
             byte[] rgb = new byte[6];
-            rfb.readFully(rgb);
+            rfb.is.readBytes(rgb, 0, rgb.length);
             int[] colors = {(0xFF000000 | (rgb[3] & 0xFF) << 16 |
                     (rgb[4] & 0xFF) << 8 | (rgb[5] & 0xFF)),
                     (0xFF000000 | (rgb[0] & 0xFF) << 16 |
@@ -1133,9 +1133,9 @@ public class Decoder {
 
             // Read pixel and mask data.
             byte[] pixBuf = new byte[bytesMaskData];
-            rfb.readFully(pixBuf);
+            rfb.is.readBytes(pixBuf, 0, pixBuf.length);
             byte[] maskBuf = new byte[bytesMaskData];
-            rfb.readFully(maskBuf);
+            rfb.is.readBytes(maskBuf, 0, maskBuf.length);
 
             // Decode pixel data into softCursorPixels[].
             byte pixByte, maskByte;
@@ -1169,9 +1169,9 @@ public class Decoder {
 
             // Read pixel and mask data.
             byte[] pixBuf = new byte[width * height * bytesPerPixel];
-            rfb.readFully(pixBuf);
+            rfb.is.readBytes(pixBuf, 0, pixBuf.length);
             byte[] maskBuf = new byte[bytesMaskData];
-            rfb.readFully(maskBuf);
+            rfb.is.readBytes(maskBuf, 0, maskBuf.length);
 
             // Decode pixel data into softCursorPixels[].
             byte pixByte, maskByte;

@@ -78,7 +78,7 @@ public class AESOutStream extends OutStream {
                 counter,
                 buffer, 2,
                 buffer, 2 + length);
-        out.write(buffer, 0, length + 16 + 2);
+        out.writeBytes(buffer, 0, length + 16 + 2);
         out.flush();
         // Update nonce by incrementing the counter as a
         // 128bit little endian unsigned integer

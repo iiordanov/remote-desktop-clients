@@ -108,15 +108,7 @@ abstract public class OutStream {
 
     abstract protected int overrun(int itemSize, int nItems) throws IOException;
 
-    public void write(byte b[]) throws IOException {
+    public void writeBytes(byte[] b) throws IOException {
         this.writeBytes(b, 0, b.length);
-    }
-
-    public void write(byte b[], int off, int len) throws IOException {
-        this.writeBytes(b, off, len);
-    }
-
-    public void write(int i) throws IOException {
-        this.writeU32(i);
     }
 }

@@ -21,11 +21,6 @@ public class RawOutStream extends OutStream {
         return itemSize * nItems;
     }
 
-    @Override
-    public void write(int b) throws IOException {
-        os.write(b);
-    }
-
     public void write(byte b[]) throws IOException {
         os.write(b, 0, b.length);
     }

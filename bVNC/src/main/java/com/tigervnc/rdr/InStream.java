@@ -125,6 +125,10 @@ abstract public class InStream {
         readBytes(ByteBuffer.wrap(bytes, off, length), length);
     }
 
+    public void readBytes(byte[] bytes) throws IOException {
+        readBytes(ByteBuffer.wrap(bytes, 0, bytes.length), bytes.length);
+    }
+
     public int getptr() {
         return ptr;
     }

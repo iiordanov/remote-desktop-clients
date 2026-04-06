@@ -128,10 +128,10 @@ public class ClipboardMessageWriter {
 
     private void writeMessage(byte[] header, byte[] flagsBytes, byte[] compressedData) throws IOException {
         synchronized (writeLock) {
-            outputStream.write(header);
-            outputStream.write(flagsBytes);
+            outputStream.writeBytes(header);
+            outputStream.writeBytes(flagsBytes);
             if (compressedData != null) {
-                outputStream.write(compressedData);
+                outputStream.writeBytes(compressedData);
             }
         }
     }

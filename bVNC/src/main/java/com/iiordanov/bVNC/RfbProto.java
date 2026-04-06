@@ -461,7 +461,7 @@ public class RfbProto extends RfbConnectable {
             is.readBytes(protocolMsg, 0, 12);
             byte[] buffer = new byte[250];
             System.arraycopy(repeaterID.getBytes(), 0, buffer, 0, repeaterID.length());
-            os.write(buffer);
+            os.writeBytes(buffer);
         }
         // </RepeaterMagic>
 
@@ -586,7 +586,7 @@ public class RfbProto extends RfbConnectable {
 
         byte[] b = new byte[12];
 
-        readFully(b);
+        is.readBytes(b);
 
         if ((b[0] != 'R') || (b[1] != 'F') || (b[2] != 'B') || (b[3] != ' ')
                 || (b[4] < '0') || (b[4] > '9') || (b[5] < '0') || (b[5] > '9')
@@ -615,13 +615,13 @@ public class RfbProto extends RfbConnectable {
         clientMajor = 3;
         if (serverMajor > 3 || serverMinor >= 8) {
             clientMinor = 8;
-            os.write(versionMsg_3_8.getBytes());
+            os.writeBytes(versionMsg_3_8.getBytes());
         } else if (serverMinor >= 7) {
             clientMinor = 7;
-            os.write(versionMsg_3_7.getBytes());
+            os.writeBytes(versionMsg_3_7.getBytes());
         } else {
             clientMinor = 3;
-            os.write(versionMsg_3_3.getBytes());
+            os.writeBytes(versionMsg_3_3.getBytes());
         }
         protocolTightVNC = false;
     }
@@ -674,13 +674,13 @@ public class RfbProto extends RfbConnectable {
             return SecTypeInvalid;    // should never be executed
         }
         byte[] secTypes = new byte[nSecTypes];
-        readFully(secTypes);
+        is.readBytes(secTypes);
 
         // Find out if the server supports TightVNC protocol extensions
         for (int i = 0; i < nSecTypes; i++) {
             if (secTypes[i] == SecTypeTight) {
                 protocolTightVNC = true;
-                os.write(SecTypeTight);
+                os.writeU8(SecTypeTight);
                 return SecTypeTight;
             }
         }
@@ -749,7 +749,7 @@ public class RfbProto extends RfbConnectable {
                     + " " + canvas.getContext().getString(R.string.error_pick_correct_item);
             throw new Exception(message);
         } else {
-            os.write(secType);
+            os.writeU8(secType);
         }
 
         return secType;
@@ -763,12 +763,12 @@ public class RfbProto extends RfbConnectable {
         int minorVersion = is.readUnsignedByte();
         int Version = (majorVersion << 8) | minorVersion;
         if (Version < 0x0002) {
-            os.write(0);
-            os.write(0);
+            os.writeU8(0);
+            os.writeU8(0);
             throw new Exception("Server reported an unsupported VeNCrypt version");
         }
-        os.write(0);
-        os.write(2);
+        os.writeU8(0);
+        os.writeU8(2);
         if (is.readUnsignedByte() != 0)
             throw new Exception("Server reported it could not support the VeNCrypt version");
         int nSecTypes = is.readUnsignedByte();
@@ -818,7 +818,7 @@ public class RfbProto extends RfbConnectable {
 
     void authenticateVNC(String pw) throws Exception {
         byte[] challenge = new byte[16];
-        readFully(challenge);
+        is.readBytes(challenge);
 
         if (pw.length() > 8)
             pw = pw.substring(0, 8);    // Truncate to 8 chars
@@ -836,7 +836,7 @@ public class RfbProto extends RfbConnectable {
         des.encrypt(challenge, 0, challenge, 0);
         des.encrypt(challenge, 8, challenge, 8);
 
-        os.write(challenge);
+        os.writeBytes(challenge);
 
         readSecurityResult(false, "VNC authentication");
     }
@@ -868,8 +868,8 @@ public class RfbProto extends RfbConnectable {
         byte[] passwordBytes = password.getBytes();
         writeInt(userBytes.length);
         writeInt(passwordBytes.length);
-        os.write(userBytes);
-        os.write(passwordBytes);
+        os.writeBytes(userBytes);
+        os.writeBytes(passwordBytes);
 
         readSecurityResult(true, "Plain authentication");
     }
@@ -922,7 +922,7 @@ public class RfbProto extends RfbConnectable {
     void readConnFailedReason(boolean throwException) throws Exception {
         int reasonLen = is.readInt();
         byte[] reason = new byte[reasonLen];
-        readFully(reason);
+        is.readBytes(reason);
         String reasonString = new String(reason);
         Log.d(TAG, "readConnFailedReason: " + reasonString);
         if (throwException) {
@@ -938,7 +938,7 @@ public class RfbProto extends RfbConnectable {
         dh = new DH(gen, mod);
         long pub = dh.createInterKey();
 
-        os.write(DH.longToBytes(pub));
+        os.writeBytes(DH.longToBytes(pub));
     }
 
     void authenticateDH(String us, String pw) throws Exception {
@@ -965,8 +965,8 @@ public class RfbProto extends RfbConnectable {
         des.encryptText(user, user, DH.longToBytes(key));
         des.encryptText(passwd, passwd, DH.longToBytes(key));
 
-        os.write(user);
-        os.write(passwd);
+        os.writeBytes(user);
+        os.writeBytes(passwd);
 
         readSecurityResult(true, "VNC authentication");
     }
@@ -1101,8 +1101,8 @@ public class RfbProto extends RfbConnectable {
         byte[] name = new byte[8];
         for (int i = 0; i < count; i++) {
             code = is.readInt();
-            readFully(vendor);
-            readFully(name);
+            is.readBytes(vendor);
+            is.readBytes(name);
             caps.enable(new CapabilityInfo(code, vendor, name));
         }
     }
@@ -1112,7 +1112,7 @@ public class RfbProto extends RfbConnectable {
         writeIntBuffer[1] = (byte) ((value >> 16) & 0xff);
         writeIntBuffer[2] = (byte) ((value >> 8) & 0xff);
         writeIntBuffer[3] = (byte) (value & 0xff);
-        os.write(writeIntBuffer);
+        os.writeBytes(writeIntBuffer);
     }
 
 
@@ -1122,9 +1122,9 @@ public class RfbProto extends RfbConnectable {
 
     public void writeClientInit() throws IOException {
     /*- if (viewer.options.shareDesktop) {
-      os.write(1);
+      os.writeBytes(1);
     } else {
-      os.write(0);
+      os.writeBytes(0);
     }
     viewer.options.disableShareDesktop();
     */
@@ -1154,10 +1154,10 @@ public class RfbProto extends RfbConnectable {
         greenShift = is.readUnsignedByte();
         blueShift = is.readUnsignedByte();
         byte[] pad = new byte[3];
-        readFully(pad);
+        is.readBytes(pad);
         int nameLength = is.readInt();
         byte[] name = new byte[nameLength];
-        readFully(name);
+        is.readBytes(name);
         desktopName = new String(name);
 
         // Read interaction capabilities (TightVNC protocol extensions)
@@ -1233,54 +1233,6 @@ public class RfbProto extends RfbConnectable {
         updateRectW = is.readUnsignedShort();
         updateRectH = is.readUnsignedShort();
         updateRectEncoding = is.readInt();
-
-    /*
-    if (updateRectEncoding == EncodingZlib ||
-        updateRectEncoding == EncodingZRLE ||
-        updateRectEncoding == EncodingTight)
-        wereZlibUpdates = true;
-
-    // If the session is being recorded:
-    if (rec != null) {
-      if (numUpdatesInSession > 1)
-    rec.flush();        // Flush the output on each rectangle.
-      rec.writeShortBE(updateRectX);
-      rec.writeShortBE(updateRectY);
-      rec.writeShortBE(updateRectW);
-      rec.writeShortBE(updateRectH);
-      if (updateRectEncoding == EncodingZlib && !recordFromBeginning) {
-    // Here we cannot write Zlib-encoded rectangles because the
-    // decoder won't be able to reproduce zlib stream state.
-    if (!zlibWarningShown) {
-      System.out.println("Warning: Raw encoding will be used " +
-                 "instead of Zlib in recorded session.");
-      zlibWarningShown = true;
-    }
-    rec.writeIntBE(EncodingRaw);
-      } else {
-    rec.writeIntBE(updateRectEncoding);
-    if (updateRectEncoding == EncodingTight && !recordFromBeginning &&
-        !tightWarningShown) {
-      System.out.println("Warning: Re-compressing Tight-encoded " +
-                 "updates for session recording.");
-      tightWarningShown = true;
-    }
-      }
-    }
-    */
-
-    /*
-    if (updateRectEncoding != RfbProto.EncodingPointerPos &&
-        ( updateRectEncoding < 0 || updateRectEncoding > MaxNormalEncoding ))
-        return;
-
-    if (updateRectX + updateRectW > framebufferWidth ||
-        updateRectY + updateRectH > framebufferHeight) {
-        throw new Exception("Framebuffer update rectangle too large: " +
-                            updateRectW + "x" + updateRectH + " at (" +
-                            updateRectX + "," + updateRectY + ")");
-    }
-    */
     }
 
 
@@ -1291,14 +1243,6 @@ public class RfbProto extends RfbConnectable {
     void readCopyRect() throws IOException {
         copyRectSrcX = is.readUnsignedShort();
         copyRectSrcY = is.readUnsignedShort();
-
-        // If the session is being recorded:
-    /*-
-    if (rec != null) {
-      rec.writeShortBE(copyRectSrcX);
-      rec.writeShortBE(copyRectSrcY);
-    }
-    */
     }
 
 
@@ -1311,7 +1255,7 @@ public class RfbProto extends RfbConnectable {
 
     String readServerCutTextOrNullIfExtendedClipboard() throws IOException {
         byte[] pad = new byte[3];
-        readFully(pad);
+        is.readBytes(pad);
         int len = is.readInt();
 
         if ((len & EXTENDED_CLIPBOARD_MESSAGE_MASK) != 0) {
@@ -1325,7 +1269,7 @@ public class RfbProto extends RfbConnectable {
     @NonNull
     private String readServerClipboardContentsLegacyFallback(int len) throws IOException {
         byte[] text = new byte[len];
-        readFully(text);
+        is.readBytes(text);
         String str = new String(text, StandardCharsets.UTF_8);
         return Utils.convertLF(str);
     }
@@ -1343,7 +1287,7 @@ public class RfbProto extends RfbConnectable {
      */
     private void skipBytes(int numBytes) throws IOException {
         byte[] skip = new byte[numBytes];
-        readFully(skip);
+        is.readBytes(skip);
     }
 
 
@@ -1366,11 +1310,6 @@ public class RfbProto extends RfbConnectable {
                 len |= (portion[2] & 0xFF) << 14;
             }
         }
-    /*-
-    if (rec != null && recordFromBeginning)
-      for (int i = 0; i < byteCount; i++)
-    rec.writeByte(portion[i]);
-    */
         return len;
     }
 
@@ -1387,12 +1326,7 @@ public class RfbProto extends RfbConnectable {
         framebufferUpdateRequest[8] = (byte) ((h >> 8) & 0xff);
         framebufferUpdateRequest[9] = (byte) (h & 0xff);
 
-        try {
-            os.write(framebufferUpdateRequest);
-        } catch (IOException e) {
-            Log.e(TAG, "Could not write framebuffer update request.");
-            e.printStackTrace();
-        }
+        tryOsWriteBuf(framebufferUpdateRequest, "Could not write framebuffer update request.");
     }
 
 
@@ -1422,14 +1356,26 @@ public class RfbProto extends RfbConnectable {
         b[16] = (byte) blueShift;
         b[17] = (byte) (fGreyScale ? 1 : 0); // sf@2005
 
+        tryOsWriteBuf(b, "Could not write setPixelFormat message to VNC server.");
+    }
+
+    private void tryOsWriteBuf(byte[] b, String msg) {
         try {
-            os.write(b);
-        } catch (IOException e) {
-            Log.e(TAG, "Could not write setPixelFormat message to VNC server.");
-            e.printStackTrace();
+            os.writeBytes(b, 0, b.length);
+        } catch (NullPointerException|IOException e) {
+            Log.e(TAG, msg);
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
+    private void tryOsWriteEventBuf(String msg) {
+        try {
+            os.writeBytes(eventBuf, 0, eventBufLen);
+        } catch (NullPointerException|IOException e) {
+            Log.e(TAG, msg);
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
 
     //
     // Write a FixColourMapEntries message.  The values in the red, green and
@@ -1456,7 +1402,7 @@ public class RfbProto extends RfbConnectable {
             b[6 + i * 6 + 5] = (byte) (blue[i] & 0xff);
         }
 
-        os.write(b);
+        os.writeBytes(b);
     }
 
 
@@ -1478,7 +1424,7 @@ public class RfbProto extends RfbConnectable {
             b[7 + 4 * i] = (byte) (encs[i] & 0xff);
         }
 
-        os.write(b);
+        os.writeBytes(b);
     }
 
 
@@ -1513,7 +1459,7 @@ public class RfbProto extends RfbConnectable {
         b[6] = (byte) ((text.length() >> 8) & 0xff);
         b[7] = (byte) (text.length() & 0xff);
         System.arraycopy(text.getBytes(), 0, b, 8, length);
-        os.write(b);
+        os.writeBytes(b);
     }
 
 
@@ -1558,12 +1504,7 @@ public class RfbProto extends RfbConnectable {
             writeModifierKeyEvents(modifiers, false);
         }
 
-        try {
-            os.write(eventBuf, 0, eventBufLen);
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to write pointer event to VNC server.");
-            e.printStackTrace();
-        }
+        tryOsWriteEventBuf("Failed to write pointer event to VNC server.");
     }
 
     synchronized void writeCtrlAltDel() throws IOException {
@@ -1573,17 +1514,17 @@ public class RfbProto extends RfbConnectable {
             // Press
             eventBufLen = 0;
             writeModifierKeyEvents(CTRLALT, true);
-            writeKeyEvent(DELETE, true);
-            os.write(eventBuf, 0, eventBufLen);
+            writeKeyEventToEventBuf(DELETE, true);
+            os.writeBytes(eventBuf, 0, eventBufLen);
 
             // Release
             eventBufLen = 0;
-            writeKeyEvent(DELETE, false);
+            writeKeyEventToEventBuf(DELETE, false);
             writeModifierKeyEvents(CTRLALT, false);
 
             // Reset VNC server modifiers state
             //writeModifierKeyEvents(0, false);
-            os.write(eventBuf, 0, eventBufLen);
+            os.writeBytes(eventBuf, 0, eventBufLen);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1604,22 +1545,17 @@ public class RfbProto extends RfbConnectable {
         }
 
         if (keySym > 0)
-            writeKeyEvent(keySym, down);
+            writeKeyEventToEventBuf(keySym, down);
 
         // Always release all modifiers after an "up" event
         if (!down) {
             writeModifierKeyEvents(metaState, down);
         }
 
-        try {
-            os.write(eventBuf, 0, eventBufLen);
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to write key event to VNC server.");
-            e.printStackTrace();
-        }
+        tryOsWriteEventBuf("Failed to write key event to VNC server.");
     }
 
-    private synchronized void writeKeyEvent(int keysym, boolean down) {
+    private synchronized void writeKeyEventToEventBuf(int keysym, boolean down) {
 
         if (viewOnly)
             return;
@@ -1676,7 +1612,7 @@ public class RfbProto extends RfbConnectable {
                 int modifier = modifierMap.get(modifierMask);
                 GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys, modifierMask:" +
                         modifierMask + ", sending: " + modifier + ", down: " + down);
-                writeKeyEvent(modifier, down);
+                writeKeyEventToEventBuf(modifier, down);
                 remoteKeyboardState.updateRemoteMetaState(modifierMask, down);
             }
         }
@@ -1715,39 +1651,6 @@ public class RfbProto extends RfbConnectable {
         return timeWaitedIn100us;
     }
 
-    public void readFully(byte b[]) throws IOException {
-        readFully(b, 0, b.length);
-    }
-
-    public void readFully(byte b[], int off, int len) throws IOException {
-        // TODO: Try reenabling timing and set color according to bandwidth
-    /*
-    long before = 0;
-    timing = false; // for test
-
-    if (timing)
-      before = System.currentTimeMillis();
-     */
-
-        is.readBytes(b, off, len);
-
-    /*
-    if (timing) {
-      long after = System.currentTimeMillis();
-      long newTimeWaited = (after - before) * 10;
-      int newKbits = len * 8 / 1000;
-
-      // limit rate to between 10kbit/s and 40Mbit/s
-
-      if (newTimeWaited > newKbits*1000) newTimeWaited = newKbits*1000;
-      if (newTimeWaited < newKbits/4)    newTimeWaited = newKbits/4;
-
-      timeWaitedIn100us += newTimeWaited;
-      timedKbits += newKbits;
-    }
-    */
-    }
-
     final int readU8() throws IOException {
         return is.readUnsignedByte();
     }
@@ -1767,7 +1670,7 @@ public class RfbProto extends RfbConnectable {
             throw new Exception("Max string length exceeded");
 
         byte[] str = new byte[len];
-        readFully(str, 0, len);
+        is.readBytes(str, 0, len);
         String utf8string = new String();
         try {
             utf8string = new String(str, "UTF8");
@@ -1832,32 +1735,32 @@ public class RfbProto extends RfbConnectable {
     }
 
     synchronized void writeOpenChat() throws Exception {
-        os.write(TextChat); // byte type
-        os.write(0); // byte pad 1
-        os.write(0); // byte pad 2
-        os.write(0); // byte pad 2
+        os.writeU8(TextChat); // byte type
+        os.writeU8(0); // byte pad 1
+        os.writeU8(0); // byte pad 2
+        os.writeU8(0); // byte pad 2
         writeInt(CHAT_OPEN); // int message length
     }
 
     synchronized void writeCloseChat() throws Exception {
-        os.write(TextChat); // byte type
-        os.write(0); // byte pad 1
-        os.write(0); // byte pad 2
-        os.write(0); // byte pad 2
+        os.writeU8(TextChat); // byte type
+        os.writeU8(0); // byte pad 1
+        os.writeU8(0); // byte pad 2
+        os.writeU8(0); // byte pad 2
         writeInt(CHAT_CLOSE); // int message length
     }
 
     synchronized void writeFinishedChat() throws Exception {
-        os.write(TextChat); // byte type
-        os.write(0); // byte pad 1
-        os.write(0); // byte pad 2
-        os.write(0); // byte pad 2
+        os.writeU8(TextChat); // byte type
+        os.writeU8(0); // byte pad 1
+        os.writeU8(0); // byte pad 2
+        os.writeU8(0); // byte pad 2
         writeInt(CHAT_FINISHED); // int message length
     }
 
     String readTextChatMsg() throws Exception {
         byte[] pad = new byte[3];
-        readFully(pad);
+        is.readBytes(pad);
         int len = is.readInt();
         if (len == CHAT_OPEN) {
             // Remote user requests chat
@@ -1877,7 +1780,7 @@ public class RfbProto extends RfbConnectable {
             // Remote user sends message!!
             if (len > 0) {
                 byte[] msg = new byte[len];
-                readFully(msg);
+                is.readBytes(msg);
                 return new String(msg);
             }
         }
@@ -1885,10 +1788,10 @@ public class RfbProto extends RfbConnectable {
     }
 
     public synchronized void writeChatMessage(String msg) throws Exception {
-        os.write(TextChat); // byte type
-        os.write(0); // byte pad 1
-        os.write(0); // byte pad 2
-        os.write(0); // byte pad 2
+        os.writeU8(TextChat); // byte type
+        os.writeU8(0); // byte pad 1
+        os.writeU8(0); // byte pad 2
+        os.writeU8(0); // byte pad 2
         byte[] bytes = msg.getBytes("8859_1");
         byte[] outgoing = bytes;
         if (bytes.length > 4096) {
@@ -1896,7 +1799,7 @@ public class RfbProto extends RfbConnectable {
             System.arraycopy(bytes, 0, outgoing, 0, 4096);
         }
         writeInt(outgoing.length); // int message length
-        os.write(outgoing); // message
+        os.writeBytes(outgoing); // message
     }
 
     // The following methods are implementations of the RfbConnectable interface
@@ -2021,7 +1924,7 @@ public class RfbProto extends RfbConnectable {
     }
 
     public void processProtocol() throws Exception {
-        boolean exitforloop = false;
+        boolean exitforloop;
         int msgType = 0;
 
         try {
@@ -2107,7 +2010,6 @@ public class RfbProto extends RfbConnectable {
                             }
 
                             if (exitforloop) {
-                                exitforloop = false;
                                 break;
                             }
                         }
@@ -2189,7 +2091,7 @@ public class RfbProto extends RfbConnectable {
 
         // Read an empty padding of 3 bytes and ignoring them
         byte[] padding = new byte[3];
-        readFully(padding);
+        is.readBytes(padding);
 
         int width = 0;
         int height = 0;
@@ -2215,7 +2117,7 @@ public class RfbProto extends RfbConnectable {
             } else {
                 // Ignore all other screens
                 byte[] screenBuffer = new byte[16];
-                readFully(screenBuffer);
+                is.readBytes(screenBuffer);
             }
         }
 
@@ -2295,12 +2197,7 @@ public class RfbProto extends RfbConnectable {
         setDesktopSizeBuff[22] = (byte) (this.screenFlags >> 8);
         setDesktopSizeBuff[23] = (byte) this.screenFlags;
 
-        try {
-            os.write(setDesktopSizeBuff);
-        } catch (IOException e) {
-            Log.e(TAG, "Sending the ExtendedDesktopSize Frame failed");
-            throw new Exception("Sending the ExtendedDesktopSize Frame failed");
-        }
+        tryOsWriteBuf(setDesktopSizeBuff, "Sending the ExtendedDesktopSize Frame failed");
     }
 
     public class RfbPasswordAuthenticationException extends Exception {
