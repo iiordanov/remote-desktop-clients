@@ -176,7 +176,16 @@ public class RfbProto extends RfbConnectable {
             EncodingNewFBSize = -223,
             EncodingClientRedirect = -311,
             EncodingExtendedDesktopSize = -308,
-            EncodingExtendedClipboard = 0xC0A1E5CE;
+            EncodingExtendedClipboard = 0xC0A1E5CE,
+            EncodingTightWithoutZlib = -317,     // TurboVNC extensions
+            EncodingSubsamp1X = -768,
+            EncodingSubsamp4X = -767,
+            EncodingSubsamp2X = -766,
+            EncodingSubsampGray = -765,
+            EncodingSubsamp8X = -764,
+            EncodingSubsamp16X = -763,
+            EncodingFineQualityLevel0 = -512,
+            EncodingFineQualityLevel100 = -412;
     final static String
             SigEncodingRaw = "RAW_____",
             SigEncodingCopyRect = "COPYRECT",
@@ -209,6 +218,7 @@ public class RfbProto extends RfbConnectable {
             TightFill = 0x08,
             TightJpeg = 0x09,
             TightMaxSubencoding = 0x09,
+            TightNoZlib = 0x0A,
             TightFilterCopy = 0x00,
             TightFilterPalette = 0x01,
             TightFilterGradient = 0x02;
@@ -232,6 +242,11 @@ public class RfbProto extends RfbConnectable {
     // Tight encoding parameters
     private final int compressLevel = 6;
     private final int jpegQuality = 7;
+    // TurboVNC extension parameters: fine-grained JPEG quality (0-100) and subsampling index
+    // (0=1X/none, 1=4X, 2=2X, 3=gray, 4=8X, 5=16X).
+    // 4X (index 1) matches standard JPEG 4:2:0 and TurboVNC defaults.
+    private final int fineQualityLevel = 70;
+    private final int subsamplingLevel = 1;
     // Handle for decoder object
     private final Decoder decoder;
     // Suggests to the server whether the desktop should be shared or not
@@ -1991,7 +2006,7 @@ public class RfbProto extends RfbConnectable {
         if (!inNormalProtocol)
             return;
 
-        int[] encodings = new int[20];
+        int[] encodings = new int[26];
         int nEncodings = 0;
 
         encodings[nEncodings++] = preferredEncoding;
@@ -2004,8 +2019,14 @@ public class RfbProto extends RfbConnectable {
 
         encodings[nEncodings++] = RfbProto.EncodingCopyRect;
 
+        // TurboVNC extension: advertise support for uncompressed Tight subrectangles
+        encodings[nEncodings++] = RfbProto.EncodingTightWithoutZlib;
+
         encodings[nEncodings++] = RfbProto.EncodingCompressLevel0 + compressLevel;
         encodings[nEncodings++] = RfbProto.EncodingQualityLevel0 + jpegQuality;
+        // TurboVNC extension: fine-grained JPEG quality and chroma subsampling
+        encodings[nEncodings++] = RfbProto.EncodingFineQualityLevel0 + fineQualityLevel;
+        encodings[nEncodings++] = RfbProto.EncodingSubsamp1X + subsamplingLevel;
 
         encodings[nEncodings++] = RfbProto.EncodingXCursor;
         encodings[nEncodings++] = RfbProto.EncodingRichCursor;

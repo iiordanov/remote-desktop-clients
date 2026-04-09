@@ -759,6 +759,14 @@ public class Decoder {
             comp_ctl >>= 1;
         }
 
+        // TurboVNC extension: TightNoZlib flag indicates uncompressed basic encoding.
+        // Strip the flag before further subencoding checks.
+        boolean readUncompressed = false;
+        if ((comp_ctl & RfbProto.TightNoZlib) == RfbProto.TightNoZlib) {
+            comp_ctl &= ~RfbProto.TightNoZlib;
+            readUncompressed = true;
+        }
+
         // Check correctness of sub-encoding value.
         if (comp_ctl > RfbProto.TightMaxSubencoding) {
             throw new Exception("Incorrect tight subencoding: " + comp_ctl);
@@ -898,8 +906,15 @@ public class Decoder {
             }
 
         } else {
-            // Data was compressed with zlib or zstd
-            if (zstd) {
+            // Data was compressed with zlib/zstd, or sent raw (TurboVNC TightNoZlib).
+            if (readUncompressed) {
+                // TurboVNC TightNoZlib: server sends a compact length then raw pixel data.
+                int rawDataLen = rfb.readCompactLen();
+                if (rawDataLen > inflBuf.length) {
+                    inflBuf = new byte[rawDataLen * 2];
+                }
+                rfb.is.readBytes(inflBuf, 0, rawDataLen);
+            } else if (zstd) {
                 // Data was compressed with zstd.
                 int zlibDataLen = rfb.readCompactLen();
                 zlibData = new byte[zlibDataLen];
