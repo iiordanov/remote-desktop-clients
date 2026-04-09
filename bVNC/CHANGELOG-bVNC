@@ -1,3 +1,6 @@
+v6.3.6
+- Performance optimizations
+- Support for TurboVNC extensions to TightVNC encoding
 v6.3.5
 - Updated UI for adding new connections
 - Implemented a connection sorting widget
