@@ -245,7 +245,7 @@ public class RfbProto extends RfbConnectable {
     // TurboVNC extension parameters: fine-grained JPEG quality (0-100) and subsampling index
     // (0=1X/none, 1=4X, 2=2X, 3=gray, 4=8X, 5=16X).
     // 4X (index 1) matches standard JPEG 4:2:0 and TurboVNC defaults.
-    private final int fineQualityLevel = 70;
+    private final int fineQualityLevel = jpegQuality * 10;
     private final int subsamplingLevel = 1;
     // Handle for decoder object
     private final Decoder decoder;
