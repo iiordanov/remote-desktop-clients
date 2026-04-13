@@ -345,4 +345,30 @@ public interface Viewable {
      * Returns whether or not the viewable is in focus
      */
     boolean isForegrounded();
+
+    /**
+     * Gets the current horizontal scroll position of the view in pixels.
+     * @return the horizontal scroll offset
+     */
+    int getScrollX();
+
+    /**
+     * Gets the current vertical scroll position of the view in pixels.
+     * @return the vertical scroll offset
+     */
+    int getScrollY();
+
+    /**
+     * Gets the X shift from full-frame to view coordinates.
+     * This is (fbWidth - viewWidth) / 2.0f — negative when fb < view.
+     * @return the X coordinate shift
+     */
+    float getShiftX();
+
+    /**
+     * Gets the Y shift from full-frame to view coordinates.
+     * This is (fbHeight - viewHeight) / 2.0f — negative when fb < view.
+     * @return the Y coordinate shift
+     */
+    float getShiftY();
 }

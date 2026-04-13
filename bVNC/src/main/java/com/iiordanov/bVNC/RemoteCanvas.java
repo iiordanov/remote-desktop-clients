@@ -36,6 +36,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -48,6 +49,8 @@ import android.view.inputmethod.InputConnection;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.concurrent.CountDownLatch;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.TouchInputHandlerTouchpad;
 import com.undatech.opaque.AbstractDrawableData;
@@ -78,6 +81,13 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      * Also shows the dialogs which show various connection failures.
      */
     public Handler handler;
+
+    // Handler on main thread for layout-stability detection in waitUntilInflated().
+    // We use Handler.postDelayed() to cancel/reschedule the stable-latch trigger
+    // each time onSizeChanged() fires, so we only unblock after 150ms of stability.
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final CountDownLatch layoutStableLatch = new CountDownLatch(1);
+    private final Runnable layoutStableRunnable = () -> layoutStableLatch.countDown();
 
     // The remote pointer and keyboard
     RemotePointer pointer;
@@ -128,7 +138,6 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      */
     boolean isOpaque;
     long lastDraw;
-    boolean userPanned = false;
 
     boolean isForegrounded = false;
 
@@ -491,12 +500,24 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
     /**
      * Computes the X and Y offset for converting coordinates from full-frame coordinates to view coordinates.
+     * Delegates to the scale-aware overload with scale=1.0f (used by OneToOneScaling).
      */
     public void computeShiftFromFullToView() {
+        computeShiftFromFullToView(1.0f);
+    }
+
+    /**
+     * Computes the X and Y shift for the given scale factor so that the scaled image is centered in the view.
+     * The formula ensures the image center maps to the view center at any scale:
+     *   shiftX = fbWidth/2 - viewWidth/(2*scale)
+     * At scale=1 this reduces to (fbWidth - viewWidth)/2, identical to the original formula.
+     * @param scale the current zoom/scale factor
+     */
+    public void computeShiftFromFullToView(float scale) {
         synchronized (this) {
             if (myDrawable != null) {
-                shiftX = (myDrawable.fbWidth() - getWidth()) / 2.0f;
-                shiftY = (myDrawable.fbHeight() - getHeight()) / 2.0f;
+                shiftX = myDrawable.fbWidth() / 2.0f - getWidth() / (2.0f * scale);
+                shiftY = myDrawable.fbHeight() / 2.0f - getHeight() / (2.0f * scale);
             }
         }
     }
@@ -506,10 +527,49 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
      */
     void resetScroll() {
         float scale = getZoomFactor();
-        Log.d(TAG, "resetScroll: " + (absoluteXPosition - shiftX) * scale + ", "
-                                                + (absoluteYPosition - shiftY) * scale);
-        scrollTo((int) ((absoluteXPosition - shiftX) * scale),
-                (int) ((absoluteYPosition - shiftY) * scale));
+        int scrollX = (int) ((absoluteXPosition - shiftX) * scale);
+        int scrollY = (int) ((absoluteYPosition - shiftY) * scale);
+
+        // When the viewport is larger than the framebuffer on an axis, zero the scroll
+        // and reset the absolute position on that axis so the matrix translation
+        // (which centers the image) is not overridden by a residual scroll value.
+        synchronized (this) {
+            if (myDrawable != null) {
+                if (myDrawable.fbWidth() <= getVisibleDesktopWidth()) {
+                    scrollX = 0;
+                    absoluteXPosition = 0;
+                }
+                if (myDrawable.fbHeight() <= getVisibleDesktopHeight()) {
+                    // Image fits in visible area. But keyboard/extra keys may have
+                    // reduced the visible area below the full view height. The matrix
+                    // centers the image in the full view, which can push the bottom
+                    // below the visible boundary. Compute a scroll to shift up.
+                    if (visibleHeight > 0 && visibleHeight < getHeight()) {
+                        int imageBottomPx = (int) (scale * (myDrawable.fbHeight() - shiftY));
+                        scrollY = Math.max(0, imageBottomPx - visibleHeight);
+                        // Don't scroll past the image top (top = -shiftY * scale)
+                        int maxScroll = Math.max(0, (int) (-shiftY * scale));
+                        scrollY = Math.min(scrollY, maxScroll);
+                    } else {
+                        scrollY = 0;
+                    }
+                    absoluteYPosition = 0;
+                }
+            }
+        }
+
+        Log.d(TAG, "resetScroll: " + scrollX + ", " + scrollY);
+        scrollTo(scrollX, scrollY);
+    }
+
+    private boolean contentExceedsVisibleArea() {
+        synchronized (this) {
+            if (myDrawable != null) {
+                return myDrawable.fbWidth() > getVisibleDesktopWidth()
+                        || myDrawable.fbHeight() > getVisibleDesktopHeight();
+            }
+        }
+        return false;
     }
 
     /**
@@ -533,8 +593,9 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
             }
         }
 
-        // We only pan if the current scaling is able to pan.
-        if (canvasZoomer != null && !canvasZoomer.isAbleToPan())
+        // We only pan if the current scaling is able to pan, or content exceeds
+        // visible area (e.g., IME or extra keys reduce available space).
+        if (canvasZoomer != null && !canvasZoomer.isAbleToPan() && !contentExceedsVisibleArea())
             return;
 
         int x = pointer.getX();
@@ -544,8 +605,8 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         int h = getVisibleDesktopHeight();
         int iw = getImageWidth();
         int ih = getImageHeight();
-        int wThresh = Constants.H_THRESH;
-        int hThresh = Constants.W_THRESH;
+        int wThresh = Math.min(Constants.H_THRESH, w / 4);
+        int hThresh = Math.min(Constants.W_THRESH, h / 4);
 
         int newX = absoluteXPosition;
         int newY = absoluteYPosition;
@@ -584,14 +645,6 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         }
     }
 
-    public int getTopMargin(double scale) {
-        return (int) (Constants.TOP_MARGIN / scale);
-    }
-
-    public int getBottomMargin(double scale) {
-        return (int) (Constants.BOTTOM_MARGIN / scale);
-    }
-
     /**
      * Pan by a number of pixels (relative pan)
      * @return True if the pan changed the view (did not move view out of bounds); false otherwise
@@ -599,8 +652,9 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     public boolean relativePan(float dX, float dY) {
         Log.d(TAG, "relativePan: " + dX + ", " + dY);
 
-        // We only pan if the current scaling is able to pan.
-        if (canvasZoomer != null && !canvasZoomer.isAbleToPan())
+        // We only pan if the current scaling is able to pan, or content exceeds
+        // visible area (e.g., IME or extra keys reduce available space).
+        if (canvasZoomer != null && !canvasZoomer.isAbleToPan() && !contentExceedsVisibleArea())
             return false;
 
         double scale = getZoomFactor();
@@ -608,27 +662,16 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         double sX = (double) dX / scale;
         double sY = (double) dY / scale;
 
-        int buttonAndCurveOffset = getBottomMargin(scale);
-        int curveOffset = 0;
-        if (userPanned) {
-            curveOffset = getTopMargin(scale);
-        }
-
-        userPanned = dX != 0.0 || dY != 0.0;
-
-        // Prevent panning above the desktop image except for provision for curved screens.
+        // Prevent panning beyond the desktop image edges.
         if (absoluteXPosition + sX < 0)
-            // dX = diff to 0
             sX = -absoluteXPosition;
-        if (absoluteYPosition + sY < -curveOffset)
-            sY = -absoluteYPosition - curveOffset;
+        if (absoluteYPosition + sY < 0)
+            sY = -absoluteYPosition;
 
-        // Prevent panning right or below desktop image except for provision for on-screen
-        // buttons and curved screens
         if (absoluteXPosition + getVisibleDesktopWidth() + sX > getImageWidth())
             sX = getImageWidth() - getVisibleDesktopWidth() - absoluteXPosition;
-        if (absoluteYPosition + getVisibleDesktopHeight() + sY > getImageHeight() + buttonAndCurveOffset)
-            sY = getImageHeight() - getVisibleDesktopHeight() - absoluteYPosition + buttonAndCurveOffset;
+        if (absoluteYPosition + getVisibleDesktopHeight() + sY > getImageHeight())
+            sY = getImageHeight() - getVisibleDesktopHeight() - absoluteYPosition;
 
         absoluteXPosition += (int) sX;
         absoluteYPosition += (int) sY;
@@ -935,6 +978,16 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     }
 
     @Override
+    public float getShiftX() {
+        return shiftX;
+    }
+
+    @Override
+    public float getShiftY() {
+        return shiftY;
+    }
+
+    @Override
     public boolean relativePan(int deltaX, int deltaY) {
         return relativePan((float) deltaX, (float) deltaY);
     }
@@ -966,17 +1019,19 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     }
 
     /**
-     * Used to wait until getWidth and getHeight return sane values.
+     * Waits until the view has stable, non-zero dimensions.
+     *
+     * In simple cases (phone full-screen) the view is measured once and
+     * stabilises immediately. In DeX/freeform mode the window can go through
+     * several layout passes (initial size → adjusted for taskbar/decorations).
+     * We wait until no further onSizeChanged() events arrive for 150ms, which
+     * guarantees the connection thread captures the final settled dimensions.
      */
     public void waitUntilInflated() {
-        synchronized (this) {
-            while (getWidth() == 0 || getHeight() == 0) {
-                try {
-                    this.wait();
-                } catch (InterruptedException e) {
-                    Log.e(TAG, Log.getStackTraceString(e));
-                }
-            }
+        try {
+            layoutStableLatch.await();
+        } catch (InterruptedException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
@@ -986,8 +1041,21 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     @Override
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
         if (w > 0 && h > 0) {
-            synchronized (this) {
-                this.notify();
+            // Reschedule the layout-stable trigger on every dimension change.
+            // In DeX/freeform mode the window can go through multiple layout passes
+            // (e.g., full height first, then reduced by the taskbar). By cancelling
+            // and reposting, waitUntilInflated() only unblocks after 150ms of no
+            // further changes — so the connection thread always sees final dimensions.
+            mainHandler.removeCallbacks(layoutStableRunnable);
+            mainHandler.postDelayed(layoutStableRunnable, 150);
+
+            // Recalculate scaling parameters when view size changes
+            // (DeX, freeform window, split-screen, rotation, etc.)
+            // This fixes coordinate mapping so clicks land in the right place.
+            if (canvasZoomer != null && myDrawable != null) {
+                Log.d(TAG, "onSizeChanged: recalculating for " + w + "x" + h
+                        + " (was " + oldW + "x" + oldH + ")");
+                canvasZoomer.handleViewSizeChange(this);
             }
         }
     }

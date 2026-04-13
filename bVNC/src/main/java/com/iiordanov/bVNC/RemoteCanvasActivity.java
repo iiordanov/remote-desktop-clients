@@ -73,6 +73,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
@@ -152,6 +153,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     private FrameLayout canvasLayout;
     private RemoteCanvas canvas;
     private RemoteConnection remoteConnection;
+    private MenuItem showKeyboardMenuItem;
     private MenuItem[] inputModeMenuItems;
     private MenuItem[] scalingModeMenuItems;
     private TouchInputHandler[] inputModeHandlers;
@@ -439,12 +441,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
         if (r.top == 0 || re.top > 0) {
             if (canvas.getDrawable() != null) {
-                int extraKeysHeight = (extraKeysToolbar != null) ? extraKeysToolbar.getHeight() : 0;
-                int usableHeight = r.bottom - re.top - extraKeysHeight;
-                Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + usableHeight +
-                        ", extraKeysHeight: " + extraKeysHeight);
-                canvas.setVisibleDesktopHeight(usableHeight);
+                int extraKeysHeight = (extraKeysToolbar != null && extraKeysToolbar.getVisibility() == View.VISIBLE)
+                        ? extraKeysToolbar.getHeight() : 0;
+                int visibleHeight = r.bottom - re.top - extraKeysHeight;
+                Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + visibleHeight);
+                canvas.setVisibleDesktopHeight(visibleHeight);
                 canvas.relativePan(0, 0);
+                canvas.resetScroll();
             } else {
                 Log.d(TAG, "onGlobalLayout: canvas.myDrawable is null");
             }
@@ -469,42 +472,41 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         int toolbarBottom = toolbar.getBottom();
         int rootViewBottom = extraKeysToolbar.getRootView().getBottom();
         int diffLayoutKeysPosition = r.bottom - rootViewTopInScreen - layoutKeysBottom;
-        int diffToolbarPosition = r.bottom - re.top - toolbarBottom - r.bottom / 2;
-        int standardToolbarPositionX = r.right - toolbar.getWidth();
-        int standardToolbarPositionY = r.bottom - re.top - toolbar.getHeight() - r.bottom / 2;
+        // Use the bottom of the canvas (not the window) as the reference for toolbar positioning.
+        // When the window is larger than the canvas (e.g., DeX freeform mode), using r.bottom/2
+        // would place the toolbar outside the visible canvas area.
+        int[] canvasLocation = new int[2];
+        canvas.getLocationOnScreen(canvasLocation);
+        int canvasBottom = canvasLocation[1] + canvas.getHeight();
+        int usableBottom = Math.min(r.bottom, canvasBottom);
+        int diffToolbarPosition = usableBottom - re.top - toolbarBottom;
+        int standardToolbarPositionX = r.width() - toolbar.getWidth();
+        int standardToolbarPositionY = usableBottom - re.top - toolbar.getHeight();
         Log.d(TAG, "onGlobalLayout: before: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
                 " diffLayoutKeysPosition: " + diffLayoutKeysPosition + " diffToolbarPosition: " + diffToolbarPosition);
 
-        if (r.bottom > rootViewHeight * 0.81) {
-            Log.d(TAG, "onGlobalLayout: Less than 19% of screen is covered");
+        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(rootView);
+        boolean imeVisible = insets != null && insets.isVisible(WindowInsetsCompat.Type.ime());
+
+        if (!imeVisible) {
+            Log.d(TAG, "onGlobalLayout: IME not visible");
             String direction = "down";
             // Soft Kbd gone, shift the extra keys toolbar down.
+            // Do NOT touch extra keys visibility — the user's toggle controls that.
             if (extraKeysToolbar != null) {
                 shiftToolbar(r, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
-                if (softKeyboardUp) {
-                    Log.d(TAG, "onGlobalLayout: softKeyboardUp was true, but keyboard is now hidden. Hiding on-screen buttons");
-                    setExtraKeysVisibility(View.GONE, false);
-                    canvas.invalidate();
-                }
             }
             softKeyboardUp = false;
         } else {
-            Log.d(TAG, "onGlobalLayout: More than 19% of screen is covered");
+            Log.d(TAG, "onGlobalLayout: IME visible");
             softKeyboardUp = true;
             String direction = "up";
             //  Soft Kbd up, shift the extra keys toolbar up.
+            // Do NOT touch extra keys visibility — the user's toggle controls that.
             if (extraKeysToolbar != null) {
                 shiftToolbar(r, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
-                if (extraKeysHidden) {
-                    Log.d(TAG, "onGlobalLayout: on-screen buttons should be hidden");
-                    setExtraKeysVisibility(View.GONE, false);
-                } else {
-                    Log.d(TAG, "onGlobalLayout: on-screen buttons should be showing");
-                    setExtraKeysVisibility(View.VISIBLE, true);
-                }
-                canvas.invalidate();
             }
         }
         if (extraKeysToolbar != null) {
@@ -580,20 +582,59 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         offsetOrRestoreSavedToolbarPosition(r, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY);
     }
 
+    /**
+     * If the toolbar's bottom edge overlaps the extra keys area, moves the toolbar up
+     * so its bottom edge is at or above the extra keys top.
+     * Called when extra keys become visible.
+     */
+    private void ensureToolbarAboveExtraKeys() {
+        if (toolbar == null || extraKeysToolbar == null) return;
+        android.graphics.Rect r = new android.graphics.Rect();
+        rootView.getWindowVisibleDisplayFrame(r);
+        int maxY = getToolbarMaxY(r.height());
+        float currentY = toolbar.getY();
+        if (currentY > maxY) {
+            toolbar.setY(maxY);
+        }
+    }
+
+    /**
+     * Returns the maximum allowed Y for the toolbar, considering extra keys area if visible.
+     */
+    private int getToolbarMaxY(int windowBottom) {
+        int maxY = windowBottom - toolbar.getHeight();
+        if (extraKeysToolbar != null && extraKeysToolbar.getVisibility() == View.VISIBLE) {
+            int extraKeysTop = (int) extraKeysToolbar.getY();
+            if (extraKeysTop > 0) {
+                maxY = Math.min(maxY, extraKeysTop - toolbar.getHeight());
+            }
+        }
+        return Math.max(0, maxY);
+    }
+
     private void offsetOrRestoreSavedToolbarPosition(Rect r, int diffToolbarPosition, int standardPositionX, int standardPositionY) {
         boolean useLastPosition = connection.getUseLastPositionToolbar();
         boolean toolbarMoved = connection.getUseLastPositionToolbarMoved();
+
+        float currentX = toolbar.getX();
+        float currentY = toolbar.getY();
+
         if (!useLastPosition || !toolbarMoved) {
-            toolbar.offsetTopAndBottom(diffToolbarPosition);
-        } else {
-            toolbar.setPositionToMakeVisible(
-                    connection.getUseLastPositionToolbarX(),
-                    connection.getUseLastPositionToolbarY(),
-                    r.right,
-                    r.bottom,
-                    standardPositionX,
-                    standardPositionY);
+            // No saved position — place at standard position, clamped to window bounds
+            toolbar.setX(Math.max(0, standardPositionX));
+            toolbar.setY(Math.max(0, standardPositionY));
+            return;
         }
+
+        int maxX = Math.max(0, r.width() - toolbar.getWidth());
+        int maxY = getToolbarMaxY(r.height());
+
+        // Clamp to all four edges of the window
+        float newX = Math.max(0, Math.min(currentX, maxX));
+        float newY = Math.max(0, Math.min(currentY, maxY));
+
+        toolbar.setX(newX);
+        toolbar.setY(newY);
     }
 
     public void extraKeysToggle(MenuItem m) {
@@ -630,6 +671,15 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         }
     }
 
+    private void updateKeyboardButtonVisibility(Configuration config) {
+        if (showKeyboardMenuItem == null) return;
+        boolean hasPhysicalKeyboard = config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO;
+        showKeyboardMenuItem.setVisible(!hasPhysicalKeyboard);
+        // Toolbar width changes when items are shown/hidden. Post relayout
+        // so the toolbar position is re-clamped after the width recalculation.
+        toolbar.post(() -> relayoutViews(rootView));
+    }
+
     @Override
     public <T extends View> T findViewById(int id) {
         return super.findViewById(id);
@@ -657,6 +707,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     private void initializeExtraKeysView() {
         extraKeysToolbar = findViewById(R.id.extraKeysToolbar);
+        // Consume all touch events so they don't fall through to the canvas behind.
+        // Let the ViewPager process the event first (for page swiping), then consume it.
+        extraKeysToolbar.setOnTouchListener((v, event) -> {
+            v.onTouchEvent(event);
+            return true;
+        });
         float extraKeysAlpha = Color.alpha(ContextCompat.getColor(this, R.color.extra_keys_background)) / 255f;
         extraKeysToolbar.setAlpha(extraKeysAlpha);
 
@@ -759,11 +815,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
      * Sets the visibility of the extra keys appropriately.
      */
     private void setExtraKeysVisibility(int visibility, boolean forceVisible) {
-        Configuration config = getResources().getConfiguration();
-
         boolean makeVisible = forceVisible;
-        if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
-            makeVisible = true;
 
         if (!extraKeysHidden && makeVisible &&
                 connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
@@ -772,6 +824,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 extraKeysPageIndicator.setVisibility(View.VISIBLE);
             extraKeysToolbar.invalidate();
             maybeRunExtraKeysTour();
+            // If toolbar overlaps the newly visible extra keys, move it above them
+            ensureToolbarAboveExtraKeys();
             return;
         }
 
@@ -889,7 +943,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         super.onConfigurationChanged(newConfig);
         controlImmersive();
         try {
-            setExtraKeysVisibility(View.GONE, false);
+            updateKeyboardButtonVisibility(newConfig);
             handler.postDelayed(rotationCorrector, 300);
         } catch (NullPointerException e) {
             Log.d(TAG, "Ignoring NullPointerException during onConfigurationChanged");
@@ -947,6 +1001,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         // Make sure extra keys stow item is gone if extra keys are disabled and vice versa.
         setKeyStowDrawableAndVisibility(menu.findItem(R.id.extraKeysToggle));
         menu.findItem(R.id.itemColorMode).setVisible(remoteConnection.canUpdateColorModelConnected());
+        // Re-clamp toolbar position after potential width change from item visibility changes.
+        toolbar.post(() -> relayoutViews(rootView));
         return true;
     }
 
@@ -984,7 +1040,20 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             else
                 menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_enable);
 
+            showKeyboardMenuItem = menu.findItem(R.id.actionShowKeyboard);
+            updateKeyboardButtonVisibility(getResources().getConfiguration());
+
             toolbarMover = new OnTouchViewMover(toolbar, handler, toolbarPositionSaver, actionBarHider, hideToolbarDelay);
+            toolbarMover.setBoundsProvider(() -> {
+                android.graphics.Rect r2 = new android.graphics.Rect();
+                rootView.getWindowVisibleDisplayFrame(r2);
+                // Right excludes overflow menu button.
+                // Bottom excludes extra keys area when visible.
+                int maxY = getToolbarMaxY(r2.height());
+                return new android.graphics.Rect(0, 0,
+                        r2.width(),
+                        maxY + toolbar.getHeight());
+            });
             ImageButton moveButton = new ImageButton(this);
 
             moveButton.setBackgroundResource(R.drawable.ic_all_out_gray_36dp);

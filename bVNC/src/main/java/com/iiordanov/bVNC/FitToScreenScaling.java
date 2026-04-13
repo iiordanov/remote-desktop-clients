@@ -31,8 +31,8 @@ import com.undatech.remoteClientUi.R;
 class FitToScreenScaling extends AbstractScaling {
 
     static final String TAG = "FitToScreenScaling";
-    int canvasXOffset;
-    int canvasYOffset;
+    float canvasXOffset;
+    float canvasYOffset;
     float scaling;
     float minimumScale;
     private Matrix matrix;
@@ -71,15 +71,6 @@ class FitToScreenScaling extends AbstractScaling {
         return true;
     }
 
-    /**
-     * Call after scaling and matrix have been changed to resolve scrolling
-     * @param activity
-     */
-    private void resolveZoom(RemoteCanvasActivity activity) {
-        activity.getCanvas().resetScroll();
-        //activity.getCanvas().absolutePan(activity.getCanvas().absoluteXPosition,0);
-    }
-
     /* (non-Javadoc)
      * @see com.iiordanov.bVNC.AbstractScaling#getScale()
      */
@@ -93,6 +84,29 @@ class FitToScreenScaling extends AbstractScaling {
         matrix.preTranslate(canvasXOffset, canvasYOffset);
     }
 
+    private void applyScaling(RemoteCanvas canvas) {
+        minimumScale = canvas.myDrawable.getMinimumScale();
+        scaling = minimumScale;
+        canvas.computeShiftFromFullToView(scaling);
+        canvasXOffset = canvas.getWidth() / (2.0f * scaling) - canvas.getImageWidth() / 2.0f;
+        canvasYOffset = canvas.getHeight() / (2.0f * scaling) - canvas.getImageHeight() / 2.0f;
+        resetMatrix();
+        matrix.postScale(scaling, scaling);
+        canvas.setImageMatrix(matrix);
+
+        canvas.absoluteXPosition = 0;
+        canvas.absoluteYPosition = 0;
+        if (scaling < 1.0f) {
+            if (!canvas.myDrawable.widthRatioLessThanHeightRatio()) {
+                canvas.absoluteXPosition = -(int) (((canvas.getWidth() - canvas.getImageWidth() * minimumScale) / 2) / minimumScale);
+            } else {
+                canvas.absoluteYPosition = -(int) (((canvas.getHeight() - canvas.getImageHeight() * minimumScale) / 2) / minimumScale);
+            }
+        }
+        canvas.resetScroll();
+        canvas.relativePan(0, 0);
+    }
+
     /* (non-Javadoc)
      * @see com.iiordanov.bVNC.AbstractScaling#setScaleTypeForActivity(com.iiordanov.bVNC.RemoteCanvasActivity)
      */
@@ -102,23 +116,13 @@ class FitToScreenScaling extends AbstractScaling {
         RemoteCanvas canvas = activity.getCanvas();
         if (canvas == null || canvas.myDrawable == null)
             return;
-        canvasXOffset = -canvas.getCenteredXOffset();
-        canvasYOffset = -canvas.getCenteredYOffset();
-        canvas.computeShiftFromFullToView();
-        minimumScale = canvas.myDrawable.getMinimumScale();
-        scaling = minimumScale;
-        resetMatrix();
-        matrix.postScale(scaling, scaling);
-        canvas.setImageMatrix(matrix);
+        applyScaling(canvas);
+    }
 
-        canvas.absoluteXPosition = 0;
-        canvas.absoluteYPosition = 0;
-        if (!canvas.myDrawable.widthRatioLessThanHeightRatio()) {
-            canvas.absoluteXPosition = -(int) (((canvas.getWidth() - canvas.getImageWidth() * minimumScale) / 2) / minimumScale);
-        } else {
-            canvas.absoluteYPosition = -(int) (((canvas.getHeight() - canvas.getImageHeight() * minimumScale) / 2) / minimumScale);
-        }
-        resolveZoom(activity);
-        canvas.relativePan(0, 0);
+    @Override
+    public void handleViewSizeChange(RemoteCanvas canvas) {
+        if (canvas == null || canvas.myDrawable == null)
+            return;
+        applyScaling(canvas);
     }
 }
