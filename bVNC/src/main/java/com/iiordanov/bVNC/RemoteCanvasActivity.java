@@ -587,7 +587,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
      * so its bottom edge is at or above the extra keys top.
      * Called when extra keys become visible.
      */
-    private void ensureToolbarAboveExtraKeys() {
+    private void clampToolbarAboveExtraKeys() {
         if (toolbar == null || extraKeysToolbar == null) return;
         android.graphics.Rect r = new android.graphics.Rect();
         rootView.getWindowVisibleDisplayFrame(r);
@@ -825,7 +825,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             extraKeysToolbar.invalidate();
             maybeRunExtraKeysTour();
             // If toolbar overlaps the newly visible extra keys, move it above them
-            ensureToolbarAboveExtraKeys();
+            clampToolbarAboveExtraKeys();
             return;
         }
 
