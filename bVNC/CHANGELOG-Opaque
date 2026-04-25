@@ -1,3 +1,10 @@
+v6.3.7
+- mDNS/Bonjour and port scan tool for adding local servers
+- Optional Accessibility Service for capturing keyboard shortcuts
+- Transparent and dismissable Snackbar messages while connected
+- Additional ANR prevention logic for certain devices
+- Removed Snap to 1:1 message when zooming in/out around 1:1 scale
+- Made zoom snap region a little smaller
 v6.3.5
 - Updated UI for adding new connections
 - Implemented a connection sorting widget
