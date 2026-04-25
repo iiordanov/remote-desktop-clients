@@ -1,6 +1,5 @@
-v6.3.7
+v6.3.8
 - mDNS/Bonjour and port scan tool for adding local servers
-- Optional Accessibility Service for capturing keyboard shortcuts
 - Transparent and dismissable Snackbar messages while connected
 - Additional ANR prevention logic for certain devices
 - Removed Snap to 1:1 message when zooming in/out around 1:1 scale
