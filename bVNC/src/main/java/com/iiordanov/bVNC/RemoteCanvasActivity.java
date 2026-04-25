@@ -361,7 +361,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     private void showConnectionScreenOrExitIfNotReadyForConnecting(Connection connection) {
         // we need to save the connection to display the loading screen, so otherwise we should exit
         if (connection == null || !connection.isReadyForConnection()) {
-            Snackbar.make(canvas, getString(R.string.error_uri_noinfo_nosave), Snackbar.LENGTH_LONG).show();
+            Utils.showMessage(canvas, getString(R.string.error_uri_noinfo_nosave), Snackbar.LENGTH_LONG);
             if (connection != null && connection.isReadyToBeSaved()) {
                 Log.i(TAG, "Exiting - Insufficient information to connect and connection was not saved.");
             } else {
@@ -1236,7 +1236,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     public void showPanningState(boolean showLonger) {
         if (showLonger) {
-            final Snackbar t = Snackbar.make(canvas, touchInputHandler.getDescription(), Snackbar.LENGTH_LONG);
+            final Snackbar t = Utils.makeMessage(canvas, touchInputHandler.getDescription(), Snackbar.LENGTH_LONG);
             TimerTask tt = new TimerTask() {
                 @Override
                 public void run() {
@@ -1252,8 +1252,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             new Timer().schedule(tt, 2000);
             t.show();
         } else {
-            Snackbar t = Snackbar.make(canvas, touchInputHandler.getDescription(), Snackbar.LENGTH_SHORT);
-            t.show();
+            Utils.showMessage(canvas, touchInputHandler.getDescription(), Snackbar.LENGTH_SHORT);
         }
     }
 
@@ -1329,7 +1328,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             remoteConnection.setColorModel(cm);
             connection.setColorModel(cm.nameString());
             connection.save(RemoteCanvasActivity.this);
-            Snackbar.make(canvas, getString(R.string.info_update_color_model_to) + cm, Snackbar.LENGTH_SHORT).show();
+            Utils.showMessage(canvas, getString(R.string.info_update_color_model_to) + cm, Snackbar.LENGTH_LONG);
         });
         return list;
     }

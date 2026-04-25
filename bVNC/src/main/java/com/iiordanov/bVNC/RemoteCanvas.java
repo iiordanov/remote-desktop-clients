@@ -34,6 +34,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.RectF;
 import android.os.Handler;
 import android.provider.Settings;
@@ -168,17 +169,9 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
             }
         }
     };
-    private final Runnable showMessage = new Runnable() {
-        public void run() {
-            Snackbar.make(RemoteCanvas.this, screenMessage, Snackbar.LENGTH_SHORT).show();
-        }
-    };
+    private final Runnable showMessage = () -> Utils.showMessage(RemoteCanvas.this, screenMessage, Snackbar.LENGTH_SHORT);
 
-    private final Runnable showLongMessage = new Runnable() {
-        public void run() {
-            Snackbar.make(RemoteCanvas.this, screenMessage, Snackbar.LENGTH_LONG).show();
-        }
-    };
+    private final Runnable showLongMessage = () -> Utils.showMessage(RemoteCanvas.this, screenMessage, Snackbar.LENGTH_LONG);
 
     /**
      * Constructor used by the inflation apparatus
@@ -336,7 +329,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     }
 
     private void reallocateMyDrawable(int dx, int dy) {
-        synchronized(this) {
+        synchronized (this) {
             if (!isVnc) {
                 Log.i(TAG, "Using UltraCompactBufferBitmapData.");
                 myDrawable = new UltraCompactBitmapData(dx, dy, this, isSpice | isOpaque);
@@ -414,7 +407,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
                 return myDrawable.bmWidth();
             }
             return 0;
-         }
+        }
     }
 
     @Override
@@ -507,7 +500,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     void resetScroll() {
         float scale = getZoomFactor();
         Log.d(TAG, "resetScroll: " + (absoluteXPosition - shiftX) * scale + ", "
-                                                + (absoluteYPosition - shiftY) * scale);
+                + (absoluteYPosition - shiftY) * scale);
         scrollTo((int) ((absoluteXPosition - shiftX) * scale),
                 (int) ((absoluteYPosition - shiftY) * scale));
     }
@@ -594,6 +587,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
     /**
      * Pan by a number of pixels (relative pan)
+     *
      * @return True if the pan changed the view (did not move view out of bounds); false otherwise
      */
     public boolean relativePan(float dX, float dY) {
@@ -955,6 +949,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
             canvasZoomer.changeZoom((RemoteCanvasActivity) getContext(), scaleFactor, fx, fy);
         }
     }
+
     @Override
     public boolean isZoomerAbleToPan() {
         return canvasZoomer != null && canvasZoomer.isAbleToPan();

@@ -36,6 +36,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,6 +59,7 @@ import com.antlersoft.android.contentxml.SqliteElement.ReplaceStrategy;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
@@ -778,4 +780,14 @@ public class Utils {
         return convertLF(buf).replaceAll("\\n", "\r\n");
     }
 
+    static void showMessage(View view, CharSequence message, int length) {
+        makeMessage(view, message, length).show();
+    }
+
+    static Snackbar makeMessage(View view, CharSequence message, int length) {
+        return Snackbar.make(view, message, length)
+                .setBackgroundTint(Color.parseColor("#90FFFFFF")).setAction(
+                        view.getContext().getString(R.string.ok) + ">", v -> {
+                        });
+    }
 }
