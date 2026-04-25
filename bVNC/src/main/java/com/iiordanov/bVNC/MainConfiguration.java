@@ -1,5 +1,7 @@
 package com.iiordanov.bVNC;
 
+import static com.iiordanov.bVNC.Constants.CONNECTION_TO_EDIT_INTENT_KEY;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -183,7 +185,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
         Utils.showActionBarWithTitle(this);
         Intent intent = getIntent();
         isNewConnection = intent.getBooleanExtra("isNewConnection", false);
-        initializeConnId(intent.getStringExtra("connID"));
+        initializeConnId(intent.getStringExtra(CONNECTION_TO_EDIT_INTENT_KEY));
         super.onCreate(icicle);
         Utils.showMenu(this);
         setContentView(layoutID);

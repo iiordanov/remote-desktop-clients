@@ -21,6 +21,7 @@
 package com.undatech.opaque;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static com.iiordanov.bVNC.Constants.CONNECTION_TO_EDIT_INTENT_KEY;
 import static com.iiordanov.bVNC.Utils.createMainScreenDialog;
 import static com.iiordanov.bVNC.Utils.setClipboard;
 import static com.iiordanov.bVNC.Utils.startUriIntent;
@@ -281,24 +282,32 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     }
 
     private void editConnection(View v) {
-        Log.d(TAG, "Modify Connection");
+        Log.d(TAG, "editConnection - Modifying an existing connection");
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
-        ConnectionLoader connectionLoader = getConnectionLoader(this);
-        Connection conn = connectionLoader.getConnectionsById().get(runtimeId);
         Intent intent = new Intent(ConnectionGridActivity.this, Utils.getConnectionSetupClass(this));
+        intent.putExtra("isNewConnection", false);
         if (Utils.isOpaque(this)) {
-            ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
-            if (cs != null) {
-                intent.putExtra(Constants.CONNECTION_TO_EDIT, cs.getFilename());
-            }
-
+            editOpaqueConnection(intent, runtimeId);
         } else {
-            intent.putExtra("isNewConnection", false);
-            if (conn != null) {
-                intent.putExtra("connID", conn.getId());
-            }
+            editConnection(intent, runtimeId);
         }
         startActivity(intent);
+    }
+
+    private void editConnection(Intent intent, String runtimeId) {
+        Connection connection = getConnectionLoader(this).getConnectionsById().get(runtimeId);
+        if (connection != null) {
+            Log.d(TAG, "editConnection - Editing non-Opaque connection with ID: " + connection.getId());
+            intent.putExtra(CONNECTION_TO_EDIT_INTENT_KEY, connection.getId());
+        }
+    }
+
+    private void editOpaqueConnection(Intent intent, String runtimeId) {
+        Connection connection = getConnectionLoader(this).getConnectionsById().get(runtimeId);
+        if (connection != null) {
+            Log.d(TAG, "editConnection - Editing Opaque with file: " + connection.getFilename());
+            intent.putExtra(Constants.OPAQUE_CONNECTION_TO_EDIT_INTENT_KEY, connection.getFilename());
+        }
     }
 
     private void deleteConnection(View v) {
@@ -411,7 +420,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
                 Utils.getConnectionSetupClass(this));
         intent.putExtra("isNewConnection", true);
         if (address != null) intent.putExtra(Constants.PREFILL_ADDRESS, address);
-        if (port >= 0)       intent.putExtra(Constants.PREFILL_PORT, port);
+        if (port >= 0) intent.putExtra(Constants.PREFILL_PORT, port);
         startActivity(intent);
     }
 

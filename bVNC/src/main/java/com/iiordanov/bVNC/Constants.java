@@ -278,7 +278,8 @@ public class Constants {
 
     public static final String PREFILL_ADDRESS   = "prefillAddress";
     public static final String PREFILL_PORT      = "prefillPort";
-    public static final String CONNECTION_TO_EDIT = "com.undatech.opaque.connectionToEdit";
+    public static final String OPAQUE_CONNECTION_TO_EDIT_INTENT_KEY = "com.undatech.opaque.connectionToEdit";
+    public static final String CONNECTION_TO_EDIT_INTENT_KEY = "connID";
 
     // Port ranges scanned during local network discovery. Edit these to add or remove ports.
     public static final int[] PORT_SCAN_VNC;

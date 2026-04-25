@@ -90,7 +90,7 @@ public class ConnectionSetupActivity extends Activity {
         loadConnections();
 
         Intent i = getIntent();
-        currentSelectedConnection = i.getStringExtra(Constants.CONNECTION_TO_EDIT);
+        currentSelectedConnection = i.getStringExtra(Constants.OPAQUE_CONNECTION_TO_EDIT_INTENT_KEY);
         Log.d(TAG, "currentSelectedConnection set to: " + currentSelectedConnection);
 
         if (currentSelectedConnection == null) {
