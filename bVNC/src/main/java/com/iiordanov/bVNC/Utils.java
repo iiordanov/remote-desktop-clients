@@ -787,7 +787,7 @@ public class Utils {
     static Snackbar makeMessage(View view, CharSequence message, int length) {
         return Snackbar.make(view, message, length)
                 .setBackgroundTint(Color.parseColor("#90FFFFFF")).setAction(
-                        view.getContext().getString(R.string.ok) + ">", v -> {
+                        view.getContext().getString(R.string.ok) + "〉", v -> {
                         });
     }
 }
