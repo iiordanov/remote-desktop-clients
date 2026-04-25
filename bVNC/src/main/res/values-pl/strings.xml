@@ -495,7 +495,6 @@ Poniżej możesz skonfigurować swoje połączenie.
     <string name="error_pve_failed_to_parse_json">Nie udało się przeanalizować odpowiedzi z wirtualnego środowiska Proxmox.</string>
     <string name="share_app">Udostępnij 🔗</string>
     <string name="action_new_connection">✚ Nowe połączenie</string>
-    <string name="sort_connections">Sortuj połączenia</string>
     <string name="input_mode_fit_to_screen">Bez patelni;Mysz trackballowa</string>
     <string name="input_methods">Metoda wprowadzania</string>
     <string name="connection_edit">Redagować</string>
@@ -819,12 +818,4 @@ Aplikacja jest już wyłączona z optymalizacji baterii.</string>
     <string name="discovery_scan_complete">Skanowanie zakończone</string>
     <string name="connection_type_prompt_title">Wybierz typ serwera</string>
     <string name="keyboard_layout_map">Układ klawiatury</string>
-    <string name="accessibility_service_menu_item">⌨  Przechwytywanie skrótów klawiaturowych</string>
-    <string name="accessibility_service_already_enabled">Przechwytywanie skrótów klawiaturowych jest już włączone.</string>
-    <string name="accessibility_service_label">Przechwytywanie zdalnego wejścia</string>
-    <string name="accessibility_service_description">Przechwytuje fizyczny wejście klawiatury i przekazuje je do aktywnej sesji zdalnego pulpitu. Przetwarzane są tylko zdarzenia klawiszy sprzętowych. Żadna zawartość ekranu, okien ani dane osobowe nie są zbierane, przechowywane ani udostępniane.</string>
-    <string name="accessibility_service_prompt_title">Zezwolić na przechwytywanie skrótów klawiaturowych?</string>
-    <string name="accessibility_service_prompt_message">Aby wysyłać skróty klawiaturowe (takie jak Alt+Tab) do zdalnego pulpitu zamiast pozwolić Androidowi je przechwycić, ta aplikacja może używać Usługi ułatwień dostępu do przechwytywania fizycznych zdarzeń klawiszy.\n\nDo czego ta usługa ma dostęp: zdarzenia klawiszy sprzętowych z fizycznej klawiatury lub urządzenia wejściowego.\n\nJak dane są używane: zdarzenia klawiszy są przekazywane bezpośrednio do sesji zdalnego pulpitu przez istniejące połączenie. Nie są przechowywane, rejestrowane ani udostępniane nikomu.</string>
-    <string name="accessibility_service_prompt_go_to_settings">Otwórz ustawienia ułatwień dostępu</string>
-    <string name="accessibility_service_prompt_not_now">Nie teraz</string>
 </resources>

@@ -2,7 +2,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_import_settings">Importar configurações</string>
     <string name="action_new_connection">Nova conexão</string>
-    <string name="sort_connections">Ordenar conexões</string>
     <string name="action_edit_default_settings">Editar configurações padrão</string>
     <string name="action_export_settings">Exportar configurações</string>
     <string name="action_delete_connection">Excluir a conexão</string>
@@ -917,12 +916,4 @@ App is already exempt from battery optimizations.</string>
     <string name="discovery_scan_complete">Verificação concluída</string>
     <string name="connection_type_prompt_title">Selecionar tipo de servidor</string>
     <string name="keyboard_layout_map">Layout do teclado</string>
-    <string name="accessibility_service_menu_item">⌨  Captura de atalhos de teclado</string>
-    <string name="accessibility_service_already_enabled">A captura de atalhos de teclado já está habilitada.</string>
-    <string name="accessibility_service_label">Captura de entrada remota</string>
-    <string name="accessibility_service_description">Captura a entrada física do teclado e a encaminha para sua sessão ativa de área de trabalho remota. Somente eventos de teclas de hardware são processados. Nenhum conteúdo de tela, conteúdo de janela ou dados pessoais são coletados, armazenados ou compartilhados.</string>
-    <string name="accessibility_service_prompt_title">Permitir captura de atalhos de teclado?</string>
-    <string name="accessibility_service_prompt_message">Para enviar atalhos de teclado (como Alt+Tab) para sua área de trabalho remota em vez de o Android interceptá-los, este aplicativo pode usar um Serviço de acessibilidade para capturar eventos de teclas físicas.\n\nO que este serviço acessa: eventos de teclas de hardware do seu teclado físico ou dispositivo de entrada.\n\nComo os dados são usados: os eventos de teclas são encaminhados diretamente para sua sessão de área de trabalho remota pela sua conexão existente. Eles não são armazenados, registrados ou compartilhados com ninguém.</string>
-    <string name="accessibility_service_prompt_go_to_settings">Abrir configurações de acessibilidade</string>
-    <string name="accessibility_service_prompt_not_now">Agora não</string>
 </resources>

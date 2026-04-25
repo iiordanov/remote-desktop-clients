@@ -4,7 +4,6 @@
     <string name="audio_initialized">Sain wedi\'i gychwyn</string>
     <string name="action_import_settings">Mewnforio Gosodiadau</string>
     <string name="action_new_connection">✚ Cysylltiad Newydd</string>
-    <string name="sort_connections">Trefnu cysylltiadau</string>
     <string name="action_edit_default_settings">⚙ Golygu Gosodiadau Rhagosodedig</string>
     <string name="action_export_settings">Allforio Gosodiadau</string>
     <string name="action_delete_connection">Dileu Cysylltiad</string>
@@ -922,12 +921,4 @@ Mae ap eisoes wedi\'i eithrio rhag optimeiddio batri.</string>
     <string name="discovery_scan_complete">Sganio wedi\'i gwblhau</string>
     <string name="connection_type_prompt_title">Dewiswch fath y gweinydd</string>
     <string name="keyboard_layout_map">Cynllun Bysellfwrdd</string>
-    <string name="accessibility_service_menu_item">⌨  Dal Llwybr Byr Bysellfwrdd</string>
-    <string name="accessibility_service_already_enabled">Mae Dal Llwybr Byr Bysellfwrdd eisoes wedi\'i alluogi.</string>
-    <string name="accessibility_service_label">Dal Mewnbwn o Bell</string>
-    <string name="accessibility_service_description">Mae\'n dal mewnbwn bysellfwrdd ffisegol ac yn ei anfon ymlaen i\'ch sesiwn bwrdd gwaith o bell gweithredol. Dim ond digwyddiadau allwedd caledwedd sy\'n cael eu prosesu. Ni chaiff unrhyw gynnwys sgrin, cynnwys ffenestri, na data personol eu casglu, eu storio, na\'u rhannu.</string>
-    <string name="accessibility_service_prompt_title">Caniatáu dal llwybr byr bysellfwrdd?</string>
-    <string name="accessibility_service_prompt_message">Er mwyn anfon llwybrau byr bysellfwrdd (megis Alt+Tab) i\'ch bwrdd gwaith o bell yn hytrach na gadael i Android eu rhyng-gipio, gall yr ap hwn ddefnyddio Gwasanaeth Hygyrchedd i ddal digwyddiadau allwedd ffisegol.\n\nBeth mae\'r gwasanaeth hwn yn ei gyrchu: digwyddiadau allwedd caledwedd o\'ch bysellfwrdd ffisegol neu ddyfais mewnbwn.\n\nSut defnyddir y data: mae digwyddiadau allwedd yn cael eu hanfon ymlaen yn uniongyrchol i\'ch sesiwn bwrdd gwaith o bell dros eich cysylltiad presennol. Nid ydynt yn cael eu storio, eu logio, na\'u rhannu ag unrhyw un.</string>
-    <string name="accessibility_service_prompt_go_to_settings">Agor Gosodiadau Hygyrchedd</string>
-    <string name="accessibility_service_prompt_not_now">Nid nawr</string>
 </resources>

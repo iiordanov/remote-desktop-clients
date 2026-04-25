@@ -4,7 +4,6 @@
     <string name="audio_initialized">Audio initialisiert</string>
     <string name="action_import_settings">Einstellungen importieren</string>
     <string name="action_new_connection">✚ Neue Verbindung</string>
-    <string name="sort_connections">Verbindungen sortieren</string>
     <string name="action_edit_default_settings">⚙ Standardeinstellungen bearbeiten</string>
     <string name="action_export_settings">Einstellungen exportieren</string>
     <string name="action_delete_connection">Verbindung löschen</string>
@@ -920,12 +919,4 @@ App ist bereits von Batterieoptimierungen ausgenommen.</string>
     <string name="discovery_scan_complete">Scan abgeschlossen</string>
     <string name="connection_type_prompt_title">Servertyp auswählen</string>
     <string name="keyboard_layout_map">Tastaturlayout</string>
-    <string name="accessibility_service_menu_item">⌨  Tastenkombinationserfassung</string>
-    <string name="accessibility_service_already_enabled">Tastenkombinationserfassung ist bereits aktiviert.</string>
-    <string name="accessibility_service_label">Remote-Eingabeerfassung</string>
-    <string name="accessibility_service_description">Erfasst physische Tastatureingaben und leitet sie an Ihre aktive Remotedesktop-Sitzung weiter. Es werden nur Hardware-Tastenereignisse verarbeitet. Es werden keine Bildschirminhalte, Fensterinhalte oder persönlichen Daten gesammelt, gespeichert oder geteilt.</string>
-    <string name="accessibility_service_prompt_title">Tastenkombinationserfassung erlauben?</string>
-    <string name="accessibility_service_prompt_message">Um Tastenkombinationen (z. B. Alt+Tab) an Ihren Remotedesktop zu senden, anstatt von Android abgefangen zu werden, kann diese App einen Bedienungshilfendienst verwenden, um physische Tastenereignisse zu erfassen.\n\nWorauf dieser Dienst zugreift: Hardware-Tastenereignisse von Ihrer physischen Tastatur oder Ihrem Eingabegerät.\n\nWie die Daten verwendet werden: Tastenereignisse werden direkt über Ihre bestehende Verbindung an Ihre Remotedesktop-Sitzung weitergeleitet. Sie werden nicht gespeichert, protokolliert oder mit anderen geteilt.</string>
-    <string name="accessibility_service_prompt_go_to_settings">Bedienungshilfen-Einstellungen öffnen</string>
-    <string name="accessibility_service_prompt_not_now">Nicht jetzt</string>
 </resources>

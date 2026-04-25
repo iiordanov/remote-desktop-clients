@@ -4,7 +4,6 @@
     <string name="audio_initialized">オーディオが初期化されました</string>
     <string name="action_import_settings">インポート設定</string>
     <string name="action_new_connection">新しい接続</string>
-    <string name="sort_connections">接続を並べ替え</string>
     <string name="action_edit_default_settings">編集デフォルト設定</string>
     <string name="action_export_settings">エクスポート設定</string>
     <string name="action_delete_connection">接続削除</string>
@@ -862,12 +861,4 @@ aSPICEで対応済み機能は以下の通り：
     <string name="discovery_scan_complete">スキャン完了</string>
     <string name="connection_type_prompt_title">サーバーの種類を選択</string>
     <string name="keyboard_layout_map">キーボードレイアウト</string>
-    <string name="accessibility_service_menu_item">⌨  キーボードショートカットのキャプチャ</string>
-    <string name="accessibility_service_already_enabled">キーボードショートカットのキャプチャはすでに有効です。</string>
-    <string name="accessibility_service_label">リモート入力のキャプチャ</string>
-    <string name="accessibility_service_description">物理キーボードの入力をキャプチャし、アクティブなリモートデスクトップセッションに転送します。ハードウェアキーイベントのみが処理されます。画面コンテンツ、ウィンドウコンテンツ、個人データは収集、保存、共有されません。</string>
-    <string name="accessibility_service_prompt_title">キーボードショートカットのキャプチャを許可しますか？</string>
-    <string name="accessibility_service_prompt_message">Androidにインターセプトされるのではなく、キーボードショートカット（Alt+Tabなど）をリモートデスクトップに送信するために、このアプリは物理キーイベントをキャプチャするアクセシビリティサービスを使用できます。\n\nこのサービスがアクセスするもの：物理キーボードまたは入力デバイスからのハードウェアキーイベント。\n\nデータの使用方法：キーイベントは、既存の接続を通じてリモートデスクトップセッションに直接転送されます。保存、ログ記録、または誰かと共有されることはありません。</string>
-    <string name="accessibility_service_prompt_go_to_settings">アクセシビリティ設定を開く</string>
-    <string name="accessibility_service_prompt_not_now">今はしない</string>
 </resources>

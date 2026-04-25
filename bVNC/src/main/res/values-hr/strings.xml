@@ -4,7 +4,6 @@
     <string name="audio_initialized">Audio inicijaliziran</string>
     <string name="action_import_settings">Uvezi postavke</string>
     <string name="action_new_connection">✚ Nova veza</string>
-    <string name="sort_connections">Sortiraj veze</string>
     <string name="action_edit_default_settings">⚙ Uredi zadane postavke</string>
     <string name="action_export_settings">Izvezi postavke</string>
     <string name="action_delete_connection">Obriši vezu</string>
@@ -922,12 +921,4 @@ Aplikacija je već izuzeta od optimizacije baterije.</string>
     <string name="discovery_scan_complete">Skeniranje završeno</string>
     <string name="connection_type_prompt_title">Odaberite vrstu poslužitelja</string>
     <string name="keyboard_layout_map">Raspored tipkovnice</string>
-    <string name="accessibility_service_menu_item">⌨  Snimanje tipkovničkih prečaca</string>
-    <string name="accessibility_service_already_enabled">Snimanje tipkovničkih prečaca je već omogućeno.</string>
-    <string name="accessibility_service_label">Snimanje udaljenog unosa</string>
-    <string name="accessibility_service_description">Snima fizički unos tipkovnice i prosljeđuje ga u vašu aktivnu sesiju udaljene radne površine. Obrađuju se samo događaji tipki hardvera. Nikakav sadržaj zaslona, sadržaj prozora ili osobni podaci ne prikupljaju se, ne pohranjuju niti se dijele.</string>
-    <string name="accessibility_service_prompt_title">Dopustiti snimanje tipkovničkih prečaca?</string>
-    <string name="accessibility_service_prompt_message">Kako biste slali tipkovničke prečace (poput Alt+Tab) na svoju udaljenu radnu površinu umjesto da ih Android presreće, ova aplikacija može koristiti Uslugu pristupačnosti za snimanje fizičkih događaja tipki.\n\nČemu ova usluga pristupa: događajima tipki hardvera s vaše fizičke tipkovnice ili ulaznog uređaja.\n\nKako se podaci koriste: događaji tipki prosljeđuju se izravno u vašu sesiju udaljene radne površine putem vaše postojeće veze. Ne pohranjuju se, ne bilježe niti se dijele ni s kim.</string>
-    <string name="accessibility_service_prompt_go_to_settings">Otvori postavke pristupačnosti</string>
-    <string name="accessibility_service_prompt_not_now">Ne sada</string>
 </resources>

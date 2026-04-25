@@ -210,7 +210,6 @@ increment_*
 functions.sh
 install.sh
 switch-to-*
-check_*.sh
 
 remote-desktop-clients-libs-*
 

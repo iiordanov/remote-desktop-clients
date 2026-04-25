@@ -4,7 +4,6 @@
     <string name="audio_initialized">Audio initializat</string>
     <string name="action_import_settings">Importa Setari</string>
     <string name="action_new_connection">✚ Conexiune Noua</string>
-    <string name="sort_connections">Sortare conexiuni</string>
     <string name="action_edit_default_settings">⚙ Editeaza Setarile Implicite</string>
     <string name="action_export_settings">Exporta Setari</string>
     <string name="action_delete_connection">Sterge Conexiunea</string>
@@ -845,12 +844,4 @@ Aplicația este deja scutită de optimizările bateriei.</string>
     <string name="discovery_scan_complete">Scanare finalizată</string>
     <string name="connection_type_prompt_title">Selectați tipul serverului</string>
     <string name="keyboard_layout_map">Aspect tastatură</string>
-    <string name="accessibility_service_menu_item">⌨  Capturare comenzi rapide tastatură</string>
-    <string name="accessibility_service_already_enabled">Capturarea comenzilor rapide de la tastatură este deja activată.</string>
-    <string name="accessibility_service_label">Capturare intrare de la distanță</string>
-    <string name="accessibility_service_description">Capturează intrarea fizică de la tastatură și o transmite sesiunii active de desktop la distanță. Sunt procesate numai evenimentele de taste hardware. Niciun conținut de ecran, conținut de fereastră sau date personale nu sunt colectate, stocate sau partajate.</string>
-    <string name="accessibility_service_prompt_title">Permiteți capturarea comenzilor rapide de la tastatură?</string>
-    <string name="accessibility_service_prompt_message">Pentru a trimite comenzi rapide de la tastatură (cum ar fi Alt+Tab) la desktopul dvs. de la distanță în loc ca Android să le intercepteze, această aplicație poate utiliza un Serviciu de accesibilitate pentru a capta evenimentele de taste fizice.\n\nCe accesează acest serviciu: evenimentele de taste hardware de la tastatura fizică sau dispozitivul de intrare.\n\nCum sunt folosite datele: evenimentele de taste sunt transmise direct sesiunii de desktop la distanță prin conexiunea existentă. Acestea nu sunt stocate, înregistrate sau partajate cu nimeni.</string>
-    <string name="accessibility_service_prompt_go_to_settings">Deschideți setările de accesibilitate</string>
-    <string name="accessibility_service_prompt_not_now">Nu acum</string>
 </resources>

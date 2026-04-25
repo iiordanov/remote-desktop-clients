@@ -44,7 +44,7 @@ class RemoteClientsInputListener(
     private val touchInputHandler: TouchInputHandler?,
     val resetOnScreenKeys: (input: Int) -> Int,
     private val useDpadAsArrows: Boolean,
-) : View.OnKeyListener, RemoteInputAccessibilityService.KeyInterceptListener {
+) : View.OnKeyListener {
     private val tag: String = "RmtClientsInputListener"
     private val workerPool: ExecutorService = Executors.newSingleThreadExecutor()
     private val isTv: Boolean = GeneralUtils.isTv(activity)
@@ -72,8 +72,6 @@ class RemoteClientsInputListener(
         }
         return consumed ?: false
     }
-
-    override fun onInterceptedKeyEvent(event: KeyEvent): Boolean = onKey(null, event.keyCode, event)
 
     fun sendText(s: String) {
         workerPool.submit { sendTextSync(s) }

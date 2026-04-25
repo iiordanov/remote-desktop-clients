@@ -4,7 +4,6 @@
     <string name="audio_initialized">오디오가 초기화되었습니다.</string>
     <string name="action_import_settings">설정 가져오기</string>
     <string name="action_new_connection">새로운 연결</string>
-    <string name="sort_connections">연결 정렬</string>
     <string name="action_edit_default_settings">기본 설정 편집</string>
     <string name="action_export_settings">내보내기 설정</string>
     <string name="action_delete_connection">연결 삭제</string>
@@ -843,12 +842,4 @@ aSPICEで의 대응 기능는 이하와 같다 :
     <string name="discovery_scan_complete">검색 완료</string>
     <string name="connection_type_prompt_title">서버 유형 선택</string>
     <string name="keyboard_layout_map">키보드 레이아웃</string>
-    <string name="accessibility_service_menu_item">⌨  키보드 단축키 캡처</string>
-    <string name="accessibility_service_already_enabled">키보드 단축키 캡처가 이미 활성화되어 있습니다.</string>
-    <string name="accessibility_service_label">원격 입력 캡처</string>
-    <string name="accessibility_service_description">물리적 키보드 입력을 캡처하여 활성 원격 데스크톱 세션으로 전달합니다. 하드웨어 키 이벤트만 처리됩니다. 화면 콘텐츠, 창 콘텐츠 또는 개인 데이터는 수집, 저장 또는 공유되지 않습니다.</string>
-    <string name="accessibility_service_prompt_title">키보드 단축키 캡처를 허용하시겠습니까?</string>
-    <string name="accessibility_service_prompt_message">Android가 가로채는 대신 원격 데스크톱에 키보드 단축키(Alt+Tab 등)를 보내려면, 이 앱이 접근성 서비스를 사용하여 물리적 키 이벤트를 캡처할 수 있습니다.\n\n이 서비스가 액세스하는 것: 물리적 키보드 또는 입력 장치의 하드웨어 키 이벤트.\n\n데이터 사용 방법: 키 이벤트는 기존 연결을 통해 원격 데스크톱 세션으로 직접 전달됩니다. 저장, 기록 또는 누군가와 공유되지 않습니다.</string>
-    <string name="accessibility_service_prompt_go_to_settings">접근성 설정 열기</string>
-    <string name="accessibility_service_prompt_not_now">나중에</string>
 </resources>

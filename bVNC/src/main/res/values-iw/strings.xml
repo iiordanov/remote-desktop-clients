@@ -283,7 +283,6 @@
     <string name="error_connection_interrupted">החיבור נקטע.</string>
     <string name="auto_x_descript_session">סוג הפעלה מרחוק</string>
     <string name="action_new_connection">✚ חיבור חדש</string>
-    <string name="sort_connections">מיין חיבורים</string>
     <string name="enter_text_title">הזן טקסט לשליחה</string>
     <string name="shortcut_label_rdp">חיבור RDP</string>
     <string name="spice_address_caption_hint">שרת SPICE</string>
@@ -715,12 +714,4 @@
     <string name="discovery_scan_complete">הסריקה הושלמה</string>
     <string name="connection_type_prompt_title">בחר סוג שרת</string>
     <string name="keyboard_layout_map">פריסת המקלדת</string>
-    <string name="accessibility_service_menu_item">⌨  לכידת קיצורי מקלדת</string>
-    <string name="accessibility_service_already_enabled">לכידת קיצורי מקלדת כבר מופעלת.</string>
-    <string name="accessibility_service_label">לכידת קלט מרחוק</string>
-    <string name="accessibility_service_description">לוכד קלט מקלדת פיזי ומעביר אותו לסשן שולחן העבודה המרוחק הפעיל שלך. רק אירועי מקשי חומרה מעובדים. לא נאסף, מאוחסן או משותף כל תוכן מסך, תוכן חלון או נתונים אישיים.</string>
-    <string name="accessibility_service_prompt_title">לאפשר לכידת קיצורי מקלדת?</string>
-    <string name="accessibility_service_prompt_message">כדי לשלוח קיצורי מקלדת (כגון Alt+Tab) לשולחן העבודה המרוחק שלך במקום ש-Android יפריע להם, אפליקציה זו יכולה להשתמש בשירות נגישות כדי ללכוד אירועי מקשים פיזיים.\n\nמה שירות זה ניגש אליו: אירועי מקשי חומרה מהמקלדת הפיזית שלך או ממכשיר הקלט.\n\nכיצד הנתונים בשימוש: אירועי המקשים מועברים ישירות לסשן שולחן העבודה המרוחק שלך דרך החיבור הקיים שלך. הם אינם מאוחסנים, מתועדים או משותפים עם אף אחד.</string>
-    <string name="accessibility_service_prompt_go_to_settings">פתח הגדרות נגישות</string>
-    <string name="accessibility_service_prompt_not_now">לא עכשיו</string>
 </resources>

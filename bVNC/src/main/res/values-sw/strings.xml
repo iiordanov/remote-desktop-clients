@@ -283,7 +283,6 @@ Mbinu Zote za Kuingiza:
     <string name="error_connection_interrupted">Muunganisho umekatizwa.</string>
     <string name="auto_x_descript_session">Aina ya Kipindi cha Mbali</string>
     <string name="action_new_connection">✚ Muunganisho Mpya</string>
-    <string name="sort_connections">Panga miunganisho</string>
     <string name="enter_text_title">Ingiza Maandishi ya Kutuma</string>
     <string name="shortcut_label_rdp">Muunganisho wa RDP</string>
     <string name="spice_address_caption_hint">Seva ya SPICE</string>
@@ -750,12 +749,4 @@ Programu tayari imeondolewa kwenye uboreshaji wa betri.</string>
     <string name="discovery_scan_complete">Uchunguzi umekamilika</string>
     <string name="connection_type_prompt_title">Chagua aina ya seva</string>
     <string name="keyboard_layout_map">Mpangilio wa Kibodi</string>
-    <string name="accessibility_service_menu_item">⌨  Kunasa Mkato wa Kibodi</string>
-    <string name="accessibility_service_already_enabled">Kunasa Mkato wa Kibodi tayari kumewashwa.</string>
-    <string name="accessibility_service_label">Kunasa Ingizo la Mbali</string>
-    <string name="accessibility_service_description">Hunasa ingizo la kibodi ya kimwili na kulipeleka kwenye kipindi chako cha kompyuta ya mbali kinachofanya kazi. Matukio ya vitufe vya maunzi tu ndiyo yanashughulikiwa. Hakuna maudhui ya skrini, maudhui ya dirisha, au data ya kibinafsi inayokusanywa, kuhifadhiwa, au kushirikiwa.</string>
-    <string name="accessibility_service_prompt_title">Ruhusu kunasa mkato wa kibodi?</string>
-    <string name="accessibility_service_prompt_message">Ili kutuma mikato ya kibodi (kama Alt+Tab) kwenye kompyuta yako ya mbali badala ya Android kuikamata, programu hii inaweza kutumia Huduma ya Ufikiaji kunasa matukio ya vitufe vya kimwili.\n\nHuduma hii ina ufikiaji wa nini: matukio ya vitufe vya maunzi kutoka kwenye kibodi yako ya kimwili au kifaa cha ingizo.\n\nData inatumiwa vipi: matukio ya vitufe yanaelekezwa moja kwa moja kwenye kipindi cha kompyuta yako ya mbali kupitia muunganisho wako uliopo. Hayahifadhiwi, hayaandikwi, wala hayashirikiwa na mtu yeyote.</string>
-    <string name="accessibility_service_prompt_go_to_settings">Fungua Mipangilio ya Ufikiaji</string>
-    <string name="accessibility_service_prompt_not_now">Si sasa</string>
 </resources>

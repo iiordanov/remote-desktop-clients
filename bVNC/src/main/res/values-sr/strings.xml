@@ -283,7 +283,6 @@
     <string name="error_connection_interrupted">Веза је прекинута.</string>
     <string name="auto_x_descript_session">Тип удаљене сесије</string>
     <string name="action_new_connection">✚ Нова веза</string>
-    <string name="sort_connections">Сортирај везе</string>
     <string name="enter_text_title">Унесите текст за слање</string>
     <string name="shortcut_label_rdp">РДП веза</string>
     <string name="spice_address_caption_hint">СПИЦЕ Сервер</string>
@@ -750,12 +749,4 @@
     <string name="discovery_scan_complete">Скенирање завршено</string>
     <string name="connection_type_prompt_title">Одаберите врсту сервера</string>
     <string name="keyboard_layout_map">Распоред тастатуре</string>
-    <string name="accessibility_service_menu_item">⌨  Хватање тастерских пречица</string>
-    <string name="accessibility_service_already_enabled">Хватање тастерских пречица је већ омогућено.</string>
-    <string name="accessibility_service_label">Хватање удаљеног уноса</string>
-    <string name="accessibility_service_description">Хвата физички унос са тастатуре и прослеђује га у активну сесију удаљеног радног стола. Обрађују се само хардверски тастерски догађаји. Не прикупља се, не чува нити дели никакав садржај екрана, прозора или лични подаци.</string>
-    <string name="accessibility_service_prompt_title">Дозволити хватање тастерских пречица?</string>
-    <string name="accessibility_service_prompt_message">Да бисте слали тастерске пречице (попут Alt+Tab) на удаљени радни сто уместо да их Android пресреће, ова апликација може да користи Сервис приступачности за хватање физичких тастерских догађаја.\n\nШта овај сервис приступа: хардверски тастерски догађаји са ваше физичке тастатуре или улазног уређаја.\n\nКако се подаци користе: тастерски догађаји се прослеђују директно у сесију удаљеног радног стола преко постојеће конекције. Не чувају се, не бележе нити деле ни са ким.</string>
-    <string name="accessibility_service_prompt_go_to_settings">Отвори поставке приступачности</string>
-    <string name="accessibility_service_prompt_not_now">Не сада</string>
 </resources>

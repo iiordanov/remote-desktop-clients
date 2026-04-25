@@ -4,7 +4,6 @@
     <string name="audio_initialized">Ο ήχος αρχικοποιήθηκε</string>
     <string name="action_import_settings">Εισαγωγή Ρυθμίσεων</string>
     <string name="action_new_connection">✚ Νέα Σύνδεση</string>
-    <string name="sort_connections">Ταξινόμηση συνδέσεων</string>
     <string name="action_edit_default_settings">⚙ Επεξεργασία Προεπιλεγμένων Ρυθμίσεων</string>
     <string name="action_export_settings">Εξαγωγή Ρυθμίσεων</string>
     <string name="action_delete_connection">Διαγραφή Σύνδεσης</string>
@@ -847,12 +846,4 @@
     <string name="discovery_scan_complete">Η σάρωση ολοκληρώθηκε</string>
     <string name="connection_type_prompt_title">Επιλέξτε τύπο διακομιστή</string>
     <string name="keyboard_layout_map">Διάταξη πληκτρολογίου</string>
-    <string name="accessibility_service_menu_item">⌨  Καταγραφή συντομεύσεων πληκτρολογίου</string>
-    <string name="accessibility_service_already_enabled">Η καταγραφή συντομεύσεων πληκτρολογίου είναι ήδη ενεργοποιημένη.</string>
-    <string name="accessibility_service_label">Καταγραφή απομακρυσμένης εισόδου</string>
-    <string name="accessibility_service_description">Καταγράφει τη φυσική εισαγωγή πληκτρολογίου και την προωθεί στην ενεργή συνεδρία απομακρυσμένης επιφάνειας εργασίας σας. Επεξεργάζονται μόνο συμβάντα πλήκτρων υλικού. Δεν συλλέγεται, αποθηκεύεται ή κοινοποιείται περιεχόμενο οθόνης, περιεχόμενο παραθύρων ή προσωπικά δεδομένα.</string>
-    <string name="accessibility_service_prompt_title">Να επιτραπεί η καταγραφή συντομεύσεων πληκτρολογίου;</string>
-    <string name="accessibility_service_prompt_message">Για να στέλνετε συντομεύσεις πληκτρολογίου (όπως Alt+Tab) στην απομακρυσμένη επιφάνεια εργασίας σας αντί να τις υποκλέπτει το Android, αυτή η εφαρμογή μπορεί να χρησιμοποιήσει μια Υπηρεσία προσβασιμότητας για να καταγράψει φυσικά συμβάντα πλήκτρων.\n\nΤι προσπελαύνει αυτή η υπηρεσία: συμβάντα πλήκτρων υλικού από το φυσικό σας πληκτρολόγιο ή τη συσκευή εισόδου σας.\n\nΠώς χρησιμοποιούνται τα δεδομένα: τα συμβάντα πλήκτρων προωθούνται απευθείας στη συνεδρία απομακρυσμένης επιφάνειας εργασίας σας μέσω της υπάρχουσας σύνδεσής σας. Δεν αποθηκεύονται, δεν καταγράφονται και δεν κοινοποιούνται σε κανέναν.</string>
-    <string name="accessibility_service_prompt_go_to_settings">Άνοιγμα ρυθμίσεων προσβασιμότητας</string>
-    <string name="accessibility_service_prompt_not_now">Όχι τώρα</string>
 </resources>
