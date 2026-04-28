@@ -795,7 +795,7 @@ ${bufferedInputStreamToString(remoteStderr)}"""
 
         val sshTunneled = conn.connectionType == Constants.CONN_TYPE_SSH
         val emptySshHostKey = conn.sshHostKey == ""
-        val emptySshHostKeyHash = Utils.isNullOrEmptry(conn.idHash)
+        val emptySshHostKeyHash = Utils.isNullOrEmpty(conn.idHash)
         val keyUninitialized = emptySshHostKey && emptySshHostKeyHash
         if (sshTunneled && (keyChangeDetected || keyUninitialized)) {
             val message = Message()

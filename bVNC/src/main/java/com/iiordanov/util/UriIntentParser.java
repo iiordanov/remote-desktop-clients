@@ -468,7 +468,7 @@ public class UriIntentParser {
 
             // by default, the connection name is the host name
             String nickName = connection.getNickname();
-            if (Utils.isNullOrEmptry(nickName)) {
+            if (Utils.isNullOrEmpty(nickName)) {
                 connection.setNickname(host);
             }
         }

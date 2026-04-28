@@ -18,7 +18,7 @@
  */
 package com.iiordanov.bVNC.dialogs
 
-import android.opengl.Visibility
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -32,7 +32,8 @@ import androidx.fragment.app.DialogFragment
 import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.Utils
 import com.undatech.remoteClientUi.R
-import java.io.IOException
+
+private const val RATE_OR_SHARE_FRAGMENT_CONFIG_ELEMENT = "rateOrShareFragment"
 
 class RateOrShareFragment : DialogFragment() {
     private var layout: TableLayout? = null
@@ -65,10 +66,10 @@ class RateOrShareFragment : DialogFragment() {
         }
         previousVersionsButton = v.findViewById(R.id.buttonPreviousVersions)
         if (!Utils.isFree(activity)) {
-            donationButton?.visibility = View.GONE
+            donationButton?.visibility = GONE
         }
         if (Utils.isOpaque(activity)) {
-            previousVersionsButton?.visibility = View.GONE
+            previousVersionsButton?.visibility = GONE
         }
         versionAndCode = v.findViewById<View>(R.id.versionAndCode) as TextView
         versionAndCode?.text = Utils.getVersionAndCode(v.context)
@@ -76,13 +77,17 @@ class RateOrShareFragment : DialogFragment() {
         return v
     }
 
+    @SuppressLint("DiscouragedApi")
     fun setTitle() {
         var titleString = getString(R.string.action_rate_or_share_app)
         if (Utils.isCustom(context)){
             try {
                 titleString = getString(
                     requireContext().resources.getIdentifier(
-                        Utils.getStringConfigAttribute(App.configFileReader.configData, TAG.replaceFirstChar { it.lowercase() }, "title", "key"),
+                        Utils.getStringConfigAttribute(
+                            App.configFileReader.configData,
+                            RATE_OR_SHARE_FRAGMENT_CONFIG_ELEMENT,
+                            "title", "key"),
                         "string",
                         Utils.pName(context)
                     )

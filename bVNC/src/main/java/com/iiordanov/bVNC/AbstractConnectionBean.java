@@ -1957,7 +1957,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         if (isSupportedScheme) {
             Log.i(TAG, "getConnection - supported scheme, trying to handle supported URI");
             connection = handleSupportedUri(data, context, masterPasswordEnabled);
-        } else if (!Utils.isNullOrEmptry(i.getType())) {
+        } else if (!Utils.isNullOrEmpty(i.getType())) {
             Log.i(TAG, "getConnection - non-empty intent type: " + i.getType() + ", making new connection for config file");
             connection = new ConnectionBean(context);
         } else {

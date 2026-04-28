@@ -86,7 +86,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class ConnectionGridActivity extends AppCompatActivity implements GetTextFragment.OnFragmentDismissedListener {
     private static final String TAG = "ConnectionGridActivity";
@@ -432,6 +431,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     /**
      * Linked with android:onClick to the add new connection item in the activity.
      */
+    @SuppressWarnings("unused")
     public void addNewConnection(View view) {
         addNewConnection();
     }

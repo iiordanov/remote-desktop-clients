@@ -20,6 +20,7 @@
 
 package com.iiordanov.bVNC;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
@@ -46,6 +47,7 @@ import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ScrollView;
@@ -67,7 +69,6 @@ import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.ConnectionSetupActivity;
 import com.undatech.remoteClientUi.R;
 
-import jcifs.netbios.NbtAddress;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.xml.sax.SAXException;
@@ -88,26 +89,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+
+import jcifs.netbios.NbtAddress;
 
 public class Utils {
     private final static String TAG = "Utils";
-    private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://code.google.com/p/android-vnc-viewer/wiki/Documentation"));
     public static String[] standardPackageNames = {
             "com.iiordanov.bVNC", "com.iiordanov.freebVNC",
             "com.iiordanov.aRDP", "com.iiordanov.freeaRDP",
             "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"
     };
     private static AlertDialog alertDialog;
-    private static int nextNoticeID = 0;
-
-    private static Executor executor = Executors.newSingleThreadExecutor();
 
     public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
         try {
-            if (alertDialog != null && alertDialog.isShowing() && !isContextActivityThatIsFinishing(_context)) {
+            if (isContextActivityThatIsFinishing(_context)) {
+                return;
+            }
+            if (alertDialogIsShowingAndActivityNotFinishing(_context)) {
                 alertDialog.dismiss();
             }
             showAlertDialog(_context, title, message, onYesListener, onNoListener);
@@ -118,6 +119,9 @@ public class Utils {
 
     private static void showAlertDialog(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
         AlertDialog.Builder builder;
+        if (isContextActivityThatIsFinishing(_context)) {
+            return;
+        }
         if (Constants.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             builder = new AlertDialog.Builder(_context, R.style.AlertDialogTheme);
         } else {
@@ -130,7 +134,7 @@ public class Utils {
         builder.setCancelable(false);
         builder.setPositiveButton(_context.getString(android.R.string.yes), onYesListener);
         builder.setNegativeButton(_context.getString(android.R.string.no), onNoListener);
-        if (!(alertDialog != null && alertDialog.isShowing()) && !isContextActivityThatIsFinishing(_context)) {
+        if (alertDialogNotShowingAndActivityNotFinishing(_context)) {
             alertDialog = builder.create();
             alertDialog.show();
         }
@@ -149,40 +153,26 @@ public class Utils {
         return info;
     }
 
-    public static void showDocumentation(Context c) {
-        c.startActivity(docIntent);
-    }
-
-    public static int nextNoticeID() {
-        nextNoticeID++;
-        return nextNoticeID;
-    }
-
     public static void showErrorMessage(Context _context, String message) {
-        showMessage(_context, _context.getString(R.string.error) + "!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        showMessage(_context, _context.getString(R.string.error) + "!", message, android.R.drawable.ic_dialog_alert, (dialog, which) -> dialog.dismiss());
     }
 
     public static void showFatalErrorMessage(final Context _context, String message) {
-        showMessage(_context, _context.getString(R.string.error) + "!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                Activity activity = Utils.getActivity(_context);
-                if (activity != null) {
-                    Utils.justFinish(activity);
-                }
+        showMessage(_context, _context.getString(R.string.error) + "!", message, android.R.drawable.ic_dialog_alert, (dialog, which) -> {
+            dialog.dismiss();
+            Activity activity = Utils.getActivity(_context);
+            if (activity != null) {
+                Utils.justFinish(activity);
             }
         });
     }
 
     public static void showMessage(Context _context, String title, String message, int icon, DialogInterface.OnClickListener ackHandler) {
         try {
-            if (alertDialog != null && alertDialog.isShowing() && !isContextActivityThatIsFinishing(_context)) {
+            if (isContextActivityThatIsFinishing(_context)) {
+                return;
+            }
+            if (alertDialogIsShowingAndActivityNotFinishing(_context)) {
                 alertDialog.dismiss();
             }
             AlertDialog.Builder builder = new AlertDialog.Builder(_context);
@@ -191,13 +181,26 @@ public class Utils {
             builder.setCancelable(false);
             builder.setPositiveButton(_context.getString(android.R.string.ok), ackHandler);
             builder.setIcon(icon);
-            if (!(alertDialog != null && alertDialog.isShowing()) && !isContextActivityThatIsFinishing(_context)) {
+            if (alertDialogNotShowingAndActivityNotFinishing(_context)) {
                 alertDialog = builder.create();
                 alertDialog.show();
             }
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+            Log.e(TAG, "showMessage - IllegalArgumentException");
+            Log.e(TAG, Log.getStackTraceString(e));
         }
+    }
+
+    private static boolean alertDialogIsShowingAndActivityNotFinishing(Context _context) {
+        return alertDialogNotNullAndIsShowing() && !isContextActivityThatIsFinishing(_context);
+    }
+
+    private static boolean alertDialogNotNullAndIsShowing() {
+        return alertDialog != null && alertDialog.isShowing();
+    }
+
+    private static boolean alertDialogNotShowingAndActivityNotFinishing(Context _context) {
+        return !alertDialogNotNullAndIsShowing() && !isContextActivityThatIsFinishing(_context);
     }
 
     /**
@@ -206,17 +209,13 @@ public class Utils {
      * @param s The string to comapare
      * @return true iff s is null or empty
      */
-    public static boolean isNullOrEmptry(String s) {
-        if (s == null || s.equals(""))
-            return true;
-        return false;
+    public static boolean isNullOrEmpty(String s) {
+        return s == null || s.isEmpty();
     }
 
     /**
      * Converts a given sequence of bytes to a human-readable colon-separated Hex format.
      *
-     * @param bytes
-     * @return
      */
     public static String toHexString(byte[] bytes) {
         char[] hexArray = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -226,7 +225,7 @@ public class Utils {
             v = bytes[j] & 0xFF;
             hexChars[j * 3] = hexArray[v / 16];
             hexChars[j * 3 + 1] = hexArray[v % 16];
-            hexChars[j * 3 + 2] = ":".charAt(0);
+            hexChars[j * 3 + 2] = ':';
         }
         v = bytes[j] & 0xFF;
         hexChars[j * 3] = hexArray[v / 16];
@@ -237,18 +236,17 @@ public class Utils {
     /**
      * Forces the appearance of a menu in the given context.
      *
-     * @param ctx
      */
     public static void showMenu(Context ctx) {
         try {
             ViewConfiguration config = ViewConfiguration.get(ctx);
-            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            @SuppressWarnings("JavaReflectionMemberAccess") @SuppressLint("PrivateApi") Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
 
-            if (menuKeyField != null) {
-                menuKeyField.setAccessible(true);
-                menuKeyField.setBoolean(config, false);
-            }
+            menuKeyField.setAccessible(true);
+            menuKeyField.setBoolean(config, false);
         } catch (Exception e) {
+            Log.e(TAG, "showMenu - exception");
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
@@ -306,22 +304,47 @@ public class Utils {
         return packageName.toLowerCase().contains("opaque");
     }
 
-    public static String getStringConfigAttribute(Map<String, Map> configData, String configDataKey, String configDataKeyChild, String childAttribute) throws NullPointerException {
-        String attr = (String) ((Map) configData.get(configDataKey).get(configDataKeyChild)).get(childAttribute);
-        return attr;
-    }
-
-    public static void setVisibilityForViewElementsViaConfig(Context context, Map<String, Map> configData, String configDataKey, View view) throws NullPointerException {
-        String packageName = Utils.pName(context);
-        Map<String, Integer> visibility = (Map<String, Integer>) configData.get(configDataKey).get("visibility");
-
-        for (String s : visibility.keySet()) {
-            int resID = context.getResources().getIdentifier(s, "id", packageName);
-            View viewElement = view.findViewById(resID);
-            viewElement.setVisibility(visibility.get(s));
+    public static String getStringConfigAttribute(
+            Map<String, Map<String, Map<String, ?>>> configData,
+            String configDataKey,
+            String configDataKeyChild,
+            String childAttribute
+    ) throws NullPointerException {
+        try {
+            return (String) Objects.requireNonNull(
+                    Objects.requireNonNull(
+                            configData.get(configDataKey)
+                    ).get(configDataKeyChild)
+            ).get(childAttribute);
+        } catch (NullPointerException e) {
+            Log.e(TAG, "getStringConfigAttribute - NullPointerException");
+            Log.e(TAG, Log.getStackTraceString(e));
+            return "";
         }
     }
 
+    public static void setVisibilityForViewElementsViaConfig(
+            Context context,
+            Map<String, Map<String, Map<String, ?>>> configData,
+            String configDataKey,
+            View view
+    ) throws NullPointerException {
+        String packageName = Utils.pName(context);
+        Map<String, Map<String, ?>> element = configData.get(configDataKey);
+        if (element != null) {
+            Map<String, ?> visibility = element.get("visibility");
+
+            if (visibility != null) {
+                for (String s : visibility.keySet()) {
+                    @SuppressLint("DiscouragedApi") int resID = context.getResources().getIdentifier(s, "id", packageName);
+                    View viewElement = view.findViewById(resID);
+                    viewElement.setVisibility((int) visibility.get(s));
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
     public static Class getConnectionSetupClass(Context context) {
         String packageName = Utils.pName(context);
         boolean custom = isCustom(context);
@@ -343,7 +366,6 @@ public class Utils {
     }
 
     public static String getConnectionScheme(Context context) {
-        String packageName = Utils.pName(context);
         String scheme = "unsupported";
         if (isVnc(context))
             scheme = "vnc";
@@ -384,13 +406,9 @@ public class Utils {
     }
 
     public static boolean isBlackBerry() {
-        boolean bb = false;
-        if (android.os.Build.MODEL.contains("BlackBerry") ||
-                android.os.Build.BRAND.contains("BlackBerry") ||
-                android.os.Build.MANUFACTURER.contains("BlackBerry")) {
-            bb = true;
-        }
-        return bb;
+        return Build.MODEL.contains("BlackBerry") ||
+                Build.BRAND.contains("BlackBerry") ||
+                Build.MANUFACTURER.contains("BlackBerry");
     }
 
     public static void exportSettingsToXml(OutputStream f, SQLiteDatabase db) {
@@ -399,7 +417,7 @@ public class Utils {
             SqliteElement.exportDbAsXmlToStream(db, writer);
             writer.close();
         } catch (SAXException | IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
@@ -408,7 +426,7 @@ public class Utils {
         try {
             SqliteElement.importXmlStreamToDb(db, reader, ReplaceStrategy.REPLACE_EXISTING);
         } catch (SAXException | IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
@@ -420,7 +438,7 @@ public class Utils {
         if (localizedMessage == null)
             localizedMessage = "";
 
-        return "\n" + localizedMessage + "\n" + sw.toString();
+        return "\n" + localizedMessage + "\n" + sw;
     }
 
     public static boolean querySharedPreferenceBoolean(Context context, String key) {
@@ -483,15 +501,15 @@ public class Utils {
             Editor editor = sp.edit();
             editor.putBoolean(key, !state);
             editor.apply();
-            Log.i(TAG, "Toggled " + key + " " + String.valueOf(state));
+            Log.i(TAG, "Toggled " + key + " " + state);
         }
     }
 
     static boolean isContextActivityThatIsFinishing(Context _context) {
         boolean result = false;
-        if (_context instanceof Activity) {
-            Activity activity = (Activity) _context;
-            if (activity.isFinishing()) {
+        if (_context instanceof Activity activity) {
+            if (activity.isFinishing() || activity.isDestroyed()) {
+                Log.w(TAG, "isContextActivityThatIsFinishing - Activity is finishing or destroyed");
                 result = true;
             }
         }
@@ -513,31 +531,14 @@ public class Utils {
                 tmp.recycle();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
         }
 
-    }
-
-    /**
-     * Either returns the input of it's already a UUID or returns a random UUID.
-     *
-     * @param string which if it's a string representation of a UUID will be returned unaltered
-     * @return the input if it's a UUID or a random UUID as a string
-     */
-    static String getUuid(String string) {
-        try {
-            UUID.fromString(string);
-            return string;
-        } catch (IllegalArgumentException e) {
-            return UUID.randomUUID().toString();
-        }
     }
 
     /**
      * Creates a connection screen help dialog for each app.
      *
-     * @param context
-     * @return
      */
     public static Dialog createMainScreenDialog(Context context) {
         int textId = R.string.main_screen_help_text;
@@ -547,10 +548,8 @@ public class Utils {
     /**
      * Creates a connection screen help dialog for each app.
      *
-     * @param context
-     * @return
      */
-    public static Dialog createConnectionScreenDialog(Context context) {
+    public static void createConnectionScreenDialog(Context context) {
         int textId = R.string.vnc_connection_screen_help_text;
         if (Utils.isRdp(context))
             textId = R.string.rdp_connection_screen_help_text;
@@ -558,26 +557,26 @@ public class Utils {
             textId = R.string.spice_connection_screen_help_text;
         else if (Utils.isOpaque(context))
             textId = R.string.opaque_connection_screen_help_text;
-        return createDialog(context, textId);
+        createDialog(context, textId);
     }
 
     public static Dialog createDialog(Context context, int textId) {
         AlertDialog.Builder adb = new AlertDialog.Builder(context)
                 .setMessage(textId)
                 .setPositiveButton(R.string.close,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
-                                // We don't have to do anything.
-                            }
+                        (dialog, whichButton) -> {
+                            // We don't have to do anything.
                         });
         Dialog d = adb.setView(new ScrollView(context)).create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(d.getWindow().getAttributes());
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        d.show();
-        d.getWindow().setAttributes(lp);
+        Window w = d.getWindow();
+        if (w != null) {
+            lp.copyFrom(w.getAttributes());
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            d.show();
+            d.getWindow().setAttributes(lp);
+        }
         return d;
     }
 
@@ -590,8 +589,7 @@ public class Utils {
             uriString = "https://" + uriString;
         }
         Uri uri = Uri.parse(uriString);
-        String host = uri.getHost();
-        return host;
+        return uri.getHost();
     }
 
     public static Activity getActivity(Context context) {
@@ -612,7 +610,7 @@ public class Utils {
             result = pInfo.versionName + "_" + pInfo.versionCode;
             Log.d(TAG, "Version of " + packageName + " is " + result);
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
         }
         return result;
     }
@@ -626,15 +624,6 @@ public class Utils {
         return value;
     }
 
-    public static int getIntFromMessage(Message msg, String key) {
-        Bundle s = msg.getData();
-        int value = 0;
-        if (s != null) {
-            value = s.getInt(key);
-        }
-        return value;
-    }
-
     public static boolean isShowOnlyConnectionNicknames(Context context) {
         return Utils.querySharedPreferenceBoolean(context, Constants.showOnlyConnectionNicknames);
     }
@@ -643,18 +632,9 @@ public class Utils {
         return Utils.querySharedPreferenceBoolean(context, Constants.doNotShowDesktopThumbnails);
     }
 
-    public static boolean getBooleanFromMessage(Message msg, String key) {
-        Bundle s = msg.getData();
-        boolean value = false;
-        if (s != null) {
-            value = s.getBoolean(key);
-        }
-        return value;
-    }
-
     public static String getStringResourceByName(Context context, String stringName) {
         String packageName = Utils.pName(context);
-        int resId = context.getResources().getIdentifier(stringName, "string", packageName);
+        @SuppressLint("DiscouragedApi") int resId = context.getResources().getIdentifier(stringName, "string", packageName);
         String message = "";
         if (resId > 0) {
             message = context.getString(resId);
@@ -688,10 +668,15 @@ public class Utils {
     public static void triggerRestart(Context context) {
         PackageManager packageManager = context.getPackageManager();
         Intent intent = packageManager.getLaunchIntentForPackage(context.getPackageName());
-        ComponentName componentName = intent.getComponent();
-        Intent mainIntent = Intent.makeRestartActivityTask(componentName);
-        context.startActivity(mainIntent);
-        Runtime.getRuntime().exit(0);
+        ComponentName componentName;
+        if (intent != null) {
+            componentName = intent.getComponent();
+            Intent mainIntent = Intent.makeRestartActivityTask(componentName);
+            context.startActivity(mainIntent);
+            Runtime.getRuntime().exit(0);
+        } else {
+            Log.e(TAG, "triggerRestart - null intent, cannot restart");
+        }
     }
 
     public static void startUriIntent(Context context, String url) {
@@ -714,9 +699,7 @@ public class Utils {
                 if (task.isSuccessful()) {
                     ReviewInfo reviewInfo = task.getResult();
                     Task<Void> flow = manager.launchReviewFlow(activity, reviewInfo);
-                    flow.addOnCompleteListener(completedTask -> {
-                        Log.d(TAG, "rateApp: Completed: " + completedTask.getResult());
-                    });
+                    flow.addOnCompleteListener(completedTask -> Log.d(TAG, "rateApp: Completed: " + completedTask.getResult()));
                 } else {
                     Log.d(TAG, "rateApp: task is not successful");
                 }
