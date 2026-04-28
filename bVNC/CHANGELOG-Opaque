@@ -1,3 +1,5 @@
+v6.3.9
+- Bugfixes
 v6.3.8
 - mDNS/Bonjour and port scan tool for adding local servers
 - Transparent and dismissable Snackbar messages while connected
