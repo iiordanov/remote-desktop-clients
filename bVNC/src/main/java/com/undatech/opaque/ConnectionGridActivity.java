@@ -21,6 +21,7 @@
 package com.undatech.opaque;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static com.iiordanov.bVNC.Constants.CONNECTION_TO_EDIT_INTENT_KEY;
 import static com.iiordanov.bVNC.Utils.createMainScreenDialog;
 import static com.iiordanov.bVNC.Utils.setClipboard;
 import static com.iiordanov.bVNC.Utils.startUriIntent;
@@ -63,9 +64,11 @@ import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.Utils;
+import com.iiordanov.bVNC.dialogs.DiscoveryBottomSheet;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
+import com.iiordanov.bVNC.dialogs.NetworkDiscovery;
 import com.iiordanov.bVNC.dialogs.RateOrShareFragment;
 import com.iiordanov.permissions.BatteryOptimizationDisabler;
 import com.iiordanov.util.MasterPasswordDelegate;
@@ -83,7 +86,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class ConnectionGridActivity extends AppCompatActivity implements GetTextFragment.OnFragmentDismissedListener {
     private static final String TAG = "ConnectionGridActivity";
@@ -277,24 +279,32 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     }
 
     private void editConnection(View v) {
-        Log.d(TAG, "Modify Connection");
+        Log.d(TAG, "editConnection - Modifying an existing connection");
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
-        ConnectionLoader connectionLoader = getConnectionLoader(this);
-        Connection conn = connectionLoader.getConnectionsById().get(runtimeId);
         Intent intent = new Intent(ConnectionGridActivity.this, Utils.getConnectionSetupClass(this));
+        intent.putExtra("isNewConnection", false);
         if (Utils.isOpaque(this)) {
-            ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
-            if (cs != null) {
-                intent.putExtra("com.undatech.opaque.connectionToEdit", cs.getFilename());
-            }
-
+            editOpaqueConnection(intent, runtimeId);
         } else {
-            intent.putExtra("isNewConnection", false);
-            if (conn != null) {
-                intent.putExtra("connID", conn.getId());
-            }
+            editConnection(intent, runtimeId);
         }
         startActivity(intent);
+    }
+
+    private void editConnection(Intent intent, String runtimeId) {
+        Connection connection = getConnectionLoader(this).getConnectionsById().get(runtimeId);
+        if (connection != null) {
+            Log.d(TAG, "editConnection - Editing non-Opaque connection with ID: " + connection.getId());
+            intent.putExtra(CONNECTION_TO_EDIT_INTENT_KEY, connection.getId());
+        }
+    }
+
+    private void editOpaqueConnection(Intent intent, String runtimeId) {
+        Connection connection = getConnectionLoader(this).getConnectionsById().get(runtimeId);
+        if (connection != null) {
+            Log.d(TAG, "editConnection - Editing Opaque with file: " + connection.getFilename());
+            intent.putExtra(Constants.OPAQUE_CONNECTION_TO_EDIT_INTENT_KEY, connection.getFilename());
+        }
     }
 
     private void deleteConnection(View v) {
@@ -383,12 +393,31 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     }
 
     /**
-     * Starts a new connection.
+     * Starts a new connection, showing local network discovery first.
      */
     public void addNewConnection() {
+        DiscoveryBottomSheet sheet = new DiscoveryBottomSheet(
+                NetworkDiscovery.serviceTypeForApp(this),
+                new DiscoveryBottomSheet.Callback() {
+                    @Override
+                    public void onServerSelected(NetworkDiscovery.DiscoveredServer server) {
+                        launchConnectionSetup(server.host(), server.port());
+                    }
+
+                    @Override
+                    public void onEnterManually() {
+                        launchConnectionSetup(null, -1);
+                    }
+                });
+        sheet.show(getSupportFragmentManager(), "discovery");
+    }
+
+    private void launchConnectionSetup(String address, int port) {
         Intent intent = new Intent(ConnectionGridActivity.this,
                 Utils.getConnectionSetupClass(this));
         intent.putExtra("isNewConnection", true);
+        if (address != null) intent.putExtra(Constants.PREFILL_ADDRESS, address);
+        if (port >= 0) intent.putExtra(Constants.PREFILL_PORT, port);
         startActivity(intent);
     }
 
@@ -402,6 +431,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
     /**
      * Linked with android:onClick to the add new connection item in the activity.
      */
+    @SuppressWarnings("unused")
     public void addNewConnection(View view) {
         addNewConnection();
     }

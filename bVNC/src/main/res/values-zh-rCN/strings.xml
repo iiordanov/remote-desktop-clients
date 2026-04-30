@@ -832,5 +832,14 @@ aSPICE对应的功能如下：
     <string name="no_connections_title">还没有连接</string>
     <string name="no_connections_hint">点击 + 按钮添加您的第一个远程连接</string>
     <string name="no_connections_hint_tv">按上方的 + 按钮添加您的第一个远程连接</string>
+    <string name="discovery_title">添加连接</string>
+    <string name="discovery_scanning">正在搜索本地网络中的服务器…</string>
+    <string name="discovery_scan_network">扫描网络</string>
+    <string name="discovery_item_address">%1$s · 端口 %2$d</string>
+    <string name="discovery_none_found">尚未找到服务器</string>
+    <string name="discovery_enter_manually">手动输入</string>
+    <string name="discovery_scanning_progress">正在扫描网络… (%1$d/%2$d 台主机)</string>
+    <string name="discovery_scan_complete">扫描完成</string>
+    <string name="connection_type_prompt_title">选择服务器类型</string>
     <string name="keyboard_layout_map">键盘布局</string>
 </resources>

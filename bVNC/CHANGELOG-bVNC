@@ -1,3 +1,11 @@
+v6.3.9
+- Bugfixes
+v6.3.8
+- mDNS/Bonjour and port scan tool for adding local servers
+- Transparent and dismissable Snackbar messages while connected
+- Additional ANR prevention logic for certain devices
+- Removed Snap to 1:1 message when zooming in/out around 1:1 scale
+- Made zoom snap region a little smaller
 v6.3.6
 - Performance optimizations
 - Support for TurboVNC extensions to TightVNC encoding

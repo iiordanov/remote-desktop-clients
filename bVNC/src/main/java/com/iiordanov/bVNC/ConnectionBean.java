@@ -616,14 +616,14 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
     public void determineIfReadyForConnection(int secType) {
         setReadyForConnection(true);
-        if (Utils.isNullOrEmptry(getAddress())) {
+        if (Utils.isNullOrEmpty(getAddress())) {
             Log.i(TAG, "URI missing remote address");
             setReadyForConnection(false);
         }
 
         int connType = getConnectionType();
         if (connType == Constants.CONN_TYPE_SSH) {
-            if (Utils.isNullOrEmptry(getSshServer())) {
+            if (Utils.isNullOrEmpty(getSshServer())) {
                 Log.i(TAG, "URI SSH server when connection type is Constants.CONN_TYPE_SSH");
                 setReadyForConnection(false);
             }

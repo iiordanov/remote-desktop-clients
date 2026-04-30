@@ -146,12 +146,9 @@ class ZoomScaling extends AbstractScaling {
 
         // Here we do snapping to 1:1. If we are approaching scale = 1, we snap to it.
         oldScale = scaling;
-        if ((newScale > 0.90f && newScale < 1.00f) ||
-                (newScale > 1.00f && newScale < 1.10f)) {
+        if ((newScale > 0.95f && newScale < 1.00f) ||
+                (newScale > 1.00f && newScale < 1.05f)) {
             newScale = 1.f;
-            // Only if oldScale is outside the snap region, do we inform the user.
-            if (oldScale < 0.90f || oldScale > 1.10f)
-                canvas.displayOnScreenMessageShortDuration(R.string.snap_one_to_one);
         }
 
         scaling = newScale;

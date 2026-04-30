@@ -739,5 +739,14 @@ Không thể mở cài đặt tối ưu hóa pin. Tắt tối ưu hóa pin theo 
     <string name="no_connections_title">Chưa có kết nối nào</string>
     <string name="no_connections_hint">Nhấn nút + để thêm kết nối từ xa đầu tiên của bạn</string>
     <string name="no_connections_hint_tv">Nhấn nút + ở trên để thêm kết nối từ xa đầu tiên của bạn</string>
+    <string name="discovery_title">Thêm kết nối</string>
+    <string name="discovery_scanning">Đang tìm kiếm máy chủ trên mạng cục bộ…</string>
+    <string name="discovery_scan_network">Quét mạng</string>
+    <string name="discovery_item_address">%1$s · cổng %2$d</string>
+    <string name="discovery_none_found">Chưa tìm thấy máy chủ nào</string>
+    <string name="discovery_enter_manually">Nhập thủ công</string>
+    <string name="discovery_scanning_progress">Đang quét mạng… (%1$d/%2$d máy chủ)</string>
+    <string name="discovery_scan_complete">Quét hoàn tất</string>
+    <string name="connection_type_prompt_title">Chọn loại máy chủ</string>
     <string name="keyboard_layout_map">Bố cục bàn phím</string>
 </resources>

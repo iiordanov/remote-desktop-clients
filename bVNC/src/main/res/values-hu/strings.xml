@@ -909,5 +909,14 @@ Az alkalmazás már mentesül az akkumulátoroptimalizálás alól.</string>
     <string name="no_connections_title">Még nincsenek kapcsolatok</string>
     <string name="no_connections_hint">Az első távoli kapcsolat hozzáadásához érintse meg a + gombot</string>
     <string name="no_connections_hint_tv">Az első távoli kapcsolat hozzáadásához nyomja meg a fenti + gombot</string>
+    <string name="discovery_title">Kapcsolat hozzáadása</string>
+    <string name="discovery_scanning">Kiszolgálók keresése a helyi hálózaton…</string>
+    <string name="discovery_scan_network">Hálózat vizsgálata</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Még nem találhatók kiszolgálók</string>
+    <string name="discovery_enter_manually">Kézi bevitel</string>
+    <string name="discovery_scanning_progress">Hálózat vizsgálata… (%1$d/%2$d gazdagép)</string>
+    <string name="discovery_scan_complete">Vizsgálat befejezve</string>
+    <string name="connection_type_prompt_title">Szervertípus kiválasztása</string>
     <string name="keyboard_layout_map">Billentyűzet-kiosztás</string>
 </resources>

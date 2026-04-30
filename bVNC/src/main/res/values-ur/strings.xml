@@ -704,5 +704,14 @@ ASPICE خصوصیات کی موجودہ فہرست میں شامل ہیں:
     <string name="no_connections_title">ابھی تک کوئی کنکشن نہیں</string>
     <string name="no_connections_hint">اپنا پہلا ریموٹ کنکشن شامل کرنے کے لیے + بٹن تھپتھپائیں</string>
     <string name="no_connections_hint_tv">اپنا پہلا ریموٹ کنکشن شامل کرنے کے لیے اوپر + بٹن دبائیں</string>
+    <string name="discovery_title">کنکشن شامل کریں</string>
+    <string name="discovery_scanning">مقامی نیٹ ورک پر سرورز تلاش ہو رہے ہیں…</string>
+    <string name="discovery_scan_network">نیٹ ورک اسکین کریں</string>
+    <string name="discovery_item_address">%1$s · پورٹ %2$d</string>
+    <string name="discovery_none_found">ابھی تک کوئی سرور نہیں ملا</string>
+    <string name="discovery_enter_manually">دستی طور پر درج کریں</string>
+    <string name="discovery_scanning_progress">نیٹ ورک اسکین ہو رہا ہے… (%1$d/%2$d میزبان)</string>
+    <string name="discovery_scan_complete">اسکین مکمل</string>
+    <string name="connection_type_prompt_title">سرور کی قسم منتخب کریں</string>
     <string name="keyboard_layout_map">کی بورڈ لے آؤٹ</string>
 </resources>

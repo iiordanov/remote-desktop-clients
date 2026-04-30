@@ -828,5 +828,14 @@ connection ઉમેરો/edit ઉપર, connection configuration page.
     <string name="no_connections_title">હજી સુધી કોઈ જોડાણ નથી</string>
     <string name="no_connections_hint">તમારું પ્રથમ રિમોટ જોડાણ ઉમેરવા + બટન ટૅપ કરો</string>
     <string name="no_connections_hint_tv">તમારું પ્રથમ રિમોટ જોડાણ ઉમેરવા ઉપરનું + બટન દબાવો</string>
+    <string name="discovery_title">કનેક્શન ઉમેરો</string>
+    <string name="discovery_scanning">સ્થાનિક નેટવર્ક પર સર્વર શોધી રહ્યા છીએ…</string>
+    <string name="discovery_scan_network">નેટવર્ક સ્કૅન કરો</string>
+    <string name="discovery_item_address">%1$s · પોર્ટ %2$d</string>
+    <string name="discovery_none_found">હજી સુધી કોઈ સર્વર મળ્યું નથી</string>
+    <string name="discovery_enter_manually">મૅન્યુઅલી દાખલ કરો</string>
+    <string name="discovery_scanning_progress">નેટવર્ક સ્કેન કરી રહ્યા છે… (%1$d/%2$d હોસ્ટ)</string>
+    <string name="discovery_scan_complete">સ્કેન પૂર્ણ</string>
+    <string name="connection_type_prompt_title">સર્વર પ્રકાર પસંદ કરો</string>
     <string name="keyboard_layout_map">કીબોર્ડ લેઆઉટ</string>
 </resources>

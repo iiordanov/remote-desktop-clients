@@ -834,5 +834,14 @@ Appen er allerede unntatt fra batterioptimalisering.</string>
     <string name="no_connections_title">Ingen tilkoblinger ennå</string>
     <string name="no_connections_hint">Trykk på +-knappen for å legge til din første eksterne tilkobling</string>
     <string name="no_connections_hint_tv">Trykk på +-knappen ovenfor for å legge til din første eksterne tilkobling</string>
+    <string name="discovery_title">Legg til tilkobling</string>
+    <string name="discovery_scanning">Søker etter servere på lokalt nettverk…</string>
+    <string name="discovery_scan_network">Skann nettverk</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Ingen servere funnet ennå</string>
+    <string name="discovery_enter_manually">Skriv inn manuelt</string>
+    <string name="discovery_scanning_progress">Skanner nettverket… (%1$d/%2$d verter)</string>
+    <string name="discovery_scan_complete">Skanning fullført</string>
+    <string name="connection_type_prompt_title">Velg servertype</string>
     <string name="keyboard_layout_map">Tastaturlayout</string>
 </resources>

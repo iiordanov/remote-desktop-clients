@@ -911,5 +911,14 @@ Exempt na ang app sa mga pag-optimize ng baterya.</string>
     <string name="no_connections_title">Wala pang mga koneksyon</string>
     <string name="no_connections_hint">I-tap ang button na + upang idagdag ang iyong unang remote na koneksyon</string>
     <string name="no_connections_hint_tv">Pindutin ang button na + sa itaas upang idagdag ang iyong unang remote na koneksyon</string>
+    <string name="discovery_title">Magdagdag ng Koneksyon</string>
+    <string name="discovery_scanning">Naghahanap ng mga server sa lokal na network…</string>
+    <string name="discovery_scan_network">I-scan ang network</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Wala pang nahanap na mga server</string>
+    <string name="discovery_enter_manually">Ilagay nang mano-mano</string>
+    <string name="discovery_scanning_progress">Sine-scan ang network… (%1$d/%2$d host)</string>
+    <string name="discovery_scan_complete">Tapos na ang pag-scan</string>
+    <string name="connection_type_prompt_title">Pumili ng uri ng server</string>
     <string name="keyboard_layout_map">Layout ng Keyboard</string>
 </resources>

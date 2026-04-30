@@ -912,5 +912,14 @@ Die toepassing is reeds vrygestel van batteryoptimalisering.</string>
     <string name="no_connections_title">Nog geen verbindings nie</string>
     <string name="no_connections_hint">Tik die +-knoppie om jou eerste afstandverbinding by te voeg</string>
     <string name="no_connections_hint_tv">Druk die +-knoppie hierbo om jou eerste afstandverbinding by te voeg</string>
+    <string name="discovery_title">Voeg verbinding by</string>
+    <string name="discovery_scanning">Soek bedieners op plaaslike netwerk…</string>
+    <string name="discovery_scan_network">Skandeer netwerk</string>
+    <string name="discovery_item_address">%1$s · poort %2$d</string>
+    <string name="discovery_none_found">Geen bedieners gevind nie</string>
+    <string name="discovery_enter_manually">Voer handmatig in</string>
+    <string name="discovery_scanning_progress">Netwerk skandeer… (%1$d/%2$d gashere)</string>
+    <string name="discovery_scan_complete">Skandering voltooi</string>
+    <string name="connection_type_prompt_title">Kies bedienertipe</string>
     <string name="keyboard_layout_map">Sleutelborduitleg</string>
 </resources>

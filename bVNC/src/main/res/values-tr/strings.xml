@@ -1175,5 +1175,14 @@ Uygulama zaten pil optimizasyonlarından muaf.</string>
     <string name="no_connections_title">Henüz bağlantı yok</string>
     <string name="no_connections_hint">İlk uzak bağlantınızı eklemek için + düğmesine dokunun</string>
     <string name="no_connections_hint_tv">İlk uzak bağlantınızı eklemek için yukarıdaki + düğmesine basın</string>
+    <string name="discovery_title">Bağlantı Ekle</string>
+    <string name="discovery_scanning">Yerel ağda sunucular aranıyor…</string>
+    <string name="discovery_scan_network">Ağı tara</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Henüz sunucu bulunamadı</string>
+    <string name="discovery_enter_manually">Elle gir</string>
+    <string name="discovery_scanning_progress">Ağ taranıyor… (%1$d/%2$d ana bilgisayar)</string>
+    <string name="discovery_scan_complete">Tarama tamamlandı</string>
+    <string name="connection_type_prompt_title">Sunucu türünü seçin</string>
     <string name="keyboard_layout_map">Klavye Düzeni</string>
 </resources>

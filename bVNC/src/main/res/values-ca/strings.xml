@@ -909,5 +909,14 @@ L\'aplicació ja està exempta d\'optimitzacions de bateria.</string>
     <string name="no_connections_title">Encara no hi ha connexions</string>
     <string name="no_connections_hint">Toca el botó + per afegir la teva primera connexió remota</string>
     <string name="no_connections_hint_tv">Prem el botó + a dalt per afegir la teva primera connexió remota</string>
+    <string name="discovery_title">Afegeix una connexió</string>
+    <string name="discovery_scanning">S\'estan cercant servidors a la xarxa local…</string>
+    <string name="discovery_scan_network">Explora la xarxa</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Encara no s\'ha trobat cap servidor</string>
+    <string name="discovery_enter_manually">Introdueix manualment</string>
+    <string name="discovery_scanning_progress">Escanejant la xarxa… (%1$d/%2$d amfitrions)</string>
+    <string name="discovery_scan_complete">Escaneig complet</string>
+    <string name="connection_type_prompt_title">Seleccioneu el tipus de servidor</string>
     <string name="keyboard_layout_map">Disposició del teclat</string>
 </resources>

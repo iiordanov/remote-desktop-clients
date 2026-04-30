@@ -21,6 +21,7 @@
 package com.undatech.opaque;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -62,6 +63,8 @@ public class ConnectionSetupActivity extends Activity {
     private String currentSelectedConnection = null;
     private String[] connectionsArray = null;
     private boolean newConnection = false;
+    private boolean prefillApplied = false;
+    private boolean connectionTypePromptShown = false;
     private Spinner spinnerConnectionType;
 
     @Override
@@ -76,24 +79,20 @@ public class ConnectionSetupActivity extends Activity {
         password = findViewById(R.id.password);
         keepPass = findViewById(R.id.checkboxKeepPassword);
 
-        // Define what happens when one taps the Advanced Settings button.
         Button advancedSettingsButton = findViewById(R.id.advancedSettingsButton);
         advancedSettingsButton.setOnClickListener(arg0 -> {
             saveSelectedPreferences(false);
-
             Intent intent = new Intent(ConnectionSetupActivity.this, AdvancedSettingsActivity.class);
             intent.putExtra(Constants.opaqueConnectionSettingsClassPath, currentConnection);
             startActivityForResult(intent, RemoteClientLibConstants.ADVANCED_SETTINGS_REQUEST_CODE);
         });
 
-        // Load any existing list of connection preferences.
         loadConnections();
 
         Intent i = getIntent();
-        currentSelectedConnection = i.getStringExtra("com.undatech.opaque.connectionToEdit");
+        currentSelectedConnection = i.getStringExtra(Constants.OPAQUE_CONNECTION_TO_EDIT_INTENT_KEY);
         Log.d(TAG, "currentSelectedConnection set to: " + currentSelectedConnection);
 
-        // If no currentSelectedConnection was passed in, then generate one.
         if (currentSelectedConnection == null) {
             currentSelectedConnection = nextLargestNumber(connectionsArray);
             newConnection = true;
@@ -116,14 +115,10 @@ public class ConnectionSetupActivity extends Activity {
 
         currentConnection = new ConnectionSettings(currentSelectedConnection);
         if (newConnection) {
-            // Load advanced settings defaults from the saved default settings
             currentConnection.loadAdvancedSettings(this, RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
-            // Save the empty connection preferences to override any values of a previously
-            // deleted connection.
             saveSelectedPreferences(false);
         }
 
-        // Finally, load the preferences for the currentSelectedConnection.
         loadSelectedPreferences();
     }
 
@@ -265,7 +260,44 @@ public class ConnectionSetupActivity extends Activity {
         super.onResume();
         Log.d(TAG, "onResume");
         loadSelectedPreferences();
+        if (newConnection && !prefillApplied) {
+            applyPrefillFromIntent();
+            prefillApplied = true;
+        }
         updateViewsFromPreferences();
+        if (newConnection && prefillApplied && !connectionTypePromptShown) {
+            int port = getIntent().getIntExtra(Constants.PREFILL_PORT, -1);
+            if (port == 443) {
+                connectionTypePromptShown = true;
+                showConnectionTypeDialog();
+            }
+        }
+    }
+
+    private void applyPrefillFromIntent() {
+        Intent intent = getIntent();
+        String address = intent.getStringExtra(Constants.PREFILL_ADDRESS);
+        int port = intent.getIntExtra(Constants.PREFILL_PORT, -1);
+        if (address != null) {
+            currentConnection.setHostname(port >= 0 ? address + ":" + port : address);
+        }
+        if (port >= 0) currentConnection.setPort(port);
+        // Port 8006 is Proxmox-only; port 443 could be either — handled via dialog.
+        if (port == 8006) {
+            currentConnection.setConnectionTypeString(getString(R.string.connection_type_pve));
+        }
+    }
+
+    private void showConnectionTypeDialog() {
+        String[] types = getResources().getStringArray(R.array.connection_types);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.connection_type_prompt_title)
+                .setItems(types, (dialog, which) -> {
+                    currentConnection.setConnectionTypeString(types[which]);
+                    spinnerConnectionType.setSelection(which);
+                })
+                .setCancelable(false)
+                .show();
     }
 
     @Override

@@ -836,5 +836,14 @@ Aplikace je již osvobozena od optimalizace baterie.</string>
     <string name="no_connections_title">Zatím žádná připojení</string>
     <string name="no_connections_hint">Klepnutím na tlačítko + přidáte první vzdálené připojení</string>
     <string name="no_connections_hint_tv">Stisknutím tlačítka + nahoře přidáte první vzdálené připojení</string>
+    <string name="discovery_title">Přidat připojení</string>
+    <string name="discovery_scanning">Hledání serverů v místní síti…</string>
+    <string name="discovery_scan_network">Prohledat síť</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Zatím nebyly nalezeny žádné servery</string>
+    <string name="discovery_enter_manually">Zadat ručně</string>
+    <string name="discovery_scanning_progress">Prohledávání sítě… (%1$d/%2$d hostitelů)</string>
+    <string name="discovery_scan_complete">Prohledávání dokončeno</string>
+    <string name="connection_type_prompt_title">Vyberte typ serveru</string>
     <string name="keyboard_layout_map">Rozložení klávesnice</string>
 </resources>

@@ -739,5 +739,14 @@
     <string name="no_connections_title">ยังไม่มีการเชื่อมต่อ</string>
     <string name="no_connections_hint">แตะปุ่ม + เพื่อเพิ่มการเชื่อมต่อระยะไกลครั้งแรกของคุณ</string>
     <string name="no_connections_hint_tv">กดปุ่ม + ด้านบนเพื่อเพิ่มการเชื่อมต่อระยะไกลครั้งแรกของคุณ</string>
+    <string name="discovery_title">เพิ่มการเชื่อมต่อ</string>
+    <string name="discovery_scanning">กำลังค้นหาเซิร์ฟเวอร์บนเครือข่ายท้องถิ่น…</string>
+    <string name="discovery_scan_network">สแกนเครือข่าย</string>
+    <string name="discovery_item_address">%1$s · พอร์ต %2$d</string>
+    <string name="discovery_none_found">ยังไม่พบเซิร์ฟเวอร์</string>
+    <string name="discovery_enter_manually">ป้อนด้วยตนเอง</string>
+    <string name="discovery_scanning_progress">กำลังสแกนเครือข่าย… (%1$d/%2$d โฮสต์)</string>
+    <string name="discovery_scan_complete">สแกนเสร็จสิ้น</string>
+    <string name="connection_type_prompt_title">เลือกประเภทเซิร์ฟเวอร์</string>
     <string name="keyboard_layout_map">รูปแบบแป้นพิมพ์</string>
 </resources>

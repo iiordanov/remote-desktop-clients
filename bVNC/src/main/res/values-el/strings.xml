@@ -836,5 +836,14 @@
     <string name="no_connections_title">Δεν υπάρχουν συνδέσεις ακόμα</string>
     <string name="no_connections_hint">Πατήστε το κουμπί + για να προσθέσετε την πρώτη σας απομακρυσμένη σύνδεση</string>
     <string name="no_connections_hint_tv">Πατήστε το κουμπί + παραπάνω για να προσθέσετε την πρώτη σας απομακρυσμένη σύνδεση</string>
+    <string name="discovery_title">Προσθήκη Σύνδεσης</string>
+    <string name="discovery_scanning">Αναζήτηση διακομιστών στο τοπικό δίκτυο…</string>
+    <string name="discovery_scan_network">Σάρωση δικτύου</string>
+    <string name="discovery_item_address">%1$s · θύρα %2$d</string>
+    <string name="discovery_none_found">Δεν βρέθηκαν διακομιστές ακόμα</string>
+    <string name="discovery_enter_manually">Εισαγωγή χειροκίνητα</string>
+    <string name="discovery_scanning_progress">Σάρωση δικτύου… (%1$d/%2$d κόμβοι)</string>
+    <string name="discovery_scan_complete">Η σάρωση ολοκληρώθηκε</string>
+    <string name="connection_type_prompt_title">Επιλέξτε τύπο διακομιστή</string>
     <string name="keyboard_layout_map">Διάταξη πληκτρολογίου</string>
 </resources>

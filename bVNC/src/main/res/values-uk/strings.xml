@@ -732,5 +732,14 @@
     <string name="no_connections_title">Підключень поки немає</string>
     <string name="no_connections_hint">Натисніть кнопку +, щоб додати перше віддалене підключення</string>
     <string name="no_connections_hint_tv">Натисніть кнопку + вище, щоб додати перше віддалене підключення</string>
+    <string name="discovery_title">Додати підключення</string>
+    <string name="discovery_scanning">Пошук серверів у локальній мережі…</string>
+    <string name="discovery_scan_network">Сканувати мережу</string>
+    <string name="discovery_item_address">%1$s · порт %2$d</string>
+    <string name="discovery_none_found">Сервери поки не знайдено</string>
+    <string name="discovery_enter_manually">Ввести вручну</string>
+    <string name="discovery_scanning_progress">Сканування мережі… (%1$d/%2$d хостів)</string>
+    <string name="discovery_scan_complete">Сканування завершено</string>
+    <string name="connection_type_prompt_title">Виберіть тип сервера</string>
     <string name="keyboard_layout_map">Розкладка клавіатури</string>
 </resources>

@@ -893,5 +893,14 @@
     <string name="no_connections_title">Подключений пока нет</string>
     <string name="no_connections_hint">Нажмите кнопку +, чтобы добавить первое удалённое подключение</string>
     <string name="no_connections_hint_tv">Нажмите кнопку + выше, чтобы добавить первое удалённое подключение</string>
+    <string name="discovery_title">Добавить подключение</string>
+    <string name="discovery_scanning">Поиск серверов в локальной сети…</string>
+    <string name="discovery_scan_network">Сканировать сеть</string>
+    <string name="discovery_item_address">%1$s · порт %2$d</string>
+    <string name="discovery_none_found">Серверы пока не найдены</string>
+    <string name="discovery_enter_manually">Ввести вручную</string>
+    <string name="discovery_scanning_progress">Сканирование сети… (%1$d/%2$d хостов)</string>
+    <string name="discovery_scan_complete">Сканирование завершено</string>
+    <string name="connection_type_prompt_title">Выберите тип сервера</string>
     <string name="keyboard_layout_map">Раскладка клавиатуры</string>
 </resources>

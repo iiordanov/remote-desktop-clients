@@ -906,5 +906,14 @@ App is already exempt from battery optimizations.</string>
     <string name="no_connections_title">Nenhuma conexão ainda</string>
     <string name="no_connections_hint">Toque no botão + para adicionar sua primeira conexão remota</string>
     <string name="no_connections_hint_tv">Pressione o botão + acima para adicionar sua primeira conexão remota</string>
+    <string name="discovery_title">Adicionar Conexão</string>
+    <string name="discovery_scanning">Buscando servidores na rede local…</string>
+    <string name="discovery_scan_network">Verificar rede</string>
+    <string name="discovery_item_address">%1$s · porta %2$d</string>
+    <string name="discovery_none_found">Nenhum servidor encontrado ainda</string>
+    <string name="discovery_enter_manually">Inserir manualmente</string>
+    <string name="discovery_scanning_progress">Verificando a rede… (%1$d/%2$d hosts)</string>
+    <string name="discovery_scan_complete">Verificação concluída</string>
+    <string name="connection_type_prompt_title">Selecionar tipo de servidor</string>
     <string name="keyboard_layout_map">Layout do teclado</string>
 </resources>

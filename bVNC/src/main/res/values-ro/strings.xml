@@ -834,5 +834,14 @@ Aplicația este deja scutită de optimizările bateriei.</string>
     <string name="no_connections_title">Nicio conexiune încă</string>
     <string name="no_connections_hint">Atingeți butonul + pentru a adăuga prima conexiune la distanță</string>
     <string name="no_connections_hint_tv">Apăsați butonul + de mai sus pentru a adăuga prima conexiune la distanță</string>
+    <string name="discovery_title">Adaugă conexiune</string>
+    <string name="discovery_scanning">Se caută servere în rețeaua locală…</string>
+    <string name="discovery_scan_network">Scanează rețeaua</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Nu s-au găsit servere încă</string>
+    <string name="discovery_enter_manually">Introduceți manual</string>
+    <string name="discovery_scanning_progress">Se scanează rețeaua… (%1$d/%2$d gazde)</string>
+    <string name="discovery_scan_complete">Scanare finalizată</string>
+    <string name="connection_type_prompt_title">Selectați tipul serverului</string>
     <string name="keyboard_layout_map">Aspect tastatură</string>
 </resources>

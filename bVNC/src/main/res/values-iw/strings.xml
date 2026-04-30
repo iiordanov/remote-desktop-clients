@@ -704,5 +704,14 @@
     <string name="no_connections_title">אין חיבורים עדיין</string>
     <string name="no_connections_hint">הקש על כפתור + כדי להוסיף את החיבור המרוחק הראשון שלך</string>
     <string name="no_connections_hint_tv">לחץ על כפתור + למעלה כדי להוסיף את החיבור המרוחק הראשון שלך</string>
+    <string name="discovery_title">הוסף חיבור</string>
+    <string name="discovery_scanning">מחפש שרתים ברשת המקומית…</string>
+    <string name="discovery_scan_network">סרוק רשת</string>
+    <string name="discovery_item_address">%1$s · יציאה %2$d</string>
+    <string name="discovery_none_found">טרם נמצאו שרתים</string>
+    <string name="discovery_enter_manually">הזן ידנית</string>
+    <string name="discovery_scanning_progress">סורק את הרשת… (%1$d/%2$d מארחים)</string>
+    <string name="discovery_scan_complete">הסריקה הושלמה</string>
+    <string name="connection_type_prompt_title">בחר סוג שרת</string>
     <string name="keyboard_layout_map">פריסת המקלדת</string>
 </resources>

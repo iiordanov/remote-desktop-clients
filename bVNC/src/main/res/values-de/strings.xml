@@ -909,5 +909,14 @@ App ist bereits von Batterieoptimierungen ausgenommen.</string>
     <string name="no_connections_title">Noch keine Verbindungen</string>
     <string name="no_connections_hint">Tippe auf die +-Schaltfläche, um deine erste Fernverbindung hinzuzufügen</string>
     <string name="no_connections_hint_tv">Drücke die +-Schaltfläche oben, um deine erste Fernverbindung hinzuzufügen</string>
+    <string name="discovery_title">Verbindung hinzufügen</string>
+    <string name="discovery_scanning">Suche nach Servern im lokalen Netzwerk…</string>
+    <string name="discovery_scan_network">Netzwerk scannen</string>
+    <string name="discovery_item_address">%1$s · Port %2$d</string>
+    <string name="discovery_none_found">Noch keine Server gefunden</string>
+    <string name="discovery_enter_manually">Manuell eingeben</string>
+    <string name="discovery_scanning_progress">Netzwerk wird gescannt… (%1$d/%2$d Hosts)</string>
+    <string name="discovery_scan_complete">Scan abgeschlossen</string>
+    <string name="connection_type_prompt_title">Servertyp auswählen</string>
     <string name="keyboard_layout_map">Tastaturlayout</string>
 </resources>

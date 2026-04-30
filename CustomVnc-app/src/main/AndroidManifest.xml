@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="116360"
-    android:versionName="v6.3.6">
+    android:versionCode="116390"
+    android:versionName="v6.3.9">
 
     <uses-permission tools:node="removeAll" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -26,7 +26,7 @@
         android:banner="@mipmap/banner_bvnc"
         android:icon="@drawable/${custom_vnc_app_icon}"
         android:label="${custom_vnc_app_name}"
-        android:theme="@android:style/Theme.DeviceDefault"
+        android:theme="@style/AppThemeDayNight"
         tools:replace="android:label,android:theme">
         <activity
             android:name="com.undatech.opaque.ConnectionGridActivity"
@@ -34,7 +34,8 @@
             android:exported="true"
             android:label="${custom_vnc_app_name}"
             android:resizeableActivity="true"
-            android:theme="@android:style/Theme.DeviceDefault">
+            android:theme="@style/AppThemeDayNight"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -48,7 +49,8 @@
             android:configChanges="orientation|keyboardHidden"
             android:label="${custom_vnc_app_name}"
             android:resizeableActivity="true"
-            android:theme="@android:style/Theme.DeviceDefault"
+            android:screenOrientation="fullUser"
+            android:theme="@style/AppThemeDayNight"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.iiordanov.bVNC.RemoteCanvasActivity"

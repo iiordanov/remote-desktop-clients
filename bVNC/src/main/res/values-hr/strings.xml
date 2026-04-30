@@ -911,5 +911,14 @@ Aplikacija je već izuzeta od optimizacije baterije.</string>
     <string name="no_connections_title">Još nema veza</string>
     <string name="no_connections_hint">Dodirnite gumb + za dodavanje prve udaljene veze</string>
     <string name="no_connections_hint_tv">Pritisnite gumb + iznad za dodavanje prve udaljene veze</string>
+    <string name="discovery_title">Dodaj vezu</string>
+    <string name="discovery_scanning">Traženje poslužitelja na lokalnoj mreži…</string>
+    <string name="discovery_scan_network">Skeniraj mrežu</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Još nisu pronađeni poslužitelji</string>
+    <string name="discovery_enter_manually">Unesi ručno</string>
+    <string name="discovery_scanning_progress">Skeniranje mreže… (%1$d/%2$d domaćina)</string>
+    <string name="discovery_scan_complete">Skeniranje završeno</string>
+    <string name="connection_type_prompt_title">Odaberite vrstu poslužitelja</string>
     <string name="keyboard_layout_map">Raspored tipkovnice</string>
 </resources>

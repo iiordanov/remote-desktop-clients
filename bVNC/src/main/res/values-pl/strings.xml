@@ -808,5 +808,14 @@ Aplikacja jest już wyłączona z optymalizacji baterii.</string>
     <string name="no_connections_title">Brak połączeń</string>
     <string name="no_connections_hint">Dotknij przycisku +, aby dodać pierwsze połączenie zdalne</string>
     <string name="no_connections_hint_tv">Naciśnij przycisk + powyżej, aby dodać pierwsze połączenie zdalne</string>
+    <string name="discovery_title">Dodaj połączenie</string>
+    <string name="discovery_scanning">Wyszukiwanie serwerów w sieci lokalnej…</string>
+    <string name="discovery_scan_network">Skanuj sieć</string>
+    <string name="discovery_item_address">%1$s · port %2$d</string>
+    <string name="discovery_none_found">Nie znaleziono jeszcze żadnych serwerów</string>
+    <string name="discovery_enter_manually">Wprowadź ręcznie</string>
+    <string name="discovery_scanning_progress">Skanowanie sieci… (%1$d/%2$d hostów)</string>
+    <string name="discovery_scan_complete">Skanowanie zakończone</string>
+    <string name="connection_type_prompt_title">Wybierz typ serwera</string>
     <string name="keyboard_layout_map">Układ klawiatury</string>
 </resources>

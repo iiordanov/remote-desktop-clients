@@ -13,10 +13,10 @@ import java.util.Map;
 public class CustomClientConfigFileReader {
     private final static String TAG = "ConfigFileReader";
 
-    private Map<String, Map> configData;
+    private final Map<String, Map<String, Map<String, ?>>> configData;
 
     public CustomClientConfigFileReader(InputStream configFileInputStream) {
-        BufferedReader reader = null;
+        BufferedReader reader;
         reader = new BufferedReader(new InputStreamReader(configFileInputStream));
 
         Yaml yaml = new Yaml();
@@ -26,11 +26,11 @@ public class CustomClientConfigFileReader {
             reader.close();
         } catch (IOException e) {
             Log.e(TAG, "Error closing config reader.");
-            e.printStackTrace();
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
-    public Map<String, Map> getConfigData() {
+    public Map<String, Map<String, Map<String, ?>>> getConfigData() {
         return configData;
     }
 }
