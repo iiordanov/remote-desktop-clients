@@ -194,6 +194,10 @@ public final class ExtraKeysView extends GridLayout {
 
         setLongPressTimeout(ViewConfiguration.getLongPressTimeout());
         setLongPressRepeatDelay(DEFAULT_LONG_PRESS_REPEAT_DELAY);
+
+        // Opaque background so the framebuffer canvas doesn't show through
+        // when MaterialButton pressed states have transparency.
+        setBackgroundColor(mButtonBackgroundColor);
     }
 
     private static int getSystemAttrColor(Context context, int attr, int defaultColor) {

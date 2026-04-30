@@ -214,3 +214,4 @@ switch-to-*
 remote-desktop-clients-libs-*
 
 venv
+docker-build/

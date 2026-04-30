@@ -79,6 +79,29 @@ class OneToOneScaling extends AbstractScaling {
         //activity.vncCanvas.pan(0,0);
     }
 
+    /**
+     * Corrects scroll when the viewport is larger than the remote framebuffer.
+     * When fb < view in an axis, zeroes the scroll in that axis so the matrix
+     * translation (which already centers the image) is not overridden by the scroll.
+     * When fb >= view, panning behavior is preserved unchanged.
+     */
+    private void fixScrollForCentering(RemoteCanvas canvas) {
+        if (canvas == null || canvas.myDrawable == null) return;
+
+        int fbW = canvas.myDrawable.fbWidth();
+        int fbH = canvas.myDrawable.fbHeight();
+        int viewW = canvas.getWidth();
+        int viewH = canvas.getHeight();
+
+        int scrollX = canvas.getScrollX();
+        int scrollY = canvas.getScrollY();
+
+        if (fbW <= viewW) scrollX = 0;
+        if (fbH <= viewH) scrollY = 0;
+
+        canvas.scrollTo(scrollX, scrollY);
+    }
+
     /* (non-Javadoc)
      * @see com.iiordanov.bVNC.AbstractScaling#getScale()
      */
@@ -109,6 +132,21 @@ class OneToOneScaling extends AbstractScaling {
         matrix.postScale(scaling, scaling);
         canvas.setImageMatrix(matrix);
         resolveZoom(canvas);
+        fixScrollForCentering(canvas);
         //activity.vncCanvas.pan(0, 0);
+    }
+
+    @Override
+    public void handleViewSizeChange(RemoteCanvas canvas) {
+        if (canvas == null || canvas.myDrawable == null)
+            return;
+        canvasXOffset = -canvas.getCenteredXOffset();
+        canvasYOffset = -canvas.getCenteredYOffset();
+        canvas.computeShiftFromFullToView();
+        resetMatrix();
+        matrix.postScale(scaling, scaling);
+        canvas.setImageMatrix(matrix);
+        canvas.resetScroll();
+        fixScrollForCentering(canvas);
     }
 }
