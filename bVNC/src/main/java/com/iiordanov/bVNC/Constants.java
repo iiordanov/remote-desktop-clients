@@ -35,6 +35,7 @@ public class Constants {
     public static final int CONN_TYPE_ANONTLS = 3;
     public static final int CONN_TYPE_VENCRYPT = 4;
     public static final int CONN_TYPE_STUNNEL = 5;
+    public static final int CONN_TYPE_SECUREVNCPLUGIN = 6;
 
     public static final int SOCKET_CONN_TIMEOUT = 20 * 1000;
 
@@ -103,6 +104,10 @@ public class Constants {
     public static final int EXTRA_KEYS_ON = 1;
     public static final int EXTRA_KEYS_TIMEOUT = 2;
     public static final int ACTIVITY_GEN_KEY = 1;
+    public static final int ACTIVITY_SVNC_GEN_KEY = 2;
+    public static final int ACTIVITY_SVNC_IMPORT_KEY = 3;
+    public static final int ACTIVITY_SVNC_EXPORT_PUBKEY = 4;
+    public static final int ACTIVITY_SVNC_EXPORT_PKEY = 5;
     public final static int AUTOX_SELECT_DISABLED = 0;
     public final static int AUTOX_SELECT_XVFB = 1;
     public final static int AUTOX_SELECT_XVNC = 2;

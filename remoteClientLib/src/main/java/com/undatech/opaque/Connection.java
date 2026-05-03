@@ -493,4 +493,32 @@ public interface Connection {
     int getDesktopScalePercentage();
 
     void setDesktopScalePercentage(int desktopScalePercentage);
+
+    String getClientAuthPubKey();
+
+    void setClientAuthPubKey(String clientAuthPubKey);
+
+    String getClientAuthPrivKey();
+
+    void setClientAuthPrivKey(String clientAuthPrivKey);
+
+    String getClientAuthPassPhrase();
+
+    void setClientAuthPassPhrase(String clientAuthPassPhrase);
+
+    boolean getClientAuthEnabled();
+
+    void setClientAuthEnabled(boolean clientAuthEnabled);
+
+    String getSvncPassphrase();
+
+    void setSvncPassphrase(String svncPassphrase);
+
+    boolean getSvncEnabled();
+
+    void setSvncEnabled(boolean svncEnabled);
+
+    boolean getKeepSvncPassphrase();
+
+    void setKeepSvncPassphrase(boolean keepSvncPassphrase);
 }

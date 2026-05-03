@@ -60,6 +60,7 @@ public class GetTextFragment extends DialogFragment {
     public static final String DIALOG_ID_GET_SSH_PASSPHRASE = "DIALOG_ID_GET_SSH_PASSPHRASE";
     public static final String DIALOG_ID_GET_VNC_CREDENTIALS = "DIALOG_ID_GET_VNC_CREDENTIALS";
     public static final String DIALOG_ID_GET_VNC_PASSWORD = "DIALOG_ID_GET_VNC_PASSWORD";
+    public static final String DIALOG_ID_GET_SVNC_PASSPHRASE = "DIALOG_ID_GET_SVNC_PASSPHRASE";
     public static final String DIALOG_ID_GET_RDP_CREDENTIALS = "DIALOG_ID_GET_RDP_CREDENTIALS";
     public static final String DIALOG_ID_GET_RDP_GATEWAY_CREDENTIALS = "DIALOG_ID_GET_RDP_GATEWAY_CREDENTIALS";
     public static final String DIALOG_ID_GET_SPICE_PASSWORD = "DIALOG_ID_GET_SPICE_PASSWORD";

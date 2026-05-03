@@ -1545,4 +1545,67 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
     @Override
     public void setDesktopScalePercentage(int desktopScalePercentage) {
     }
+
+    @Override
+    public String getClientAuthPubKey() {
+        return null;
+    }
+
+    @Override
+    public void setClientAuthPubKey(String clientAuthPubKey) {
+    }
+
+    @Override
+    public String getClientAuthPrivKey() {
+        return null;
+    }
+
+    @Override
+    public void setClientAuthPrivKey(String clientAuthPrivKey) {
+    }
+
+    @Override
+    public String getClientAuthPassPhrase() {
+        return null;
+    }
+
+    @Override
+    public void setClientAuthPassPhrase(String clientAuthPassPhrase) {
+    }
+
+    @Override
+    public boolean getClientAuthEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setClientAuthEnabled(boolean clientAuthEnabled) {
+    }
+
+    @Override
+    public String getSvncPassphrase() {
+        return null;
+    }
+
+    @Override
+    public void setSvncPassphrase(String svncPassphrase) {
+    }
+
+    @Override
+    public boolean getSvncEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setSvncEnabled(boolean svncEnabled) {
+    }
+
+    @Override
+    public boolean getKeepSvncPassphrase() {
+        return false;
+    }
+
+    @Override
+    public void setKeepSvncPassphrase(boolean keepSvncPassphrase) {
+    }
 }

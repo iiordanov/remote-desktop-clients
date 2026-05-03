@@ -29,7 +29,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public static final String TAG = "AbstractConnectionBean";
 
     public static final String GEN_TABLE_NAME = "CONNECTION_BEAN";
-    public static final int GEN_COUNT = 100;
+    public static final int GEN_COUNT = 107;
 
     // Field constants
     public static final String GEN_FIELD__ID = "_id";
@@ -240,6 +240,21 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public static final String GEN_FIELD_USELASTPOSITIONTOOLBARMOVED = "USELASTPOSITIONTOOLBARMOVED";
     public static final int GEN_ID_USELASTPOSITIONTOOLBARMOVED = 99;
 
+    public static final String GEN_FIELD_CLIENTAUTHPUBKEY = "CLIENTAUTHPUBKEY";
+    public static final int GEN_ID_CLIENTAUTHPUBKEY = 100;
+    public static final String GEN_FIELD_CLIENTAUTHPRIVKEY = "CLIENTAUTHPRIVKEY";
+    public static final int GEN_ID_CLIENTAUTHPRIVKEY = 101;
+    public static final String GEN_FIELD_CLIENTAUTHPASSPHRASE = "CLIENTAUTHPASSPHRASE";
+    public static final int GEN_ID_CLIENTAUTHPASSPHRASE = 102;
+    public static final String GEN_FIELD_CLIENTAUTHENABLED = "CLIENTAUTHENABLED";
+    public static final int GEN_ID_CLIENTAUTHENABLED = 103;
+    public static final String GEN_FIELD_SVNCPASSPHRASE = "SVNCPASSPHRASE";
+    public static final int GEN_ID_SVNCPASSPHRASE = 104;
+    public static final String GEN_FIELD_SVNCENABLED = "SVNCENABLED";
+    public static final int GEN_ID_SVNCENABLED = 105;
+    public static final String GEN_FIELD_KEEPSVNCPASSPHRASE = "KEEPSVNCPASSPHRASE";
+    public static final int GEN_ID_KEEPSVNCPASSPHRASE = 106;
+
     // SQL Command for creating the table
     public static String GEN_CREATE = "CREATE TABLE CONNECTION_BEAN (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -341,7 +356,14 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             "USELASTPOSITIONTOOLBAR BOOLEAN," +
             "USELASTPOSITIONTOOLBARX INTEGER," +
             "USELASTPOSITIONTOOLBARY INTEGER," +
-            "USELASTPOSITIONTOOLBARMOVED BOOLEAN" +
+            "USELASTPOSITIONTOOLBARMOVED BOOLEAN," +
+            "CLIENTAUTHPUBKEY TEXT," +
+            "CLIENTAUTHPRIVKEY TEXT," +
+            "CLIENTAUTHPASSPHRASE TEXT," +
+            "CLIENTAUTHENABLED BOOLEAN," +
+            "SVNCPASSPHRASE TEXT," +
+            "SVNCENABLED BOOLEAN," +
+            "KEEPSVNCPASSPHRASE BOOLEAN" +
             ")";
 
     // Members corresponding to defined fields
@@ -449,6 +471,13 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     private int gen_useLastPositionToolbarX;
     private int gen_useLastPositionToolbarY;
     private boolean gen_useLastPositionToolbarMoved;
+    private java.lang.String gen_clientAuthPubKey;
+    private java.lang.String gen_clientAuthPrivKey;
+    private java.lang.String gen_clientAuthPassPhrase;
+    private boolean gen_clientAuthEnabled;
+    private java.lang.String gen_svncPassphrase;
+    private boolean gen_svncEnabled;
+    private boolean gen_keepSvncPassphrase = true;
 
     /**
      * Marks the connection as a profile not to be persisted to disk. When true, subclasses
@@ -1289,6 +1318,62 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         this.gen_useLastPositionToolbarMoved = useLastPositionToolbarMoved;
     }
 
+    public java.lang.String getClientAuthPubKey() {
+        return gen_clientAuthPubKey;
+    }
+
+    public void setClientAuthPubKey(java.lang.String clientAuthPubKey) {
+        gen_clientAuthPubKey = clientAuthPubKey;
+    }
+
+    public java.lang.String getClientAuthPrivKey() {
+        return gen_clientAuthPrivKey;
+    }
+
+    public void setClientAuthPrivKey(java.lang.String clientAuthPrivKey) {
+        gen_clientAuthPrivKey = clientAuthPrivKey;
+    }
+
+    public java.lang.String getClientAuthPassPhrase() {
+        return gen_clientAuthPassPhrase;
+    }
+
+    public void setClientAuthPassPhrase(java.lang.String clientAuthPassPhrase) {
+        gen_clientAuthPassPhrase = clientAuthPassPhrase;
+    }
+
+    public boolean getClientAuthEnabled() {
+        return gen_clientAuthEnabled;
+    }
+
+    public void setClientAuthEnabled(boolean clientAuthEnabled) {
+        gen_clientAuthEnabled = clientAuthEnabled;
+    }
+
+    public java.lang.String getSvncPassphrase() {
+        return gen_svncPassphrase;
+    }
+
+    public void setSvncPassphrase(java.lang.String svncPassphrase) {
+        gen_svncPassphrase = svncPassphrase;
+    }
+
+    public boolean getSvncEnabled() {
+        return gen_svncEnabled;
+    }
+
+    public void setSvncEnabled(boolean svncEnabled) {
+        gen_svncEnabled = svncEnabled;
+    }
+
+    public boolean getKeepSvncPassphrase() {
+        return gen_keepSvncPassphrase;
+    }
+
+    public void setKeepSvncPassphrase(boolean keepSvncPassphrase) {
+        gen_keepSvncPassphrase = keepSvncPassphrase;
+    }
+
     public android.content.ContentValues Gen_getValues() {
         android.content.ContentValues values = new android.content.ContentValues();
         values.put(GEN_FIELD__ID, Long.toString(this.gen__Id));
@@ -1396,6 +1481,13 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         values.put(GEN_FIELD_USELASTPOSITIONTOOLBARX, (this.gen_useLastPositionToolbarX));
         values.put(GEN_FIELD_USELASTPOSITIONTOOLBARY, (this.gen_useLastPositionToolbarY));
         values.put(GEN_FIELD_USELASTPOSITIONTOOLBARMOVED, (this.gen_useLastPositionToolbarMoved));
+        values.put(GEN_FIELD_CLIENTAUTHPUBKEY, this.gen_clientAuthPubKey);
+        values.put(GEN_FIELD_CLIENTAUTHPRIVKEY, this.gen_clientAuthPrivKey);
+        values.put(GEN_FIELD_CLIENTAUTHPASSPHRASE, this.gen_clientAuthPassPhrase);
+        values.put(GEN_FIELD_CLIENTAUTHENABLED, (this.gen_clientAuthEnabled));
+        values.put(GEN_FIELD_SVNCPASSPHRASE, this.gen_svncPassphrase);
+        values.put(GEN_FIELD_SVNCENABLED, (this.gen_svncEnabled));
+        values.put(GEN_FIELD_KEEPSVNCPASSPHRASE, (this.gen_keepSvncPassphrase));
 
         return values;
     }
@@ -1517,6 +1609,13 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         result[97] = cursor.getColumnIndex(GEN_FIELD_USELASTPOSITIONTOOLBARX);
         result[98] = cursor.getColumnIndex(GEN_FIELD_USELASTPOSITIONTOOLBARY);
         result[99] = cursor.getColumnIndex(GEN_FIELD_USELASTPOSITIONTOOLBARMOVED);
+        result[100] = cursor.getColumnIndex(GEN_FIELD_CLIENTAUTHPUBKEY);
+        result[101] = cursor.getColumnIndex(GEN_FIELD_CLIENTAUTHPRIVKEY);
+        result[102] = cursor.getColumnIndex(GEN_FIELD_CLIENTAUTHPASSPHRASE);
+        result[103] = cursor.getColumnIndex(GEN_FIELD_CLIENTAUTHENABLED);
+        result[104] = cursor.getColumnIndex(GEN_FIELD_SVNCPASSPHRASE);
+        result[105] = cursor.getColumnIndex(GEN_FIELD_SVNCENABLED);
+        result[106] = cursor.getColumnIndex(GEN_FIELD_KEEPSVNCPASSPHRASE);
 
         return result;
     }
@@ -1829,6 +1928,27 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         if (columnIndices[GEN_ID_USELASTPOSITIONTOOLBARMOVED] >= 0 && !cursor.isNull(columnIndices[GEN_ID_USELASTPOSITIONTOOLBARMOVED])) {
             gen_useLastPositionToolbarMoved = cursor.getInt(columnIndices[GEN_ID_USELASTPOSITIONTOOLBARMOVED]) != 0;
         }
+        if (columnIndices[GEN_ID_CLIENTAUTHPUBKEY] >= 0 && !cursor.isNull(columnIndices[GEN_ID_CLIENTAUTHPUBKEY])) {
+            gen_clientAuthPubKey = cursor.getString(columnIndices[GEN_ID_CLIENTAUTHPUBKEY]);
+        }
+        if (columnIndices[GEN_ID_CLIENTAUTHPRIVKEY] >= 0 && !cursor.isNull(columnIndices[GEN_ID_CLIENTAUTHPRIVKEY])) {
+            gen_clientAuthPrivKey = cursor.getString(columnIndices[GEN_ID_CLIENTAUTHPRIVKEY]);
+        }
+        if (columnIndices[GEN_ID_CLIENTAUTHPASSPHRASE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_CLIENTAUTHPASSPHRASE])) {
+            gen_clientAuthPassPhrase = cursor.getString(columnIndices[GEN_ID_CLIENTAUTHPASSPHRASE]);
+        }
+        if (columnIndices[GEN_ID_CLIENTAUTHENABLED] >= 0 && !cursor.isNull(columnIndices[GEN_ID_CLIENTAUTHENABLED])) {
+            gen_clientAuthEnabled = cursor.getInt(columnIndices[GEN_ID_CLIENTAUTHENABLED]) != 0;
+        }
+        if (columnIndices[GEN_ID_SVNCPASSPHRASE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_SVNCPASSPHRASE])) {
+            gen_svncPassphrase = cursor.getString(columnIndices[GEN_ID_SVNCPASSPHRASE]);
+        }
+        if (columnIndices[GEN_ID_SVNCENABLED] >= 0 && !cursor.isNull(columnIndices[GEN_ID_SVNCENABLED])) {
+            gen_svncEnabled = cursor.getInt(columnIndices[GEN_ID_SVNCENABLED]) != 0;
+        }
+        if (columnIndices[GEN_ID_KEEPSVNCPASSPHRASE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_KEEPSVNCPASSPHRASE])) {
+            gen_keepSvncPassphrase = cursor.getInt(columnIndices[GEN_ID_KEEPSVNCPASSPHRASE]) != 0;
+        }
     }
 
     /**
@@ -1940,6 +2060,15 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_useLastPositionToolbarX = intOr(values, GEN_FIELD_USELASTPOSITIONTOOLBARX, 0);
         gen_useLastPositionToolbarY = intOr(values, GEN_FIELD_USELASTPOSITIONTOOLBARY, 0);
         gen_useLastPositionToolbarMoved = boolOr(values, GEN_FIELD_USELASTPOSITIONTOOLBARMOVED, false);
+        gen_clientAuthPubKey = values.getAsString(GEN_FIELD_CLIENTAUTHPUBKEY);
+        gen_clientAuthPrivKey = values.getAsString(GEN_FIELD_CLIENTAUTHPRIVKEY);
+        gen_clientAuthPassPhrase = values.getAsString(GEN_FIELD_CLIENTAUTHPASSPHRASE);
+        gen_clientAuthEnabled = values.getAsBoolean(GEN_FIELD_CLIENTAUTHENABLED);
+        gen_svncPassphrase = values.getAsString(GEN_FIELD_SVNCPASSPHRASE);
+        Boolean svncEnabled = values.getAsBoolean(GEN_FIELD_SVNCENABLED);
+        gen_svncEnabled = svncEnabled != null && svncEnabled;
+        Boolean keepSvncPassphrase = values.getAsBoolean(GEN_FIELD_KEEPSVNCPASSPHRASE);
+        gen_keepSvncPassphrase = keepSvncPassphrase == null || keepSvncPassphrase;
     }
 
     private static boolean boolOr(android.content.ContentValues values, String key, boolean defaultValue) {

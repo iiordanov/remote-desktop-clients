@@ -36,27 +36,8 @@ class Utilities {
         }
 
         private fun readFileToUtf8String(i: InputStream?, maxKeyFileSizeBytes: Int): String? {
-            val bis = BufferedInputStream(i)
-            val buffer = ByteArrayOutputStream()
-            try {
-                val data = ByteArray(BUFFER_SIZE)
-                var current = 0
-                var total = 0
-                while (
-                    total < maxKeyFileSizeBytes &&
-                    bis.read(data, 0, data.size).also {
-                        current = it
-                        total += current
-                    } != -1
-                ) {
-                    buffer.write(data, 0, current)
-                }
-                i?.close()
-                return buffer.toString("UTF-8")
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            return ""
+            val bytes = readFileToBytes(i, maxKeyFileSizeBytes) ?: return ""
+            return String(bytes, Charsets.UTF_8)
         }
 
         private fun getInputStreamFromUri(resolver: ContentResolver, uri: Uri?): InputStream? {
@@ -87,6 +68,41 @@ class Utilities {
             val resolver = activity.contentResolver
             val stream: InputStream? = getInputStreamFromUri(resolver, data.data)
             return readFileToUtf8String(stream, maxKeyFileSizeBytes)
+        }
+
+        fun getBytesDataFromIntent(
+            data: Intent,
+            activity: Activity,
+            maxFileSizeBytes: Int
+        ): ByteArray? {
+            val resolver = activity.contentResolver
+            val stream: InputStream? = getInputStreamFromUri(resolver, data.data)
+            return readFileToBytes(stream, maxFileSizeBytes)
+        }
+
+        private fun readFileToBytes(i: InputStream?, maxFileSizeBytes: Int): ByteArray? {
+            if (i == null) return null
+            val bis = BufferedInputStream(i)
+            val buffer = ByteArrayOutputStream()
+            try {
+                val data = ByteArray(BUFFER_SIZE)
+                var current = 0
+                var total = 0
+                while (
+                    total < maxFileSizeBytes &&
+                    bis.read(data, 0, data.size).also {
+                        current = it
+                        total += current
+                    } != -1
+                ) {
+                    buffer.write(data, 0, current)
+                }
+                i.close()
+                return buffer.toByteArray()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            return null
         }
 
         fun importCaCertFromFile(activity: Activity, requestCode: Int) {

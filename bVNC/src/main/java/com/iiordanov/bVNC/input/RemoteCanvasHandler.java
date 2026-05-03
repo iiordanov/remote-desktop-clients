@@ -20,6 +20,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.bVNC.CredentialsObtainer;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.iiordanov.bVNC.RfbProto;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.protocol.RemoteConnection;
@@ -291,6 +292,27 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
     }
 
     /**
+     * Shows a warning dialog when the server offers an encryption upgrade, but the
+     * client (e.g. SecureVNCPlugin) is not configured to take advantage of it.
+     * The user can choose to proceed without encryption upgrade or cancel the connection.
+     */
+    private void showEncryptionUpgradePossibleWarning(int title, int message) {
+        DialogInterface.OnClickListener onCancel = (dialog, which) -> {
+            remoteConnection.getRfbConn().setEncryptionUpgradeDeclined(false);
+        };
+        DialogInterface.OnClickListener onProceed = (dialog, which) -> {
+            remoteConnection.getRfbConn().setEncryptionUpgradeDeclined(true);
+        };
+        Utils.showYesNoPrompt(
+                context,
+                context.getString(title),
+                context.getString(message),
+                onProceed,
+                onCancel
+        );
+    }
+
+    /**
      * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
      */
     public void initializeSshHostKey(
@@ -386,6 +408,18 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                         obtainer, GetTextFragment.Password,
                         R.string.enter_vnc_password, R.string.enter_vnc_password,
                         connection.getPassword(), null, null, connection.getKeepPassword());
+                break;
+            case RemoteClientLibConstants.GET_SVNC_PASSPHRASE:
+                showGetTextFragment(context.getString(R.string.enter_svnc_passphrase),
+                        GetTextFragment.DIALOG_ID_GET_SVNC_PASSPHRASE,
+                        context.getString(R.string.enter_svnc_passphrase),
+                        obtainer, GetTextFragment.Password,
+                        R.string.enter_svnc_passphrase, R.string.enter_svnc_passphrase,
+                        connection.getSvncPassphrase(),
+                        null, null, connection.getKeepSvncPassphrase());
+                break;
+            case RemoteClientLibConstants.SVNC_ENCRYPTION_NOT_ENABLED:
+                showEncryptionUpgradePossibleWarning(R.string.svnc_encryption_offered_title, R.string.svnc_encryption_offered_message);
                 break;
             case RemoteClientLibConstants.GET_VNC_CREDENTIALS:
                 showGetTextFragment(context.getString(R.string.enter_vnc_credentials),

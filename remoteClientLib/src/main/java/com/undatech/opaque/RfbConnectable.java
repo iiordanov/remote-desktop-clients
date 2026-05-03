@@ -39,6 +39,11 @@ public abstract class RfbConnectable implements DrawableReallocatedListener {
     protected boolean receivedFirstGraphicsFrame = false;
     protected boolean isRemoteToLocalClipboardIntegrationEnabled;
 
+    // Controls the user prompt when the server offers an encryption upgrade, but the client
+    // does not have it enabled.
+    private boolean encryptionUpgradeDeclined = false;
+    private boolean setEncryptionUpgradeDecisionMade = false;
+
     public RfbConnectable(boolean debugLogging, Handler handler, boolean isRemoteToLocalClipboardIntegrationEnabled) {
         this.handler = handler;
         this.debugLogging = debugLogging;
@@ -111,5 +116,33 @@ public abstract class RfbConnectable implements DrawableReallocatedListener {
     @Override
     public void setBitmapData(AbstractDrawableData drawable) {
         Log.d(TAG, "Stub setBitmapData called");
+    }
+
+    /**
+     * Called by the UI thread when the user decides whether to proceed
+     * without encryption upgrade.
+     *
+     * @param declined true if user chose "connect anyway" (without encryption upgrade),
+     *                 false if user cancelled
+     */
+    public synchronized void setEncryptionUpgradeDeclined(boolean declined) {
+        this.encryptionUpgradeDeclined = declined;
+        this.setEncryptionUpgradeDecisionMade = true;
+        notifyAll();
+    }
+
+    /**
+     * Blocks the calling (protocol) thread until the user decides whether to
+     * proceed without encryption upgrade. Returns true if the user chose to proceed.
+     */
+    protected synchronized boolean waitForEncryptionUpgradeDecision() {
+        while (!setEncryptionUpgradeDecisionMade) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Interrupted while waiting for encryption decision", e);
+            }
+        }
+        return encryptionUpgradeDeclined;
     }
 }

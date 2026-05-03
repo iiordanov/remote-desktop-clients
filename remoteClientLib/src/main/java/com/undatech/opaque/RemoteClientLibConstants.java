@@ -75,6 +75,8 @@ public class RemoteClientLibConstants {
     public static final int GET_RDP_GATEWAY_CREDENTIALS = 48;
     public static final int SHOW_KEYBOARD = 49;
     public static final int SHOW_KEYBOARD_ICON = 50;
+    public static final int GET_SVNC_PASSPHRASE = 51;
+    public static final int SVNC_ENCRYPTION_NOT_ENABLED = 52;
     public static final int PRO_FEATURE = 99;
     public static final int ADVANCED_SETTINGS_REQUEST_CODE = 1;
     public static final int DEFAULT_SETTINGS_REQUEST_CODE = 2;

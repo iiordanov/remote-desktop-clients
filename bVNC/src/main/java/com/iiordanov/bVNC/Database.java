@@ -50,7 +50,9 @@ public class Database extends SQLiteOpenHelper {
         T apply(SQLiteDatabase db);
     }
 
-    /** Void variant of {@link DbOp}; see {@link #runReadable} / {@link #runWritable}. */
+    /**
+     * Void variant of {@link DbOp}; see {@link #runReadable} / {@link #runWritable}.
+     */
     @FunctionalInterface
     public interface DbVoidOp {
         void apply(SQLiteDatabase db);
@@ -72,7 +74,9 @@ public class Database extends SQLiteOpenHelper {
         }
     }
 
-    /** Writable equivalent of {@link #withReadable(Context, DbOp)}. */
+    /**
+     * Writable equivalent of {@link #withReadable(Context, DbOp)}.
+     */
     public static <T> T withWritable(Context context, DbOp<T> op) {
         Database database = new Database(context);
         try {
@@ -82,7 +86,9 @@ public class Database extends SQLiteOpenHelper {
         }
     }
 
-    /** Void readable variant; see {@link #withReadable(Context, DbOp)}. */
+    /**
+     * Void readable variant; see {@link #withReadable(Context, DbOp)}.
+     */
     public static void runReadable(Context context, DbVoidOp op) {
         withReadable(context, db -> {
             op.apply(db);
@@ -90,7 +96,9 @@ public class Database extends SQLiteOpenHelper {
         });
     }
 
-    /** Void writable variant; see {@link #withWritable(Context, DbOp)}. */
+    /**
+     * Void writable variant; see {@link #withWritable(Context, DbOp)}.
+     */
     public static void runWritable(Context context, DbVoidOp op) {
         withWritable(context, db -> {
             op.apply(db);
@@ -122,7 +130,8 @@ public class Database extends SQLiteOpenHelper {
     static final int DBV_2_2_2 = 602;
     static final int DBV_2_2_3 = 626;
     static final int DBV_2_2_4 = 640;
-    static final int CURRVERS = DBV_2_2_4;
+    static final int DBV_2_2_5 = 641;
+    static final int CURRVERS = DBV_2_2_5;
     private static final String dbName = "VncDatabase";
     private static String password = "";
 
@@ -142,7 +151,9 @@ public class Database extends SQLiteOpenHelper {
         Database.password = newPassword;
     }
 
-    private String boolToString(boolean value) { return value ? "TRUE" : "FALSE"; }
+    private String boolToString(boolean value) {
+        return value ? "TRUE" : "FALSE";
+    }
 
     /* (non-Javadoc)
      * @see net.sqlcipher.database.SQLiteOpenHelper#onCreate(net.sqlcipher.database.SQLiteDatabase)
@@ -550,6 +561,24 @@ public class Database extends SQLiteOpenHelper {
                     + AbstractConnectionBean.GEN_FIELD_USELASTPOSITIONTOOLBARMOVED + " BOOLEAN DEFAULT FALSE");
             migrateToolbarPrefsToDb(db);
             oldVersion = DBV_2_2_4;
+        }
+        if (oldVersion == DBV_2_2_4) {
+            Log.i(TAG, "Doing upgrade from 640 to 641");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_CLIENTAUTHPUBKEY + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_CLIENTAUTHPRIVKEY + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_CLIENTAUTHPASSPHRASE + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_CLIENTAUTHENABLED + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_SVNCENABLED + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_SVNCPASSPHRASE + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_KEEPSVNCPASSPHRASE + " BOOLEAN DEFAULT TRUE");
+            oldVersion = DBV_2_2_5;
         }
     }
 

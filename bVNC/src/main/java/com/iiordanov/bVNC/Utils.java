@@ -220,6 +220,7 @@ public class Utils {
      *
      */
     public static String toHexString(byte[] bytes) {
+        if (bytes.length == 0) return "";
         char[] hexArray = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
         char[] hexChars = new char[bytes.length * 3];
         int v, j;

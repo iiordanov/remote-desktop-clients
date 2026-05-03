@@ -39,6 +39,14 @@ class CredentialsObtainer(
                 handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION)
             }
 
+            GetTextFragment.DIALOG_ID_GET_SVNC_PASSPHRASE -> {
+                Log.i(tag, "Text obtained from DIALOG_ID_GET_SVNC_PASSPHRASE.")
+                connection.keepSvncPassphrase = save
+                connection.svncPassphrase = obtainedString[0]
+                connection.save(context)
+                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION)
+            }
+
             GetTextFragment.DIALOG_ID_GET_RDP_CREDENTIALS -> {
                 Log.i(tag, "Text obtained from DIALOG_ID_GET_RDP_CREDENTIALS.")
                 connection.userName = obtainedString[0]

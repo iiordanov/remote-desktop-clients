@@ -221,6 +221,66 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/layoutUltraVncOptions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/checkboxSvncEnabled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/securevncplugin_enabled" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutSecureVNCPlugin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <EditText
+                            android:id="@+id/textSvncPassphrase"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/securevncplugin_passphrase_hint"
+                            android:inputType="textPassword"
+                            android:importantForAutofill="no" />
+
+                        <com.google.android.material.checkbox.MaterialCheckBox
+                            android:id="@+id/checkboxKeepSvncPassphrase"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/keep_svnc_passphrase" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/securevncplugin_client_auth_section"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.checkbox.MaterialCheckBox
+                            android:id="@+id/checkboxSvncClientAuth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/securevncplugin_client_auth_enabled" />
+
+                        <Button
+                            android:id="@+id/buttonSvncManageKey"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/svnc_client_auth_manage_key" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/layoutUseX11Vnc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

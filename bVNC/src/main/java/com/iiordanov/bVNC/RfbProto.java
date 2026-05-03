@@ -40,12 +40,15 @@ import com.tigervnc.rfb.AuthFailureException;
 import com.tigervnc.rfb.CSecurityRSAAES;
 import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.Viewable;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -59,7 +62,7 @@ import javax.net.ssl.SSLSocket;
  * and input events as defined in the RFB protocol.
  */
 @SuppressWarnings({"unused", "FieldCanBeLocal"})
-public class RfbProto extends RfbConnectable {
+public class RfbProto extends RfbConnectable implements RfbAuthChannel {
 
     public static final int SecTypeRA2 = 5;
     public static final int SecTypeRA2ne = 6;
@@ -100,8 +103,10 @@ public class RfbProto extends RfbConnectable {
             SecTypeTLS = 18,
             SecTypeVeNCrypt = 19,
             SecTypeArd = 30,
-            SecTypeUltraVnc2 = 113,
-            SecTypeUltra34 = 0xfffffffa;
+            SecTypeUltra34 = 0xfffffffa,
+            SecTypeSecureVNCPlugin = 0x72,
+            SecTypeSecureVNCPluginNew = 0x73,
+            SecTypeMsLogonII = 0x71;
     // Supported tunneling types
     final static int
             NoTunneling = 0;
@@ -129,7 +134,8 @@ public class RfbProto extends RfbConnectable {
             VncAuthOK = 0,
             VncAuthFailed = 1,
             VncAuthTooMany = 2,
-            PlainAuthFailed = 13;
+            PlainAuthFailed = 13,
+            VncAuthContinue = 0xFFFFFFFF;
     // Server-to-client messages
     final static int
             FramebufferUpdate = 0,
@@ -284,8 +290,9 @@ public class RfbProto extends RfbConnectable {
     // timestamp, to let the player show initial desktop before
     // playback.
     //int numUpdatesInSession;
-    DH dh;
-    long dh_resp;
+    // SecureVNCPlugin / MS Logon settings (provided at construction)
+    private final SecureVncConfig svncConfig;
+    private final UltraVncAuthenticator ultraVncAuth = new UltraVncAuthenticator(this);
     //- SessionRecorder rec;
     boolean inNormalProtocol = false;
     // Java on UNIX does not call keyPressed() on some keys, for example
@@ -347,14 +354,6 @@ public class RfbProto extends RfbConnectable {
     // to confirm the authenticity of a certificate is displayed.
     private boolean certificateAccepted = false;
 
-    //
-    // Read security type from the server (protocol version 3.3).
-    //
-
-    //
-    // Constructor
-    //
-
     /**
      * Creates a new RFB protocol handler. Call {@link #initializeAndAuthenticate} to establish
      * the connection.
@@ -372,11 +371,15 @@ public class RfbProto extends RfbConnectable {
      * @param debugLogging                               when {@code true}, verbose protocol logging is enabled
      * @param isRemoteToLocalClipboardIntegrationEnabled when {@code true}, clipboard content received from the server
      *                                                   is pushed to the local clipboard
+     * @param secureVncConfig                            UltraVNC SecureVNCPlugin / MS Logon settings; pass
+     *                                                   {@link SecureVncConfig#disabled()} for connections that don't use it
      */
     public RfbProto(Decoder decoder, Viewable canvas, RemoteConnection remoteConnection, Handler handler, int preferredEncoding,
                     boolean viewOnly, boolean sslTunneled, int hashAlgorithm,
-                    String hash, String cert, boolean debugLogging, boolean isRemoteToLocalClipboardIntegrationEnabled) {
+                    String hash, String cert, boolean debugLogging, boolean isRemoteToLocalClipboardIntegrationEnabled,
+                    SecureVncConfig secureVncConfig) {
         super(debugLogging, handler, isRemoteToLocalClipboardIntegrationEnabled);
+        this.svncConfig = secureVncConfig;
         this.sslTunneled = sslTunneled;
         this.decoder = decoder;
         this.viewOnly = viewOnly;
@@ -433,8 +436,10 @@ public class RfbProto extends RfbConnectable {
             sock.setKeepAlive(true);
             sock.connect(new InetSocketAddress(host, port), Constants.SOCKET_CONN_TIMEOUT);
             sock.setSoTimeout(0);
-            sock.setTcpNoDelay(true);
         }
+
+        // Make sure TCP No-Delay is enabled on whatever socket we end up using (tunneled or bare)
+        sock.setTcpNoDelay(true);
 
         this.sock = sock;
         setStreams(new RawInStream(sock.getInputStream()), new RawOutStream(sock.getOutputStream()));
@@ -500,7 +505,7 @@ public class RfbProto extends RfbConnectable {
         initSocket();
 
         // <RepeaterMagic>
-        if (useRepeater && repeaterID != null && repeaterID.length() > 0) {
+        if (useRepeater && repeaterID != null && !repeaterID.isEmpty()) {
             Log.i(TAG, "Negotiating repeater/proxy connection");
             byte[] protocolMsg = new byte[12];
             is.readBytes(protocolMsg, 0, 12);
@@ -516,7 +521,7 @@ public class RfbProto extends RfbConnectable {
         writeVersionMsg();
         Log.i(TAG, "Using RFB protocol version " + clientMajor + "." + clientMinor);
 
-        boolean userNameSupplied = us.length() > 0;
+        boolean userNameSupplied = us != null && !us.isEmpty();
         Log.d(TAG, "userNameSupplied: " + userNameSupplied);
         int secType = negotiateSecurity(userNameSupplied, connType);
         int authType;
@@ -532,8 +537,8 @@ public class RfbProto extends RfbConnectable {
             Log.i(TAG, "secType == RfbProto.SecTypeTLS");
             authenticateTLS();
             authType = negotiateSecurity(userNameSupplied, Constants.CONN_TYPE_PLAIN);
-        } else if (secType == RfbProto.SecTypeUltra34 || secType == RfbProto.SecTypeUltraVnc2) {
-            Log.i(TAG, "secType == RfbProto.SecTypeUltra34 or SecTypeUltraVnc2");
+        } else if (secType == RfbProto.SecTypeUltra34 || secType == RfbProto.SecTypeMsLogonII) {
+            Log.i(TAG, "secType == RfbProto.SecTypeUltra34 or SecTypeMsLogonII");
             authType = RfbProto.AuthUltra;
         } else if (secType == RfbProto.SecTypeArd) {
             Log.i(TAG, "secType == RfbProto.SecTypeArd");
@@ -565,6 +570,11 @@ public class RfbProto extends RfbConnectable {
             x.processMsg(us, pw);
             readSecurityResult(true, "SecTypeRAne256 Authentication");
             return;
+        } else if (secType == RfbProto.SecTypeSecureVNCPluginNew
+                || secType == RfbProto.SecTypeSecureVNCPlugin
+                || secType == RfbProto.SecTypeUltraVnc1) {
+            ultraVncAuth.authenticate(secType, us, pw);
+            return;
         } else {
             authType = secType;
         }
@@ -584,8 +594,7 @@ public class RfbProto extends RfbConnectable {
                 break;
             case RfbProto.AuthUltra:
                 Log.i(TAG, "authType == RfbProto.AuthUltra, UltraVNC authentication needed");
-                prepareDH();
-                authenticateDH(us, pw);
+                ultraVncAuth.authenticateMsLogon(us != null ? us : "", pw);
                 break;
             case RfbProto.AuthTLSNone:
                 Log.i(TAG, "authType == RfbProto.AuthTLSNone, No authentication needed");
@@ -690,7 +699,7 @@ public class RfbProto extends RfbConnectable {
             case SecTypeVncAuth:
                 return secType;
             case SecTypeUltra34:
-            case SecTypeUltraVnc2:
+            case SecTypeMsLogonII:
                 return returnSecTypeIfUsernameSuppliedOrThrowError(userNameSupplied, secType);
             default:
                 throw new Exception("Unknown security type from RFB server: " + secType);
@@ -710,8 +719,6 @@ public class RfbProto extends RfbConnectable {
     int selectSecurityType(boolean userNameSupplied, int connType) throws Exception {
         Log.i(TAG, "(Re)Selecting security type.");
 
-        int secType = SecTypeInvalid;
-
         // Read the list of security types.
         int nSecTypes = is.readUnsignedByte();
         if (nSecTypes == 0) {
@@ -730,7 +737,34 @@ public class RfbProto extends RfbConnectable {
             }
         }
 
-        // Find first supported security type.
+        int secType = findFirstSupportedSecurityType(userNameSupplied, connType, nSecTypes, secTypes);
+        if (secType == SecTypeInvalid) {
+            String message = canvas.getContext().getString(R.string.error_security_type)
+                    + " " + canvas.getContext().getString(R.string.error_pick_correct_item);
+            throw new Exception(message);
+        }
+
+        os.writeU8(secType);
+
+        return secType;
+    }
+
+    /**
+     * Find first supported security type.
+     * @param userNameSupplied - was a username supplied
+     * @param connType - connection type specified by user
+     * @param nSecTypes - number of security types available
+     * @param secTypes - available sec types
+     * @return the selected supported security type
+     * @throws RfbUserPassAuthFailedOrUsernameRequiredException if username is required but not supplied by user
+     */
+    private int findFirstSupportedSecurityType(boolean userNameSupplied, int connType, int nSecTypes, byte[] secTypes) throws Exception {
+        // UltraVNC type selection is owned by the authenticator (it mirrors the
+        // official viewer's type-17 handshake); see UltraVncAuthenticator.
+        if (connType == Constants.CONN_TYPE_ULTRAVNC) {
+            return ultraVncAuth.selectSecurityType(secTypes, nSecTypes);
+        }
+        int secType = SecTypeInvalid;
         for (int i = 0; i < nSecTypes; i++) {
             Log.i(TAG, "Received security type: " + secTypes[i]);
             int currentSecType = secTypes[i] & 0xff;
@@ -745,12 +779,6 @@ public class RfbProto extends RfbConnectable {
                     secType = currentSecType;
                     break;
                 }
-            } else if (connType == Constants.CONN_TYPE_ULTRAVNC) {
-                if (currentSecType == SecTypeNone || currentSecType == SecTypeVncAuth ||
-                        currentSecType == SecTypeUltraVnc2) {
-                    secType = currentSecType;
-                    break;
-                }
             } else {
                 if (currentSecType == SecTypeRA256 || currentSecType == SecTypeRA2) {
                     secType = currentSecType;
@@ -762,10 +790,15 @@ public class RfbProto extends RfbConnectable {
                     break;
                 }
 
+                if (currentSecType == SecTypeSecureVNCPluginNew) {
+                    secType = currentSecType;
+                    break;
+                }
+
                 if (currentSecType == SecTypeNone
                         || currentSecType == SecTypeVncAuth
                         || currentSecType == SecTypeVeNCrypt
-                        || currentSecType == SecTypeUltraVnc2
+                        || currentSecType == SecTypeMsLogonII
                 ) {
                     secType = currentSecType;
                     break;
@@ -785,23 +818,8 @@ public class RfbProto extends RfbConnectable {
                 }
             }
         }
-
-        if (secType == SecTypeInvalid) {
-            String message;
-            // If the server tried to negotiate SecTypeTLS and this is an SDK >= Marshmallow, report
-            // the appropriate error to the user.
-            message = canvas.getContext().getString(R.string.error_security_type)
-                    + " " + canvas.getContext().getString(R.string.error_pick_correct_item);
-            throw new Exception(message);
-        } else {
-            os.writeU8(secType);
-        }
-
         return secType;
     }
-    //
-    // Initialize capability lists (TightVNC protocol extensions).
-    //
 
     int authenticateVeNCrypt(boolean userNameSupplied) throws Exception {
         int majorVersion = is.readUnsignedByte();
@@ -848,20 +866,12 @@ public class RfbProto extends RfbConnectable {
         throw new Exception("No valid VeNCrypt sub-type");
     }
 
-    //
-    // Setup tunneling (TightVNC protocol extensions)
-    //
-
-    void authenticateNone() throws Exception {
+    public void authenticateNone() throws Exception {
         if (clientMinor >= 8)
             readSecurityResult(false, "No authentication");
     }
 
-    //
-    // Negotiate authentication scheme (TightVNC protocol extensions)
-    //
-
-    void authenticateVNC(String pw) throws Exception {
+    public void authenticateVNC(String pw) throws Exception {
         byte[] challenge = new byte[16];
         is.readBytes(challenge);
 
@@ -919,11 +929,7 @@ public class RfbProto extends RfbConnectable {
         readSecurityResult(true, "Plain authentication");
     }
 
-    //
-    // Write the client initialisation message
-    //
-
-    void readSecurityResult(boolean userNameRequired, String authType) throws Exception {
+    public void readSecurityResult(boolean userNameRequired, String authType) throws Exception {
         Log.d(TAG, "readSecurityResult: authType: " + authType + ", userNameRequired: " + userNameRequired);
         int securityResult = is.readInt();
 
@@ -956,11 +962,7 @@ public class RfbProto extends RfbConnectable {
     }
 
 
-    //
-    // Read the server initialisation message
-    //
-
-    void readConnFailedReason() throws Exception {
+    public void readConnFailedReason() throws Exception {
         readConnFailedReason(true);
     }
 
@@ -973,47 +975,6 @@ public class RfbProto extends RfbConnectable {
         if (throwException) {
             throw new Exception(reasonString);
         }
-    }
-
-    void prepareDH() throws Exception {
-        long gen = is.readLong();
-        long mod = is.readLong();
-        dh_resp = is.readLong();
-
-        dh = new DH(gen, mod);
-        long pub = dh.createInterKey();
-
-        os.writeBytes(DH.longToBytes(pub));
-    }
-
-    void authenticateDH(String us, String pw) throws Exception {
-        long key = dh.createEncryptionKey(dh_resp);
-
-        DesCipher des = new DesCipher(DH.longToBytes(key));
-
-        byte[] user = new byte[256];
-        byte[] passwd = new byte[64];
-        int i;
-        System.arraycopy(us.getBytes(), 0, user, 0, us.length());
-        if (us.length() < 256) {
-            for (i = us.length(); i < 256; i++) {
-                user[i] = 0;
-            }
-        }
-        System.arraycopy(pw.getBytes(), 0, passwd, 0, pw.length());
-        if (pw.length() < 64) {
-            for (i = pw.length(); i < 64; i++) {
-                passwd[i] = 0;
-            }
-        }
-
-        des.encryptText(user, user, DH.longToBytes(key));
-        des.encryptText(passwd, passwd, DH.longToBytes(key));
-
-        os.writeBytes(user);
-        os.writeBytes(passwd);
-
-        readSecurityResult(true, "VNC authentication");
     }
 
     void initCapabilities() {
@@ -1160,11 +1121,6 @@ public class RfbProto extends RfbConnectable {
         os.writeBytes(writeIntBuffer);
     }
 
-
-    //
-    // Read the server message type
-    //
-
     /**
      * Sends the ClientInit message, indicating whether the session should be shared.
      *
@@ -1180,11 +1136,6 @@ public class RfbProto extends RfbConnectable {
     */
         os.writeU8(shareDesktop);
     }
-
-
-    //
-    // Read a FramebufferUpdate message
-    //
 
     /**
      * Reads the ServerInit message and populates framebuffer dimensions, pixel format, and
@@ -1236,8 +1187,6 @@ public class RfbProto extends RfbConnectable {
         framebufferWidth = width;
         framebufferHeight = height;
     }
-
-    // Read a FramebufferUpdate rectangle header
 
     /**
      * Sets the desired framebuffer size if we want to request a custom resolution from the server.
@@ -1799,6 +1748,30 @@ public class RfbProto extends RfbConnectable {
         return os;
     }
 
+    // --- RfbAuthChannel: narrow seam handed to UltraVncAuthenticator ---
+    // (getInStream/getOutStream above already satisfy the wire-I/O part.)
+
+    @Override
+    public SecureVncConfig getSecureVncConfig() {
+        return svncConfig;
+    }
+
+    @Override
+    public InputStream getRawInputStream() throws IOException {
+        return sock.getInputStream();
+    }
+
+    @Override
+    public OutputStream getRawOutputStream() throws IOException {
+        return sock.getOutputStream();
+    }
+
+    @Override
+    public boolean confirmProceedWithoutEncryption() {
+        handler.sendEmptyMessage(RemoteClientLibConstants.SVNC_ENCRYPTION_NOT_ENABLED);
+        return waitForEncryptionUpgradeDecision();
+    }
+
     /**
      * Replaces the active input and output streams and re-initializes the Extended Clipboard
      * handler against the new output stream. Used after establishing or switching the underlying
@@ -2192,7 +2165,7 @@ public class RfbProto extends RfbConnectable {
                     case RfbProto.TextChat:
                         // UltraVNC extension
                         String msg = readTextChatMsg();
-                        if (msg != null && msg.length() > 0) {
+                        if (msg != null && !msg.isEmpty()) {
                             Log.w(TAG, "Chat not implemented");
                         }
                         break;

@@ -9,11 +9,13 @@ import com.iiordanov.bVNC.COLORMODEL
 import com.iiordanov.bVNC.Constants
 import com.iiordanov.bVNC.Decoder
 import com.iiordanov.bVNC.RfbProto
+import com.iiordanov.bVNC.SecureVncConfig
 import com.iiordanov.bVNC.RfbProto.RfbPasswordAuthenticationException
 import com.iiordanov.bVNC.RfbProto.RfbUltraVncColorMapException
 import com.iiordanov.bVNC.RfbProto.RfbUserPassAuthFailedOrUsernameRequiredException
 import com.iiordanov.bVNC.Utils
 import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException
+import com.iiordanov.bVNC.exceptions.SecureVNCPluginException
 import com.iiordanov.bVNC.input.RemoteVncKeyboard
 import com.iiordanov.bVNC.input.RemoteVncPointer
 import com.tigervnc.rfb.AuthFailureException
@@ -85,7 +87,13 @@ class RemoteVncConnection(
         rfb = RfbProto(
             decoder, canvas, this, handler, connection.prefEncoding, connection.viewOnly,
             sslTunneled, connection.idHashAlgorithm, connection.idHash, connection.x509KeySignature,
-            App.debugLog, isRemoteToLocalClipboardIntegrationEnabled
+            App.debugLog, isRemoteToLocalClipboardIntegrationEnabled,
+            SecureVncConfig(
+                connection.svncEnabled,
+                connection.clientAuthEnabled,
+                connection.clientAuthPrivKey,
+                connection.svncPassphrase
+            )
         )
         rfbConn = rfb
         pointer = RemoteVncPointer(rfbConn, context, this, canvas, handler, !connection.useDpadAsArrows, App.debugLog)
@@ -120,6 +128,13 @@ class RemoteVncConnection(
             )
         } catch (e: AnonCipherUnsupportedException) {
             showFatalMessageAndQuit(context.getString(R.string.error_anon_dh_unsupported))
+        } catch (e: SecureVNCPluginException) {
+            if (e.resId == R.string.error_securevncplugin_wrong_passphrase) {
+                Log.e(tag, "SecureVNCPlugin passphrase wrong, prompting user")
+                handler.sendEmptyMessage(RemoteClientLibConstants.GET_SVNC_PASSPHRASE)
+                return
+            }
+            showFatalMessageAndQuit(context.getString(e.resId))
         } catch (e: RfbPasswordAuthenticationException) {
             Log.e(tag, "Authentication failed, will prompt user for password")
             handler.sendEmptyMessage(RemoteClientLibConstants.GET_VNC_PASSWORD)

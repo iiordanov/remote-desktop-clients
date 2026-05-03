@@ -509,7 +509,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     }
 
     private synchronized void save(SQLiteDatabase database) {
-        Log.d(TAG, "save called with database");
+        Log.d(TAG, "Save called with database");
         ContentValues values = Gen_getValues();
         values.remove(GEN_FIELD__ID);
         if (!getKeepSshPassword()) {
@@ -518,6 +518,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         }
         if (!getKeepPassword()) {
             values.put(GEN_FIELD_PASSWORD, "");
+        }
+        if (!getKeepSvncPassphrase()) {
+            values.put(GEN_FIELD_SVNCPASSPHRASE, "");
         }
         if (isNew()) {
             set_Id(database.insert(GEN_TABLE_NAME, null, values));

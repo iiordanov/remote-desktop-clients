@@ -213,6 +213,7 @@ switch-to-*
 translate_strings*py
 check_layout_sync.py
 sync_large.py
+check_elf_alignment*
 
 remote-desktop-clients-libs-*
 
