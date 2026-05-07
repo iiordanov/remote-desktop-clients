@@ -86,18 +86,24 @@ class OneToOneScaling extends AbstractScaling {
      * When fb >= view, panning behavior is preserved unchanged.
      */
     private void fixScrollForCentering(RemoteCanvas canvas) {
-        if (canvas == null || canvas.myDrawable == null) return;
+        if (canvas == null || canvas.myDrawable == null) {
+            return;
+        }
 
-        int fbW = canvas.myDrawable.fbWidth();
-        int fbH = canvas.myDrawable.fbHeight();
+        int fbW = canvas.getImageWidth();
+        int fbH = canvas.getImageHeight();
         int viewW = canvas.getWidth();
         int viewH = canvas.getHeight();
 
         int scrollX = canvas.getScrollX();
         int scrollY = canvas.getScrollY();
 
-        if (fbW <= viewW) scrollX = 0;
-        if (fbH <= viewH) scrollY = 0;
+        if (fbW <= viewW) {
+            scrollX = 0;
+        }
+        if (fbH <= viewH) {
+            scrollY = 0;
+        }
 
         canvas.scrollTo(scrollX, scrollY);
     }
