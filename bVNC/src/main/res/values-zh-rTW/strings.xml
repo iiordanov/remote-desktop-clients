@@ -842,4 +842,17 @@ aSPICE對應的功能如下：
     <string name="discovery_scan_complete">掃描完成</string>
     <string name="connection_type_prompt_title">選擇伺服器類型</string>
     <string name="keyboard_layout_map">鍵盤配置</string>
+    <string name="global_default_settings">全域預設設定</string>
+    <string name="global_default_settings_description">影響每個連線與應用程式本身的應用程式層級偏好設定，例如顯示、輸入與行為選項。</string>
+    <string name="default_connection_settings">預設連線設定</string>
+    <string name="default_connection_settings_description">新增連線以及從 .rdp/.vv 檔案啟動的連線所依據的連線範本。可像一般連線一樣編輯。</string>
+    <string name="section_display">顯示</string>
+    <string name="section_input">輸入</string>
+    <string name="section_audio">音訊</string>
+    <string name="section_behavior">行為</string>
+    <string name="section_sound">聲音</string>
+    <string name="section_protocol_preferences">通訊協定偏好設定</string>
+    <string name="default_connection_settings_redirect_summary">輸入法、縮放、工具列位置及其他各連線的預設值已移至此處。點按以編輯預設連線。</string>
+    <string name="reset_default_connection_settings">重設預設值</string>
+    <string name="reset_default_connection_settings_confirm">將預設連線設定重設為初始值？</string>
 </resources>

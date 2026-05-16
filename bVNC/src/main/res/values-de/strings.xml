@@ -919,4 +919,17 @@ App ist bereits von Batterieoptimierungen ausgenommen.</string>
     <string name="discovery_scan_complete">Scan abgeschlossen</string>
     <string name="connection_type_prompt_title">Servertyp auswählen</string>
     <string name="keyboard_layout_map">Tastaturlayout</string>
+    <string name="global_default_settings">Globale Standardeinstellungen</string>
+    <string name="global_default_settings_description">App-weite Einstellungen, die jede Verbindung und die App selbst betreffen, z. B. Anzeige-, Eingabe- und Verhaltensoptionen.</string>
+    <string name="default_connection_settings">Standard-Verbindungseinstellungen</string>
+    <string name="default_connection_settings_description">Die Verbindungsvorlage, von der neue Verbindungen sowie aus .rdp/.vv-Dateien gestartete Verbindungen ausgehen. Bearbeiten Sie sie wie eine normale Verbindung.</string>
+    <string name="section_display">Anzeige</string>
+    <string name="section_input">Eingabe</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_behavior">Verhalten</string>
+    <string name="section_sound">Ton</string>
+    <string name="section_protocol_preferences">Protokolleinstellungen</string>
+    <string name="default_connection_settings_redirect_summary">Eingabemethode, Skalierung, Symbolleistenposition und andere verbindungsspezifische Standards wurden hierher verschoben. Tippen, um die Standardverbindung zu bearbeiten.</string>
+    <string name="reset_default_connection_settings">Zurücksetzen</string>
+    <string name="reset_default_connection_settings_confirm">Die Standard-Verbindungseinstellungen auf die Anfangswerte zurücksetzen?</string>
 </resources>

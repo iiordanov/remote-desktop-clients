@@ -52,6 +52,7 @@ public class Constants {
     public static final int DEFAULT_RDP_SECURITY_AUTO_NEGOTIATE = 0;
 
     public static final boolean ENABLE_GLYPH_CACHE_DEFAULT = false;
+    public static final boolean INVISIBLE_DEFAULT = false;
     // URI Parameters
     public static final String PARAM_CONN_NAME = "ConnectionName";
     public static final String PARAM_RDP_USER = "RdpUsername";
@@ -274,6 +275,11 @@ public class Constants {
     public static final String remoteCanvasActivityClassPath = "com.iiordanov.bVNC.RemoteCanvasActivity";
 
     public static final String PREF_SORT_ORDER = "sortOrder";
+    // Legacy per-connection toolbar-position keys (per-_id prefs file), migrated to DB columns.
+    public static final String PREF_USE_LAST_POSITION_TOOLBAR = "useLastPositionToolbar";
+    public static final String PREF_USE_LAST_POSITION_TOOLBAR_X = "useLastPositionToolbarX";
+    public static final String PREF_USE_LAST_POSITION_TOOLBAR_Y = "useLastPositionToolbarY";
+    public static final String PREF_USE_LAST_POSITION_TOOLBAR_MOVED = "useLastPositionToolbarMoved";
 
     public static final String PREFILL_ADDRESS   = "prefillAddress";
     public static final String PREFILL_PORT      = "prefillPort";

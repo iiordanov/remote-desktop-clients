@@ -749,4 +749,17 @@ Không thể mở cài đặt tối ưu hóa pin. Tắt tối ưu hóa pin theo 
     <string name="discovery_scan_complete">Quét hoàn tất</string>
     <string name="connection_type_prompt_title">Chọn loại máy chủ</string>
     <string name="keyboard_layout_map">Bố cục bàn phím</string>
+    <string name="global_default_settings">Cài đặt mặc định toàn cục</string>
+    <string name="global_default_settings_description">Tùy chọn áp dụng cho toàn ứng dụng, ảnh hưởng đến mọi kết nối và chính ứng dụng, chẳng hạn như tùy chọn hiển thị, nhập liệu và hành vi.</string>
+    <string name="default_connection_settings">Cài đặt kết nối mặc định</string>
+    <string name="default_connection_settings_description">Mẫu kết nối mà các kết nối mới và các kết nối mở từ tệp .rdp/.vv bắt đầu từ đó. Chỉnh sửa nó như một kết nối thông thường.</string>
+    <string name="section_display">Hiển thị</string>
+    <string name="section_input">Nhập liệu</string>
+    <string name="section_audio">Âm thanh</string>
+    <string name="section_behavior">Hành vi</string>
+    <string name="section_sound">Âm thanh</string>
+    <string name="section_protocol_preferences">Tùy chọn giao thức</string>
+    <string name="default_connection_settings_redirect_summary">Phương thức nhập, tỷ lệ, vị trí thanh công cụ và các mặc định khác theo từng kết nối đã được chuyển vào đây. Nhấn để chỉnh sửa kết nối mặc định.</string>
+    <string name="reset_default_connection_settings">Đặt lại mặc định</string>
+    <string name="reset_default_connection_settings_confirm">Đặt lại cài đặt kết nối mặc định về giá trị ban đầu?</string>
 </resources>

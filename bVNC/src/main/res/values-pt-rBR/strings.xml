@@ -916,4 +916,17 @@ App is already exempt from battery optimizations.</string>
     <string name="discovery_scan_complete">Verificação concluída</string>
     <string name="connection_type_prompt_title">Selecionar tipo de servidor</string>
     <string name="keyboard_layout_map">Layout do teclado</string>
+    <string name="global_default_settings">Configurações padrão globais</string>
+    <string name="global_default_settings_description">Preferências de todo o app que afetam cada conexão e o próprio app, como opções de exibição, entrada e comportamento.</string>
+    <string name="default_connection_settings">Configurações de conexão padrão</string>
+    <string name="default_connection_settings_description">O modelo de conexão do qual partem as novas conexões e as conexões iniciadas a partir de arquivos .rdp/.vv. Edite-o como uma conexão normal.</string>
+    <string name="section_display">Tela</string>
+    <string name="section_input">Entrada</string>
+    <string name="section_audio">Áudio</string>
+    <string name="section_behavior">Comportamento</string>
+    <string name="section_sound">Som</string>
+    <string name="section_protocol_preferences">Preferências do protocolo</string>
+    <string name="default_connection_settings_redirect_summary">O método de entrada, o dimensionamento, a posição da barra de ferramentas e outros padrões por conexão foram movidos para cá. Toque para editar a conexão padrão.</string>
+    <string name="reset_default_connection_settings">Redefinir padrões</string>
+    <string name="reset_default_connection_settings_confirm">Redefinir as configurações de conexão padrão para os valores iniciais?</string>
 </resources>

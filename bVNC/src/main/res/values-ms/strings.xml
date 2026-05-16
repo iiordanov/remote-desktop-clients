@@ -749,4 +749,17 @@ Apl sudah pun dikecualikan daripada pengoptimuman bateri.</string>
     <string name="discovery_scan_complete">Imbasan selesai</string>
     <string name="connection_type_prompt_title">Pilih jenis pelayan</string>
     <string name="keyboard_layout_map">Susun Atur Papan Kekunci</string>
+    <string name="global_default_settings">Tetapan Lalai Global</string>
+    <string name="global_default_settings_description">Keutamaan seluruh apl yang memberi kesan kepada setiap sambungan dan apl itu sendiri, seperti pilihan paparan, input dan tingkah laku.</string>
+    <string name="default_connection_settings">Tetapan Sambungan Lalai</string>
+    <string name="default_connection_settings_description">Templat sambungan yang menjadi asas sambungan baharu dan sambungan yang dilancarkan daripada fail .rdp/.vv. Edit seperti sambungan biasa.</string>
+    <string name="section_display">Paparan</string>
+    <string name="section_input">Input</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_behavior">Tingkah Laku</string>
+    <string name="section_sound">Bunyi</string>
+    <string name="section_protocol_preferences">Keutamaan Protokol</string>
+    <string name="default_connection_settings_redirect_summary">Kaedah input, penskalaan, kedudukan bar alat dan lalai khusus sambungan lain telah dialihkan ke sini. Ketik untuk mengedit sambungan lalai.</string>
+    <string name="reset_default_connection_settings">Set semula</string>
+    <string name="reset_default_connection_settings_confirm">Set semula tetapan sambungan lalai kepada nilai asalnya?</string>
 </resources>

@@ -551,6 +551,16 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:text="@string/section_display"
+                        android:textAllCaps="true"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textStyle="bold"
+                        android:alpha="0.7" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:paddingBottom="4dp"
                         android:text="@string/color_mode"
                         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -642,6 +652,44 @@
                         android:layout_height="wrap_content"
                         android:max="300" />
 
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:paddingBottom="4dp"
+                        android:text="@string/scaling"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <Spinner
+                        android:id="@+id/spinnerScaling"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:entries="@array/defaultScalingEntries" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="6dp"
+                        android:text="@string/section_input"
+                        android:textAllCaps="true"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textStyle="bold"
+                        android:alpha="0.7" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="4dp"
+                        android:text="@string/input_methods"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <Spinner
+                        android:id="@+id/spinnerInputMethod"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:entries="@array/defaultInputMethodEntries" />
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -666,7 +714,17 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="6dp"
+                        android:text="@string/section_audio"
+                        android:textAllCaps="true"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textStyle="bold"
+                        android:alpha="0.7" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:paddingBottom="4dp"
                         android:text="@string/audio"
                         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -724,6 +782,17 @@
                             tools:ignore="UsingOnClickInXml" />
 
                     </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="6dp"
+                        android:text="@string/section_protocol_preferences"
+                        android:textAllCaps="true"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textStyle="bold"
+                        android:alpha="0.7" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -1004,10 +1073,13 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:paddingBottom="4dp"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="6dp"
                         android:text="@string/local_device_tweaks"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
+                        android:textAllCaps="true"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textStyle="bold"
+                        android:alpha="0.7" />
 
                     <LinearLayout
                         android:layout_width="match_parent"

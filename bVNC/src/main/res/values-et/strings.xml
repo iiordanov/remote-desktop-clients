@@ -921,4 +921,17 @@ Rakendus on aku optimeerimisest juba vabastatud.</string>
     <string name="discovery_scan_complete">Skannimine lõpetatud</string>
     <string name="connection_type_prompt_title">Vali serveri tüüp</string>
     <string name="keyboard_layout_map">Klaviatuuri paigutus</string>
+    <string name="global_default_settings">Globaalsed vaikesätted</string>
+    <string name="global_default_settings_description">Kogu rakendust hõlmavad eelistused, mis mõjutavad iga ühendust ja rakendust ennast, näiteks kuva-, sisestus- ja käitumisvalikud.</string>
+    <string name="default_connection_settings">Vaikeühenduse sätted</string>
+    <string name="default_connection_settings_description">Ühenduse mall, millest lähtuvad uued ühendused ja .rdp/.vv-failidest avatud ühendused. Muutke seda nagu tavalist ühendust.</string>
+    <string name="section_display">Kuva</string>
+    <string name="section_input">Sisend</string>
+    <string name="section_audio">Heli</string>
+    <string name="section_behavior">Käitumine</string>
+    <string name="section_sound">Heli</string>
+    <string name="section_protocol_preferences">Protokolli eelistused</string>
+    <string name="default_connection_settings_redirect_summary">Sisestusmeetod, skaleerimine, tööriistariba asukoht ja muud ühendusepõhised vaikeväärtused on toodud siia. Puudutage vaikeühenduse muutmiseks.</string>
+    <string name="reset_default_connection_settings">Lähtesta</string>
+    <string name="reset_default_connection_settings_confirm">Kas lähtestada vaikeühenduse sätted algväärtustele?</string>
 </resources>

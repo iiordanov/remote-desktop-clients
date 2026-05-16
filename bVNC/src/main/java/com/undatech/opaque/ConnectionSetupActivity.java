@@ -306,6 +306,35 @@ public class ConnectionSetupActivity extends Activity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * True when this editor is editing the default-connection template (the
+     * shared default settings) rather than a specific saved connection.
+     */
+    private boolean isEditingDefaultConnectionTemplate() {
+        return RemoteClientLibConstants.DEFAULT_SETTINGS_FILE.equals(currentSelectedConnection);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem reset = menu.findItem(R.id.itemResetDefaults);
+        if (reset != null) {
+            reset.setVisible(isEditingDefaultConnectionTemplate());
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    public void resetDefaultConnectionSettings(MenuItem item) {
+        Utils.showYesNoPrompt(this,
+                getString(R.string.reset_default_connection_settings),
+                getString(R.string.reset_default_connection_settings_confirm),
+                (dialog, which) -> {
+                    appContext.getSharedPreferences(
+                            RemoteClientLibConstants.DEFAULT_SETTINGS_FILE,
+                            Context.MODE_PRIVATE).edit().clear().apply();
+                    finish();
+                }, null);
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem menuItem) {
         return true;
@@ -337,8 +366,9 @@ public class ConnectionSetupActivity extends Activity {
         String u = user.getText().toString();
         String h = hostname.getText().toString();
 
-        // Only if a username and a hostname were entered, save the connection.
-        if (!(u.isEmpty() || h.isEmpty())) {
+        // The default-connection template may be saved with empty user/hostname;
+        // a real connection still requires both.
+        if (isEditingDefaultConnectionTemplate() || !(u.isEmpty() || h.isEmpty())) {
             saveSelectedPreferences(true);
             finish();
             // Otherwise, let the user know that at least a user and hostname are required.

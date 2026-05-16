@@ -742,4 +742,17 @@
     <string name="discovery_scan_complete">Сканування завершено</string>
     <string name="connection_type_prompt_title">Виберіть тип сервера</string>
     <string name="keyboard_layout_map">Розкладка клавіатури</string>
+    <string name="global_default_settings">Глобальні налаштування за замовчуванням</string>
+    <string name="global_default_settings_description">Налаштування рівня застосунку, що впливають на кожне з\'єднання та сам застосунок, наприклад параметри відображення, введення та поведінки.</string>
+    <string name="default_connection_settings">Налаштування з\'єднання за замовчуванням</string>
+    <string name="default_connection_settings_description">Шаблон з\'єднання, з якого починаються нові з\'єднання та з\'єднання, запущені з файлів .rdp/.vv. Редагуйте його як звичайне з\'єднання.</string>
+    <string name="section_display">Екран</string>
+    <string name="section_input">Введення</string>
+    <string name="section_audio">Звук</string>
+    <string name="section_behavior">Поведінка</string>
+    <string name="section_sound">Звук</string>
+    <string name="section_protocol_preferences">Параметри протоколу</string>
+    <string name="default_connection_settings_redirect_summary">Метод введення, масштабування, позицію панелі інструментів та інші типові налаштування для з\'єднання перенесено сюди. Торкніться, щоб редагувати з\'єднання за замовчуванням.</string>
+    <string name="reset_default_connection_settings">Скинути</string>
+    <string name="reset_default_connection_settings_confirm">Скинути типові налаштування з\'єднання до початкових значень?</string>
 </resources>

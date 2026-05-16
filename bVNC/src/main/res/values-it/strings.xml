@@ -918,4 +918,17 @@ L\'app è già esente dalle ottimizzazioni della batteria.</string>
     <string name="discovery_scan_complete">Scansione completata</string>
     <string name="connection_type_prompt_title">Seleziona il tipo di server</string>
     <string name="keyboard_layout_map">Layout della tastiera</string>
+    <string name="global_default_settings">Impostazioni predefinite globali</string>
+    <string name="global_default_settings_description">Preferenze a livello di app che influiscono su ogni connessione e sull\'app stessa, come opzioni di visualizzazione, input e comportamento.</string>
+    <string name="default_connection_settings">Impostazioni di connessione predefinite</string>
+    <string name="default_connection_settings_description">Il modello di connessione da cui partono le nuove connessioni e le connessioni avviate da file .rdp/.vv. Modificalo come una normale connessione.</string>
+    <string name="section_display">Schermo</string>
+    <string name="section_input">Input</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_behavior">Comportamento</string>
+    <string name="section_sound">Suono</string>
+    <string name="section_protocol_preferences">Preferenze del protocollo</string>
+    <string name="default_connection_settings_redirect_summary">Metodo di input, ridimensionamento, posizione della barra degli strumenti e altre impostazioni predefinite per connessione sono stati spostati qui. Tocca per modificare la connessione predefinita.</string>
+    <string name="reset_default_connection_settings">Ripristina</string>
+    <string name="reset_default_connection_settings_confirm">Ripristinare le impostazioni di connessione predefinite ai valori iniziali?</string>
 </resources>

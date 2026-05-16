@@ -749,4 +749,17 @@
     <string name="discovery_scan_complete">اسکن کامل شد</string>
     <string name="connection_type_prompt_title">نوع سرور را انتخاب کنید</string>
     <string name="keyboard_layout_map">چیدمان صفحه‌کلید</string>
+    <string name="global_default_settings">تنظیمات پیش‌فرض سراسری</string>
+    <string name="global_default_settings_description">ترجیحات سراسری برنامه که بر هر اتصال و خود برنامه تأثیر می‌گذارد، مانند گزینه‌های نمایش، ورودی و رفتار.</string>
+    <string name="default_connection_settings">تنظیمات پیش‌فرض اتصال</string>
+    <string name="default_connection_settings_description">الگوی اتصالی که اتصال‌های جدید و اتصال‌های بازشده از فایل‌های .rdp/.vv از آن آغاز می‌شوند. آن را مانند یک اتصال معمولی ویرایش کنید.</string>
+    <string name="section_display">نمایش</string>
+    <string name="section_input">ورودی</string>
+    <string name="section_audio">صدا</string>
+    <string name="section_behavior">رفتار</string>
+    <string name="section_sound">صدا</string>
+    <string name="section_protocol_preferences">ترجیحات پروتکل</string>
+    <string name="default_connection_settings_redirect_summary">روش ورودی، مقیاس‌بندی، موقعیت نوار ابزار و سایر پیش‌فرض‌های هر اتصال به اینجا منتقل شده‌اند. برای ویرایش اتصال پیش‌فرض ضربه بزنید.</string>
+    <string name="reset_default_connection_settings">بازنشانی</string>
+    <string name="reset_default_connection_settings_confirm">تنظیمات اتصال پیش‌فرض به مقادیر اولیه بازنشانی شود؟</string>
 </resources>

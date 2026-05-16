@@ -223,8 +223,9 @@ public class aSPICE extends MainConfiguration {
     }
 
     public void save(int resource) {
-        if (ipText.getText().length() != 0
-                && (portText.getText().length() != 0 || tlsPort.getText().length() != 0)) {
+        if (isEditingDefaultConnectionTemplate()
+                || (ipText.getText().length() != 0
+                && (portText.getText().length() != 0 || tlsPort.getText().length() != 0))) {
             saveConnectionAndCloseLayout();
         } else {
             Snackbar.make(tlsPort, resource, Snackbar.LENGTH_LONG).show();

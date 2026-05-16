@@ -749,4 +749,17 @@
     <string name="discovery_scan_complete">สแกนเสร็จสิ้น</string>
     <string name="connection_type_prompt_title">เลือกประเภทเซิร์ฟเวอร์</string>
     <string name="keyboard_layout_map">รูปแบบแป้นพิมพ์</string>
+    <string name="global_default_settings">การตั้งค่าเริ่มต้นส่วนกลาง</string>
+    <string name="global_default_settings_description">การตั้งค่าทั่วทั้งแอปที่มีผลต่อทุกการเชื่อมต่อและต่อตัวแอปเอง เช่น ตัวเลือกการแสดงผล การป้อนข้อมูล และพฤติกรรม</string>
+    <string name="default_connection_settings">การตั้งค่าการเชื่อมต่อเริ่มต้น</string>
+    <string name="default_connection_settings_description">เทมเพลตการเชื่อมต่อที่การเชื่อมต่อใหม่ และการเชื่อมต่อที่เปิดจากไฟล์ .rdp/.vv ใช้เป็นจุดเริ่มต้น แก้ไขได้เหมือนการเชื่อมต่อทั่วไป</string>
+    <string name="section_display">การแสดงผล</string>
+    <string name="section_input">การป้อนข้อมูล</string>
+    <string name="section_audio">เสียง</string>
+    <string name="section_behavior">พฤติกรรม</string>
+    <string name="section_sound">เสียง</string>
+    <string name="section_protocol_preferences">การตั้งค่าโปรโตคอล</string>
+    <string name="default_connection_settings_redirect_summary">วิธีป้อนข้อมูล การปรับขนาด ตำแหน่งแถบเครื่องมือ และค่าเริ่มต้นอื่น ๆ ต่อการเชื่อมต่อถูกย้ายมาที่นี่ แตะเพื่อแก้ไขการเชื่อมต่อเริ่มต้น</string>
+    <string name="reset_default_connection_settings">รีเซ็ตค่าเริ่มต้น</string>
+    <string name="reset_default_connection_settings_confirm">รีเซ็ตการตั้งค่าการเชื่อมต่อเริ่มต้นกลับเป็นค่าเริ่มต้นหรือไม่?</string>
 </resources>

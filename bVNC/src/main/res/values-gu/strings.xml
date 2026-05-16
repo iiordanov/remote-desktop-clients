@@ -838,4 +838,17 @@ connection ઉમેરો/edit ઉપર, connection configuration page.
     <string name="discovery_scan_complete">સ્કેન પૂર્ણ</string>
     <string name="connection_type_prompt_title">સર્વર પ્રકાર પસંદ કરો</string>
     <string name="keyboard_layout_map">કીબોર્ડ લેઆઉટ</string>
+    <string name="global_default_settings">વૈશ્વિક ડિફૉલ્ટ સેટિંગ્સ</string>
+    <string name="global_default_settings_description">ઍપ-વ્યાપી પસંદગીઓ જે દરેક કનેક્શન અને ઍપને પોતાને અસર કરે છે, જેમ કે ડિસ્પ્લે, ઇનપુટ અને વર્તન વિકલ્પો.</string>
+    <string name="default_connection_settings">ડિફૉલ્ટ કનેક્શન સેટિંગ્સ</string>
+    <string name="default_connection_settings_description">કનેક્શન ટેમ્પલેટ જેમાંથી નવા કનેક્શન અને .rdp/.vv ફાઇલોમાંથી શરૂ થયેલા કનેક્શન શરૂ થાય છે. તેને સામાન્ય કનેક્શનની જેમ સંપાદિત કરો.</string>
+    <string name="section_display">ડિસ્પ્લે</string>
+    <string name="section_input">ઇનપુટ</string>
+    <string name="section_audio">ઑડિયો</string>
+    <string name="section_behavior">વર્તન</string>
+    <string name="section_sound">ધ્વનિ</string>
+    <string name="section_protocol_preferences">પ્રોટોકોલ પસંદગીઓ</string>
+    <string name="default_connection_settings_redirect_summary">ઇનપુટ પદ્ધતિ, સ્કેલિંગ, ટૂલબાર સ્થાન અને અન્ય કનેક્શન-વિશિષ્ટ ડિફૉલ્ટ અહીં ખસેડાયા છે. ડિફૉલ્ટ કનેક્શન સંપાદિત કરવા ટૅપ કરો.</string>
+    <string name="reset_default_connection_settings">રીસેટ કરો</string>
+    <string name="reset_default_connection_settings_confirm">ડિફૉલ્ટ કનેક્શન સેટિંગ્સ તેમના પ્રારંભિક મૂલ્યો પર રીસેટ કરવી?</string>
 </resources>

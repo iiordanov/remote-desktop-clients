@@ -749,4 +749,17 @@
     <string name="discovery_scan_complete">स्कैन पूर्ण</string>
     <string name="connection_type_prompt_title">सर्वर प्रकार चुनें</string>
     <string name="keyboard_layout_map">कीबोर्ड लेआउट</string>
+    <string name="global_default_settings">वैश्विक डिफ़ॉल्ट सेटिंग्स</string>
+    <string name="global_default_settings_description">ऐप-व्यापी प्राथमिकताएँ जो हर कनेक्शन और ऐप को स्वयं प्रभावित करती हैं, जैसे डिस्प्ले, इनपुट और व्यवहार विकल्प।</string>
+    <string name="default_connection_settings">डिफ़ॉल्ट कनेक्शन सेटिंग्स</string>
+    <string name="default_connection_settings_description">वह कनेक्शन टेम्पलेट जिससे नए कनेक्शन और .rdp/.vv फ़ाइलों से शुरू किए गए कनेक्शन आरंभ होते हैं। इसे सामान्य कनेक्शन की तरह संपादित करें।</string>
+    <string name="section_display">डिस्प्ले</string>
+    <string name="section_input">इनपुट</string>
+    <string name="section_audio">ऑडियो</string>
+    <string name="section_behavior">व्यवहार</string>
+    <string name="section_sound">ध्वनि</string>
+    <string name="section_protocol_preferences">प्रोटोकॉल प्राथमिकताएँ</string>
+    <string name="default_connection_settings_redirect_summary">इनपुट विधि, स्केलिंग, टूलबार स्थिति और अन्य प्रति-कनेक्शन डिफ़ॉल्ट यहाँ ले जाए गए हैं। डिफ़ॉल्ट कनेक्शन संपादित करने के लिए टैप करें।</string>
+    <string name="reset_default_connection_settings">रीसेट करें</string>
+    <string name="reset_default_connection_settings_confirm">डिफ़ॉल्ट कनेक्शन सेटिंग्स को उनके आरंभिक मानों पर रीसेट करें?</string>
 </resources>

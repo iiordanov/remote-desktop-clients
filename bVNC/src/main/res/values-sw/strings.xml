@@ -749,4 +749,17 @@ Programu tayari imeondolewa kwenye uboreshaji wa betri.</string>
     <string name="discovery_scan_complete">Uchunguzi umekamilika</string>
     <string name="connection_type_prompt_title">Chagua aina ya seva</string>
     <string name="keyboard_layout_map">Mpangilio wa Kibodi</string>
+    <string name="global_default_settings">Mipangilio Chaguomsingi ya Jumla</string>
+    <string name="global_default_settings_description">Mapendeleo ya programu nzima yanayoathiri kila muunganisho na programu yenyewe, kama vile chaguo za onyesho, ingizo na tabia.</string>
+    <string name="default_connection_settings">Mipangilio Chaguomsingi ya Muunganisho</string>
+    <string name="default_connection_settings_description">Kiolezo cha muunganisho ambacho miunganisho mipya, na miunganisho inayozinduliwa kutoka kwa faili za .rdp/.vv, huanzia. Kihariri kama muunganisho wa kawaida.</string>
+    <string name="section_display">Onyesho</string>
+    <string name="section_input">Ingizo</string>
+    <string name="section_audio">Sauti</string>
+    <string name="section_behavior">Tabia</string>
+    <string name="section_sound">Sauti</string>
+    <string name="section_protocol_preferences">Mapendeleo ya Itifaki</string>
+    <string name="default_connection_settings_redirect_summary">Mbinu ya ingizo, kuongeza ukubwa, nafasi ya upau wa zana na chaguomsingi nyingine za kila muunganisho zimehamishwa hapa. Gusa kuhariri muunganisho chaguomsingi.</string>
+    <string name="reset_default_connection_settings">Weka upya</string>
+    <string name="reset_default_connection_settings_confirm">Weka upya mipangilio chaguomsingi ya muunganisho kwa thamani zake za awali?</string>
 </resources>

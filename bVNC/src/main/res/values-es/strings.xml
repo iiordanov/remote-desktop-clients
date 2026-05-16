@@ -905,4 +905,17 @@ La aplicación ya está exenta de optimizaciones de batería.</string>
     <string name="discovery_scan_complete">Escaneo completo</string>
     <string name="connection_type_prompt_title">Seleccionar tipo de servidor</string>
     <string name="keyboard_layout_map">Disposición del teclado</string>
+    <string name="global_default_settings">Configuración predeterminada global</string>
+    <string name="global_default_settings_description">Preferencias de toda la aplicación que afectan a cada conexión y a la propia aplicación, como opciones de pantalla, entrada y comportamiento.</string>
+    <string name="default_connection_settings">Configuración de conexión predeterminada</string>
+    <string name="default_connection_settings_description">La plantilla de conexión de la que parten las conexiones nuevas y las conexiones abiertas desde archivos .rdp/.vv. Edítala como una conexión normal.</string>
+    <string name="section_display">Pantalla</string>
+    <string name="section_input">Entrada</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_behavior">Comportamiento</string>
+    <string name="section_sound">Sonido</string>
+    <string name="section_protocol_preferences">Preferencias del protocolo</string>
+    <string name="default_connection_settings_redirect_summary">El método de entrada, el escalado, la posición de la barra de herramientas y otros valores predeterminados por conexión se han movido aquí. Toca para editar la conexión predeterminada.</string>
+    <string name="reset_default_connection_settings">Restablecer</string>
+    <string name="reset_default_connection_settings_confirm">¿Restablecer la configuración de conexión predeterminada a sus valores iniciales?</string>
 </resources>

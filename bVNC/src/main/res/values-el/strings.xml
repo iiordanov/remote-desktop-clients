@@ -846,4 +846,17 @@
     <string name="discovery_scan_complete">Η σάρωση ολοκληρώθηκε</string>
     <string name="connection_type_prompt_title">Επιλέξτε τύπο διακομιστή</string>
     <string name="keyboard_layout_map">Διάταξη πληκτρολογίου</string>
+    <string name="global_default_settings">Καθολικές προεπιλεγμένες ρυθμίσεις</string>
+    <string name="global_default_settings_description">Προτιμήσεις για ολόκληρη την εφαρμογή που επηρεάζουν κάθε σύνδεση και την ίδια την εφαρμογή, όπως επιλογές οθόνης, εισαγωγής και συμπεριφοράς.</string>
+    <string name="default_connection_settings">Προεπιλεγμένες ρυθμίσεις σύνδεσης</string>
+    <string name="default_connection_settings_description">Το πρότυπο σύνδεσης από το οποίο ξεκινούν οι νέες συνδέσεις και οι συνδέσεις που ανοίγουν από αρχεία .rdp/.vv. Επεξεργαστείτε το όπως μια κανονική σύνδεση.</string>
+    <string name="section_display">Οθόνη</string>
+    <string name="section_input">Είσοδος</string>
+    <string name="section_audio">Ήχος</string>
+    <string name="section_behavior">Συμπεριφορά</string>
+    <string name="section_sound">Ήχος</string>
+    <string name="section_protocol_preferences">Προτιμήσεις πρωτοκόλλου</string>
+    <string name="default_connection_settings_redirect_summary">Η μέθοδος εισαγωγής, η κλιμάκωση, η θέση της γραμμής εργαλείων και άλλες προεπιλογές ανά σύνδεση μεταφέρθηκαν εδώ. Πατήστε για επεξεργασία της προεπιλεγμένης σύνδεσης.</string>
+    <string name="reset_default_connection_settings">Επαναφορά</string>
+    <string name="reset_default_connection_settings_confirm">Επαναφορά των προεπιλεγμένων ρυθμίσεων σύνδεσης στις αρχικές τιμές τους;</string>
 </resources>

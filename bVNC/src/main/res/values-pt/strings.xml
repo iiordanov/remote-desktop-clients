@@ -921,4 +921,17 @@ App já está isento de otimizações de bateria.</string>
     <string name="discovery_scan_complete">Análise concluída</string>
     <string name="connection_type_prompt_title">Selecionar tipo de servidor</string>
     <string name="keyboard_layout_map">Disposição do teclado</string>
+    <string name="global_default_settings">Definições predefinidas globais</string>
+    <string name="global_default_settings_description">Preferências de toda a aplicação que afetam cada ligação e a própria aplicação, como opções de ecrã, entrada e comportamento.</string>
+    <string name="default_connection_settings">Definições de ligação predefinidas</string>
+    <string name="default_connection_settings_description">O modelo de ligação a partir do qual começam as novas ligações e as ligações iniciadas a partir de ficheiros .rdp/.vv. Edite-o como uma ligação normal.</string>
+    <string name="section_display">Ecrã</string>
+    <string name="section_input">Entrada</string>
+    <string name="section_audio">Áudio</string>
+    <string name="section_behavior">Comportamento</string>
+    <string name="section_sound">Som</string>
+    <string name="section_protocol_preferences">Preferências do protocolo</string>
+    <string name="default_connection_settings_redirect_summary">O método de entrada, o dimensionamento, a posição da barra de ferramentas e outras predefinições por ligação foram movidos para aqui. Toque para editar a ligação predefinida.</string>
+    <string name="reset_default_connection_settings">Repor predefinições</string>
+    <string name="reset_default_connection_settings_confirm">Repor as definições de ligação predefinidas para os valores iniciais?</string>
 </resources>

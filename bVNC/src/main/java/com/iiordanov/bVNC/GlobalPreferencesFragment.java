@@ -2,6 +2,7 @@ package com.iiordanov.bVNC;
 
 import android.os.Bundle;
 
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.undatech.remoteClientUi.R;
@@ -18,5 +19,14 @@ public class GlobalPreferencesFragment extends PreferenceFragmentCompat {
         } else if (Utils.isSpice(getContext())) {
             addPreferencesFromResource(R.xml.global_preferences_spice);
         }
+    }
+
+    @Override
+    public boolean onPreferenceTreeClick(Preference preference) {
+        if ("openDefaultConnectionSettings".equals(preference.getKey())) {
+            Utils.openDefaultConnectionSettings(requireContext());
+            return true;
+        }
+        return super.onPreferenceTreeClick(preference);
     }
 }

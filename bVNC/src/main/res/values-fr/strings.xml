@@ -920,4 +920,17 @@ L\'application est déjà exemptée des optimisations de la batterie.</string>
     <string name="discovery_scan_complete">Analyse terminée</string>
     <string name="connection_type_prompt_title">Sélectionner le type de serveur</string>
     <string name="keyboard_layout_map">Disposition du clavier</string>
+    <string name="global_default_settings">Paramètres par défaut globaux</string>
+    <string name="global_default_settings_description">Préférences applicables à toute l\'application, qui affectent chaque connexion et l\'application elle-même, comme les options d\'affichage, de saisie et de comportement.</string>
+    <string name="default_connection_settings">Paramètres de connexion par défaut</string>
+    <string name="default_connection_settings_description">Le modèle de connexion à partir duquel démarrent les nouvelles connexions et les connexions lancées depuis des fichiers .rdp/.vv. Modifiez-le comme une connexion normale.</string>
+    <string name="section_display">Affichage</string>
+    <string name="section_input">Saisie</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_behavior">Comportement</string>
+    <string name="section_sound">Son</string>
+    <string name="section_protocol_preferences">Préférences du protocole</string>
+    <string name="default_connection_settings_redirect_summary">La méthode de saisie, la mise à l\'échelle, la position de la barre d\'outils et d\'autres réglages par défaut par connexion ont été déplacés ici. Touchez pour modifier la connexion par défaut.</string>
+    <string name="reset_default_connection_settings">Réinitialiser</string>
+    <string name="reset_default_connection_settings_confirm">Réinitialiser les paramètres de connexion par défaut à leurs valeurs initiales ?</string>
 </resources>

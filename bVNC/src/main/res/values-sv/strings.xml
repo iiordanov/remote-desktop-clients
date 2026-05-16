@@ -846,4 +846,17 @@ Appen är redan undantagen från batterioptimering.</string>
     <string name="discovery_scan_complete">Sökning slutförd</string>
     <string name="connection_type_prompt_title">Välj servertyp</string>
     <string name="keyboard_layout_map">Tangentbordslayout</string>
+    <string name="global_default_settings">Globala standardinställningar</string>
+    <string name="global_default_settings_description">Inställningar för hela appen som påverkar varje anslutning och själva appen, till exempel skärm-, inmatnings- och beteendealternativ.</string>
+    <string name="default_connection_settings">Standardanslutningsinställningar</string>
+    <string name="default_connection_settings_description">Anslutningsmallen som nya anslutningar, och anslutningar som startas från .rdp/.vv-filer, utgår från. Redigera den som en vanlig anslutning.</string>
+    <string name="section_display">Skärm</string>
+    <string name="section_input">Inmatning</string>
+    <string name="section_audio">Ljud</string>
+    <string name="section_behavior">Beteende</string>
+    <string name="section_sound">Ljud</string>
+    <string name="section_protocol_preferences">Protokollinställningar</string>
+    <string name="default_connection_settings_redirect_summary">Inmatningsmetod, skalning, verktygsfältets position och andra anslutningsspecifika standardvärden har flyttats hit. Tryck för att redigera standardanslutningen.</string>
+    <string name="reset_default_connection_settings">Återställ</string>
+    <string name="reset_default_connection_settings_confirm">Återställa standardanslutningsinställningarna till deras ursprungliga värden?</string>
 </resources>

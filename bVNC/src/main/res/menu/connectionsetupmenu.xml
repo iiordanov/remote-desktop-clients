@@ -25,6 +25,16 @@
         tools:ignore="AppCompatResource" />
 
     <item
+        android:id="@+id/itemResetDefaults"
+        android:icon="@android:drawable/ic_menu_revert"
+        android:onClick="resetDefaultConnectionSettings"
+        android:showAsAction="always"
+        android:title="@string/reset_default_connection_settings"
+        android:visible="false"
+        app:showAsAction="always"
+        tools:ignore="AppCompatResource" />
+
+    <item
         android:id="@+id/itemSaveAsCopy"
         android:alphabeticShortcut="c"
         android:icon="@android:drawable/ic_menu_save"

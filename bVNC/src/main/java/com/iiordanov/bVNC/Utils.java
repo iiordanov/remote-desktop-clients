@@ -51,6 +51,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -67,6 +68,7 @@ import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
 import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.ConnectionSetupActivity;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.remoteClientUi.R;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -363,6 +365,54 @@ public class Utils {
         } else {
             throw new IllegalArgumentException("Could not find appropriate connection setup activity class for package " + packageName);
         }
+    }
+
+    /**
+     * Opens the Default Connection Settings editor (the hidden per-connection
+     * template that new and file-initiated connections are seeded from): the
+     * full connection editor on the INVISIBLE template row for clients other than
+     * Opaque, or ConnectionSetupActivity on DEFAULT_SETTINGS_FILE for Opaque.
+     */
+    public static void openDefaultConnectionSettings(Context context) {
+        Intent intent = new Intent(context, getConnectionSetupClass(context));
+        intent.putExtra("isNewConnection", false);
+        if (isOpaque(context)) {
+            intent.putExtra(Constants.OPAQUE_CONNECTION_TO_EDIT_INTENT_KEY,
+                    RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
+        } else {
+            ConnectionBean template = ConnectionBean.getDefaultConnectionTemplate(context);
+            intent.putExtra(Constants.CONNECTION_TO_EDIT_INTENT_KEY, template.getId());
+        }
+        if (!(context instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        context.startActivity(intent);
+    }
+
+    /**
+     * Selects the spinner entry whose backing value (from valuesArrayRes) equals
+     * the given value; leaves the default selection if no match is found.
+     */
+    public static void selectSpinnerByValue(Context context, Spinner spinner,
+                                            int valuesArrayRes, String value) {
+        String[] values = context.getResources().getStringArray(valuesArrayRes);
+        for (int i = 0; i < values.length; i++) {
+            if (values[i].equals(value)) {
+                spinner.setSelection(i);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Returns the backing value (from valuesArrayRes) for the spinner's current
+     * selection, falling back to the supplied current value if out of range.
+     */
+    public static String spinnerValue(Context context, Spinner spinner,
+                                      int valuesArrayRes, String current) {
+        String[] values = context.getResources().getStringArray(valuesArrayRes);
+        int pos = spinner.getSelectedItemPosition();
+        return (pos >= 0 && pos < values.length) ? values[pos] : current;
     }
 
     public static String getConnectionScheme(Context context) {

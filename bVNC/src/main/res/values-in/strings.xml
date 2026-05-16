@@ -921,4 +921,17 @@ Aplikasi sudah dikecualikan dari pengoptimalan baterai.</string>
     <string name="discovery_scan_complete">Pemindaian selesai</string>
     <string name="connection_type_prompt_title">Pilih jenis server</string>
     <string name="keyboard_layout_map">Tata Letak Keyboard</string>
+    <string name="global_default_settings">Pengaturan Default Global</string>
+    <string name="global_default_settings_description">Preferensi seluruh aplikasi yang memengaruhi setiap koneksi dan aplikasi itu sendiri, seperti opsi tampilan, masukan, dan perilaku.</string>
+    <string name="default_connection_settings">Pengaturan Koneksi Default</string>
+    <string name="default_connection_settings_description">Templat koneksi yang menjadi dasar koneksi baru dan koneksi yang diluncurkan dari file .rdp/.vv. Edit seperti koneksi biasa.</string>
+    <string name="section_display">Tampilan</string>
+    <string name="section_input">Masukan</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_behavior">Perilaku</string>
+    <string name="section_sound">Suara</string>
+    <string name="section_protocol_preferences">Preferensi Protokol</string>
+    <string name="default_connection_settings_redirect_summary">Metode masukan, penskalaan, posisi bilah alat, dan default per-koneksi lainnya dipindahkan ke sini. Ketuk untuk mengedit koneksi default.</string>
+    <string name="reset_default_connection_settings">Setel ulang</string>
+    <string name="reset_default_connection_settings_confirm">Setel ulang pengaturan koneksi default ke nilai awalnya?</string>
 </resources>

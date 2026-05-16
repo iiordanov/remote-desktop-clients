@@ -861,4 +861,17 @@ aSPICEで対応済み機能は以下の通り：
     <string name="discovery_scan_complete">スキャン完了</string>
     <string name="connection_type_prompt_title">サーバーの種類を選択</string>
     <string name="keyboard_layout_map">キーボードレイアウト</string>
+    <string name="global_default_settings">全体のデフォルト設定</string>
+    <string name="global_default_settings_description">すべての接続とアプリ自体に影響するアプリ全体の設定（表示、入力、動作のオプションなど）。</string>
+    <string name="default_connection_settings">デフォルトの接続設定</string>
+    <string name="default_connection_settings_description">新しい接続や .rdp/.vv ファイルから起動する接続のもとになる接続テンプレートです。通常の接続と同じように編集できます。</string>
+    <string name="section_display">表示</string>
+    <string name="section_input">入力</string>
+    <string name="section_audio">オーディオ</string>
+    <string name="section_behavior">動作</string>
+    <string name="section_sound">サウンド</string>
+    <string name="section_protocol_preferences">プロトコル設定</string>
+    <string name="default_connection_settings_redirect_summary">入力方式、スケーリング、ツールバー位置、その他の接続ごとのデフォルトはここに移動しました。タップしてデフォルト接続を編集します。</string>
+    <string name="reset_default_connection_settings">リセット</string>
+    <string name="reset_default_connection_settings_confirm">デフォルトの接続設定を初期値にリセットしますか？</string>
 </resources>

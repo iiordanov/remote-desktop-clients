@@ -846,4 +846,17 @@ Aplikace je již osvobozena od optimalizace baterie.</string>
     <string name="discovery_scan_complete">Prohledávání dokončeno</string>
     <string name="connection_type_prompt_title">Vyberte typ serveru</string>
     <string name="keyboard_layout_map">Rozložení klávesnice</string>
+    <string name="global_default_settings">Globální výchozí nastavení</string>
+    <string name="global_default_settings_description">Předvolby pro celou aplikaci, které ovlivňují každé připojení i samotnou aplikaci, jako jsou možnosti zobrazení, vstupu a chování.</string>
+    <string name="default_connection_settings">Výchozí nastavení připojení</string>
+    <string name="default_connection_settings_description">Šablona připojení, ze které vycházejí nová připojení a připojení spuštěná ze souborů .rdp/.vv. Upravte ji jako běžné připojení.</string>
+    <string name="section_display">Zobrazení</string>
+    <string name="section_input">Vstup</string>
+    <string name="section_audio">Zvuk</string>
+    <string name="section_behavior">Chování</string>
+    <string name="section_sound">Zvuk</string>
+    <string name="section_protocol_preferences">Předvolby protokolu</string>
+    <string name="default_connection_settings_redirect_summary">Metoda zadávání, škálování, poloha panelu nástrojů a další výchozí hodnoty pro připojení byly přesunuty sem. Klepnutím upravíte výchozí připojení.</string>
+    <string name="reset_default_connection_settings">Obnovit výchozí</string>
+    <string name="reset_default_connection_settings_confirm">Obnovit výchozí nastavení připojení na původní hodnoty?</string>
 </resources>

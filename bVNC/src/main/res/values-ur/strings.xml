@@ -714,4 +714,17 @@ ASPICE خصوصیات کی موجودہ فہرست میں شامل ہیں:
     <string name="discovery_scan_complete">اسکین مکمل</string>
     <string name="connection_type_prompt_title">سرور کی قسم منتخب کریں</string>
     <string name="keyboard_layout_map">کی بورڈ لے آؤٹ</string>
+    <string name="global_default_settings">عالمی طے شدہ ترتیبات</string>
+    <string name="global_default_settings_description">ایپ بھر کی ترجیحات جو ہر کنکشن اور خود ایپ کو متاثر کرتی ہیں، جیسے ڈسپلے، ان پٹ اور رویّے کے اختیارات۔</string>
+    <string name="default_connection_settings">طے شدہ کنکشن ترتیبات</string>
+    <string name="default_connection_settings_description">وہ کنکشن ٹیمپلیٹ جس سے نئے کنکشن اور .rdp/.vv فائلوں سے شروع ہونے والے کنکشن شروع ہوتے ہیں۔ اسے ایک عام کنکشن کی طرح ترمیم کریں۔</string>
+    <string name="section_display">ڈسپلے</string>
+    <string name="section_input">ان پٹ</string>
+    <string name="section_audio">آڈیو</string>
+    <string name="section_behavior">رویّہ</string>
+    <string name="section_sound">آواز</string>
+    <string name="section_protocol_preferences">پروٹوکول ترجیحات</string>
+    <string name="default_connection_settings_redirect_summary">ان پٹ طریقہ، اسکیلنگ، ٹول بار پوزیشن اور دیگر فی کنکشن طے شدہ ترتیبات یہاں منتقل کر دی گئی ہیں۔ طے شدہ کنکشن میں ترمیم کے لیے تھپتھپائیں۔</string>
+    <string name="reset_default_connection_settings">ری سیٹ کریں</string>
+    <string name="reset_default_connection_settings_confirm">طے شدہ کنکشن ترتیبات کو ان کی ابتدائی اقدار پر ری سیٹ کریں؟</string>
 </resources>

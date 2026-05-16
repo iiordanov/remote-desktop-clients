@@ -21,8 +21,12 @@
 package com.iiordanov.bVNC;
 
 import static com.iiordanov.bVNC.Constants.ENABLE_GLYPH_CACHE_DEFAULT;
+import static com.iiordanov.bVNC.Constants.INVISIBLE_DEFAULT;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.util.Log;
 
 import com.iiordanov.bVNC.input.AbstractMetaKeyBean;
@@ -59,12 +63,16 @@ public class Database extends SQLiteOpenHelper {
     static final int DBV_2_2_1 = 561;
     static final int DBV_2_2_2 = 602;
     static final int DBV_2_2_3 = 626;
-    static final int CURRVERS = DBV_2_2_3;
+    static final int DBV_2_2_4 = 640;
+    static final int CURRVERS = DBV_2_2_4;
     private static final String dbName = "VncDatabase";
     private static String password = "";
 
+    private final Context context;
+
     public Database(Context context) {
         super(context, dbName, null, CURRVERS);
+        this.context = context;
         SQLiteDatabase.loadLibs(context);
     }
 
@@ -467,6 +475,61 @@ public class Database extends SQLiteOpenHelper {
             );
             oldVersion = DBV_2_2_3;
         }
+        if (oldVersion == DBV_2_2_3) {
+            Log.i(TAG, "Doing upgrade from 626 to 640");
+            db.execSQL(
+                    "ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                            + AbstractConnectionBean.GEN_FIELD_INVISIBLE
+                            + " BOOLEAN DEFAULT " + boolToString(INVISIBLE_DEFAULT)
+            );
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_USELASTPOSITIONTOOLBAR + " BOOLEAN DEFAULT TRUE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_USELASTPOSITIONTOOLBARX + " INTEGER DEFAULT 0");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_USELASTPOSITIONTOOLBARY + " INTEGER DEFAULT 0");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_USELASTPOSITIONTOOLBARMOVED + " BOOLEAN DEFAULT FALSE");
+            migrateToolbarPrefsToDb(db);
+            oldVersion = DBV_2_2_4;
+        }
+    }
+
+    /**
+     * One-time migration: the toolbar last-position settings used to live in a
+     * per-connection SharedPreferences file keyed by the connection's _id. Copy
+     * each connection's saved values into the new DB columns, then clear the
+     * obsolete prefs file so nothing is left orphaned.
+     */
+    private void migrateToolbarPrefsToDb(SQLiteDatabase db) {
+        Cursor c = db.query(AbstractConnectionBean.GEN_TABLE_NAME,
+                new String[]{AbstractConnectionBean.GEN_FIELD__ID},
+                null, null, null, null, null);
+        while (c.moveToNext()) {
+            long id = c.getLong(0);
+            SharedPreferences sp = context.getSharedPreferences(
+                    Long.toString(id), Context.MODE_PRIVATE);
+            if (!sp.contains(Constants.PREF_USE_LAST_POSITION_TOOLBAR)
+                    && !sp.contains(Constants.PREF_USE_LAST_POSITION_TOOLBAR_X)
+                    && !sp.contains(Constants.PREF_USE_LAST_POSITION_TOOLBAR_Y)
+                    && !sp.contains(Constants.PREF_USE_LAST_POSITION_TOOLBAR_MOVED)) {
+                continue;
+            }
+            ContentValues v = new ContentValues();
+            v.put(AbstractConnectionBean.GEN_FIELD_USELASTPOSITIONTOOLBAR,
+                    sp.getBoolean(Constants.PREF_USE_LAST_POSITION_TOOLBAR, true));
+            v.put(AbstractConnectionBean.GEN_FIELD_USELASTPOSITIONTOOLBARX,
+                    sp.getInt(Constants.PREF_USE_LAST_POSITION_TOOLBAR_X, 0));
+            v.put(AbstractConnectionBean.GEN_FIELD_USELASTPOSITIONTOOLBARY,
+                    sp.getInt(Constants.PREF_USE_LAST_POSITION_TOOLBAR_Y, 0));
+            v.put(AbstractConnectionBean.GEN_FIELD_USELASTPOSITIONTOOLBARMOVED,
+                    sp.getBoolean(Constants.PREF_USE_LAST_POSITION_TOOLBAR_MOVED, false));
+            db.update(AbstractConnectionBean.GEN_TABLE_NAME, v,
+                    AbstractConnectionBean.GEN_FIELD__ID + " = ?",
+                    new String[]{Long.toString(id)});
+            sp.edit().clear().apply();
+        }
+        c.close();
     }
 
     public boolean checkMasterPassword(String password, Context context) {

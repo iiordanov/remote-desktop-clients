@@ -847,4 +847,17 @@ App is al vrijgesteld van batterij-optimalisaties.</string>
     <string name="discovery_scan_complete">Scan voltooid</string>
     <string name="connection_type_prompt_title">Selecteer servertype</string>
     <string name="keyboard_layout_map">Toetsenbordindeling</string>
+    <string name="global_default_settings">Globale standaardinstellingen</string>
+    <string name="global_default_settings_description">App-brede voorkeuren die elke verbinding en de app zelf beïnvloeden, zoals weergave-, invoer- en gedragsopties.</string>
+    <string name="default_connection_settings">Standaard verbindingsinstellingen</string>
+    <string name="default_connection_settings_description">De verbindingssjabloon waarvan nieuwe verbindingen en verbindingen die vanuit .rdp/.vv-bestanden worden gestart, vertrekken. Bewerk het als een normale verbinding.</string>
+    <string name="section_display">Weergave</string>
+    <string name="section_input">Invoer</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_behavior">Gedrag</string>
+    <string name="section_sound">Geluid</string>
+    <string name="section_protocol_preferences">Protocolvoorkeuren</string>
+    <string name="default_connection_settings_redirect_summary">Invoermethode, schaling, werkbalkpositie en andere verbindingsspecifieke standaardwaarden zijn hierheen verplaatst. Tik om de standaardverbinding te bewerken.</string>
+    <string name="reset_default_connection_settings">Standaard herstellen</string>
+    <string name="reset_default_connection_settings_confirm">De standaard verbindingsinstellingen terugzetten naar hun oorspronkelijke waarden?</string>
 </resources>

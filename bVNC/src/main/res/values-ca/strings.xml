@@ -919,4 +919,17 @@ L\'aplicació ja està exempta d\'optimitzacions de bateria.</string>
     <string name="discovery_scan_complete">Escaneig complet</string>
     <string name="connection_type_prompt_title">Seleccioneu el tipus de servidor</string>
     <string name="keyboard_layout_map">Disposició del teclat</string>
+    <string name="global_default_settings">Configuració predeterminada global</string>
+    <string name="global_default_settings_description">Preferències de tota l\'aplicació que afecten cada connexió i la mateixa aplicació, com ara opcions de pantalla, entrada i comportament.</string>
+    <string name="default_connection_settings">Configuració de connexió predeterminada</string>
+    <string name="default_connection_settings_description">La plantilla de connexió des de la qual parteixen les connexions noves i les connexions obertes des de fitxers .rdp/.vv. Editeu-la com una connexió normal.</string>
+    <string name="section_display">Pantalla</string>
+    <string name="section_input">Entrada</string>
+    <string name="section_audio">Àudio</string>
+    <string name="section_behavior">Comportament</string>
+    <string name="section_sound">So</string>
+    <string name="section_protocol_preferences">Preferències del protocol</string>
+    <string name="default_connection_settings_redirect_summary">El mètode d\'entrada, l\'escalat, la posició de la barra d\'eines i altres valors predeterminats per connexió s\'han mogut aquí. Toqueu per editar la connexió predeterminada.</string>
+    <string name="reset_default_connection_settings">Restableix</string>
+    <string name="reset_default_connection_settings_confirm">Voleu restablir la configuració de connexió predeterminada als seus valors inicials?</string>
 </resources>

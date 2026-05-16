@@ -99,6 +99,17 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
     }
 
     /**
+     * Returns the default-connection template used as the base configuration for
+     * both file-initiated connections and newly added connections. Backed by the
+     * existing default-settings store.
+     */
+    public static ConnectionSettings getDefaultConnectionTemplate(Context context) {
+        ConnectionSettings template = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
+        template.loadFromSharedPreferences(context);
+        return template;
+    }
+
+    /**
      * Exports preferences to a file.
      *
      * @param connections  space separated list of connections
@@ -1019,6 +1030,15 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
 
     @Override
     public void setEnableGlyphCache(boolean enableGlyphCache) {
+    }
+
+    @Override
+    public boolean getInvisible() {
+        return false;
+    }
+
+    @Override
+    public void setInvisible(boolean invisible) {
     }
 
     @Override

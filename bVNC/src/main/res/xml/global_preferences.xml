@@ -48,32 +48,18 @@
         android:defaultValue="false"
         android:key="disablePointerOffsetCalculation"
         android:title="@string/disable_pointer_offset_correction" />
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="localToRemoteClipboardIntegration"
+        android:title="@string/local_clipboard_integration" />
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="remoteToLocalClipboardIntegration"
+        android:title="@string/remote_clipboard_integration" />
     <PreferenceCategory android:title="@string/applies_to_new_connections_only">
-        <!--input_methods android:key must match Constants.defaultInputMethodTag -->
-        <ListPreference
-            android:defaultValue="TOUCH_ZOOM_MODE"
-            android:entries="@array/defaultInputMethodEntries"
-            android:entryValues="@array/defaultInputMethodValues"
-            android:key="defaultInputMethod"
-            android:title="@string/input_methods" />
-        <!--scaling android:key must match Constants.defaultScalingTag -->
-        <ListPreference
-            android:defaultValue="MATRIX"
-            android:entries="@array/defaultScalingEntries"
-            android:entryValues="@array/defaultScalingValues"
-            android:key="defaultScaling"
-            android:title="@string/scaling" />
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:key="positionToolbarLastUsed"
-            android:title="@string/position_toolbar_last_used" />
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:key="localToRemoteClipboardIntegration"
-            android:title="@string/local_clipboard_integration" />
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:key="remoteToLocalClipboardIntegration"
-            android:title="@string/remote_clipboard_integration" />
+        <Preference
+            android:key="openDefaultConnectionSettings"
+            android:title="@string/default_connection_settings"
+            android:summary="@string/default_connection_settings_redirect_summary" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -30,7 +30,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public static final String TAG = "AbstractConnectionBean";
 
     public static final String GEN_TABLE_NAME = "CONNECTION_BEAN";
-    public static final int GEN_COUNT = 95;
+    public static final int GEN_COUNT = 100;
 
     // Field constants
     public static final String GEN_FIELD__ID = "_id";
@@ -228,6 +228,18 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public static final int GEN_ID_RDPSECURITY = 93;
     public static final String GEN_FIELD_ENABLEGLYPHCACHE = "ENABLEGLYPHCACHE";
     public static final int GEN_ID_ENABLEGLYPHCACHE = 94;
+    public static final String GEN_FIELD_INVISIBLE = "INVISIBLE";
+    public static final int GEN_ID_INVISIBLE = 95;
+    // Selection matching the single hidden default-connection-template row.
+    public static final String INVISIBLE_SELECTION = GEN_FIELD_INVISIBLE + " <> 0";
+    public static final String GEN_FIELD_USELASTPOSITIONTOOLBAR = "USELASTPOSITIONTOOLBAR";
+    public static final int GEN_ID_USELASTPOSITIONTOOLBAR = 96;
+    public static final String GEN_FIELD_USELASTPOSITIONTOOLBARX = "USELASTPOSITIONTOOLBARX";
+    public static final int GEN_ID_USELASTPOSITIONTOOLBARX = 97;
+    public static final String GEN_FIELD_USELASTPOSITIONTOOLBARY = "USELASTPOSITIONTOOLBARY";
+    public static final int GEN_ID_USELASTPOSITIONTOOLBARY = 98;
+    public static final String GEN_FIELD_USELASTPOSITIONTOOLBARMOVED = "USELASTPOSITIONTOOLBARMOVED";
+    public static final int GEN_ID_USELASTPOSITIONTOOLBARMOVED = 99;
 
     // SQL Command for creating the table
     public static String GEN_CREATE = "CREATE TABLE CONNECTION_BEAN (" +
@@ -325,7 +337,12 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             "KEEPRDPGATEWAYPASSWORD INTEGER," +
             "DESKTOPSCALEPERCENTAGE INTEGER," +
             "RDPSECURITY INTEGER," +
-            "ENABLEGLYPHCACHE BOOLEAN" +
+            "ENABLEGLYPHCACHE BOOLEAN," +
+            "INVISIBLE BOOLEAN," +
+            "USELASTPOSITIONTOOLBAR BOOLEAN," +
+            "USELASTPOSITIONTOOLBARX INTEGER," +
+            "USELASTPOSITIONTOOLBARY INTEGER," +
+            "USELASTPOSITIONTOOLBARMOVED BOOLEAN" +
             ")";
 
     // Members corresponding to defined fields
@@ -428,6 +445,11 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     private int gen_desktopScalePercentage;
     private int gen_rdpSecurity;
     private boolean gen_enableGlyphCache;
+    private boolean gen_invisible;
+    private boolean gen_useLastPositionToolbar;
+    private int gen_useLastPositionToolbarX;
+    private int gen_useLastPositionToolbarY;
+    private boolean gen_useLastPositionToolbarMoved;
 
     public String Gen_tableName() {
         return GEN_TABLE_NAME;
@@ -1200,6 +1222,56 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         this.gen_enableGlyphCache = enableGlyphCache;
     }
 
+    @Override
+    public boolean getInvisible() {
+        return gen_invisible;
+    }
+
+    @Override
+    public void setInvisible(boolean invisible) {
+        this.gen_invisible = invisible;
+    }
+
+    @Override
+    public boolean getUseLastPositionToolbar() {
+        return gen_useLastPositionToolbar;
+    }
+
+    @Override
+    public void setUseLastPositionToolbar(boolean useLastPositionToolbar) {
+        this.gen_useLastPositionToolbar = useLastPositionToolbar;
+    }
+
+    @Override
+    public int getUseLastPositionToolbarX() {
+        return gen_useLastPositionToolbarX;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarX(int useLastPositionToolbarX) {
+        this.gen_useLastPositionToolbarX = useLastPositionToolbarX;
+    }
+
+    @Override
+    public int getUseLastPositionToolbarY() {
+        return gen_useLastPositionToolbarY;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarY(int useLastPositionToolbarY) {
+        this.gen_useLastPositionToolbarY = useLastPositionToolbarY;
+    }
+
+    @Override
+    public boolean getUseLastPositionToolbarMoved() {
+        return gen_useLastPositionToolbarMoved;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarMoved(boolean useLastPositionToolbarMoved) {
+        this.gen_useLastPositionToolbarMoved = useLastPositionToolbarMoved;
+    }
+
     public android.content.ContentValues Gen_getValues() {
         android.content.ContentValues values = new android.content.ContentValues();
         values.put(GEN_FIELD__ID, Long.toString(this.gen__Id));
@@ -1302,6 +1374,11 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         values.put(GEN_FIELD_DESKTOPSCALEPERCENTAGE, (this.gen_desktopScalePercentage));
         values.put(GEN_FIELD_RDPSECURITY, (this.gen_rdpSecurity));
         values.put(GEN_FIELD_ENABLEGLYPHCACHE, (this.gen_enableGlyphCache));
+        values.put(GEN_FIELD_INVISIBLE, (this.gen_invisible));
+        values.put(GEN_FIELD_USELASTPOSITIONTOOLBAR, (this.gen_useLastPositionToolbar));
+        values.put(GEN_FIELD_USELASTPOSITIONTOOLBARX, (this.gen_useLastPositionToolbarX));
+        values.put(GEN_FIELD_USELASTPOSITIONTOOLBARY, (this.gen_useLastPositionToolbarY));
+        values.put(GEN_FIELD_USELASTPOSITIONTOOLBARMOVED, (this.gen_useLastPositionToolbarMoved));
 
         return values;
     }
@@ -1418,6 +1495,11 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         result[92] = cursor.getColumnIndex(GEN_FIELD_DESKTOPSCALEPERCENTAGE);
         result[93] = cursor.getColumnIndex(GEN_FIELD_RDPSECURITY);
         result[94] = cursor.getColumnIndex(GEN_FIELD_ENABLEGLYPHCACHE);
+        result[95] = cursor.getColumnIndex(GEN_FIELD_INVISIBLE);
+        result[96] = cursor.getColumnIndex(GEN_FIELD_USELASTPOSITIONTOOLBAR);
+        result[97] = cursor.getColumnIndex(GEN_FIELD_USELASTPOSITIONTOOLBARX);
+        result[98] = cursor.getColumnIndex(GEN_FIELD_USELASTPOSITIONTOOLBARY);
+        result[99] = cursor.getColumnIndex(GEN_FIELD_USELASTPOSITIONTOOLBARMOVED);
 
         return result;
     }
@@ -1715,6 +1797,21 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         if (columnIndices[GEN_ID_ENABLEGLYPHCACHE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_ENABLEGLYPHCACHE])) {
             gen_enableGlyphCache = cursor.getInt(columnIndices[GEN_ID_ENABLEGLYPHCACHE]) != 0;
         }
+        if (columnIndices[GEN_ID_INVISIBLE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_INVISIBLE])) {
+            gen_invisible = cursor.getInt(columnIndices[GEN_ID_INVISIBLE]) != 0;
+        }
+        if (columnIndices[GEN_ID_USELASTPOSITIONTOOLBAR] >= 0 && !cursor.isNull(columnIndices[GEN_ID_USELASTPOSITIONTOOLBAR])) {
+            gen_useLastPositionToolbar = cursor.getInt(columnIndices[GEN_ID_USELASTPOSITIONTOOLBAR]) != 0;
+        }
+        if (columnIndices[GEN_ID_USELASTPOSITIONTOOLBARX] >= 0 && !cursor.isNull(columnIndices[GEN_ID_USELASTPOSITIONTOOLBARX])) {
+            gen_useLastPositionToolbarX = cursor.getInt(columnIndices[GEN_ID_USELASTPOSITIONTOOLBARX]);
+        }
+        if (columnIndices[GEN_ID_USELASTPOSITIONTOOLBARY] >= 0 && !cursor.isNull(columnIndices[GEN_ID_USELASTPOSITIONTOOLBARY])) {
+            gen_useLastPositionToolbarY = cursor.getInt(columnIndices[GEN_ID_USELASTPOSITIONTOOLBARY]);
+        }
+        if (columnIndices[GEN_ID_USELASTPOSITIONTOOLBARMOVED] >= 0 && !cursor.isNull(columnIndices[GEN_ID_USELASTPOSITIONTOOLBARMOVED])) {
+            gen_useLastPositionToolbarMoved = cursor.getInt(columnIndices[GEN_ID_USELASTPOSITIONTOOLBARMOVED]) != 0;
+        }
     }
 
     /**
@@ -1821,6 +1918,21 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_desktopScalePercentage = values.getAsInteger(GEN_FIELD_DESKTOPSCALEPERCENTAGE);
         gen_rdpSecurity = values.getAsInteger(GEN_FIELD_RDPSECURITY);
         gen_enableGlyphCache = values.getAsBoolean(GEN_FIELD_ENABLEGLYPHCACHE);
+        gen_invisible = boolOr(values, GEN_FIELD_INVISIBLE, false);
+        gen_useLastPositionToolbar = boolOr(values, GEN_FIELD_USELASTPOSITIONTOOLBAR, true);
+        gen_useLastPositionToolbarX = intOr(values, GEN_FIELD_USELASTPOSITIONTOOLBARX, 0);
+        gen_useLastPositionToolbarY = intOr(values, GEN_FIELD_USELASTPOSITIONTOOLBARY, 0);
+        gen_useLastPositionToolbarMoved = boolOr(values, GEN_FIELD_USELASTPOSITIONTOOLBARMOVED, false);
+    }
+
+    private static boolean boolOr(android.content.ContentValues values, String key, boolean defaultValue) {
+        Boolean b = values.getAsBoolean(key);
+        return b != null ? b : defaultValue;
+    }
+
+    private static int intOr(android.content.ContentValues values, String key, int defaultValue) {
+        Integer i = values.getAsInteger(key);
+        return i != null ? i : defaultValue;
     }
 
     /**
@@ -1906,6 +2018,29 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         return configFileName;
     }
 
+    /**
+     * Single sanctioned factory for creating a user-facing new connection,
+     * seeded from the editable per-connection default settings template.
+     *
+     * Every flow that begins a connection the user can then edit and save —
+     * the "+ new connection" button, URI intents (vnc://, rdp://, spice://),
+     * config-file imports (.rdp, .vv), etc. — must go through here so the
+     * template is applied uniformly. Dispatches on protocol (Opaque vs the
+     * sqlcipher-backed bean) so callers do not duplicate the
+     * {@code Utils.isOpaque} branch.
+     *
+     * Internal/DB-load uses of {@code new ConnectionBean(ctx)} or
+     * {@code new ConnectionSettings(...)} (cursor population, template
+     * self-construction, widget-id search scaffolding, editor copy-ctor,
+     * etc.) must NOT route through this method.
+     */
+    public static Connection newForUser(Context context) {
+        if (Utils.isOpaque(context)) {
+            return ConnectionSettings.getDefaultConnectionTemplate(context);
+        }
+        return ConnectionBean.newConnectionFromDefaultTemplate(context);
+    }
+
     public static Connection getRemoteConnectionSettings(Intent i, Context context, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
         Connection connection;
         String configFileName = retrieveConfigFileFromIntent(i, context.getFilesDir().toString(), context, context);
@@ -1944,8 +2079,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
         } else {
-            connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
-            connection.load(context);
+            connection = newForUser(context);
         }
         return connection;
     }
@@ -1959,7 +2093,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             connection = handleSupportedUri(data, context, masterPasswordEnabled);
         } else if (!Utils.isNullOrEmpty(i.getType())) {
             Log.i(TAG, "getConnection - non-empty intent type: " + i.getType() + ", making new connection for config file");
-            connection = new ConnectionBean(context);
+            connection = newForUser(context);
         } else {
             Log.i(TAG, "getConnection - launching a regular, serialized connection");
             connection = loadSerializedConnection(i, context);

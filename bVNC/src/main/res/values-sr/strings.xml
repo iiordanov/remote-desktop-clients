@@ -749,4 +749,17 @@
     <string name="discovery_scan_complete">Скенирање завршено</string>
     <string name="connection_type_prompt_title">Одаберите врсту сервера</string>
     <string name="keyboard_layout_map">Распоред тастатуре</string>
+    <string name="global_default_settings">Глобална подразумевана подешавања</string>
+    <string name="global_default_settings_description">Подешавања за целу апликацију која утичу на свако повезивање и саму апликацију, попут опција приказа, уноса и понашања.</string>
+    <string name="default_connection_settings">Подразумевана подешавања везе</string>
+    <string name="default_connection_settings_description">Шаблон везе из којег полазе нове везе и везе покренуте из .rdp/.vv датотека. Уредите га као обичну везу.</string>
+    <string name="section_display">Приказ</string>
+    <string name="section_input">Унос</string>
+    <string name="section_audio">Звук</string>
+    <string name="section_behavior">Понашање</string>
+    <string name="section_sound">Звук</string>
+    <string name="section_protocol_preferences">Подешавања протокола</string>
+    <string name="default_connection_settings_redirect_summary">Метод уноса, скалирање, позиција траке са алаткама и друге подразумеване вредности по вези премештени су овде. Додирните за уређивање подразумеване везе.</string>
+    <string name="reset_default_connection_settings">Ресетуј</string>
+    <string name="reset_default_connection_settings_confirm">Ресетовати подразумевана подешавања везе на почетне вредности?</string>
 </resources>

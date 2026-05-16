@@ -426,6 +426,10 @@ public interface Connection {
 
     void setEnableGlyphCache(boolean enableGlyphCache);
 
+    boolean getInvisible();
+
+    void setInvisible(boolean invisible);
+
     boolean getUseLastPositionToolbar();
 
     void setUseLastPositionToolbar(boolean useLastPositionToolbar);

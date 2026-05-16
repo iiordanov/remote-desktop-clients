@@ -714,4 +714,17 @@
     <string name="discovery_scan_complete">הסריקה הושלמה</string>
     <string name="connection_type_prompt_title">בחר סוג שרת</string>
     <string name="keyboard_layout_map">פריסת המקלדת</string>
+    <string name="global_default_settings">הגדרות ברירת מחדל גלובליות</string>
+    <string name="global_default_settings_description">העדפות לכל האפליקציה שמשפיעות על כל חיבור ועל האפליקציה עצמה, כגון אפשרויות תצוגה, קלט והתנהגות.</string>
+    <string name="default_connection_settings">הגדרות חיבור ברירת מחדל</string>
+    <string name="default_connection_settings_description">תבנית החיבור שממנה מתחילים חיבורים חדשים וחיבורים שמופעלים מקובצי ‎.rdp/.vv. ערוך אותה כמו חיבור רגיל.</string>
+    <string name="section_display">תצוגה</string>
+    <string name="section_input">קלט</string>
+    <string name="section_audio">אודיו</string>
+    <string name="section_behavior">התנהגות</string>
+    <string name="section_sound">צליל</string>
+    <string name="section_protocol_preferences">העדפות פרוטוקול</string>
+    <string name="default_connection_settings_redirect_summary">שיטת הקלט, קנה המידה, מיקום סרגל הכלים והגדרות ברירת מחדל אחרות לכל חיבור הועברו לכאן. הקש כדי לערוך את חיבור ברירת המחדל.</string>
+    <string name="reset_default_connection_settings">איפוס</string>
+    <string name="reset_default_connection_settings_confirm">לאפס את הגדרות החיבור המוגדרות כברירת מחדל לערכים ההתחלתיים שלהן?</string>
 </resources>

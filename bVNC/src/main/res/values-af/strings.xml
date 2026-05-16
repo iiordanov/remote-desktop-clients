@@ -922,4 +922,17 @@ Die toepassing is reeds vrygestel van batteryoptimalisering.</string>
     <string name="discovery_scan_complete">Skandering voltooi</string>
     <string name="connection_type_prompt_title">Kies bedienertipe</string>
     <string name="keyboard_layout_map">Sleutelborduitleg</string>
+    <string name="global_default_settings">Globale verstekinstellings</string>
+    <string name="global_default_settings_description">Toepassingswye voorkeure wat elke verbinding en die toepassing self beïnvloed, soos vertoon-, invoer- en gedragsopsies.</string>
+    <string name="default_connection_settings">Verstek verbindinginstellings</string>
+    <string name="default_connection_settings_description">Die verbindingsjabloon waarvan nuwe verbindings, en verbindings wat vanaf .rdp/.vv-lêers begin word, vertrek. Wysig dit soos \'n gewone verbinding.</string>
+    <string name="section_display">Vertoon</string>
+    <string name="section_input">Invoer</string>
+    <string name="section_audio">Klank</string>
+    <string name="section_behavior">Gedrag</string>
+    <string name="section_sound">Klank</string>
+    <string name="section_protocol_preferences">Protokolvoorkeure</string>
+    <string name="default_connection_settings_redirect_summary">Invoermetode, skaal, nutsbalkposisie en ander verbinding-spesifieke verstekke is hierheen geskuif. Tik om die verstekverbinding te wysig.</string>
+    <string name="reset_default_connection_settings">Herstel verstek</string>
+    <string name="reset_default_connection_settings_confirm">Stel die verstekverbinding-instellings terug na hul aanvanklike waardes?</string>
 </resources>

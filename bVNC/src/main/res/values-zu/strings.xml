@@ -844,4 +844,17 @@ Uhlelo lokusebenza seluvele lukhululiwe ekulungiselelweni kwebhethri.</string>
     <string name="discovery_scan_complete">Ukuhlolwa kuphelile</string>
     <string name="connection_type_prompt_title">Khetha uhlobo lweseva</string>
     <string name="keyboard_layout_map">Ukuhlela Ikhibhodi</string>
+    <string name="global_default_settings">Izilungiselelo Ezizenzakalelayo Zomhlaba Wonke</string>
+    <string name="global_default_settings_description">Okuncamelayo kwalo lonke uhlelo lokusebenza okuthinta konke ukuxhumana nohlelo lokusebenza ngokwalo, njengezinketho zokubonisa, zokufaka, nezokuziphatha.</string>
+    <string name="default_connection_settings">Izilungiselelo Zokuxhumana Ezizenzakalelayo</string>
+    <string name="default_connection_settings_description">Isifanekiso sokuxhumana lapho ukuxhumana okusha, nokuxhumana okuqalwa kusuka kumafayela e-.rdp/.vv, kusukela khona. Kuhlele njengokuxhumana okujwayelekile.</string>
+    <string name="section_display">Ukubonisa</string>
+    <string name="section_input">Okufakwayo</string>
+    <string name="section_audio">Umsindo</string>
+    <string name="section_behavior">Ukuziphatha</string>
+    <string name="section_sound">Umsindo</string>
+    <string name="section_protocol_preferences">Okuncamelayo Kweprothokholi</string>
+    <string name="default_connection_settings_redirect_summary">Indlela yokufaka, ukukala, isikhundla sebha yamathuluzi nokunye okuzenzakalelayo ngokuxhumana kususelwe lapha. Thepha ukuhlela ukuxhumana okuzenzakalelayo.</string>
+    <string name="reset_default_connection_settings">Setha kabusha</string>
+    <string name="reset_default_connection_settings_confirm">Setha kabusha izilungiselelo zokuxhumana ezizenzakalelayo zibuyele kumanani azo okuqala?</string>
 </resources>

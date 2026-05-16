@@ -921,4 +921,17 @@ Exempt na ang app sa mga pag-optimize ng baterya.</string>
     <string name="discovery_scan_complete">Tapos na ang pag-scan</string>
     <string name="connection_type_prompt_title">Pumili ng uri ng server</string>
     <string name="keyboard_layout_map">Layout ng Keyboard</string>
+    <string name="global_default_settings">Pangkalahatang Default na Mga Setting</string>
+    <string name="global_default_settings_description">Mga kagustuhan sa buong app na nakaaapekto sa bawat koneksyon at sa app mismo, gaya ng mga opsyon sa display, input, at gawi.</string>
+    <string name="default_connection_settings">Default na Mga Setting ng Koneksyon</string>
+    <string name="default_connection_settings_description">Ang template ng koneksyon na pinagsisimulan ng mga bagong koneksyon, at ng mga koneksyong inilunsad mula sa mga file na .rdp/.vv. I-edit ito tulad ng karaniwang koneksyon.</string>
+    <string name="section_display">Display</string>
+    <string name="section_input">Input</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_behavior">Pag-uugali</string>
+    <string name="section_sound">Tunog</string>
+    <string name="section_protocol_preferences">Mga Kagustuhan sa Protocol</string>
+    <string name="default_connection_settings_redirect_summary">Inilipat dito ang paraan ng pag-input, scaling, posisyon ng toolbar at iba pang per-connection na default. I-tap para i-edit ang default na koneksyon.</string>
+    <string name="reset_default_connection_settings">I-reset</string>
+    <string name="reset_default_connection_settings_confirm">I-reset ang default na mga setting ng koneksyon sa kanilang paunang halaga?</string>
 </resources>

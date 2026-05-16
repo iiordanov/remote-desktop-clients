@@ -25,7 +25,6 @@ import static com.iiordanov.bVNC.Constants.CONNECTION_TO_EDIT_INTENT_KEY;
 import static com.iiordanov.bVNC.Utils.createMainScreenDialog;
 import static com.iiordanov.bVNC.Utils.setClipboard;
 import static com.iiordanov.bVNC.Utils.startUriIntent;
-import static com.undatech.opaque.RemoteClientLibConstants.DEFAULT_SETTINGS_REQUEST_CODE;
 import static com.undatech.opaque.RemoteClientLibConstants.LAUNCH_CONNECTION_REQUEST_CODE;
 
 import android.app.Activity;
@@ -64,6 +63,7 @@ import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.Utils;
+import com.iiordanov.bVNC.dialogs.DefaultSettingsBottomSheet;
 import com.iiordanov.bVNC.dialogs.DiscoveryBottomSheet;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
@@ -74,7 +74,6 @@ import com.iiordanov.permissions.BatteryOptimizationDisabler;
 import com.iiordanov.util.MasterPasswordDelegate;
 import com.undatech.opaque.util.ConnectionLoader;
 import com.undatech.opaque.util.FileUtils;
-import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.opaque.util.LogcatReader;
 import com.undatech.remoteClientUi.R;
 
@@ -457,17 +456,29 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
 
     public void editDefaultSettings() {
         Log.d(TAG, "editDefaultSettings selected.");
-        if (Utils.isOpaque(this)) {
-            Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.AdvancedSettingsActivity"));
-            ConnectionSettings defaultConnection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
-            defaultConnection.loadFromSharedPreferences(getApplicationContext());
-            intent.putExtra(Constants.opaqueConnectionSettingsClassPath, defaultConnection);
-            startActivityForResult(intent, DEFAULT_SETTINGS_REQUEST_CODE);
-        } else {
-            Intent intent = new Intent();
-            intent.setClassName(this, "com.iiordanov.bVNC.GlobalPreferencesActivity");
-            startActivity(intent);
-        }
+        DefaultSettingsBottomSheet sheet = new DefaultSettingsBottomSheet(
+                new DefaultSettingsBottomSheet.Callback() {
+                    @Override
+                    public void onGlobalDefaultSettings() {
+                        openGlobalDefaultSettings();
+                    }
+
+                    @Override
+                    public void onDefaultConnectionSettings() {
+                        openDefaultConnectionSettings();
+                    }
+                });
+        sheet.show(getSupportFragmentManager(), "defaultSettings");
+    }
+
+    private void openGlobalDefaultSettings() {
+        Intent intent = new Intent();
+        intent.setClassName(this, "com.iiordanov.bVNC.GlobalPreferencesActivity");
+        startActivity(intent);
+    }
+
+    private void openDefaultConnectionSettings() {
+        Utils.openDefaultConnectionSettings(this);
     }
 
     /**
@@ -512,20 +523,6 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
             case LAUNCH_CONNECTION_REQUEST_CODE:
                 Log.i(TAG, "onActivityResult LAUNCH_CONNECTION_REQUEST_CODE");
                 showMasterPasswordDialog = false;
-                break;
-            case DEFAULT_SETTINGS_REQUEST_CODE:
-                if (resultCode == Activity.RESULT_OK) {
-                    Bundle b = data.getExtras();
-                    ConnectionSettings defaultSettings = null;
-                    if (b != null) {
-                        defaultSettings = (ConnectionSettings) b.get(Constants.opaqueConnectionSettingsClassPath);
-                    }
-                    if (defaultSettings != null) {
-                        defaultSettings.saveToSharedPreferences(this);
-                    }
-                } else {
-                    Log.i(TAG, "Error during AdvancedSettingsActivity.");
-                }
                 break;
             case RemoteClientLibConstants.IMPORT_SETTINGS_REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
@@ -597,10 +594,6 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
             importExportSettings(null);
         } else if (itemId == R.id.actionMasterPassword) {
             toggleMasterPassword(null);
-        } else if (item.getGroupId() == R.id.itemInputModeGroup) {
-            String inputMode = RemoteCanvasActivity.inputModeMap.get(item.getItemId());
-            Log.d(TAG, "Setting input mode: " + inputMode);
-            Utils.setSharedPreferenceString(this, Constants.defaultInputMethodTag, inputMode);
         }
         return true;
     }

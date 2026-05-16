@@ -921,4 +921,17 @@ Aplikacija je već izuzeta od optimizacije baterije.</string>
     <string name="discovery_scan_complete">Skeniranje završeno</string>
     <string name="connection_type_prompt_title">Odaberite vrstu poslužitelja</string>
     <string name="keyboard_layout_map">Raspored tipkovnice</string>
+    <string name="global_default_settings">Globalne zadane postavke</string>
+    <string name="global_default_settings_description">Postavke za cijelu aplikaciju koje utječu na svaku vezu i samu aplikaciju, poput opcija prikaza, unosa i ponašanja.</string>
+    <string name="default_connection_settings">Zadane postavke veze</string>
+    <string name="default_connection_settings_description">Predložak veze iz kojeg polaze nove veze i veze pokrenute iz datoteka .rdp/.vv. Uredite ga kao običnu vezu.</string>
+    <string name="section_display">Prikaz</string>
+    <string name="section_input">Unos</string>
+    <string name="section_audio">Zvuk</string>
+    <string name="section_behavior">Ponašanje</string>
+    <string name="section_sound">Zvuk</string>
+    <string name="section_protocol_preferences">Postavke protokola</string>
+    <string name="default_connection_settings_redirect_summary">Način unosa, skaliranje, položaj alatne trake i ostale zadane postavke po vezi premješteni su ovamo. Dodirnite za uređivanje zadane veze.</string>
+    <string name="reset_default_connection_settings">Vrati zadano</string>
+    <string name="reset_default_connection_settings_confirm">Vratiti zadane postavke veze na početne vrijednosti?</string>
 </resources>

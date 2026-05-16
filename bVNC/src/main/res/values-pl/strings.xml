@@ -818,4 +818,17 @@ Aplikacja jest już wyłączona z optymalizacji baterii.</string>
     <string name="discovery_scan_complete">Skanowanie zakończone</string>
     <string name="connection_type_prompt_title">Wybierz typ serwera</string>
     <string name="keyboard_layout_map">Układ klawiatury</string>
+    <string name="global_default_settings">Globalne ustawienia domyślne</string>
+    <string name="global_default_settings_description">Preferencje obejmujące całą aplikację, które wpływają na każde połączenie i samą aplikację, takie jak opcje wyświetlania, wprowadzania i zachowania.</string>
+    <string name="default_connection_settings">Domyślne ustawienia połączenia</string>
+    <string name="default_connection_settings_description">Szablon połączenia, od którego zaczynają nowe połączenia oraz połączenia uruchamiane z plików .rdp/.vv. Edytuj go jak zwykłe połączenie.</string>
+    <string name="section_display">Wyświetlanie</string>
+    <string name="section_input">Wprowadzanie</string>
+    <string name="section_audio">Dźwięk</string>
+    <string name="section_behavior">Zachowanie</string>
+    <string name="section_sound">Dźwięk</string>
+    <string name="section_protocol_preferences">Preferencje protokołu</string>
+    <string name="default_connection_settings_redirect_summary">Metoda wprowadzania, skalowanie, położenie paska narzędzi i inne domyślne ustawienia połączenia zostały przeniesione tutaj. Dotknij, aby edytować połączenie domyślne.</string>
+    <string name="reset_default_connection_settings">Przywróć domyślne</string>
+    <string name="reset_default_connection_settings_confirm">Przywrócić domyślne ustawienia połączenia do wartości początkowych?</string>
 </resources>

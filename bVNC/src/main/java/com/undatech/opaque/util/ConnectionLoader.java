@@ -14,6 +14,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class ConnectionLoader {
@@ -45,6 +46,12 @@ public class ConnectionLoader {
 
         ArrayList<ConnectionBean> connections = new ArrayList<>();
         ConnectionBean.getAll(db, ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
+        Iterator<ConnectionBean> it = connections.iterator();
+        while (it.hasNext()) {
+            if (it.next().getInvisible()) {
+                it.remove();
+            }
+        }
         Collections.sort(connections);
         numConnections = connections.size();
         if (connections.isEmpty()) {

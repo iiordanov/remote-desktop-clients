@@ -921,4 +921,17 @@ Sovellus on jo vapautettu akun optimoinnista.</string>
     <string name="discovery_scan_complete">Skannaus valmis</string>
     <string name="connection_type_prompt_title">Valitse palvelintyyppi</string>
     <string name="keyboard_layout_map">Näppäimistöasettelu</string>
+    <string name="global_default_settings">Yleiset oletusasetukset</string>
+    <string name="global_default_settings_description">Koko sovelluksen asetukset, jotka vaikuttavat jokaiseen yhteyteen ja itse sovellukseen, kuten näyttö-, syöttö- ja toimintavaihtoehdot.</string>
+    <string name="default_connection_settings">Yhteyden oletusasetukset</string>
+    <string name="default_connection_settings_description">Yhteysmalli, josta uudet yhteydet ja .rdp/.vv-tiedostoista käynnistetyt yhteydet alkavat. Muokkaa sitä kuten tavallista yhteyttä.</string>
+    <string name="section_display">Näyttö</string>
+    <string name="section_input">Syöte</string>
+    <string name="section_audio">Ääni</string>
+    <string name="section_behavior">Toiminta</string>
+    <string name="section_sound">Ääni</string>
+    <string name="section_protocol_preferences">Protokolla-asetukset</string>
+    <string name="default_connection_settings_redirect_summary">Syöttötapa, skaalaus, työkalupalkin sijainti ja muut yhteyskohtaiset oletukset on siirretty tänne. Muokkaa oletusyhteyttä napauttamalla.</string>
+    <string name="reset_default_connection_settings">Palauta oletukset</string>
+    <string name="reset_default_connection_settings_confirm">Palautetaanko oletusyhteyden asetukset alkuperäisiin arvoihin?</string>
 </resources>

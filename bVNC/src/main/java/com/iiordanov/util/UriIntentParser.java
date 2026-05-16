@@ -28,18 +28,14 @@ public class UriIntentParser {
 
     public static ConnectionBean loadFromUriOrCreateNew(Uri dataUri, Context ctx) {
         Log.d(TAG, "loadFromUriOrCreateNew");
-        ConnectionBean newConnection = new ConnectionBean(ctx);
-        if (dataUri == null) {
-            return newConnection;
+        if (dataUri != null) {
+            ConnectionBean connection = tryFindingByWidgetId(dataUri, ctx, new ConnectionBean(ctx));
+            if (connection != null) return connection;
+
+            connection = tryFindingByHostnameAndPort(dataUri, ctx, new ConnectionBean(ctx));
+            if (connection != null) return connection;
         }
-
-        ConnectionBean connection = tryFindingByWidgetId(dataUri, ctx, new ConnectionBean(ctx));
-        if (connection != null) return connection;
-
-        connection = tryFindingByHostnameAndPort(dataUri, ctx, new ConnectionBean(ctx));
-        if (connection != null) return connection;
-
-        return newConnection;
+        return (ConnectionBean) AbstractConnectionBean.newForUser(ctx);
     }
 
     private static ConnectionBean tryFindingByHostnameAndPort(Uri dataUri, Context ctx, ConnectionBean connection) {

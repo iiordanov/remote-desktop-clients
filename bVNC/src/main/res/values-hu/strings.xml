@@ -919,4 +919,17 @@ Az alkalmazás már mentesül az akkumulátoroptimalizálás alól.</string>
     <string name="discovery_scan_complete">Vizsgálat befejezve</string>
     <string name="connection_type_prompt_title">Szervertípus kiválasztása</string>
     <string name="keyboard_layout_map">Billentyűzet-kiosztás</string>
+    <string name="global_default_settings">Globális alapértelmezett beállítások</string>
+    <string name="global_default_settings_description">Az egész alkalmazásra vonatkozó beállítások, amelyek minden kapcsolatra és magára az alkalmazásra is hatnak, például megjelenítési, beviteli és viselkedési beállítások.</string>
+    <string name="default_connection_settings">Alapértelmezett kapcsolatbeállítások</string>
+    <string name="default_connection_settings_description">A kapcsolatsablon, amelyből az új kapcsolatok és a .rdp/.vv fájlokból indított kapcsolatok kiindulnak. Szerkessze úgy, mint egy normál kapcsolatot.</string>
+    <string name="section_display">Megjelenítés</string>
+    <string name="section_input">Bevitel</string>
+    <string name="section_audio">Hang</string>
+    <string name="section_behavior">Viselkedés</string>
+    <string name="section_sound">Hang</string>
+    <string name="section_protocol_preferences">Protokollbeállítások</string>
+    <string name="default_connection_settings_redirect_summary">A beviteli mód, a méretezés, az eszköztár helyzete és más kapcsolatonkénti alapértékek ide kerültek. Koppintson az alapértelmezett kapcsolat szerkesztéséhez.</string>
+    <string name="reset_default_connection_settings">Visszaállítás</string>
+    <string name="reset_default_connection_settings_confirm">Visszaállítja az alapértelmezett kapcsolatbeállításokat a kezdeti értékekre?</string>
 </resources>

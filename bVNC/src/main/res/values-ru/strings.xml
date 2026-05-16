@@ -903,4 +903,17 @@
     <string name="discovery_scan_complete">Сканирование завершено</string>
     <string name="connection_type_prompt_title">Выберите тип сервера</string>
     <string name="keyboard_layout_map">Раскладка клавиатуры</string>
+    <string name="global_default_settings">Глобальные настройки по умолчанию</string>
+    <string name="global_default_settings_description">Настройки уровня приложения, влияющие на каждое подключение и само приложение, например параметры отображения, ввода и поведения.</string>
+    <string name="default_connection_settings">Настройки подключения по умолчанию</string>
+    <string name="default_connection_settings_description">Шаблон подключения, на основе которого создаются новые подключения и подключения, запускаемые из файлов .rdp/.vv. Редактируйте его как обычное подключение.</string>
+    <string name="section_display">Экран</string>
+    <string name="section_input">Ввод</string>
+    <string name="section_audio">Звук</string>
+    <string name="section_behavior">Поведение</string>
+    <string name="section_sound">Звук</string>
+    <string name="section_protocol_preferences">Параметры протокола</string>
+    <string name="default_connection_settings_redirect_summary">Метод ввода, масштабирование, положение панели инструментов и другие настройки по умолчанию для подключения перемещены сюда. Нажмите, чтобы изменить подключение по умолчанию.</string>
+    <string name="reset_default_connection_settings">Сбросить</string>
+    <string name="reset_default_connection_settings_confirm">Сбросить настройки подключения по умолчанию до начальных значений?</string>
 </resources>

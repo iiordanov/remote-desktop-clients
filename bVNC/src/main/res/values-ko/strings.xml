@@ -842,4 +842,17 @@ aSPICEで의 대응 기능는 이하와 같다 :
     <string name="discovery_scan_complete">검색 완료</string>
     <string name="connection_type_prompt_title">서버 유형 선택</string>
     <string name="keyboard_layout_map">키보드 레이아웃</string>
+    <string name="global_default_settings">전역 기본 설정</string>
+    <string name="global_default_settings_description">모든 연결과 앱 자체에 영향을 주는 앱 전체 환경설정(표시, 입력, 동작 옵션 등).</string>
+    <string name="default_connection_settings">기본 연결 설정</string>
+    <string name="default_connection_settings_description">새 연결과 .rdp/.vv 파일에서 실행되는 연결이 시작점으로 사용하는 연결 템플릿입니다. 일반 연결처럼 편집하세요.</string>
+    <string name="section_display">디스플레이</string>
+    <string name="section_input">입력</string>
+    <string name="section_audio">오디오</string>
+    <string name="section_behavior">동작</string>
+    <string name="section_sound">소리</string>
+    <string name="section_protocol_preferences">프로토콜 환경설정</string>
+    <string name="default_connection_settings_redirect_summary">입력 방식, 배율, 도구 모음 위치 및 기타 연결별 기본값이 여기로 이동되었습니다. 기본 연결을 편집하려면 탭하세요.</string>
+    <string name="reset_default_connection_settings">기본값 재설정</string>
+    <string name="reset_default_connection_settings_confirm">기본 연결 설정을 초기값으로 재설정하시겠습니까?</string>
 </resources>

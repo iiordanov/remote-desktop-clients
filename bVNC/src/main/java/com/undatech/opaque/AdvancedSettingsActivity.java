@@ -32,6 +32,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -43,6 +44,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.iiordanov.bVNC.Constants;
+import com.iiordanov.bVNC.Utils;
 import com.iiordanov.permissions.AudioPermissionGroups;
 import com.iiordanov.permissions.AudioPermissionsManager;
 import com.undatech.opaque.dialogs.ManageCustomCaFragment;
@@ -128,6 +130,36 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
                 if (selection != null) {
                     currentConnection.setLayoutMap(selection.getText().toString());
                 }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        Spinner spinnerInputMethod = findViewById(R.id.spinnerInputMethod);
+        Utils.selectSpinnerByValue(this, spinnerInputMethod, R.array.defaultInputMethodValues,
+                currentConnection.getInputMode());
+        spinnerInputMethod.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                currentConnection.setInputMode(getResources()
+                        .getStringArray(R.array.defaultInputMethodValues)[position]);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        Spinner spinnerScaling = findViewById(R.id.spinnerScaling);
+        Utils.selectSpinnerByValue(this, spinnerScaling, R.array.defaultScalingValues,
+                currentConnection.getScaleMode().toString());
+        spinnerScaling.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                currentConnection.setScaleMode(ImageView.ScaleType.valueOf(getResources()
+                        .getStringArray(R.array.defaultScalingValues)[position]));
             }
 
             @Override

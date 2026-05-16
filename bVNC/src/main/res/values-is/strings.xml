@@ -714,4 +714,17 @@ Forritið er nú þegar undanþegið hagræðingu rafhlöðunnar.</string>
     <string name="discovery_scan_complete">Skönnun lokið</string>
     <string name="connection_type_prompt_title">Veldu þjónsgerð</string>
     <string name="keyboard_layout_map">Lyklaborðsskipulag</string>
+    <string name="global_default_settings">Almennar sjálfgefnar stillingar</string>
+    <string name="global_default_settings_description">Stillingar fyrir allt forritið sem hafa áhrif á allar tengingar og forritið sjálft, svo sem skjá-, inntaks- og hegðunarvalkostir.</string>
+    <string name="default_connection_settings">Sjálfgefnar tengingarstillingar</string>
+    <string name="default_connection_settings_description">Tengingarsniðmátið sem nýjar tengingar, og tengingar ræstar úr .rdp/.vv-skrám, byggja á. Breyttu því eins og venjulegri tengingu.</string>
+    <string name="section_display">Skjár</string>
+    <string name="section_input">Inntak</string>
+    <string name="section_audio">Hljóð</string>
+    <string name="section_behavior">Hegðun</string>
+    <string name="section_sound">Hljóð</string>
+    <string name="section_protocol_preferences">Samskiptareglustillingar</string>
+    <string name="default_connection_settings_redirect_summary">Inntaksaðferð, kvörðun, staðsetning tækjastiku og aðrar sjálfgefnar stillingar á tengingu hafa verið færðar hingað. Pikkaðu til að breyta sjálfgefnu tengingunni.</string>
+    <string name="reset_default_connection_settings">Endurstilla</string>
+    <string name="reset_default_connection_settings_confirm">Endurstilla sjálfgefnar tengingarstillingar í upphafleg gildi?</string>
 </resources>

@@ -921,4 +921,17 @@ Mae ap eisoes wedi\'i eithrio rhag optimeiddio batri.</string>
     <string name="discovery_scan_complete">Sganio wedi\'i gwblhau</string>
     <string name="connection_type_prompt_title">Dewiswch fath y gweinydd</string>
     <string name="keyboard_layout_map">Cynllun Bysellfwrdd</string>
+    <string name="global_default_settings">Gosodiadau Rhagosodedig Cyffredinol</string>
+    <string name="global_default_settings_description">Dewisiadau ar draws yr ap sy\'n effeithio ar bob cysylltiad a\'r ap ei hun, megis opsiynau arddangos, mewnbwn ac ymddygiad.</string>
+    <string name="default_connection_settings">Gosodiadau Cysylltiad Rhagosodedig</string>
+    <string name="default_connection_settings_description">Y templed cysylltiad y mae cysylltiadau newydd, a chysylltiadau a lansiwyd o ffeiliau .rdp/.vv, yn dechrau ohono. Golygwch ef fel cysylltiad arferol.</string>
+    <string name="section_display">Arddangos</string>
+    <string name="section_input">Mewnbwn</string>
+    <string name="section_audio">Sain</string>
+    <string name="section_behavior">Ymddygiad</string>
+    <string name="section_sound">Sain</string>
+    <string name="section_protocol_preferences">Dewisiadau Protocol</string>
+    <string name="default_connection_settings_redirect_summary">Mae\'r dull mewnbwn, graddio, safle\'r bar offer a rhagosodiadau eraill fesul cysylltiad wedi\'u symud yma. Tapiwch i olygu\'r cysylltiad rhagosodedig.</string>
+    <string name="reset_default_connection_settings">Ailosod</string>
+    <string name="reset_default_connection_settings_confirm">Ailosod gosodiadau\'r cysylltiad rhagosodedig i\'w gwerthoedd cychwynnol?</string>
 </resources>

@@ -25,6 +25,7 @@ import static com.iiordanov.bVNC.Constants.ENABLE_GLYPH_CACHE_DEFAULT;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.util.Log;
 import android.widget.ImageView.ScaleType;
 
@@ -56,10 +57,6 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     private int idHashAlgorithm;
     private String idHash;
     private String id;
-    private boolean useLastPositionToolbar;
-    private int useLastPositionToolbarX;
-    private int useLastPositionToolbarY;
-    private boolean useLastPositionToolbarMoved;
     private final boolean showOnlyConnectionNicknames;
 
     private String connectionConfigFile = null;
@@ -178,6 +175,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setRdpGatewayPort(Constants.DEFAULT_RDP_GATEWAY_PORT);
         setDesktopScalePercentage(Constants.DEFAULT_DESKTOP_SCALE_PERCENTAGE);
         setEnableGlyphCache(ENABLE_GLYPH_CACHE_DEFAULT);
+        setInvisible(Constants.INVISIBLE_DEFAULT);
     }
 
     private static String getDefaultInputMode(Context context) {
@@ -231,6 +229,16 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
     boolean isNew() {
         return get_Id() == 0;
+    }
+
+    /**
+     * Clears the persisted row id so this bean is treated as a brand-new
+     * connection: the next save inserts a new row instead of updating an
+     * existing one. Used after copying another row's values (e.g. the default
+     * connection template) so saving does not overwrite the source row.
+     */
+    void markAsNewConnection() {
+        set_Id(0);
     }
 
     @Override
@@ -408,42 +416,86 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
     }
 
+    /**
+     * Returns the hidden default-connection template (the single row with INVISIBLE
+     * set), lazily creating and persisting it from the standard new-connection
+     * defaults if it does not yet exist. Used as the base configuration for both
+     * file-initiated connections and newly added connections.
+     */
+    public static synchronized ConnectionBean getDefaultConnectionTemplate(Context context) {
+        Database database = new Database(context);
+        SQLiteDatabase db = database.getWritableDatabase();
+        ConnectionBean template = new ConnectionBean(context);
+        Cursor c = db.query(GEN_TABLE_NAME, null, INVISIBLE_SELECTION,
+                null, null, null, null, "1");
+        boolean found = c.moveToFirst();
+        if (found) {
+            template.Gen_populate(c, template.Gen_columnIndices(c));
+        }
+        c.close();
+        if (!found) {
+            template.setInvisible(true);
+            // The ConnectionBean constructor already seeds input method, scaling
+            // and prefer-sending-unicode from their legacy global prefs; migrate
+            // the legacy global "positionToolbarLastUsed" default too.
+            template.setUseLastPositionToolbar(Utils.querySharedPreferenceBoolean(
+                    context, Constants.positionToolbarLastUsed, true));
+            template.save(db);
+            // Those legacy "applies to new connections" globals are now captured
+            // into the template; remove them so nothing is left orphaned.
+            SharedPreferences sp = context.getSharedPreferences(
+                    Constants.generalSettingsTag, Context.MODE_PRIVATE);
+            sp.edit()
+                    .remove(Constants.defaultInputMethodTag)
+                    .remove(Constants.defaultScalingTag)
+                    .remove(Constants.preferSendingUnicode)
+                    .remove(Constants.positionToolbarLastUsed)
+                    .apply();
+        }
+        database.close();
+        return template;
+    }
+
+    /**
+     * Returns a new, visible working connection seeded from the default-connection
+     * template. Used to bootstrap both file-initiated connections and newly added
+     * connections so they share a single source of default settings.
+     */
+    public static synchronized ConnectionBean newConnectionFromDefaultTemplate(Context context) {
+        ConnectionBean template = getDefaultConnectionTemplate(context);
+        ConnectionBean connection = new ConnectionBean(context);
+        connection.populateFromContentValues(template.Gen_getValues());
+        connection.markAsNewConnection();
+        connection.setInvisible(false);
+        return connection;
+    }
+
+    /**
+     * Deletes the hidden default-connection template row. The next access
+     * lazily recreates it from the standard new-connection defaults, so this
+     * resets per-connection defaults back to their initial values.
+     */
+    public static synchronized void deleteDefaultConnectionTemplate(Context context) {
+        Database database = new Database(context);
+        SQLiteDatabase db = database.getWritableDatabase();
+        db.delete(GEN_TABLE_NAME, INVISIBLE_SELECTION, null);
+        database.close();
+    }
+
     public synchronized void save(Context c) {
         Log.d(TAG, "save called");
         if (this.connectionConfigFile == null) {
             Database database = new Database(c);
             save(database.getWritableDatabase());
             database.close();
-            saveToSharedPreferences(c);
         }
         readyToBeSaved = true;
     }
 
     @Override
     public void load(Context context) {
-        loadFromSharedPreferences(context);
         parsePortIfIpv4Address();
         setDefaultProtocolAndSshPorts();
-    }
-
-    public void loadFromSharedPreferences(Context context) {
-        Log.d(TAG, "loadFromSharedPreferences called");
-        SharedPreferences sp = context.getSharedPreferences(Long.toString(get_Id()), Context.MODE_PRIVATE);
-        useLastPositionToolbar = sp.getBoolean("useLastPositionToolbar", true);
-        useLastPositionToolbarX = sp.getInt("useLastPositionToolbarX", 0);
-        useLastPositionToolbarY = sp.getInt("useLastPositionToolbarY", 0);
-        useLastPositionToolbarMoved = sp.getBoolean("useLastPositionToolbarMoved", false);
-    }
-
-    public void saveToSharedPreferences(Context context) {
-        Log.d(TAG, "saveToSharedPreferences called");
-        SharedPreferences sp = context.getSharedPreferences(Long.toString(get_Id()), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putBoolean("useLastPositionToolbar", useLastPositionToolbar);
-        editor.putInt("useLastPositionToolbarX", useLastPositionToolbarX);
-        editor.putInt("useLastPositionToolbarY", useLastPositionToolbarY);
-        editor.putBoolean("useLastPositionToolbarMoved", useLastPositionToolbarMoved);
-        editor.apply();
     }
 
     private synchronized void save(SQLiteDatabase database) {
@@ -486,46 +538,6 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
     public void setScaleMode(ScaleType value) {
         setScaleModeAsString(value.toString());
-    }
-
-    @Override
-    public boolean getUseLastPositionToolbar() {
-        return useLastPositionToolbar;
-    }
-
-    @Override
-    public void setUseLastPositionToolbar(boolean useLastPositionToolbar) {
-        this.useLastPositionToolbar = useLastPositionToolbar;
-    }
-
-    @Override
-    public int getUseLastPositionToolbarX() {
-        return useLastPositionToolbarX;
-    }
-
-    @Override
-    public void setUseLastPositionToolbarX(int useLastPositionToolbarX) {
-        this.useLastPositionToolbarX = useLastPositionToolbarX;
-    }
-
-    @Override
-    public int getUseLastPositionToolbarY() {
-        return useLastPositionToolbarY;
-    }
-
-    @Override
-    public void setUseLastPositionToolbarY(int useLastPositionToolbarY) {
-        this.useLastPositionToolbarY = useLastPositionToolbarY;
-    }
-
-    @Override
-    public boolean getUseLastPositionToolbarMoved() {
-        return useLastPositionToolbarMoved;
-    }
-
-    @Override
-    public void setUseLastPositionToolbarMoved(boolean useLastPositionToolbarMoved) {
-        this.useLastPositionToolbarMoved = useLastPositionToolbarMoved;
     }
 
     @NonNull
@@ -584,7 +596,6 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         } else {
             Log.d(TAG, "saveAndWriteRecent saving connection");
             saveAndWriteRecent(database);
-            saveToSharedPreferences(c);
         }
     }
 

@@ -749,4 +749,17 @@ Aplikácia je už oslobodená od optimalizácie batérie.</string>
     <string name="discovery_scan_complete">Prehľadávanie dokončené</string>
     <string name="connection_type_prompt_title">Vyberte typ servera</string>
     <string name="keyboard_layout_map">Rozloženie klávesnice</string>
+    <string name="global_default_settings">Globálne predvolené nastavenia</string>
+    <string name="global_default_settings_description">Predvoľby pre celú aplikáciu, ktoré ovplyvňujú každé pripojenie aj samotnú aplikáciu, ako sú možnosti zobrazenia, vstupu a správania.</string>
+    <string name="default_connection_settings">Predvolené nastavenia pripojenia</string>
+    <string name="default_connection_settings_description">Šablóna pripojenia, z ktorej vychádzajú nové pripojenia a pripojenia spustené zo súborov .rdp/.vv. Upravte ju ako bežné pripojenie.</string>
+    <string name="section_display">Zobrazenie</string>
+    <string name="section_input">Vstup</string>
+    <string name="section_audio">Zvuk</string>
+    <string name="section_behavior">Správanie</string>
+    <string name="section_sound">Zvuk</string>
+    <string name="section_protocol_preferences">Predvoľby protokolu</string>
+    <string name="default_connection_settings_redirect_summary">Metóda zadávania, škálovanie, poloha panela nástrojov a ďalšie predvolené hodnoty pre pripojenie boli presunuté sem. Klepnutím upravíte predvolené pripojenie.</string>
+    <string name="reset_default_connection_settings">Obnoviť predvolené</string>
+    <string name="reset_default_connection_settings_confirm">Obnoviť predvolené nastavenia pripojenia na pôvodné hodnoty?</string>
 </resources>

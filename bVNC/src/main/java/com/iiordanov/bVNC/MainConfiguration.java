@@ -77,13 +77,14 @@ public abstract class MainConfiguration extends AppCompatActivity {
     protected CompoundButton checkboxUseDpadAsArrows;
     protected CompoundButton checkboxRotateDpad;
     protected CompoundButton checkboxUseLastPositionToolbar;
+    protected Spinner spinnerInputMethod;
+    protected Spinner spinnerScaling;
     protected CheckBox checkboxUseSshPubkey;
     protected LinearLayout layoutAdvancedSettings;
 
     @SuppressLint("SetTextI18n")
     public void updateViewFromSelected() {
         Log.d(TAG, "UpdateViewFromSelected called");
-        selected.loadFromSharedPreferences(this);
         textNickname.setText(selected.getNickname());
         selectedConnType = selected.getConnectionType();
         connectionType.setSelection(selectedConnType);
@@ -114,9 +115,9 @@ public abstract class MainConfiguration extends AppCompatActivity {
         checkboxKeepPassword.setChecked(selected.getKeepPassword());
         checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
         checkboxRotateDpad.setChecked(selected.getRotateDpad());
-        checkboxUseLastPositionToolbar.setChecked(
-                (!isNewConnection) ? selected.getUseLastPositionToolbar() : this.useLastPositionToolbarDefault()
-        );
+        checkboxUseLastPositionToolbar.setChecked(selected.getUseLastPositionToolbar());
+        Utils.selectSpinnerByValue(this, spinnerInputMethod, R.array.defaultInputMethodValues, selected.getInputMode());
+        Utils.selectSpinnerByValue(this, spinnerScaling, R.array.defaultScalingValues, selected.getScaleModeAsString());
         if (selected.getUseLocalCursor() == Constants.CURSOR_AUTO) {
             radioCursor.check(R.id.radioCursorAuto);
         } else if (selected.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL) {
@@ -171,6 +172,10 @@ public abstract class MainConfiguration extends AppCompatActivity {
         if (!checkboxUseLastPositionToolbar.isChecked()) {
             selected.setUseLastPositionToolbarMoved(false);
         }
+        selected.setInputMode(Utils.spinnerValue(this, spinnerInputMethod, R.array.defaultInputMethodValues,
+                selected.getInputMode()));
+        selected.setScaleModeAsString(Utils.spinnerValue(this, spinnerScaling, R.array.defaultScalingValues,
+                selected.getScaleModeAsString()));
         try {
             selected.setRdpWidth(Integer.parseInt(resWidth.getText().toString()));
             selected.setRdpHeight(Integer.parseInt(resHeight.getText().toString()));
@@ -207,6 +212,8 @@ public abstract class MainConfiguration extends AppCompatActivity {
         checkboxUseDpadAsArrows = findViewById(R.id.checkboxUseDpadAsArrows);
         checkboxRotateDpad = findViewById(R.id.checkboxRotateDpad);
         checkboxUseLastPositionToolbar = findViewById(R.id.checkboxUseLastPositionToolbar);
+        spinnerInputMethod = findViewById(R.id.spinnerInputMethod);
+        spinnerScaling = findViewById(R.id.spinnerScaling);
         // Here we say what happens when the Pubkey Generate button is pressed.
         Button buttonGeneratePubkey = findViewById(R.id.buttonGeneratePubkey);
         buttonGeneratePubkey.setOnClickListener(view -> generatePubkey());
@@ -360,7 +367,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
             database.close();
         if (selected != null) {
             updateSelectedFromView();
-            selected.saveAndWriteRecent(false, this);
+            selected.saveAndWriteRecent(isEditingDefaultConnectionTemplate(), this);
         }
     }
 
@@ -377,7 +384,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
         Log.d(TAG, "saveConnectionAndCloseLayout called");
         if (selected != null) {
             updateSelectedFromView();
-            selected.saveAndWriteRecent(false, this);
+            selected.saveAndWriteRecent(isEditingDefaultConnectionTemplate(), this);
         }
         finish();
     }
@@ -402,13 +409,14 @@ public abstract class MainConfiguration extends AppCompatActivity {
             database.close();
         }
         if (selected == null) {
-            selected = new ConnectionBean(this);
+            selected = (ConnectionBean) AbstractConnectionBean.newForUser(this);
         }
         if (isNewConnection && !prefillApplied) {
             applyPrefillToSelected();
             prefillApplied = true;
         }
         updateViewFromSelected();
+        invalidateOptionsMenu();
     }
 
     private void applyPrefillToSelected() {
@@ -489,6 +497,35 @@ public abstract class MainConfiguration extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * True when this editor is editing the hidden default-connection template
+     * (rather than a normal connection). Used to relax empty-field validation
+     * and expose the Reset Defaults action.
+     */
+    protected boolean isEditingDefaultConnectionTemplate() {
+        return selected != null && selected.getInvisible();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem reset = menu.findItem(R.id.itemResetDefaults);
+        if (reset != null) {
+            reset.setVisible(isEditingDefaultConnectionTemplate());
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    public void resetDefaultConnectionSettings(MenuItem item) {
+        Utils.showYesNoPrompt(this,
+                getString(R.string.reset_default_connection_settings),
+                getString(R.string.reset_default_connection_settings_confirm),
+                (dialog, which) -> {
+                    ConnectionBean.deleteDefaultConnectionTemplate(this);
+                    selected = null; // prevent onPause from re-saving the template
+                    finish();
+                }, null);
+    }
+
     /* (non-Javadoc)
      * @see android.app.Activity#onMenuOpened(int, android.view.Menu)
      */
@@ -567,12 +604,6 @@ public abstract class MainConfiguration extends AppCompatActivity {
         Utils.createConnectionScreenDialog(this);
     }
 
-    protected boolean useLastPositionToolbarDefault() {
-        Log.d(TAG, "UseLastPositionToolbarDefault called");
-        SharedPreferences sp = getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
-        return sp.getBoolean(Constants.positionToolbarLastUsed, true);
-    }
-
     protected static void debugLogAndPrintStacktrace(Exception e) {
         Log.d(TAG, "Ignoring Exception: " + e);
         Log.d(TAG, Log.getStackTraceString(e));
@@ -580,7 +611,8 @@ public abstract class MainConfiguration extends AppCompatActivity {
 
     public void save(int resource) {
         Log.d(TAG, "save called");
-        if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
+        if (isEditingDefaultConnectionTemplate()
+                || (ipText.getText().length() != 0 && portText.getText().length() != 0)) {
             saveConnectionAndCloseLayout();
         } else {
             Snackbar.make(textNickname, resource, Snackbar.LENGTH_LONG).show();

@@ -1185,4 +1185,17 @@ Uygulama zaten pil optimizasyonlarından muaf.</string>
     <string name="discovery_scan_complete">Tarama tamamlandı</string>
     <string name="connection_type_prompt_title">Sunucu türünü seçin</string>
     <string name="keyboard_layout_map">Klavye Düzeni</string>
+    <string name="global_default_settings">Genel Varsayılan Ayarlar</string>
+    <string name="global_default_settings_description">Her bağlantıyı ve uygulamanın kendisini etkileyen, ekran, giriş ve davranış seçenekleri gibi uygulama genelindeki tercihler.</string>
+    <string name="default_connection_settings">Varsayılan Bağlantı Ayarları</string>
+    <string name="default_connection_settings_description">Yeni bağlantıların ve .rdp/.vv dosyalarından başlatılan bağlantıların temel aldığı bağlantı şablonu. Normal bir bağlantı gibi düzenleyin.</string>
+    <string name="section_display">Ekran</string>
+    <string name="section_input">Giriş</string>
+    <string name="section_audio">Ses</string>
+    <string name="section_behavior">Davranış</string>
+    <string name="section_sound">Ses</string>
+    <string name="section_protocol_preferences">Protokol Tercihleri</string>
+    <string name="default_connection_settings_redirect_summary">Giriş yöntemi, ölçekleme, araç çubuğu konumu ve diğer bağlantıya özgü varsayılanlar buraya taşındı. Varsayılan bağlantıyı düzenlemek için dokunun.</string>
+    <string name="reset_default_connection_settings">Sıfırla</string>
+    <string name="reset_default_connection_settings_confirm">Varsayılan bağlantı ayarları başlangıç değerlerine sıfırlansın mı?</string>
 </resources>

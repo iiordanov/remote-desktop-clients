@@ -844,4 +844,17 @@ Aplicația este deja scutită de optimizările bateriei.</string>
     <string name="discovery_scan_complete">Scanare finalizată</string>
     <string name="connection_type_prompt_title">Selectați tipul serverului</string>
     <string name="keyboard_layout_map">Aspect tastatură</string>
+    <string name="global_default_settings">Setări implicite globale</string>
+    <string name="global_default_settings_description">Preferințe la nivelul aplicației care afectează fiecare conexiune și aplicația în sine, cum ar fi opțiuni de afișare, intrare și comportament.</string>
+    <string name="default_connection_settings">Setări implicite de conexiune</string>
+    <string name="default_connection_settings_description">Șablonul de conexiune din care pornesc conexiunile noi și conexiunile lansate din fișiere .rdp/.vv. Editați-l ca pe o conexiune obișnuită.</string>
+    <string name="section_display">Afișare</string>
+    <string name="section_input">Intrare</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_behavior">Comportament</string>
+    <string name="section_sound">Sunet</string>
+    <string name="section_protocol_preferences">Preferințe protocol</string>
+    <string name="default_connection_settings_redirect_summary">Metoda de introducere, scalarea, poziția barei de instrumente și alte valori implicite per conexiune au fost mutate aici. Atingeți pentru a edita conexiunea implicită.</string>
+    <string name="reset_default_connection_settings">Resetare</string>
+    <string name="reset_default_connection_settings_confirm">Resetați setările implicite de conexiune la valorile inițiale?</string>
 </resources>

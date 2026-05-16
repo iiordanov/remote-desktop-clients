@@ -921,4 +921,17 @@ Appen er allerede fritaget for batterioptimering.</string>
     <string name="discovery_scan_complete">Scanning fuldført</string>
     <string name="connection_type_prompt_title">Vælg servertype</string>
     <string name="keyboard_layout_map">Tastaturlayout</string>
+    <string name="global_default_settings">Globale standardindstillinger</string>
+    <string name="global_default_settings_description">Indstillinger for hele appen, der påvirker alle forbindelser og selve appen, såsom skærm-, input- og adfærdsindstillinger.</string>
+    <string name="default_connection_settings">Standardforbindelsesindstillinger</string>
+    <string name="default_connection_settings_description">Forbindelsesskabelonen, som nye forbindelser og forbindelser startet fra .rdp/.vv-filer tager udgangspunkt i. Rediger den som en almindelig forbindelse.</string>
+    <string name="section_display">Skærm</string>
+    <string name="section_input">Input</string>
+    <string name="section_audio">Lyd</string>
+    <string name="section_behavior">Adfærd</string>
+    <string name="section_sound">Lyd</string>
+    <string name="section_protocol_preferences">Protokolindstillinger</string>
+    <string name="default_connection_settings_redirect_summary">Inputmetode, skalering, værktøjslinjeposition og andre forbindelsesspecifikke standarder er flyttet hertil. Tryk for at redigere standardforbindelsen.</string>
+    <string name="reset_default_connection_settings">Nulstil</string>
+    <string name="reset_default_connection_settings_confirm">Nulstil standardforbindelsesindstillingerne til deres oprindelige værdier?</string>
 </resources>
