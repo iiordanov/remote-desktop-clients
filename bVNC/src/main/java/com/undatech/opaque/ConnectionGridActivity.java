@@ -456,7 +456,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
 
     public void editDefaultSettings() {
         Log.d(TAG, "editDefaultSettings selected.");
-        DefaultSettingsBottomSheet sheet = new DefaultSettingsBottomSheet(
+        DefaultSettingsBottomSheet sheet = DefaultSettingsBottomSheet.newInstance(
                 new DefaultSettingsBottomSheet.Callback() {
                     @Override
                     public void onGlobalDefaultSettings() {

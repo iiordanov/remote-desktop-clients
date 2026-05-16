@@ -45,10 +45,30 @@ public class DefaultSettingsBottomSheet extends BottomSheetDialogFragment {
         void onDefaultConnectionSettings();
     }
 
-    private final Callback callback;
+    private Callback callback;
 
-    public DefaultSettingsBottomSheet(Callback callback) {
-        this.callback = callback;
+    /**
+     * Required public no-arg constructor: FragmentManager reflectively
+     * re-instantiates the fragment after process death / configuration change.
+     * Production code should use {@link #newInstance(Callback)}.
+     */
+    public DefaultSettingsBottomSheet() { }
+
+    public static DefaultSettingsBottomSheet newInstance(Callback callback) {
+        DefaultSettingsBottomSheet sheet = new DefaultSettingsBottomSheet();
+        sheet.callback = callback;
+        return sheet;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // The callback closes over the host Activity and is not part of saved
+        // state, so a restored sheet cannot deliver its result. Dismiss it;
+        // the user can reopen the menu.
+        if (savedInstanceState != null && callback == null) {
+            dismissAllowingStateLoss();
+        }
     }
 
     @Nullable
