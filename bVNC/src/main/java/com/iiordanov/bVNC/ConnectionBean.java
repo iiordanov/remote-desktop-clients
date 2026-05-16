@@ -423,37 +423,40 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
      * file-initiated connections and newly added connections.
      */
     public static synchronized ConnectionBean getDefaultConnectionTemplate(Context context) {
-        Database database = new Database(context);
-        SQLiteDatabase db = database.getWritableDatabase();
-        ConnectionBean template = new ConnectionBean(context);
-        Cursor c = db.query(GEN_TABLE_NAME, null, INVISIBLE_SELECTION,
-                null, null, null, null, "1");
-        boolean found = c.moveToFirst();
-        if (found) {
-            template.Gen_populate(c, template.Gen_columnIndices(c));
-        }
-        c.close();
-        if (!found) {
-            template.setInvisible(true);
-            // The ConnectionBean constructor already seeds input method, scaling
-            // and prefer-sending-unicode from their legacy global prefs; migrate
-            // the legacy global "positionToolbarLastUsed" default too.
-            template.setUseLastPositionToolbar(Utils.querySharedPreferenceBoolean(
-                    context, Constants.positionToolbarLastUsed, true));
-            template.save(db);
-            // Those legacy "applies to new connections" globals are now captured
-            // into the template; remove them so nothing is left orphaned.
-            SharedPreferences sp = context.getSharedPreferences(
-                    Constants.generalSettingsTag, Context.MODE_PRIVATE);
-            sp.edit()
-                    .remove(Constants.defaultInputMethodTag)
-                    .remove(Constants.defaultScalingTag)
-                    .remove(Constants.preferSendingUnicode)
-                    .remove(Constants.positionToolbarLastUsed)
-                    .apply();
-        }
-        database.close();
-        return template;
+        return Database.withWritable(context, db -> {
+            ConnectionBean template = new ConnectionBean(context);
+            Cursor c = db.query(GEN_TABLE_NAME, null, INVISIBLE_SELECTION,
+                    null, null, null, null, "1");
+            boolean found;
+            try {
+                found = c.moveToFirst();
+                if (found) {
+                    template.Gen_populate(c, template.Gen_columnIndices(c));
+                }
+            } finally {
+                c.close();
+            }
+            if (!found) {
+                template.setInvisible(true);
+                // The ConnectionBean constructor already seeds input method, scaling
+                // and prefer-sending-unicode from their legacy global prefs; migrate
+                // the legacy global "positionToolbarLastUsed" default too.
+                template.setUseLastPositionToolbar(Utils.querySharedPreferenceBoolean(
+                        context, Constants.positionToolbarLastUsed, true));
+                template.save(db);
+                // Those legacy "applies to new connections" globals are now captured
+                // into the template; remove them so nothing is left orphaned.
+                SharedPreferences sp = context.getSharedPreferences(
+                        Constants.generalSettingsTag, Context.MODE_PRIVATE);
+                sp.edit()
+                        .remove(Constants.defaultInputMethodTag)
+                        .remove(Constants.defaultScalingTag)
+                        .remove(Constants.preferSendingUnicode)
+                        .remove(Constants.positionToolbarLastUsed)
+                        .apply();
+            }
+            return template;
+        });
     }
 
     /**
@@ -476,18 +479,13 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
      * resets per-connection defaults back to their initial values.
      */
     public static synchronized void deleteDefaultConnectionTemplate(Context context) {
-        Database database = new Database(context);
-        SQLiteDatabase db = database.getWritableDatabase();
-        db.delete(GEN_TABLE_NAME, INVISIBLE_SELECTION, null);
-        database.close();
+        Database.runWritable(context, db -> db.delete(GEN_TABLE_NAME, INVISIBLE_SELECTION, null));
     }
 
     public synchronized void save(Context c) {
         Log.d(TAG, "save called");
         if (this.connectionConfigFile == null) {
-            Database database = new Database(c);
-            save(database.getWritableDatabase());
-            database.close();
+            Database.runWritable(c, db -> save(db));
         }
         readyToBeSaved = true;
     }
@@ -589,20 +587,16 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
     public void saveAndWriteRecent(boolean saveEmpty, Context c) {
         Log.d(TAG, "saveAndWriteRecent called");
-        Database database = new Database(c);
         if ((getConnectionType() == Constants.CONN_TYPE_SSH && "".equals(getSshServer())
                 || "".equals(getAddress())) && !saveEmpty) {
             Log.d(TAG, "saveAndWriteRecent not saving due to missing data");
-        } else {
-            Log.d(TAG, "saveAndWriteRecent saving connection");
-            saveAndWriteRecent(database);
+            return;
         }
+        Log.d(TAG, "saveAndWriteRecent saving connection");
+        Database.runWritable(c, this::saveAndWriteRecent);
     }
 
-    private void saveAndWriteRecent(Database database) {
-        Log.d(TAG, "saveAndWriteRecent called with database");
-
-        SQLiteDatabase db = database.getWritableDatabase();
+    private void saveAndWriteRecent(SQLiteDatabase db) {
         db.beginTransaction();
         try {
             save(db);
@@ -618,10 +612,6 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-            db.close();
-        }
-        if (db.isOpen()) {
-            db.close();
         }
     }
 

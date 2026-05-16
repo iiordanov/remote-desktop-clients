@@ -400,6 +400,10 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
     protected void onStart() {
         takeKeyEvents(true);
         _justStarted = true;
+        // showDialog() reuses the same instance; onStop closes _database.
+        if (_database == null) {
+            _database = new Database(getContext());
+        }
         super.onStart();
         View v = getCurrentFocus();
         if (v != null)
@@ -427,6 +431,10 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
             i++;
         }
         takeKeyEvents(false);
+        if (_database != null) {
+            _database.close();
+            _database = null;
+        }
         super.onStop();
     }
 
@@ -514,7 +522,8 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
                     _spinnerLists.setSelection(i);
                     _keysInList = new ArrayList<MetaKeyBean>();
                     tryPopulateKeysInListWhereFieldMatchesValue(
-                            _database, _keysInList, MetaKeyBean.GEN_FIELD_METALISTID, listId, true
+                            _database.getReadableDatabase(), _keysInList,
+                            MetaKeyBean.GEN_FIELD_METALISTID, listId, true
                     );
                     ArrayList<String> keys = new ArrayList<String>(_keysInList.size());
                     int selectedOffset = 0;
@@ -543,14 +552,14 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
     }
 
     public static void tryPopulateKeysInListWhereFieldMatchesValue(
-            Database database,
+            SQLiteDatabase db,
             ArrayList<MetaKeyBean> keys,
             String field,
             long value,
             boolean orderByDescending
     ) {
         try {
-            populateKeysInListWhereFieldMatchesValue(database, keys, field, value, orderByDescending);
+            populateKeysInListWhereFieldMatchesValue(db, keys, field, value, orderByDescending);
         } catch (Exception e) {
             Log.e(TAG, "Error getting meta keys:");
             Log.e(TAG, Log.getStackTraceString(e));
@@ -558,7 +567,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
     }
 
     public static void populateKeysInListWhereFieldMatchesValue(
-            Database database,
+            SQLiteDatabase db,
             ArrayList<MetaKeyBean> keys,
             String field,
             long value,
@@ -568,7 +577,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
         if (orderByDescending) {
             query += " ORDER BY KEYDESC";
         }
-        Cursor c = database.getReadableDatabase().rawQuery(
+        Cursor c = db.rawQuery(
                 MessageFormat.format(
                         query,
                         MetaKeyBean.GEN_TABLE_NAME,
@@ -577,8 +586,11 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
                 ),
                 EMPTY_ARGS
         );
-        MetaKeyBean.Gen_populateFromCursor(c, keys, MetaKeyBean.NEW);
-        c.close();
+        try {
+            MetaKeyBean.Gen_populateFromCursor(c, keys, MetaKeyBean.NEW);
+        } finally {
+            c.close();
+        }
     }
 
     private void updateDialogForCurrentKey() {

@@ -41,29 +41,27 @@ public class ConnectionLoader {
     }
 
     private void loadFromDatabase() {
-        Database database = new Database(this.appContext);
-        SQLiteDatabase db = database.getWritableDatabase();
-
-        ArrayList<ConnectionBean> connections = new ArrayList<>();
-        ConnectionBean.getAll(db, ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
-        Iterator<ConnectionBean> it = connections.iterator();
-        while (it.hasNext()) {
-            if (it.next().getInvisible()) {
-                it.remove();
+        Database.runWritable(this.appContext, db -> {
+            ArrayList<ConnectionBean> connections = new ArrayList<>();
+            ConnectionBean.getAll(db, ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
+            Iterator<ConnectionBean> it = connections.iterator();
+            while (it.hasNext()) {
+                if (it.next().getInvisible()) {
+                    it.remove();
+                }
             }
-        }
-        Collections.sort(connections);
-        numConnections = connections.size();
-        if (connections.isEmpty()) {
-            Log.i(TAG, "No connections in the database");
-        } else {
-            for (int i = 0; i < connections.size(); i++) {
-                Connection connection = connections.get(i);
-                connection.setRuntimeId(Integer.toString(i));
-                connectionsById.put(Integer.toString(i), connection);
+            Collections.sort(connections);
+            numConnections = connections.size();
+            if (connections.isEmpty()) {
+                Log.i(TAG, "No connections in the database");
+            } else {
+                for (int i = 0; i < connections.size(); i++) {
+                    Connection connection = connections.get(i);
+                    connection.setRuntimeId(Integer.toString(i));
+                    connectionsById.put(Integer.toString(i), connection);
+                }
             }
-        }
-        database.close();
+        });
     }
 
     private void loadFromSharedPrefs() {

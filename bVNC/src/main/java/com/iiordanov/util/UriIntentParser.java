@@ -59,23 +59,21 @@ public class UriIntentParser {
             String field2,
             String value2
     ) {
-        Database database = new Database(ctx);
-        SQLiteDatabase queryDb = database.getReadableDatabase();
-        ConnectionBean connectionByField = null;
-        Cursor cursor = getCursor(field, value, field2, value2, queryDb);
-        if (cursor != null && cursor.moveToFirst()) {
-            Log.i(TAG, String.format(
-                            Locale.US,
-                            "Loading connection info from field: %s, value: %s, field2: %s, value2: %s",
-                            field, value, field2, value2
-                    )
-            );
-            connectionByField = new ConnectionBean(ctx);
-            connectionByField.Gen_populate(cursor, connection.Gen_columnIndices(cursor));
-            cursor.close();
-        }
-        database.close();
-        return connectionByField;
+        return Database.withReadable(ctx, queryDb -> {
+            Cursor cursor = getCursor(field, value, field2, value2, queryDb);
+            if (cursor == null) return null;
+            try {
+                if (!cursor.moveToFirst()) return null;
+                Log.i(TAG, String.format(Locale.US,
+                        "Loading connection info from field: %s, value: %s, field2: %s, value2: %s",
+                        field, value, field2, value2));
+                ConnectionBean connectionByField = new ConnectionBean(ctx);
+                connectionByField.Gen_populate(cursor, connection.Gen_columnIndices(cursor));
+                return connectionByField;
+            } finally {
+                cursor.close();
+            }
+        });
     }
 
     private static Cursor getCursor(String field, String value, String field2, String value2, SQLiteDatabase queryDb) {
@@ -128,25 +126,24 @@ public class UriIntentParser {
             ConnectionBean connection,
             String host
     ) {
-        Database database = new Database(context);
-        int connectionId = 0;
+        int parsedConnectionId = 0;
         int idx = host.indexOf(':');
-
         if (idx != -1) {
             try {
-                connectionId = Integer.parseInt(host.substring(idx + 1));
+                parsedConnectionId = Integer.parseInt(host.substring(idx + 1));
             } catch (NumberFormatException nfe) {
             }
         }
-
-        if (connection.Gen_read(database.getReadableDatabase(), connectionId)) {
-            MostRecentBean bean = ConnectionBean.getMostRecent(database.getReadableDatabase());
-            if (bean != null) {
-                bean.setConnectionId(connection.get_Id());
-                bean.Gen_update(database.getWritableDatabase());
+        final int connectionId = parsedConnectionId;
+        Database.runWritable(context, db -> {
+            if (connection.Gen_read(db, connectionId)) {
+                MostRecentBean bean = ConnectionBean.getMostRecent(db);
+                if (bean != null) {
+                    bean.setConnectionId(connection.get_Id());
+                    bean.Gen_update(db);
+                }
             }
-        }
-        database.close();
+        });
         // Also load any settings that are stored in shared preferences like toolbar location
         connection.load(context);
     }

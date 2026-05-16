@@ -40,6 +40,64 @@ import java.io.File;
  * @author Michael A. MacDonald
  */
 public class Database extends SQLiteOpenHelper {
+
+    /**
+     * Operation that uses a {@link SQLiteDatabase} and returns a result.
+     * Paired with {@link #withReadable(Context, DbOp)} / {@link #withWritable(Context, DbOp)}.
+     */
+    @FunctionalInterface
+    public interface DbOp<T> {
+        T apply(SQLiteDatabase db);
+    }
+
+    /** Void variant of {@link DbOp}; see {@link #runReadable} / {@link #runWritable}. */
+    @FunctionalInterface
+    public interface DbVoidOp {
+        void apply(SQLiteDatabase db);
+    }
+
+    /**
+     * Runs {@code op} against a freshly opened readable database and guarantees
+     * the underlying {@link SQLiteOpenHelper} is closed afterwards even on
+     * exception. Use this for any single-shot DB access; leaking the helper
+     * pushes its native sqlcipher handle teardown onto the FinalizerDaemon
+     * and risks tripping the 10-second FinalizerWatchdog.
+     */
+    public static <T> T withReadable(Context context, DbOp<T> op) {
+        Database database = new Database(context);
+        try {
+            return op.apply(database.getReadableDatabase());
+        } finally {
+            database.close();
+        }
+    }
+
+    /** Writable equivalent of {@link #withReadable(Context, DbOp)}. */
+    public static <T> T withWritable(Context context, DbOp<T> op) {
+        Database database = new Database(context);
+        try {
+            return op.apply(database.getWritableDatabase());
+        } finally {
+            database.close();
+        }
+    }
+
+    /** Void readable variant; see {@link #withReadable(Context, DbOp)}. */
+    public static void runReadable(Context context, DbVoidOp op) {
+        withReadable(context, db -> {
+            op.apply(db);
+            return null;
+        });
+    }
+
+    /** Void writable variant; see {@link #withWritable(Context, DbOp)}. */
+    public static void runWritable(Context context, DbVoidOp op) {
+        withWritable(context, db -> {
+            op.apply(db);
+            return null;
+        });
+    }
+
     public final static String TAG = Database.class.toString();
     static final int DBV_0_5_0 = 12;
     static final int DBV_1_2_0 = 20;

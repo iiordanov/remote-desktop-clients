@@ -135,7 +135,7 @@ public class SendTextPanel extends LinearLayout {
                 String s = textEnterText.getText().toString();
                 SentTextBean bean = history.get(historyIndex);
                 if (s.equals(bean.getSentText())) {
-                    bean.Gen_delete(new Database(getContext()).getWritableDatabase());
+                    Database.runWritable(getContext(), bean::Gen_delete);
                     history.remove(historyIndex);
                     if (historyIndex > 0)
                         historyIndex--;
@@ -169,10 +169,12 @@ public class SendTextPanel extends LinearLayout {
     }
 
     private void loadHistory() {
-        try (Cursor cursor = new Database(getContext()).getReadableDatabase().rawQuery(
-                "select * from " + SentTextBean.GEN_TABLE_NAME + " ORDER BY _id", null)) {
-            SentTextBean.Gen_populateFromCursor(cursor, history, SentTextBean.GEN_NEW);
-        }
+        Database.runReadable(getContext(), db -> {
+            try (Cursor cursor = db.rawQuery(
+                    "select * from " + SentTextBean.GEN_TABLE_NAME + " ORDER BY _id", null)) {
+                SentTextBean.Gen_populateFromCursor(cursor, history, SentTextBean.GEN_NEW);
+            }
+        });
         historyIndex = history.size();
     }
 
@@ -184,16 +186,17 @@ public class SendTextPanel extends LinearLayout {
                 || !s.equals(history.get(historyIndex).getSentText())) {
             SentTextBean added = new SentTextBean();
             added.setSentText(s);
-            SQLiteDatabase db = new Database(getContext()).getWritableDatabase();
-            added.Gen_insert(db);
-            history.add(added);
-            for (int i = 0; i < historyIndex - NUMBER_SENT_SAVED; i++) {
-                SentTextBean candidate = history.get(i);
-                if (candidate.get_Id() != DELETED_ID) {
-                    candidate.Gen_delete(db);
-                    candidate.set_Id(DELETED_ID);
+            Database.runWritable(getContext(), db -> {
+                added.Gen_insert(db);
+                history.add(added);
+                for (int i = 0; i < historyIndex - NUMBER_SENT_SAVED; i++) {
+                    SentTextBean candidate = history.get(i);
+                    if (candidate.get_Id() != DELETED_ID) {
+                        candidate.Gen_delete(db);
+                        candidate.set_Id(DELETED_ID);
+                    }
                 }
-            }
+            });
         }
         return s;
     }

@@ -1212,11 +1212,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     private void sendSpecialKeyAgain() {
         ArrayList<MetaKeyBean> keys = new ArrayList<>();
-        Database database = new Database(this);
-        tryPopulateKeysInListWhereFieldMatchesValue(
-                database, keys, MetaKeyBean.GEN_FIELD__ID, connection.getLastMetaKeyId(), false
-        );
-        database.close();
+        Database.runReadable(this, db -> tryPopulateKeysInListWhereFieldMatchesValue(
+                db, keys, MetaKeyBean.GEN_FIELD__ID, connection.getLastMetaKeyId(), false
+        ));
         if (!keys.isEmpty()) {
             remoteConnection.getKeyboard().sendMetaKey(keys.get(0));
         }
