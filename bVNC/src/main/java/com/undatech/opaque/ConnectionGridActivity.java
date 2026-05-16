@@ -395,7 +395,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
      * Starts a new connection, showing local network discovery first.
      */
     public void addNewConnection() {
-        DiscoveryBottomSheet sheet = new DiscoveryBottomSheet(
+        DiscoveryBottomSheet sheet = DiscoveryBottomSheet.newInstance(
                 NetworkDiscovery.serviceTypeForApp(this),
                 new DiscoveryBottomSheet.Callback() {
                     @Override

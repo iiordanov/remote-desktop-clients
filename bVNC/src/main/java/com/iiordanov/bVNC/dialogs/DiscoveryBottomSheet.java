@@ -54,8 +54,10 @@ public class DiscoveryBottomSheet extends BottomSheetDialogFragment {
         void onEnterManually();
     }
 
-    private final String serviceType;
-    private final Callback callback;
+    private static final String ARG_SERVICE_TYPE = "serviceType";
+
+    private String serviceType;
+    private Callback callback;
 
     private NetworkDiscovery discovery;
     private PortScanDiscovery portScanDiscovery;
@@ -65,9 +67,37 @@ public class DiscoveryBottomSheet extends BottomSheetDialogFragment {
     private ProgressBar scanningSpinner;
     private Button scanButton;
 
-    public DiscoveryBottomSheet(String serviceType, Callback callback) {
-        this.serviceType = serviceType;
-        this.callback = callback;
+    /**
+     * Required public no-arg constructor: FragmentManager uses reflection to
+     * re-instantiate the fragment after process death / configuration change.
+     * Production code should use {@link #newInstance(String, Callback)} to wire
+     * up a fresh sheet with arguments and a callback.
+     */
+    public DiscoveryBottomSheet() { }
+
+    public static DiscoveryBottomSheet newInstance(String serviceType, Callback callback) {
+        DiscoveryBottomSheet sheet = new DiscoveryBottomSheet();
+        Bundle args = new Bundle();
+        args.putString(ARG_SERVICE_TYPE, serviceType);
+        sheet.setArguments(args);
+        sheet.callback = callback;
+        return sheet;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // The callback closes over the host Activity and is not part of saved
+        // state, so a restored sheet has no way to deliver its result. Dismiss
+        // immediately; the user can retrigger the discovery flow.
+        if (savedInstanceState != null && callback == null) {
+            dismissAllowingStateLoss();
+            return;
+        }
+        Bundle args = getArguments();
+        if (args != null) {
+            serviceType = args.getString(ARG_SERVICE_TYPE);
+        }
     }
 
     @Nullable
