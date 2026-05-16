@@ -1,3 +1,9 @@
+v6.4.0
+- New editable Default Connection profile — the basis for every new connection
+- Connections via .vv file (e.g. Proxmox/oVirt) now inherit Default Connection settings
+- Advanced Settings: added Input Method & Scaling, and grouped into sections
+- Input method, scaling & toolbar position moved from Global to the Default Connection profile
+- Implemented resetting Default Connection settings to initial values
 v6.3.9
 - Bugfixes
 v6.3.8
