@@ -19,6 +19,7 @@
 
 package com.iiordanov.bVNC.dialogs;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -167,9 +168,18 @@ public class DiscoveryBottomSheet extends BottomSheetDialogFragment {
         emptyDiscovery.setVisibility(View.GONE);
     }
 
+    /**
+     * Posts to the UI thread, but only runs the body if the fragment is still
+     * attached at the moment the message is dispatched. Background scanner
+     * threads can outlive the fragment (the user dismisses the sheet mid-scan)
+     * and {@code getString(...)} / view access then trips
+     * {@code requireContext()}'s IllegalStateException.
+     */
     private void postToUi(Runnable r) {
-        if (isAdded()) {
-            requireActivity().runOnUiThread(r);
-        }
+        Activity activity = getActivity();
+        if (activity == null) return;
+        activity.runOnUiThread(() -> {
+            if (isAdded()) r.run();
+        });
     }
 }
