@@ -22,6 +22,7 @@ package com.iiordanov.bVNC;
 
 import static com.iiordanov.bVNC.Constants.ENABLE_GLYPH_CACHE_DEFAULT;
 import static com.iiordanov.bVNC.Constants.INVISIBLE_DEFAULT;
+import static java.lang.String.format;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -198,17 +199,17 @@ public class Database extends SQLiteOpenHelper {
             // If both the previous and new password are non-empty, we are rekeying the DB.
         } else {
             Log.i(TAG, "Previous database encrypted, rekeying.");
-            db.rawExecSQL(String.format("PRAGMA key = '%s'", Database.password));
+            db.rawExecSQL(format("PRAGMA key = '%s'", Database.password));
             Database.setPassword(newPassword);
             // Rekey the database
-            db.rawExecSQL(String.format("PRAGMA rekey = '%s'", Database.password));
+            db.rawExecSQL(format("PRAGMA rekey = '%s'", Database.password));
         }
 
         if (newFormat != null) {
             // Write out the database in the new format.
-            db.rawExecSQL(String.format("ATTACH DATABASE '%s' AS %s KEY '%s'", db.getPath() + "-temp", newFormat, newPassword));
-            db.rawExecSQL(String.format("select sqlcipher_export('%s')", newFormat));
-            db.rawExecSQL(String.format("DETACH DATABASE '%s'", newFormat));
+            db.rawExecSQL(format("ATTACH DATABASE '%s' AS %s KEY '%s'", db.getPath() + "-temp", newFormat, newPassword));
+            db.rawExecSQL(format("select sqlcipher_export('%s')", newFormat));
+            db.rawExecSQL(format("DETACH DATABASE '%s'", newFormat));
             db.close();
             this.close();
             Log.i(TAG, "Done exporting to: " + newFormat);
@@ -226,9 +227,13 @@ public class Database extends SQLiteOpenHelper {
 
             try {
                 // Save away the old database
-                moveFile(pathToDb, pathToDb + "-BAK");
+                if (!moveFile(pathToDb, pathToDb + "-BAK")) {
+                    return false;
+                }
                 // Move the temp database file over the old database
-                moveFile(pathToDb + "-temp", pathToDb);
+                if (!moveFile(pathToDb + "-temp", pathToDb)) {
+                    throw new IllegalStateException();
+                }
 
                 // Test-open the new database and read off the version.
                 SQLiteDatabase newDb = SQLiteDatabase.openDatabase(db.getPath(), newPassword, null, SQLiteDatabase.OPEN_READWRITE);
@@ -236,6 +241,8 @@ public class Database extends SQLiteOpenHelper {
                 newDb.close();
             } catch (Exception e) {
                 // Having received an exception in testing the DB above, restore the old DB and return failure.
+                Log.e(TAG, format("changeDatabasePassword - Failure while switching database to format %s", newFormat));
+                Log.e(TAG, Log.getStackTraceString(e));
                 moveFile(pathToDb + "-BAK", pathToDb);
                 return false;
             } finally {
@@ -252,15 +259,21 @@ public class Database extends SQLiteOpenHelper {
         return true;
     }
 
-    private void moveFile(String from, String to) {
-        new File(from).renameTo(new File(to));
+    private boolean moveFile(String from, String to) {
+        boolean result = new File(from).renameTo(new File(to));
+        if (!result) {
+            Log.e(TAG, format("moveFile - Failed to move database file %s to %s", from, to));
+        }
+        return result;
     }
 
     private void deleteTempDatabase(String pathToDb, String suffix) {
         String tempDbPath = pathToDb + suffix;
         File temp = new File(tempDbPath);
         if (temp.exists()) {
-            temp.delete();
+            if (!temp.delete()) {
+                Log.e(TAG, format("deleteTempDatabase - Failed to delete database at path %s", tempDbPath));
+            }
         }
     }
 
