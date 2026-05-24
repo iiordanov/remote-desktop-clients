@@ -932,4 +932,5 @@ L\'aplicació ja està exempta d\'optimitzacions de bateria.</string>
     <string name="default_connection_settings_redirect_summary">El mètode d\'entrada, l\'escalat, la posició de la barra d\'eines i altres valors predeterminats per connexió s\'han mogut aquí. Toqueu per editar la connexió predeterminada.</string>
     <string name="reset_default_connection_settings">Restableix</string>
     <string name="reset_default_connection_settings_confirm">Voleu restablir la configuració de connexió predeterminada als seus valors inicials?</string>
+    <string name="sort_connections">Ordena les connexions</string>
 </resources>

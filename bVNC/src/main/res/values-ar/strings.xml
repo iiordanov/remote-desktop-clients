@@ -933,4 +933,5 @@ Could not open battery optimization settings.قم بتعطيل تحسين الب
     <string name="default_connection_settings_redirect_summary">تم نقل طريقة الإدخال والتحجيم وموضع شريط الأدوات وإعدادات الاتصال الافتراضية الأخرى إلى هنا. اضغط لتحرير الاتصال الافتراضي.</string>
     <string name="reset_default_connection_settings">إعادة التعيين</string>
     <string name="reset_default_connection_settings_confirm">إعادة تعيين إعدادات الاتصال الافتراضية إلى قيمها الأولية؟</string>
+    <string name="sort_connections">فرز الاتصالات</string>
 </resources>

@@ -762,4 +762,5 @@ Apl sudah pun dikecualikan daripada pengoptimuman bateri.</string>
     <string name="default_connection_settings_redirect_summary">Kaedah input, penskalaan, kedudukan bar alat dan lalai khusus sambungan lain telah dialihkan ke sini. Ketik untuk mengedit sambungan lalai.</string>
     <string name="reset_default_connection_settings">Set semula</string>
     <string name="reset_default_connection_settings_confirm">Set semula tetapan sambungan lalai kepada nilai asalnya?</string>
+    <string name="sort_connections">Isih sambungan</string>
 </resources>

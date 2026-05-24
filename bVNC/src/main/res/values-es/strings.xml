@@ -918,4 +918,5 @@ La aplicación ya está exenta de optimizaciones de batería.</string>
     <string name="default_connection_settings_redirect_summary">El método de entrada, el escalado, la posición de la barra de herramientas y otros valores predeterminados por conexión se han movido aquí. Toca para editar la conexión predeterminada.</string>
     <string name="reset_default_connection_settings">Restablecer</string>
     <string name="reset_default_connection_settings_confirm">¿Restablecer la configuración de conexión predeterminada a sus valores iniciales?</string>
+    <string name="sort_connections">Ordenar conexiones</string>
 </resources>

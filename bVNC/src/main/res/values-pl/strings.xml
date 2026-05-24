@@ -831,4 +831,5 @@ Aplikacja jest już wyłączona z optymalizacji baterii.</string>
     <string name="default_connection_settings_redirect_summary">Metoda wprowadzania, skalowanie, położenie paska narzędzi i inne domyślne ustawienia połączenia zostały przeniesione tutaj. Dotknij, aby edytować połączenie domyślne.</string>
     <string name="reset_default_connection_settings">Przywróć domyślne</string>
     <string name="reset_default_connection_settings_confirm">Przywrócić domyślne ustawienia połączenia do wartości początkowych?</string>
+    <string name="sort_connections">Sortuj połączenia</string>
 </resources>

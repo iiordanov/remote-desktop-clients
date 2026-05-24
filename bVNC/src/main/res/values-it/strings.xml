@@ -931,4 +931,5 @@ L\'app è già esente dalle ottimizzazioni della batteria.</string>
     <string name="default_connection_settings_redirect_summary">Metodo di input, ridimensionamento, posizione della barra degli strumenti e altre impostazioni predefinite per connessione sono stati spostati qui. Tocca per modificare la connessione predefinita.</string>
     <string name="reset_default_connection_settings">Ripristina</string>
     <string name="reset_default_connection_settings_confirm">Ripristinare le impostazioni di connessione predefinite ai valori iniziali?</string>
+    <string name="sort_connections">Ordina le connessioni</string>
 </resources>

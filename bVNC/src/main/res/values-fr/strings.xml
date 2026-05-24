@@ -933,4 +933,5 @@ L\'application est déjà exemptée des optimisations de la batterie.</string>
     <string name="default_connection_settings_redirect_summary">La méthode de saisie, la mise à l\'échelle, la position de la barre d\'outils et d\'autres réglages par défaut par connexion ont été déplacés ici. Touchez pour modifier la connexion par défaut.</string>
     <string name="reset_default_connection_settings">Réinitialiser</string>
     <string name="reset_default_connection_settings_confirm">Réinitialiser les paramètres de connexion par défaut à leurs valeurs initiales ?</string>
+    <string name="sort_connections">Trier les connexions</string>
 </resources>

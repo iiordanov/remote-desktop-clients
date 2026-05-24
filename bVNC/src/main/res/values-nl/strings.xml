@@ -860,4 +860,5 @@ App is al vrijgesteld van batterij-optimalisaties.</string>
     <string name="default_connection_settings_redirect_summary">Invoermethode, schaling, werkbalkpositie en andere verbindingsspecifieke standaardwaarden zijn hierheen verplaatst. Tik om de standaardverbinding te bewerken.</string>
     <string name="reset_default_connection_settings">Standaard herstellen</string>
     <string name="reset_default_connection_settings_confirm">De standaard verbindingsinstellingen terugzetten naar hun oorspronkelijke waarden?</string>
+    <string name="sort_connections">Sorteer verbindingen</string>
 </resources>

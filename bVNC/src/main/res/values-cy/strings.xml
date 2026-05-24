@@ -934,4 +934,5 @@ Mae ap eisoes wedi\'i eithrio rhag optimeiddio batri.</string>
     <string name="default_connection_settings_redirect_summary">Mae\'r dull mewnbwn, graddio, safle\'r bar offer a rhagosodiadau eraill fesul cysylltiad wedi\'u symud yma. Tapiwch i olygu\'r cysylltiad rhagosodedig.</string>
     <string name="reset_default_connection_settings">Ailosod</string>
     <string name="reset_default_connection_settings_confirm">Ailosod gosodiadau\'r cysylltiad rhagosodedig i\'w gwerthoedd cychwynnol?</string>
+    <string name="sort_connections">Trefnu cysylltiadau</string>
 </resources>

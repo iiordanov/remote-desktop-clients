@@ -762,4 +762,5 @@ Không thể mở cài đặt tối ưu hóa pin. Tắt tối ưu hóa pin theo 
     <string name="default_connection_settings_redirect_summary">Phương thức nhập, tỷ lệ, vị trí thanh công cụ và các mặc định khác theo từng kết nối đã được chuyển vào đây. Nhấn để chỉnh sửa kết nối mặc định.</string>
     <string name="reset_default_connection_settings">Đặt lại mặc định</string>
     <string name="reset_default_connection_settings_confirm">Đặt lại cài đặt kết nối mặc định về giá trị ban đầu?</string>
+    <string name="sort_connections">Sắp xếp kết nối</string>
 </resources>

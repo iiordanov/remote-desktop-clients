@@ -762,4 +762,5 @@
     <string name="default_connection_settings_redirect_summary">Метод уноса, скалирање, позиција траке са алаткама и друге подразумеване вредности по вези премештени су овде. Додирните за уређивање подразумеване везе.</string>
     <string name="reset_default_connection_settings">Ресетуј</string>
     <string name="reset_default_connection_settings_confirm">Ресетовати подразумевана подешавања везе на почетне вредности?</string>
+    <string name="sort_connections">Сортирајте везе</string>
 </resources>

@@ -934,4 +934,5 @@ Aplikasi sudah dikecualikan dari pengoptimalan baterai.</string>
     <string name="default_connection_settings_redirect_summary">Metode masukan, penskalaan, posisi bilah alat, dan default per-koneksi lainnya dipindahkan ke sini. Ketuk untuk mengedit koneksi default.</string>
     <string name="reset_default_connection_settings">Setel ulang</string>
     <string name="reset_default_connection_settings_confirm">Setel ulang pengaturan koneksi default ke nilai awalnya?</string>
+    <string name="sort_connections">Urutkan koneksi</string>
 </resources>

@@ -855,4 +855,5 @@ aSPICEで의 대응 기능는 이하와 같다 :
     <string name="default_connection_settings_redirect_summary">입력 방식, 배율, 도구 모음 위치 및 기타 연결별 기본값이 여기로 이동되었습니다. 기본 연결을 편집하려면 탭하세요.</string>
     <string name="reset_default_connection_settings">기본값 재설정</string>
     <string name="reset_default_connection_settings_confirm">기본 연결 설정을 초기값으로 재설정하시겠습니까?</string>
+    <string name="sort_connections">연결 정렬</string>
 </resources>

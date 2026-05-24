@@ -755,4 +755,5 @@
     <string name="default_connection_settings_redirect_summary">Метод введення, масштабування, позицію панелі інструментів та інші типові налаштування для з\'єднання перенесено сюди. Торкніться, щоб редагувати з\'єднання за замовчуванням.</string>
     <string name="reset_default_connection_settings">Скинути</string>
     <string name="reset_default_connection_settings_confirm">Скинути типові налаштування з\'єднання до початкових значень?</string>
+    <string name="sort_connections">Сортування з\'єднань</string>
 </resources>

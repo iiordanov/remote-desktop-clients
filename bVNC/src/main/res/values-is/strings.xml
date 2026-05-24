@@ -727,4 +727,5 @@ Forritið er nú þegar undanþegið hagræðingu rafhlöðunnar.</string>
     <string name="default_connection_settings_redirect_summary">Inntaksaðferð, kvörðun, staðsetning tækjastiku og aðrar sjálfgefnar stillingar á tengingu hafa verið færðar hingað. Pikkaðu til að breyta sjálfgefnu tengingunni.</string>
     <string name="reset_default_connection_settings">Endurstilla</string>
     <string name="reset_default_connection_settings_confirm">Endurstilla sjálfgefnar tengingarstillingar í upphafleg gildi?</string>
+    <string name="sort_connections">Raða tengingum</string>
 </resources>

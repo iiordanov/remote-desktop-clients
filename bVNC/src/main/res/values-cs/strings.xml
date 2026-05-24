@@ -859,4 +859,5 @@ Aplikace je již osvobozena od optimalizace baterie.</string>
     <string name="default_connection_settings_redirect_summary">Metoda zadávání, škálování, poloha panelu nástrojů a další výchozí hodnoty pro připojení byly přesunuty sem. Klepnutím upravíte výchozí připojení.</string>
     <string name="reset_default_connection_settings">Obnovit výchozí</string>
     <string name="reset_default_connection_settings_confirm">Obnovit výchozí nastavení připojení na původní hodnoty?</string>
+    <string name="sort_connections">Seřadit spojení</string>
 </resources>

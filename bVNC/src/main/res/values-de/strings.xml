@@ -932,4 +932,5 @@ App ist bereits von Batterieoptimierungen ausgenommen.</string>
     <string name="default_connection_settings_redirect_summary">Eingabemethode, Skalierung, Symbolleistenposition und andere verbindungsspezifische Standards wurden hierher verschoben. Tippen, um die Standardverbindung zu bearbeiten.</string>
     <string name="reset_default_connection_settings">Zurücksetzen</string>
     <string name="reset_default_connection_settings_confirm">Die Standard-Verbindungseinstellungen auf die Anfangswerte zurücksetzen?</string>
+    <string name="sort_connections">Verbindungen sortieren</string>
 </resources>

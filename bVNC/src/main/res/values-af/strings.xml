@@ -935,4 +935,5 @@ Die toepassing is reeds vrygestel van batteryoptimalisering.</string>
     <string name="default_connection_settings_redirect_summary">Invoermetode, skaal, nutsbalkposisie en ander verbinding-spesifieke verstekke is hierheen geskuif. Tik om die verstekverbinding te wysig.</string>
     <string name="reset_default_connection_settings">Herstel verstek</string>
     <string name="reset_default_connection_settings_confirm">Stel die verstekverbinding-instellings terug na hul aanvanklike waardes?</string>
+    <string name="sort_connections">Sorteer verbindings</string>
 </resources>

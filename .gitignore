@@ -210,6 +210,9 @@ increment_*
 functions.sh
 install.sh
 switch-to-*
+translate_strings*py
+check_layout_sync.py
+sync_large.py
 
 remote-desktop-clients-libs-*
 

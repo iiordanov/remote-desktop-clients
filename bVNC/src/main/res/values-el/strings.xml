@@ -859,4 +859,5 @@
     <string name="default_connection_settings_redirect_summary">Η μέθοδος εισαγωγής, η κλιμάκωση, η θέση της γραμμής εργαλείων και άλλες προεπιλογές ανά σύνδεση μεταφέρθηκαν εδώ. Πατήστε για επεξεργασία της προεπιλεγμένης σύνδεσης.</string>
     <string name="reset_default_connection_settings">Επαναφορά</string>
     <string name="reset_default_connection_settings_confirm">Επαναφορά των προεπιλεγμένων ρυθμίσεων σύνδεσης στις αρχικές τιμές τους;</string>
+    <string name="sort_connections">Ταξινόμηση συνδέσεων</string>
 </resources>

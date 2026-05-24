@@ -934,4 +934,5 @@ App já está isento de otimizações de bateria.</string>
     <string name="default_connection_settings_redirect_summary">O método de entrada, o dimensionamento, a posição da barra de ferramentas e outras predefinições por ligação foram movidos para aqui. Toque para editar a ligação predefinida.</string>
     <string name="reset_default_connection_settings">Repor predefinições</string>
     <string name="reset_default_connection_settings_confirm">Repor as definições de ligação predefinidas para os valores iniciais?</string>
+    <string name="sort_connections">Classificar conexões</string>
 </resources>

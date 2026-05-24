@@ -934,4 +934,5 @@ Rakendus on aku optimeerimisest juba vabastatud.</string>
     <string name="default_connection_settings_redirect_summary">Sisestusmeetod, skaleerimine, tööriistariba asukoht ja muud ühendusepõhised vaikeväärtused on toodud siia. Puudutage vaikeühenduse muutmiseks.</string>
     <string name="reset_default_connection_settings">Lähtesta</string>
     <string name="reset_default_connection_settings_confirm">Kas lähtestada vaikeühenduse sätted algväärtustele?</string>
+    <string name="sort_connections">Sorteeri ühendused</string>
 </resources>

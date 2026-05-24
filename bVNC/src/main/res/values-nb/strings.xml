@@ -857,4 +857,5 @@ Appen er allerede unntatt fra batterioptimalisering.</string>
     <string name="default_connection_settings_redirect_summary">Inndatametode, skalering, verktøylinjeposisjon og andre tilkoblingsspesifikke standarder er flyttet hit. Trykk for å redigere standardtilkoblingen.</string>
     <string name="reset_default_connection_settings">Tilbakestill</string>
     <string name="reset_default_connection_settings_confirm">Tilbakestille standard tilkoblingsinnstillinger til opprinnelige verdier?</string>
+    <string name="sort_connections">Sorter tilkoblinger</string>
 </resources>

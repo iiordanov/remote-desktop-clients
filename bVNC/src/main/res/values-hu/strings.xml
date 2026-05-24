@@ -932,4 +932,5 @@ Az alkalmazás már mentesül az akkumulátoroptimalizálás alól.</string>
     <string name="default_connection_settings_redirect_summary">A beviteli mód, a méretezés, az eszköztár helyzete és más kapcsolatonkénti alapértékek ide kerültek. Koppintson az alapértelmezett kapcsolat szerkesztéséhez.</string>
     <string name="reset_default_connection_settings">Visszaállítás</string>
     <string name="reset_default_connection_settings_confirm">Visszaállítja az alapértelmezett kapcsolatbeállításokat a kezdeti értékekre?</string>
+    <string name="sort_connections">Kapcsolatok rendezése</string>
 </resources>

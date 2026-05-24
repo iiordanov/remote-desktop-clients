@@ -916,4 +916,5 @@
     <string name="default_connection_settings_redirect_summary">Метод ввода, масштабирование, положение панели инструментов и другие настройки по умолчанию для подключения перемещены сюда. Нажмите, чтобы изменить подключение по умолчанию.</string>
     <string name="reset_default_connection_settings">Сбросить</string>
     <string name="reset_default_connection_settings_confirm">Сбросить настройки подключения по умолчанию до начальных значений?</string>
+    <string name="sort_connections">Сортировка соединений</string>
 </resources>

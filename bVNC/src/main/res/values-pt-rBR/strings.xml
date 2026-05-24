@@ -929,4 +929,5 @@ App is already exempt from battery optimizations.</string>
     <string name="default_connection_settings_redirect_summary">O método de entrada, o dimensionamento, a posição da barra de ferramentas e outros padrões por conexão foram movidos para cá. Toque para editar a conexão padrão.</string>
     <string name="reset_default_connection_settings">Redefinir padrões</string>
     <string name="reset_default_connection_settings_confirm">Redefinir as configurações de conexão padrão para os valores iniciais?</string>
+    <string name="sort_connections">Classificar conexões</string>
 </resources>

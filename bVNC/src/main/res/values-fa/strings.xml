@@ -762,4 +762,5 @@
     <string name="default_connection_settings_redirect_summary">روش ورودی، مقیاس‌بندی، موقعیت نوار ابزار و سایر پیش‌فرض‌های هر اتصال به اینجا منتقل شده‌اند. برای ویرایش اتصال پیش‌فرض ضربه بزنید.</string>
     <string name="reset_default_connection_settings">بازنشانی</string>
     <string name="reset_default_connection_settings_confirm">تنظیمات اتصال پیش‌فرض به مقادیر اولیه بازنشانی شود؟</string>
+    <string name="sort_connections">مرتب‌سازی اتصالات</string>
 </resources>

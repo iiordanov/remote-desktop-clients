@@ -851,4 +851,5 @@ connection ઉમેરો/edit ઉપર, connection configuration page.
     <string name="default_connection_settings_redirect_summary">ઇનપુટ પદ્ધતિ, સ્કેલિંગ, ટૂલબાર સ્થાન અને અન્ય કનેક્શન-વિશિષ્ટ ડિફૉલ્ટ અહીં ખસેડાયા છે. ડિફૉલ્ટ કનેક્શન સંપાદિત કરવા ટૅપ કરો.</string>
     <string name="reset_default_connection_settings">રીસેટ કરો</string>
     <string name="reset_default_connection_settings_confirm">ડિફૉલ્ટ કનેક્શન સેટિંગ્સ તેમના પ્રારંભિક મૂલ્યો પર રીસેટ કરવી?</string>
+    <string name="sort_connections">જોડાણો સૉર્ટ કરો</string>
 </resources>

@@ -874,4 +874,5 @@ aSPICEで対応済み機能は以下の通り：
     <string name="default_connection_settings_redirect_summary">入力方式、スケーリング、ツールバー位置、その他の接続ごとのデフォルトはここに移動しました。タップしてデフォルト接続を編集します。</string>
     <string name="reset_default_connection_settings">リセット</string>
     <string name="reset_default_connection_settings_confirm">デフォルトの接続設定を初期値にリセットしますか？</string>
+    <string name="sort_connections">接続のソート</string>
 </resources>

@@ -934,4 +934,5 @@ Appen er allerede fritaget for batterioptimering.</string>
     <string name="default_connection_settings_redirect_summary">Inputmetode, skalering, værktøjslinjeposition og andre forbindelsesspecifikke standarder er flyttet hertil. Tryk for at redigere standardforbindelsen.</string>
     <string name="reset_default_connection_settings">Nulstil</string>
     <string name="reset_default_connection_settings_confirm">Nulstil standardforbindelsesindstillingerne til deres oprindelige værdier?</string>
+    <string name="sort_connections">Sorter forbindelser</string>
 </resources>

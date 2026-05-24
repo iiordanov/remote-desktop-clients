@@ -934,4 +934,5 @@ Exempt na ang app sa mga pag-optimize ng baterya.</string>
     <string name="default_connection_settings_redirect_summary">Inilipat dito ang paraan ng pag-input, scaling, posisyon ng toolbar at iba pang per-connection na default. I-tap para i-edit ang default na koneksyon.</string>
     <string name="reset_default_connection_settings">I-reset</string>
     <string name="reset_default_connection_settings_confirm">I-reset ang default na mga setting ng koneksyon sa kanilang paunang halaga?</string>
+    <string name="sort_connections">Pagbukud-bukurin ang mga koneksyon</string>
 </resources>

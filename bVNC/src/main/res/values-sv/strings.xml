@@ -859,4 +859,5 @@ Appen är redan undantagen från batterioptimering.</string>
     <string name="default_connection_settings_redirect_summary">Inmatningsmetod, skalning, verktygsfältets position och andra anslutningsspecifika standardvärden har flyttats hit. Tryck för att redigera standardanslutningen.</string>
     <string name="reset_default_connection_settings">Återställ</string>
     <string name="reset_default_connection_settings_confirm">Återställa standardanslutningsinställningarna till deras ursprungliga värden?</string>
+    <string name="sort_connections">Sortera anslutningar</string>
 </resources>

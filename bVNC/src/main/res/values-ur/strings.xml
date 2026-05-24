@@ -727,4 +727,5 @@ ASPICE خصوصیات کی موجودہ فہرست میں شامل ہیں:
     <string name="default_connection_settings_redirect_summary">ان پٹ طریقہ، اسکیلنگ، ٹول بار پوزیشن اور دیگر فی کنکشن طے شدہ ترتیبات یہاں منتقل کر دی گئی ہیں۔ طے شدہ کنکشن میں ترمیم کے لیے تھپتھپائیں۔</string>
     <string name="reset_default_connection_settings">ری سیٹ کریں</string>
     <string name="reset_default_connection_settings_confirm">طے شدہ کنکشن ترتیبات کو ان کی ابتدائی اقدار پر ری سیٹ کریں؟</string>
+    <string name="sort_connections">رابطوں کو ترتیب دیں</string>
 </resources>

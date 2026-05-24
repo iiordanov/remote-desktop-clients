@@ -762,4 +762,5 @@ Programu tayari imeondolewa kwenye uboreshaji wa betri.</string>
     <string name="default_connection_settings_redirect_summary">Mbinu ya ingizo, kuongeza ukubwa, nafasi ya upau wa zana na chaguomsingi nyingine za kila muunganisho zimehamishwa hapa. Gusa kuhariri muunganisho chaguomsingi.</string>
     <string name="reset_default_connection_settings">Weka upya</string>
     <string name="reset_default_connection_settings_confirm">Weka upya mipangilio chaguomsingi ya muunganisho kwa thamani zake za awali?</string>
+    <string name="sort_connections">Panga miunganisho</string>
 </resources>

@@ -857,4 +857,5 @@ Aplicația este deja scutită de optimizările bateriei.</string>
     <string name="default_connection_settings_redirect_summary">Metoda de introducere, scalarea, poziția barei de instrumente și alte valori implicite per conexiune au fost mutate aici. Atingeți pentru a edita conexiunea implicită.</string>
     <string name="reset_default_connection_settings">Resetare</string>
     <string name="reset_default_connection_settings_confirm">Resetați setările implicite de conexiune la valorile inițiale?</string>
+    <string name="sort_connections">Sortați conexiunile</string>
 </resources>
