@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -103,7 +104,8 @@
                     android:layout_height="wrap_content"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
-                    android:text="x" />
+                    android:text="x"
+                    tools:ignore="HardcodedText" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
@@ -226,7 +228,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/auto_x_confirm" />
+                android:text="@string/auto_x_confirm"
+                tools:ignore="ButtonStyle" />
 
         </LinearLayout>
 
