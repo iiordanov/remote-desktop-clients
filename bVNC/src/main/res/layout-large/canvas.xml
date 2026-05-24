@@ -107,7 +107,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/extra_keys_height"
         android:layout_gravity="bottom|center"
-        android:background="@android:color/background_dark"
+        android:background="@android:color/black"
         android:visibility="gone" />
 
     <LinearLayout
