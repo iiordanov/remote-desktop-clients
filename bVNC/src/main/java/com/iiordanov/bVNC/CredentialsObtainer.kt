@@ -6,7 +6,6 @@ import android.util.Log
 import com.iiordanov.bVNC.dialogs.GetTextFragment
 import com.undatech.opaque.Connection
 import com.undatech.opaque.RemoteClientLibConstants
-import com.undatech.opaque.RfbConnectable
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 class CredentialsObtainer(

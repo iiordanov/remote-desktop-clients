@@ -20,13 +20,17 @@
 
 package com.iiordanov.bVNC;
 
+import androidx.annotation.ChecksSdkIntAtLeast;
+
 /**
  * Keys for intent values
  */
+@SuppressWarnings("EnhancedSwitchMigration")
 public class Constants {
 
     public static final String defaultPackageName = "com.iiordanov.defaultbVNC";
 
+    @ChecksSdkIntAtLeast()
     public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
 
     public static final int CONN_TYPE_PLAIN = 0;
@@ -35,7 +39,6 @@ public class Constants {
     public static final int CONN_TYPE_ANONTLS = 3;
     public static final int CONN_TYPE_VENCRYPT = 4;
     public static final int CONN_TYPE_STUNNEL = 5;
-    public static final int CONN_TYPE_SECUREVNCPLUGIN = 6;
 
     public static final int SOCKET_CONN_TIMEOUT = 20 * 1000;
 
@@ -71,7 +74,6 @@ public class Constants {
     public static final String PARAM_ID_HASH = "IdHash";
     public static final String PARAM_COLORMODEL = "ColorModel";
     public static final String PARAM_SAVE_CONN = "SaveConnection";
-    public static final String PARAM_APIKEY = "ApiKey";
     public static final String PARAM_TLS_PORT = "TlsPort";
     public static final String PARAM_CACERT_PATH = "CaCertPath";
     public static final String PARAM_CERT_SUBJECT = "CertSubject";
@@ -102,41 +104,17 @@ public class Constants {
     public static final int COLORMODEL_32BIT = 8;
     public static final int EXTRA_KEYS_OFF = 0;
     public static final int EXTRA_KEYS_ON = 1;
-    public static final int EXTRA_KEYS_TIMEOUT = 2;
     public static final int ACTIVITY_GEN_KEY = 1;
-    public static final int ACTIVITY_SVNC_GEN_KEY = 2;
     public static final int ACTIVITY_SVNC_IMPORT_KEY = 3;
     public static final int ACTIVITY_SVNC_EXPORT_PUBKEY = 4;
     public static final int ACTIVITY_SVNC_EXPORT_PKEY = 5;
-    public final static int AUTOX_SELECT_DISABLED = 0;
-    public final static int AUTOX_SELECT_XVFB = 1;
-    public final static int AUTOX_SELECT_XVNC = 2;
-    public final static int AUTOX_SELECT_XDUMMY = 3;
-    public final static int AUTOX_SELECT_FIND = 4;
     public final static int AUTOX_SELECT_SUDO_FIND = 5;
-    public final static int COMMAND_DISABLED = 0;
-    public final static int COMMAND_LINUX_START = 100;
-    public final static int COMMAND_LINUX_X11VNC = 101;
-    public final static int COMMAND_LINUX_STDVNC = 102;
-    public final static int COMMAND_LINUX_VINO = 103;
-    public final static int COMMAND_LINUX_END = 199;
-    public final static int COMMAND_WINDOWS_START = 200;
-    public final static int COMMAND_WINDOWS_TIGHT = 201;
-    public final static int COMMAND_WINDOWS_ULTRA = 202;
-    public final static int COMMAND_WINDOWS_TIGER = 203;
-    public final static int COMMAND_WINDOWS_REAL = 204;
-    public final static int COMMAND_WINDOWS_END = 299;
-    public final static int COMMAND_MACOSX_START = 300;
-    public final static int COMMAND_MACOSX_STDVNC = 301;
-    public final static int COMMAND_MACOSX_END = 399;
-    public final static int COMMAND_CUSTOM = 1000;
     public final static int COMMAND_AUTO_X_DISABLED = 0;
     public final static int COMMAND_AUTO_X_CREATE_XVFB = 1;
     public final static int COMMAND_AUTO_X_CREATE_XVNC = 2;
     public final static int COMMAND_AUTO_X_CREATE_XDUMMY = 3;
     public final static int COMMAND_AUTO_X_FIND = 4;
     public final static int COMMAND_AUTO_X_SUDO_FIND = 5;
-    public final static int COMMAND_AUTO_X_CUSTOM = 6;
     public final static String COMMAND_AUTO_X_CREATE_XVFB_STRING = "sh -c \"PORT= x11vnc -norc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost ";
     public final static String COMMAND_AUTO_X_CREATE_XVNC_STRING = "sh -c \"PORT= x11vnc -norc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost -xvnc ";
     public final static String COMMAND_AUTO_X_CREATE_XDUMMY_STRING = "sh -c \"PORT= x11vnc -norc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost -xdummy ";
@@ -147,10 +125,7 @@ public class Constants {
     public final static String AUTO_X_PWFILEBASENAME = ".x11vnc_temp_pwd_";
     public final static String AUTO_X_CREATE_PASSWDFILE = "umask 0077 && cat > ";
     public final static String AUTO_X_SYNC = " ; sync";
-    public final static String MV_DMRC_AWAY = "[ -O ${HOME}/.dmrc ] && mv ${HOME}/.dmrc ${HOME}/.dmrc.$$ ; ";
-    public final static String MV_DMRC_BACK = " ; [ -O ${HOME}/.dmrc.$$ ] && mv ${HOME}/.dmrc.$$ ${HOME}/.dmrc";
     public final static int AUTOX_GEOM_SELECT_NATIVE = 0;
-    public final static int AUTOX_GEOM_SELECT_CUSTOM = 1;
     public final static int VNC_GEOM_SELECT_DISABLED = 0;
     public final static int VNC_GEOM_SELECT_AUTOMATIC = 1;
     public final static int VNC_GEOM_SELECT_NATIVE_LANDSCAPE = 2;
@@ -176,8 +151,6 @@ public class Constants {
     public final static String AUTOX_SESS_PROG_TRINITY = "/usr/bin/starttde";
     public final static String AUTOX_SESS_PROG_MATE = "/usr/bin/mate-session";
     public static final String DEFAULT_LAYOUT_MAP = "English (US)";
-    public static final String passwordKey = "MasterPassword";
-    public static final String testpassword = "password";
     public static final int numIterations = 10000;
     public static final int keyLength = 256;
     public static final int saltLength = 256;
@@ -202,9 +175,6 @@ public class Constants {
     public static final String localToRemoteClipboardIntegration = "localToRemoteClipboardIntegration";
     public static final String remoteToLocalClipboardIntegration = "remoteToLocalClipboardIntegration";
     public static final String EXTRA_KEYS_TOUR_SHOWN = "extraKeysTourShown";
-    public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
-    public static final int usbDeviceTimeout = 5000;
-    public static final int usbDevicePermissionTimeout = 15000;
     public static final int REMOTE_SOUND_DISABLED = 2;
     public static final int REMOTE_SOUND_ON_SERVER = 1;
     public static final int REMOTE_SOUND_ON_DEVICE = 0;

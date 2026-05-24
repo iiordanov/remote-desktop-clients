@@ -50,8 +50,6 @@ import java.util.UUID;
 public class ConnectionBean extends AbstractConnectionBean implements Comparable<ConnectionBean> {
 
     private static final String TAG = "ConnectionBean";
-    static Context c = null;
-    public static final NewInstance<ConnectionBean> newInstance = () -> new ConnectionBean(c);
     private boolean readyForConnection = true; // saved connections are OK
     private boolean readyToBeSaved = false;
     private int idHashAlgorithm;
@@ -60,6 +58,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     private final boolean showOnlyConnectionNicknames;
 
     private String connectionConfigFile = null;
+    private String newConnectionString = "";
 
     public ConnectionBean(Context context) {
         String inputMode = TouchInputHandlerDirectSwipePan.ID;
@@ -160,7 +159,6 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setExternalId("");
         setRequiresVpn(false);
         setVpnUriScheme(Constants.DEFAULT_VPN_URI_SCHEME);
-        c = context;
 
         // These two are not saved in the database since we always save the cert data. 
         setIdHashAlgorithm(Constants.ID_HASH_SHA1);
@@ -176,6 +174,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setDesktopScalePercentage(Constants.DEFAULT_DESKTOP_SCALE_PERCENTAGE);
         setEnableGlyphCache(ENABLE_GLYPH_CACHE_DEFAULT);
         setInvisible(Constants.INVISIBLE_DEFAULT);
+        if (context != null) {
+            newConnectionString = context.getString(R.string.new_connection);
+        }
     }
 
     private static String getDefaultInputMode(Context context) {
@@ -208,7 +209,12 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents, MostRecentBean.GEN_NEW);
         if (recents.isEmpty())
             return null;
+        //noinspection SequencedCollectionMethodCanBeUsed
         return recents.get(0);
+    }
+
+    public static NewInstance<ConnectionBean> newInstance(Context context) {
+        return () -> new ConnectionBean(context);
     }
 
     public int getIdHashAlgorithm() {
@@ -497,7 +503,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             return;
         }
         if (this.connectionConfigFile == null) {
-            Database.runWritable(c, db -> save(db));
+            Database.runWritable(c, this::save);
         }
         readyToBeSaved = true;
     }
@@ -557,7 +563,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     @Override
     public String toString() {
         if (isNew()) {
-            return c.getString(R.string.new_connection);
+            return newConnectionString;
         }
         String result = "";
 

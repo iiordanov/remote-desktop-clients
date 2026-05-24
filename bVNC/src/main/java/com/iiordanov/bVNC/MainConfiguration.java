@@ -395,7 +395,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
             ArrayList<ConnectionBean> connections = new ArrayList<>();
             ConnectionBean.getAll(db,
                     ConnectionBean.GEN_TABLE_NAME, connections,
-                    ConnectionBean.newInstance);
+                    ConnectionBean.newInstance(this));
             Collections.sort(connections);
             //noinspection SequencedCollectionMethodCanBeUsed
             connections.add(0, new ConnectionBean(this));

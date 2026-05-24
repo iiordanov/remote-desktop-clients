@@ -9,8 +9,6 @@ import com.iiordanov.bVNC.Database;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.ConnectionSettings;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,7 +41,7 @@ public class ConnectionLoader {
     private void loadFromDatabase() {
         Database.runWritable(this.appContext, db -> {
             ArrayList<ConnectionBean> connections = new ArrayList<>();
-            ConnectionBean.getAll(db, ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
+            ConnectionBean.getAll(db, ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance(appContext));
             Iterator<ConnectionBean> it = connections.iterator();
             while (it.hasNext()) {
                 if (it.next().getInvisible()) {
