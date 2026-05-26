@@ -400,23 +400,30 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
                 new DiscoveryBottomSheet.Callback() {
                     @Override
                     public void onServerSelected(NetworkDiscovery.DiscoveredServer server) {
-                        launchConnectionSetup(server.host(), server.port());
+                        // Only forward the discovered name as a nickname when it is an
+                        // actual name (mDNS service name or reverse-DNS hostname), not a
+                        // bare IP echoed back by the port scanner.
+                        String name = server.name();
+                        String nickname = (name != null && !name.equals(server.host()))
+                                ? name : null;
+                        launchConnectionSetup(server.host(), server.port(), nickname);
                     }
 
                     @Override
                     public void onEnterManually() {
-                        launchConnectionSetup(null, -1);
+                        launchConnectionSetup(null, -1, null);
                     }
                 });
         sheet.show(getSupportFragmentManager(), "discovery");
     }
 
-    private void launchConnectionSetup(String address, int port) {
+    private void launchConnectionSetup(String address, int port, String nickname) {
         Intent intent = new Intent(ConnectionGridActivity.this,
                 Utils.getConnectionSetupClass(this));
         intent.putExtra("isNewConnection", true);
         if (address != null) intent.putExtra(Constants.PREFILL_ADDRESS, address);
         if (port >= 0) intent.putExtra(Constants.PREFILL_PORT, port);
+        if (nickname != null) intent.putExtra(Constants.PREFILL_NICKNAME, nickname);
         startActivity(intent);
     }
 

@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2013- Iordan Iordanov
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -45,7 +45,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Host addresses are built from raw 4-byte values via the {@link InetAddress}
  * APIs (no IPv4-text concatenation). One thread is spawned per host; all ports
  * for that host are checked sequentially so the total number of simultaneous
- * connections stays bounded.
+ * connections stays bounded. Reverse-DNS is not attempted — only mDNS-discovered
+ * servers carry a real name; port-scan results are reported with their IP.
  */
 public class PortScanDiscovery {
     private static final String TAG = "PortScanDiscovery";
@@ -70,7 +71,9 @@ public class PortScanDiscovery {
 
     public interface Listener {
         void onServerFound(NetworkDiscovery.DiscoveredServer server);
+
         void onProgressUpdate(int scanned, int total);
+
         void onScanComplete();
     }
 

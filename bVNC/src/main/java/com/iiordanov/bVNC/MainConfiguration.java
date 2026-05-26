@@ -423,8 +423,10 @@ public abstract class MainConfiguration extends AppCompatActivity {
         Intent intent = getIntent();
         String address = intent.getStringExtra(Constants.PREFILL_ADDRESS);
         int port = intent.getIntExtra(Constants.PREFILL_PORT, -1);
+        String nickname = intent.getStringExtra(Constants.PREFILL_NICKNAME);
         if (address != null) selected.setAddress(address);
         if (port >= 0) selected.setPort(port);
+        if (nickname != null) selected.setNickname(nickname);
     }
 
     /**

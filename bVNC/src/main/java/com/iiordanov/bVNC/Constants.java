@@ -283,6 +283,7 @@ public class Constants {
 
     public static final String PREFILL_ADDRESS   = "prefillAddress";
     public static final String PREFILL_PORT      = "prefillPort";
+    public static final String PREFILL_NICKNAME  = "prefillNickname";
     public static final String OPAQUE_CONNECTION_TO_EDIT_INTENT_KEY = "com.undatech.opaque.connectionToEdit";
     public static final String CONNECTION_TO_EDIT_INTENT_KEY = "connID";
 
