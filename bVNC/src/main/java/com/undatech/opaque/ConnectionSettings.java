@@ -110,6 +110,18 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
     }
 
     /**
+     * Returns a new connection seeded from the default-settings template but with
+     * its own identity. Filename and screenshotFilename are made unique.
+     * Mirrors {@code ConnectionBean.newConnectionFromDefaultTemplate}.
+     */
+    public static ConnectionSettings newConnectionFromDefaultTemplate(Context context) {
+        ConnectionSettings connection = getDefaultConnectionTemplate(context);
+        connection.setFilename(UUID.randomUUID().toString());
+        connection.setScreenshotFilename(UUID.randomUUID().toString() + ".png");
+        return connection;
+    }
+
+    /**
      * Exports preferences to a file.
      *
      * @param connections  space separated list of connections

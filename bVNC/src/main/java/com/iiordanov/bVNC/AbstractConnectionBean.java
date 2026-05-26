@@ -18,7 +18,6 @@ import com.iiordanov.bVNC.protocol.GettingConnectionSettingsException;
 import com.iiordanov.util.UriIntentParser;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.ConnectionSettings;
-import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.remoteClientUi.R;
 
@@ -1930,6 +1929,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         return b != null ? b : defaultValue;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static int intOr(android.content.ContentValues values, String key, int defaultValue) {
         Integer i = values.getAsInteger(key);
         return i != null ? i : defaultValue;
@@ -2021,14 +2021,14 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     /**
      * Single sanctioned factory for creating a user-facing new connection,
      * seeded from the editable per-connection default settings template.
-     *
+     * <p>
      * Every flow that begins a connection the user can then edit and save —
      * the "+ new connection" button, URI intents (vnc://, rdp://, spice://),
      * config-file imports (.rdp, .vv), etc. — must go through here so the
      * template is applied uniformly. Dispatches on protocol (Opaque vs the
      * sqlcipher-backed bean) so callers do not duplicate the
      * {@code Utils.isOpaque} branch.
-     *
+     * <p>
      * Internal/DB-load uses of {@code new ConnectionBean(ctx)} or
      * {@code new ConnectionSettings(...)} (cursor population, template
      * self-construction, widget-id search scaffolding, editor copy-ctor,
@@ -2036,7 +2036,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
      */
     public static Connection newForUser(Context context) {
         if (Utils.isOpaque(context)) {
-            return ConnectionSettings.getDefaultConnectionTemplate(context);
+            return ConnectionSettings.newConnectionFromDefaultTemplate(context);
         }
         return ConnectionBean.newConnectionFromDefaultTemplate(context);
     }

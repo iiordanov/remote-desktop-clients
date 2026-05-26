@@ -470,6 +470,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         connection.populateFromContentValues(template.Gen_getValues());
         connection.markAsNewConnection();
         connection.setInvisible(false);
+        connection.setScreenshotFilename(Utils.newScreenshotFileName());
         return connection;
     }
 
