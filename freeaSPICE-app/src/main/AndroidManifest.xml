@@ -109,56 +109,7 @@
                     android:scheme="file" />
                 <data
                     android:host="*"
-                    android:pathPattern=".*\\..*\\.vv"
-                    android:scheme="file" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\..*\\..*\\.vv"
-                    android:scheme="file" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\.vv"
-                    android:scheme="file" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\.vv"
-                    android:scheme="file" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.vv"
-                    android:scheme="file" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.vv"
-                    android:scheme="file" />
-
-                <data
-                    android:host="*"
                     android:pathPattern=".*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\..*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\..*\\..*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.vv"
                     android:scheme="content" />
             </intent-filter>
 
@@ -178,68 +129,7 @@
                 <data
                     android:host="*"
                     android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\.vv"
-                    android:scheme="file" />
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\..*\\.vv"
-                    android:scheme="file" />
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\.vv"
-                    android:scheme="file" />
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\.vv"
-                    android:scheme="file" />
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.vv"
-                    android:scheme="file" />
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.vv"
-                    android:scheme="file" />
-
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
                     android:pathPattern=".*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\..*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.vv"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.vv"
                     android:scheme="content" />
             </intent-filter>
         </activity>
