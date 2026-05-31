@@ -102,12 +102,6 @@
                 <data android:scheme="content" />
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.vv" />
-                <data android:pathPattern=".*\\..*\\.vv" />
-                <data android:pathPattern=".*\\..*\\..*\\.vv" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.vv" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.vv" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.vv" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.vv" />
             </intent-filter>
         </activity>
 
