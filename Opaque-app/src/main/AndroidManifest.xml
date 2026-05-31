@@ -103,6 +103,19 @@
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.vv" />
             </intent-filter>
+
+            <intent-filter
+                android:icon="@drawable/opaque_icon"
+                android:label="@string/opaque_app_name">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.vv" />
+            </intent-filter>
         </activity>
 
         <uses-library
