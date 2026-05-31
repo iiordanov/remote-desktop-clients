@@ -96,19 +96,6 @@
                 android:icon="@drawable/opaque_icon"
                 android:label="@string/opaque_app_name">
                 <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:scheme="file" />
-                <data android:host="*" />
-                <data android:scheme="content" />
-            </intent-filter>
-
-            <intent-filter
-                android:icon="@drawable/opaque_icon"
-                android:label="@string/opaque_app_name">
-                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="file" />
