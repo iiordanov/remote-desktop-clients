@@ -474,11 +474,10 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         return connection;
     }
 
-    /** Ephemeral counterpart of {@link #newConnectionFromDefaultTemplate}; see
-     *  {@link AbstractConnectionBean#newForFileRun(Context)}. */
-    public static synchronized ConnectionBean newEphemeralFromDefaultTemplate(Context context) {
+    /** Ephemeral counterpart of {@link #newConnectionFromDefaultTemplate}. */
+    public static synchronized ConnectionBean newEphemeralFromDefaultTemplate(Context context, String configFileName) {
         ConnectionBean connection = newConnectionFromDefaultTemplate(context);
-        connection.ephemeral = true;
+        connection.markEphemeralForFileRun(configFileName);
         return connection;
     }
 

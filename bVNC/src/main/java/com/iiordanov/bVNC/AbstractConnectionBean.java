@@ -461,6 +461,17 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         return GEN_TABLE_NAME;
     }
 
+    /**
+     * Marks this connection as a single-launch file-run, recording the resolved
+     * config-file path. Called by each subclass {@code newEphemeralFromDefaultTemplate}
+     * factory so the ephemeral flag and the config-file pointer are set in one
+     * place rather than separately at each call site.
+     */
+    protected void markEphemeralForFileRun(String configFileName) {
+        this.ephemeral = true;
+        this.setConnectionConfigFile(configFileName);
+    }
+
     // Field accessors
     public long get_Id() {
         return gen__Id;
@@ -2058,78 +2069,56 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
      * URI intents (vnc://, rdp://, spice://) are NOT file launches and must
      * keep using {@link #newForUser(Context)}.
      */
-    public static Connection newForFileRun(Context context) {
-        if (Utils.isOpaque(context)) {
-            return ConnectionSettings.newEphemeralFromDefaultTemplate(context);
-        }
-        return ConnectionBean.newEphemeralFromDefaultTemplate(context);
+    public static Connection newForFileRun(Context context, String configFileName) {
+        return Utils.isOpaque(context)
+                ? ConnectionSettings.newEphemeralFromDefaultTemplate(context, configFileName)
+                : ConnectionBean.newEphemeralFromDefaultTemplate(context, configFileName);
     }
 
     public static Connection getRemoteConnectionSettings(Intent i, Context context, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
-        Connection connection;
         String configFileName = retrieveConfigFileFromIntent(i, context.getFilesDir().toString(), context, context);
         if (Utils.isOpaque(context)) {
-            connection = getOpaqueConnection(i, context, configFileName);
-        } else if (configFileName != null && Utils.isFree(context)) {
+            return getOpaqueConnection(i, context, configFileName);
+        }
+        if (configFileName != null && Utils.isFree(context)) {
             if (Utils.isSpice(context)) {
                 throw new GettingConnectionSettingsException(R.string.pro_feature_spice);
-            } else if (Utils.isRdp(context)) {
-                throw new GettingConnectionSettingsException(R.string.pro_feature_rdp);
-            } else {
-                throw new GettingConnectionSettingsException(R.string.pro_feature_generic);
             }
-        } else {
-            connection = tryGetConnectionFromUri(i, context, configFileName, masterPasswordEnabled);
+            if (Utils.isRdp(context)) {
+                throw new GettingConnectionSettingsException(R.string.pro_feature_rdp);
+            }
+            throw new GettingConnectionSettingsException(R.string.pro_feature_generic);
         }
-        connection.setConnectionConfigFile(configFileName);
-        return connection;
-    }
-
-    private static Connection tryGetConnectionFromUri(Intent i, Context context, String configFileName, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
-        try {
-            return getConnection(i, context, configFileName, masterPasswordEnabled);
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Error parsing URI:\n" + Log.getStackTraceString(e));
-            throw new GettingConnectionSettingsException(R.string.error_uri_noinfo_nosave);
-        }
+        return getConnection(i, context, configFileName, masterPasswordEnabled);
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
     private static Connection getOpaqueConnection(Intent i, Context context, String configFileName) {
-        Connection connection;
         if (configFileName == null) {
             Log.d(TAG, "Initializing session from connection settings.");
-            connection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
-        } else {
-            connection = newForFileRun(context);
+            return (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
         }
-        return connection;
+        return newForFileRun(context, configFileName);
     }
 
     private static Connection getConnection(Intent i, Context context, String configFileName, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
-        Connection connection;
         Uri data = i.getData();
-        boolean isSupportedScheme = isSupportedScheme(data);
-        if (isSupportedScheme) {
+        if (isSupportedScheme(data)) {
             Log.i(TAG, "getConnection - supported scheme, trying to handle supported URI");
-            connection = handleSupportedUri(data, context, masterPasswordEnabled);
-        } else if (configFileName != null) {
-            Log.i(TAG, "getConnection - config file: " + configFileName + ", making ephemeral connection");
-            connection = newForFileRun(context);
-        } else {
-            Log.i(TAG, "getConnection - launching a regular, serialized connection");
-            connection = loadSerializedConnection(i, context);
+            return handleSupportedUri(data, context, masterPasswordEnabled);
         }
-        return connection;
+        if (configFileName != null) {
+            Log.i(TAG, "getConnection - config file: " + configFileName + ", making ephemeral connection");
+            return newForFileRun(context, configFileName);
+        }
+        Log.i(TAG, "getConnection - launching a regular, serialized connection");
+        return loadSerializedConnection(i, context);
     }
 
     private static boolean isSupportedScheme(Uri data) {
-        boolean isSupportedScheme = false;
-        if (data != null) {
-            String s = data.getScheme();
-            isSupportedScheme = "rdp".equals(s) || "spice".equals(s) || "vnc".equals(s);
-        }
-        return isSupportedScheme;
+        if (data == null) return false;
+        String s = data.getScheme();
+        return "rdp".equals(s) || "spice".equals(s) || "vnc".equals(s);
     }
 
     private static Connection handleSupportedUri(Uri data, Context context, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
@@ -2137,7 +2126,12 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         if (masterPasswordEnabled) {
             throw new GettingConnectionSettingsException(R.string.master_password_error_intents_not_supported);
         }
-        return createConnectionFromUri(data, context);
+        try {
+            return createConnectionFromUri(data, context);
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "Error parsing URI:\n" + Log.getStackTraceString(e));
+            throw new GettingConnectionSettingsException(R.string.error_uri_noinfo_nosave);
+        }
     }
 
     private static Connection loadSerializedConnection(Intent i, Context context) {

@@ -126,11 +126,10 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
         return connection;
     }
 
-    /** Ephemeral counterpart of {@link #newConnectionFromDefaultTemplate}; see
-     *  {@link com.iiordanov.bVNC.AbstractConnectionBean#newForFileRun(Context)}. */
-    public static ConnectionSettings newEphemeralFromDefaultTemplate(Context context) {
+    /** Ephemeral counterpart of {@link #newConnectionFromDefaultTemplate}. */
+    public static ConnectionSettings newEphemeralFromDefaultTemplate(Context context, String configFileName) {
         ConnectionSettings connection = newConnectionFromDefaultTemplate(context, EPHEMERAL_FILENAME_SENTINEL);
-        connection.ephemeral = true;
+        connection.markEphemeralForFileRun(configFileName);
         return connection;
     }
 
