@@ -2079,17 +2079,15 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
                 throw new GettingConnectionSettingsException(R.string.pro_feature_generic);
             }
         } else {
-            connection = tryGetConnectionFromUri(i, context, masterPasswordEnabled);
+            connection = tryGetConnectionFromUri(i, context, configFileName, masterPasswordEnabled);
         }
         connection.setConnectionConfigFile(configFileName);
         return connection;
     }
 
-    private static Connection tryGetConnectionFromUri(Intent i, Context context, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
+    private static Connection tryGetConnectionFromUri(Intent i, Context context, String configFileName, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
         try {
-            Connection connection;
-            connection = getConnection(i, context, masterPasswordEnabled);
-            return connection;
+            return getConnection(i, context, configFileName, masterPasswordEnabled);
         } catch (IllegalStateException e) {
             Log.e(TAG, "Error parsing URI:\n" + Log.getStackTraceString(e));
             throw new GettingConnectionSettingsException(R.string.error_uri_noinfo_nosave);
@@ -2108,15 +2106,15 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         return connection;
     }
 
-    private static Connection getConnection(Intent i, Context context, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
+    private static Connection getConnection(Intent i, Context context, String configFileName, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
         Connection connection;
         Uri data = i.getData();
         boolean isSupportedScheme = isSupportedScheme(data);
         if (isSupportedScheme) {
             Log.i(TAG, "getConnection - supported scheme, trying to handle supported URI");
             connection = handleSupportedUri(data, context, masterPasswordEnabled);
-        } else if (!Utils.isNullOrEmpty(i.getType())) {
-            Log.i(TAG, "getConnection - non-empty intent type: " + i.getType() + ", making ephemeral connection for config file");
+        } else if (configFileName != null) {
+            Log.i(TAG, "getConnection - config file: " + configFileName + ", making ephemeral connection");
             connection = newForFileRun(context);
         } else {
             Log.i(TAG, "getConnection - launching a regular, serialized connection");
