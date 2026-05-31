@@ -899,4 +899,9 @@ Aplicația este deja scutită de optimizările bateriei.</string>
     <string name="svnc_encryption_offered_title">Serverul oferă criptare</string>
     <string name="svnc_encryption_offered_message">Serverul acceptă criptarea SecureVNCPlugin, dar nu ați activat-o în setările de conexiune.\n\nConectarea fără criptare înseamnă că datele sesiunii (inclusiv acreditările) vor fi transmise în text clar.\n\nPentru a activa criptarea, anulați și bifați \'Necesită criptare SecureVNCPlugin\' în setările de conexiune.</string>
     <string name="error_securevncplugin_server_requires_encryption">Serverul oferă doar tipuri de conexiune criptate (SecureVNCPlugin), dar criptarea nu este activată în setările de conexiune. Activați \'Necesită criptare SecureVNCPlugin\' pentru a vă conecta la acest server.</string>
+    <string name="morpheusly_cta_title">Ajungeți la computerele dvs. de oriunde</string>
+    <string name="morpheusly_cta_dismiss">Nu acum</string>
+    <string name="action_morpheusly">Obțineți Morpheusly</string>
+    <string name="morpheusly_cta_body">Acces securizat la computer de la distanță prin Internet, fără configurație de rețea.Instalați aplicația desktop Morpheusly pe fiecare computer la care doriți să ajungeți, conectați-vă și vedeți care sunt online și conectați-vă fără probleme din aplicația mobilă Morpheusly.</string>
+    <string name="morpheusly_cta_download">Obțineți Morpheusly</string>
 </resources>

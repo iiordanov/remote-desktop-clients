@@ -974,4 +974,9 @@ Az alkalmazás már mentesül az akkumulátoroptimalizálás alól.</string>
     <string name="svnc_encryption_offered_title">A szerver titkosítást kínál</string>
     <string name="svnc_encryption_offered_message">A szerver támogatja a SecureVNCPlugin titkosítást, de nem engedélyezte a kapcsolati beállításokban.\n\nTitkosítás nélküli csatlakozás esetén a munkamenet adatai (beleértve a hitelesítő adatokat) titkosítatlanul kerülnek átvitelre.\n\nA titkosítás engedélyezéséhez szakítsa meg a műveletet és jelölje be a \'SecureVNCPlugin titkosítás megkövetelése\' opciót a kapcsolati beállításokban.</string>
     <string name="error_securevncplugin_server_requires_encryption">A szerver csak titkosított kapcsolattípusokat kínál (SecureVNCPlugin), de a titkosítás nincs engedélyezve a kapcsolati beállításokban. Engedélyezze a \'SecureVNCPlugin titkosítás megkövetelése\' opciót a szerverhez való csatlakozáshoz.</string>
+    <string name="morpheusly_cta_title">Érje el számítógépeit bárhonnan</string>
+    <string name="morpheusly_cta_dismiss">Most nem</string>
+    <string name="action_morpheusly">Szerezd meg Morpheusly</string>
+    <string name="morpheusly_cta_body">Biztonságos távoli asztali hozzáférés az interneten keresztül nulla hálózati konfigurációval.Telepítse a Morpheusly asztali alkalmazást minden olyan számítógépre, amelyet el szeretne érni, jelentkezzen be, és nézze meg, melyik van online, és csatlakozzon zökkenőmentesen a Morpheusly mobilalkalmazásból.</string>
+    <string name="morpheusly_cta_download">Szerezd meg Morpheusly</string>
 </resources>

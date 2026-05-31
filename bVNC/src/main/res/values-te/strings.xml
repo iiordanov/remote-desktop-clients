@@ -804,4 +804,9 @@ ASPICE లక్షణాల యొక్క ప్రస్తుత జాబ�
     <string name="svnc_encryption_offered_title">సర్వర్ ఎన్‌క్రిప్షన్ అందిస్తోంది</string>
     <string name="svnc_encryption_offered_message">సర్వర్ SecureVNCPlugin ఎన్‌క్రిప్షన్‌ను సపోర్ట్ చేస్తుంది, కానీ మీ కనెక్షన్ సెట్టింగ్‌లలో మీరు దాన్ని ప్రారంభించలేదు.\n\nఎన్‌క్రిప్షన్ లేకుండా కనెక్ట్ అవ్వడం వల్ల మీ సెషన్ డేటా (ఆధారాలతో సహా) స్పష్టమైన టెక్స్ట్‌లో ప్రసారం చేయబడుతుంది.\n\nఎన్‌క్రిప్షన్‌ను ప్రారంభించడానికి, రద్దు చేసి మీ కనెక్షన్ సెట్టింగ్‌లలో \'SecureVNCPlugin ఎన్‌క్రిప్షన్ అవసరం\' ఎంపికను చెక్ చేయండి.</string>
     <string name="error_securevncplugin_server_requires_encryption">సర్వర్ ఎన్‌క్రిప్ట్ చేసిన కనెక్షన్ రకాలను (SecureVNCPlugin) మాత్రమే అందిస్తుంది, కానీ మీ కనెక్షన్ సెట్టింగ్‌లలో ఎన్‌క్రిప్షన్ ప్రారంభించబడలేదు. ఈ సర్వర్‌కు కనెక్ట్ అవ్వడానికి \'SecureVNCPlugin ఎన్‌క్రిప్షన్ అవసరం\' ప్రారంభించండి.</string>
+    <string name="morpheusly_cta_title">ఎక్కడి నుండైనా మీ కంప్యూటర్‌లను చేరుకోండి</string>
+    <string name="morpheusly_cta_dismiss">ఇప్పుడు కాదు</string>
+    <string name="morpheusly_cta_body">జీరో నెట్‌వర్క్ కాన్ఫిగరేషన్‌తో ఇంటర్నెట్‌లో సురక్షిత రిమోట్-డెస్క్‌టాప్ యాక్సెస్.మీరు చేరుకోవాలనుకునే ప్రతి కంప్యూటర్‌లో Morpheusly డెస్క్‌టాప్ యాప్‌ను ఇన్‌స్టాల్ చేయండి, సైన్ ఇన్ చేయండి మరియు ఆన్‌లైన్‌లో ఉన్న వాటిని చూడండి మరియు Morpheusly మొబైల్ యాప్ నుండి సజావుగా కనెక్ట్ అవ్వండి.</string>
+    <string name="action_morpheusly">Morpheusly పొందండి</string>
+    <string name="morpheusly_cta_download">Morpheusly పొందండి</string>
 </resources>

@@ -804,4 +804,9 @@
     <string name="svnc_encryption_offered_title">سرور رمزنگاری ارائه می‌دهد</string>
     <string name="svnc_encryption_offered_message">سرور از رمزنگاری SecureVNCPlugin پشتیبانی می‌کند، اما شما آن را در تنظیمات اتصال خود فعال نکرده‌اید.\n\nاتصال بدون رمزنگاری به این معنی است که داده‌های جلسه شما (از جمله اعتبارنامه‌ها) به صورت متن ساده ارسال خواهند شد.\n\nبرای فعال کردن رمزنگاری، لغو کنید و \'الزام رمزنگاری SecureVNCPlugin\' را در تنظیمات اتصال فعال کنید.</string>
     <string name="error_securevncplugin_server_requires_encryption">سرور فقط انواع اتصال رمزنگاری‌شده (SecureVNCPlugin) ارائه می‌دهد، اما رمزنگاری در تنظیمات اتصال شما فعال نیست. برای اتصال به این سرور \'الزام رمزنگاری SecureVNCPlugin\' را فعال کنید.</string>
+    <string name="morpheusly_cta_title">از هر کجا به رایانه های خود دسترسی پیدا کنید</string>
+    <string name="morpheusly_cta_dismiss">الان نه</string>
+    <string name="action_morpheusly">دریافت Morpheusly</string>
+    <string name="morpheusly_cta_body">دسترسی ایمن به دسکتاپ از راه دور از طریق اینترنت با پیکربندی شبکه صفر.برنامه دسکتاپ Morpheusly را روی هر رایانه ای که می خواهید به آن دسترسی داشته باشید، نصب کنید، وارد شوید و ببینید کدام یک آنلاین هستند و به طور یکپارچه از برنامه تلفن همراه متصل شوید.</string>
+    <string name="morpheusly_cta_download">دریافت Morpheusly</string>
 </resources>

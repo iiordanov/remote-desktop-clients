@@ -769,4 +769,9 @@ ASPICE خصوصیات کی موجودہ فہرست میں شامل ہیں:
     <string name="svnc_encryption_offered_title">سرور خفیہ کاری پیش کرتا ہے</string>
     <string name="svnc_encryption_offered_message">سرور SecureVNCPlugin خفیہ کاری کی سہولت دیتا ہے، لیکن آپ نے اسے اپنی کنکشن سیٹنگز میں فعال نہیں کیا ہے۔\n\nخفیہ کاری کے بغیر منسلک ہونے کا مطلب ہے کہ آپ کے سیشن کا ڈیٹا (بشمول اسناد) سادہ متن میں بھیجا جائے گا۔\n\nخفیہ کاری فعال کرنے کے لیے، منسوخ کریں اور اپنی کنکشن سیٹنگز میں \'SecureVNCPlugin خفیہ کاری لازمی\' کو نشان زد کریں۔</string>
     <string name="error_securevncplugin_server_requires_encryption">سرور صرف خفیہ کردہ کنکشن اقسام (SecureVNCPlugin) پیش کرتا ہے، لیکن آپ کی کنکشن سیٹنگز میں خفیہ کاری فعال نہیں ہے۔ اس سرور سے منسلک ہونے کے لیے \'SecureVNCPlugin خفیہ کاری لازمی\' فعال کریں۔</string>
+    <string name="morpheusly_cta_title">کہیں سے بھی اپنے کمپیوٹر تک پہنچیں۔</string>
+    <string name="morpheusly_cta_dismiss">ابھی نہیں۔</string>
+    <string name="action_morpheusly">Morpheusly حاصل کریں۔</string>
+    <string name="morpheusly_cta_body">صفر نیٹ ورک کنفیگریشن کے ساتھ انٹرنیٹ پر ریموٹ ڈیسک ٹاپ تک رسائی کو محفوظ کریں۔ہر اس کمپیوٹر پر Morpheusly ڈیسک ٹاپ ایپ انسٹال کریں جس تک آپ پہنچنا چاہتے ہیں، سائن ان کریں، اور دیکھیں کہ کون سا آن لائن ہے اور Morpheusly موبائل ایپ سے بغیر کسی رکاوٹ کے جڑیں۔</string>
+    <string name="morpheusly_cta_download">Morpheusly حاصل کریں۔</string>
 </resources>

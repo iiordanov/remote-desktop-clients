@@ -804,4 +804,9 @@ Apl sudah pun dikecualikan daripada pengoptimuman bateri.</string>
     <string name="svnc_encryption_offered_title">Pelayan menawarkan penyulitan</string>
     <string name="svnc_encryption_offered_message">Pelayan menyokong penyulitan SecureVNCPlugin, tetapi anda tidak mengaktifkannya dalam tetapan sambungan anda.\n\nMenyambung tanpa penyulitan bermakna data sesi anda (termasuk kelayakan) akan dihantar dalam teks biasa.\n\nUntuk mengaktifkan penyulitan, batalkan dan tandakan \'Wajibkan penyulitan SecureVNCPlugin\' dalam tetapan sambungan anda.</string>
     <string name="error_securevncplugin_server_requires_encryption">Pelayan hanya menawarkan jenis sambungan yang disulitkan (SecureVNCPlugin), tetapi penyulitan tidak diaktifkan dalam tetapan sambungan anda. Aktifkan \'Wajibkan penyulitan SecureVNCPlugin\' untuk menyambung ke pelayan ini.</string>
+    <string name="morpheusly_cta_title">Jangkau komputer anda dari mana-mana sahaja</string>
+    <string name="morpheusly_cta_dismiss">bukan sekarang</string>
+    <string name="action_morpheusly">Dapatkan Morpheusly</string>
+    <string name="morpheusly_cta_body">Lindungi akses desktop jauh melalui Internet dengan konfigurasi rangkaian sifar.Pasang apl desktop Morpheusly pada setiap komputer yang anda ingin capai, log masuk dan lihat yang mana dalam talian dan sambung dengan lancar daripada apl mudah alih.</string>
+    <string name="morpheusly_cta_download">Dapatkan Morpheusly</string>
 </resources>

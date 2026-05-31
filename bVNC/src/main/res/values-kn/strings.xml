@@ -804,4 +804,9 @@ aSPICE ವೈಶಿಷ್ಟ್ಯಗಳ ಪ್ರಸ್ತುತ ಪಟ್ಟ�
     <string name="svnc_encryption_offered_title">ಸರ್ವರ್ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ನೀಡುತ್ತಿದೆ</string>
     <string name="svnc_encryption_offered_message">ಸರ್ವರ್ SecureVNCPlugin ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅನ್ನು ಬೆಂಬಲಿಸುತ್ತದೆ, ಆದರೆ ನಿಮ್ಮ ಸಂಪರ್ಕ ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ನೀವು ಅದನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿಲ್ಲ.\n\nಎನ್‌ಕ್ರಿಪ್ಶನ್ ಇಲ್ಲದೆ ಸಂಪರ್ಕಿಸುವುದರಿಂದ ನಿಮ್ಮ ಸೆಷನ್ ಡೇಟಾ (ರುಜುವಾತುಗಳು ಸೇರಿದಂತೆ) ಸ್ಪಷ್ಟ ಪಠ್ಯದಲ್ಲಿ ರವಾನಿಸಲಾಗುತ್ತದೆ.\n\nಎನ್‌ಕ್ರಿಪ್ಶನ್ ಸಕ್ರಿಯಗೊಳಿಸಲು, ರದ್ದುಮಾಡಿ ಮತ್ತು ನಿಮ್ಮ ಸಂಪರ್ಕ ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ \'SecureVNCPlugin ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಗತ್ಯ\' ಅನ್ನು ಪರಿಶೀಲಿಸಿ.</string>
     <string name="error_securevncplugin_server_requires_encryption">ಸರ್ವರ್ ಕೇವಲ ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡಲಾದ ಸಂಪರ್ಕ ಪ್ರಕಾರಗಳನ್ನು (SecureVNCPlugin) ಮಾತ್ರ ನೀಡುತ್ತದೆ, ಆದರೆ ನಿಮ್ಮ ಸಂಪರ್ಕ ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಸಕ್ರಿಯಗೊಂಡಿಲ್ಲ. ಈ ಸರ್ವರ್‌ಗೆ ಸಂಪರ್ಕಿಸಲು \'SecureVNCPlugin ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಗತ್ಯ\' ಸಕ್ರಿಯಗೊಳಿಸಿ.</string>
+    <string name="morpheusly_cta_title">ಎಲ್ಲಿಂದಲಾದರೂ ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್‌ಗಳನ್ನು ತಲುಪಿ</string>
+    <string name="morpheusly_cta_dismiss">ಈಗಲ್ಲ</string>
+    <string name="morpheusly_cta_body">ಶೂನ್ಯ ನೆಟ್‌ವರ್ಕ್ ಕಾನ್ಫಿಗರೇಶನ್‌ನೊಂದಿಗೆ ಇಂಟರ್ನೆಟ್‌ನಲ್ಲಿ ಸುರಕ್ಷಿತ ರಿಮೋಟ್-ಡೆಸ್ಕ್‌ಟಾಪ್ ಪ್ರವೇಶ.ನೀವು ತಲುಪಲು ಬಯಸುವ ಪ್ರತಿಯೊಂದು ಕಂಪ್ಯೂಟರ್‌ನಲ್ಲಿ Morpheusly ಡೆಸ್ಕ್‌ಟಾಪ್ ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಸ್ಥಾಪಿಸಿ, ಸೈನ್ ಇನ್ ಮಾಡಿ ಮತ್ತು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿರುವುದನ್ನು ನೋಡಿ ಮತ್ತು Morpheusly ಮೊಬೈಲ್ ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ ಮನಬಂದಂತೆ ಸಂಪರ್ಕಪಡಿಸಿ.</string>
+    <string name="action_morpheusly">Morpheusly ಪಡೆಯಿರಿ</string>
+    <string name="morpheusly_cta_download">Morpheusly ಪಡೆಯಿರಿ</string>
 </resources>

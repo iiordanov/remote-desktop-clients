@@ -893,4 +893,9 @@ connection ઉમેરો/edit ઉપર, connection configuration page.
     <string name="svnc_encryption_offered_title">સર્વર એન્ક્રિપ્શન ઓફર કરે છે</string>
     <string name="svnc_encryption_offered_message">સર્વર SecureVNCPlugin એન્ક્રિપ્શનને સપોર્ટ કરે છે, પરંતુ તમે તમારી કનેક્શન સેટિંગ્સમાં તે સક્ષમ કર્યું નથી.\n\nએન્ક્રિપ્શન વિના કનેક્ટ થવાનો અર્થ છે કે તમારો સત્ર ડેટા (ઓળખપત્રો સહિત) સ્પષ્ટ ટેક્સ્ટમાં ટ્રાન્સમિટ થશે.\n\nએન્ક્રિપ્શન સક્ષમ કરવા માટે, રદ કરો અને તમારી કનેક્શન સેટિંગ્સમાં \'SecureVNCPlugin એન્ક્રિપ્શન જરૂરી\' ચેક કરો.</string>
     <string name="error_securevncplugin_server_requires_encryption">સર્વર ફક્ત એન્ક્રિપ્ટેડ કનેક્શન પ્રકારો (SecureVNCPlugin) ઓફર કરે છે, પરંતુ તમારી કનેક્શન સેટિંગ્સમાં એન્ક્રિપ્શન સક્ષમ નથી. આ સર્વર સાથે કનેક્ટ થવા માટે \'SecureVNCPlugin એન્ક્રિપ્શન જરૂરી\' સક્ષમ કરો.</string>
+    <string name="morpheusly_cta_title">ગમે ત્યાંથી તમારા કમ્પ્યુટર્સ સુધી પહોંચો</string>
+    <string name="morpheusly_cta_dismiss">અત્યારે નહિ</string>
+    <string name="action_morpheusly">Morpheusly મેળવો</string>
+    <string name="morpheusly_cta_body">શૂન્ય નેટવર્ક ગોઠવણી સાથે ઇન્ટરનેટ પર રિમોટ-ડેસ્કટોપ ઍક્સેસ સુરક્ષિત કરો.તમે જે કમ્પ્યુટર સુધી પહોંચવા માંગો છો, સાઇન ઇન કરવા માંગો છો, અને કઈ ઓનલાઈન છે તે જુઓ અને Morpheusly મોબાઈલ એપથી એકીકૃત રીતે કનેક્ટ થવા માંગતા હો તે દરેક કમ્પ્યુટર પર Morpheusly ડેસ્કટૉપ એપ્લિકેશન ઇન્સ્ટોલ કરો.</string>
+    <string name="morpheusly_cta_download">Morpheusly મેળવો</string>
 </resources>

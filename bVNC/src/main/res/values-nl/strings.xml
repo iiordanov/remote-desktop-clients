@@ -902,4 +902,9 @@ App is al vrijgesteld van batterij-optimalisaties.</string>
     <string name="svnc_encryption_offered_title">Server biedt versleuteling aan</string>
     <string name="svnc_encryption_offered_message">De server ondersteunt SecureVNCPlugin-versleuteling, maar u hebt deze niet ingeschakeld in uw verbindingsinstellingen.\n\nVerbinden zonder versleuteling betekent dat uw sessiegegevens (inclusief inloggegevens) in platte tekst worden verzonden.\n\nOm versleuteling in te schakelen, annuleer en vink \'SecureVNCPlugin-versleuteling vereisen\' aan in uw verbindingsinstellingen.</string>
     <string name="error_securevncplugin_server_requires_encryption">De server biedt alleen versleutelde verbindingstypen (SecureVNCPlugin) aan, maar versleuteling is niet ingeschakeld in uw verbindingsinstellingen. Schakel \'SecureVNCPlugin-versleuteling vereisen\' in om verbinding te maken met deze server.</string>
+    <string name="morpheusly_cta_title">Bereik uw computers waar u ook bent</string>
+    <string name="morpheusly_cta_dismiss">Niet nu</string>
+    <string name="action_morpheusly">Verkrijg Morpheusly</string>
+    <string name="morpheusly_cta_body">Veilige externe desktoptoegang via internet zonder netwerkconfiguratie.Installeer de Morpheusly desktop-app op elke computer die u wilt bereiken, meld u aan en kijk welke online zijn en maak naadloos verbinding via de Morpheusly mobiele app.</string>
+    <string name="morpheusly_cta_download">Verkrijg Morpheusly</string>
 </resources>

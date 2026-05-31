@@ -53,6 +53,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -67,6 +68,7 @@ import com.iiordanov.bVNC.dialogs.DiscoveryBottomSheet;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
+import com.iiordanov.bVNC.dialogs.MorpheuslyBottomSheet;
 import com.iiordanov.bVNC.dialogs.NetworkDiscovery;
 import com.iiordanov.bVNC.dialogs.RateOrShareFragment;
 import com.iiordanov.permissions.BatteryOptimizationDisabler;
@@ -508,12 +510,22 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         }
     }
 
+    public void openMorpheusly(MenuItem menuItem) {
+        MorpheuslyBottomSheet.newInstance().show(getSupportFragmentManager(), "morpheusly");
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.grid_view_activity_actions, menu);
         MenuItem actionMasterPassword = menu.findItem(R.id.actionMasterPassword);
         actionMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
+        // The Morpheusly icon is multicolour; suppress AppCompat's default
+        // textColorPrimary tint so the brand blue/light-blue palette is preserved.
+        MenuItem morpheusly = menu.findItem(R.id.actionMorpheusly);
+        if (morpheusly != null) {
+            MenuItemCompat.setIconTintList(morpheusly, null);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 

@@ -976,4 +976,9 @@ Aplikacija je već izuzeta od optimizacije baterije.</string>
     <string name="svnc_encryption_offered_title">Poslužitelj nudi šifriranje</string>
     <string name="svnc_encryption_offered_message">Poslužitelj podržava SecureVNCPlugin šifriranje, ali ga niste omogućili u postavkama veze.\n\nPovezivanje bez šifriranja znači da će vaši podaci sesije (uključujući vjerodajnice) biti preneseni u čistom tekstu.\n\nZa omogućavanje šifriranja, otkažite i označite \'Zahtijevaj SecureVNCPlugin šifriranje\' u postavkama veze.</string>
     <string name="error_securevncplugin_server_requires_encryption">Poslužitelj nudi samo šifrirane vrste povezivanja (SecureVNCPlugin), ali šifriranje nije omogućeno u vašim postavkama veze. Omogućite \'Zahtijevaj SecureVNCPlugin šifriranje\' za povezivanje s ovim poslužiteljem.</string>
+    <string name="morpheusly_cta_title">Dohvatite svoja računala s bilo kojeg mjesta</string>
+    <string name="morpheusly_cta_dismiss">Ne sada</string>
+    <string name="action_morpheusly">Dobiti Morpheusly</string>
+    <string name="morpheusly_cta_body">Osigurajte pristup udaljenoj radnoj površini putem interneta bez konfiguracije mreže.Instalirajte Morpheusly aplikaciju za stolna računala na svako računalo do kojeg želite doći, prijavite se i pogledajte koja su online te se neprimjetno povežite iz Morpheusly mobilne aplikacije.</string>
+    <string name="morpheusly_cta_download">Dobiti Morpheusly</string>
 </resources>

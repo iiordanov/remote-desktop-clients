@@ -769,4 +769,9 @@
     <string name="svnc_encryption_offered_title">השרת מציע הצפנה</string>
     <string name="svnc_encryption_offered_message">השרת תומך בהצפנת SecureVNCPlugin, אך לא הפעלת אותה בהגדרות החיבור שלך.\n\nהתחברות ללא הצפנה פירושה שנתוני ההפעלה שלך (כולל אישורים) ישודרו בטקסט גלוי.\n\nכדי להפעיל הצפנה, בטל וסמן \'דרוש הצפנת SecureVNCPlugin\' בהגדרות החיבור.</string>
     <string name="error_securevncplugin_server_requires_encryption">השרת מציע רק סוגי חיבור מוצפנים (SecureVNCPlugin), אך ההצפנה אינה מופעלת בהגדרות החיבור שלך. הפעל \'דרוש הצפנת SecureVNCPlugin\' כדי להתחבר לשרת זה.</string>
+    <string name="morpheusly_cta_title">הגע למחשבים שלך מכל מקום</string>
+    <string name="morpheusly_cta_dismiss">לא עכשיו</string>
+    <string name="action_morpheusly">קבל Morpheusly</string>
+    <string name="morpheusly_cta_body">גישה מאובטחת לשולחן עבודה מרחוק דרך האינטרנט עם אפס תצורת רשת.התקן את אפליקציית Morpheusly שולחן העבודה בכל מחשב שאליו ברצונך להגיע, היכנס וראה אילו מהם מקוונים והתחבר בצורה חלקה מהאפליקציה Morpheusly לנייד.</string>
+    <string name="morpheusly_cta_download">קבל Morpheusly</string>
 </resources>

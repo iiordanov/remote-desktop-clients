@@ -976,4 +976,9 @@ Aplikasi sudah dikecualikan dari pengoptimalan baterai.</string>
     <string name="svnc_encryption_offered_title">Server menawarkan enkripsi</string>
     <string name="svnc_encryption_offered_message">Server mendukung enkripsi SecureVNCPlugin, tetapi Anda belum mengaktifkannya di pengaturan koneksi.\n\nMenghubungkan tanpa enkripsi berarti data sesi Anda (termasuk kredensial) akan dikirimkan dalam teks biasa.\n\nUntuk mengaktifkan enkripsi, batalkan dan centang \'Wajibkan enkripsi SecureVNCPlugin\' di pengaturan koneksi Anda.</string>
     <string name="error_securevncplugin_server_requires_encryption">Server hanya menawarkan jenis koneksi terenkripsi (SecureVNCPlugin), tetapi enkripsi tidak diaktifkan di pengaturan koneksi Anda. Aktifkan \'Wajibkan enkripsi SecureVNCPlugin\' untuk terhubung ke server ini.</string>
+    <string name="morpheusly_cta_title">Jangkau komputer Anda dari mana saja</string>
+    <string name="morpheusly_cta_dismiss">Tidak sekarang</string>
+    <string name="action_morpheusly">Dapatkan Morpheusly</string>
+    <string name="morpheusly_cta_download">Dapatkan Morpheusly</string>
+    <string name="morpheusly_cta_body">Akses desktop jarak jauh yang aman melalui Internet tanpa konfigurasi jaringan. Pasang aplikasi desktop Morpheusly di setiap komputer yang ingin Anda jangkau, masuk, dan lihat mana yang online lalu sambungkan dengan mulus dari aplikasi seluler Morpheusly.</string>
 </resources>

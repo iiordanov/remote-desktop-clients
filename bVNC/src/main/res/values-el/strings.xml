@@ -901,4 +901,9 @@
     <string name="svnc_encryption_offered_title">Ο διακομιστής προσφέρει κρυπτογράφηση</string>
     <string name="svnc_encryption_offered_message">Ο διακομιστής υποστηρίζει κρυπτογράφηση SecureVNCPlugin, αλλά δεν την έχετε ενεργοποιήσει στις ρυθμίσεις σύνδεσής σας.\n\nΗ σύνδεση χωρίς κρυπτογράφηση σημαίνει ότι τα δεδομένα της συνεδρίας σας (συμπεριλαμβανομένων των διαπιστευτηρίων) θα μεταδοθούν σε απλό κείμενο.\n\nΓια να ενεργοποιήσετε την κρυπτογράφηση, ακυρώστε και επιλέξτε \'Απαίτηση κρυπτογράφησης SecureVNCPlugin\' στις ρυθμίσεις σύνδεσης.</string>
     <string name="error_securevncplugin_server_requires_encryption">Ο διακομιστής προσφέρει μόνο κρυπτογραφημένους τύπους σύνδεσης (SecureVNCPlugin), αλλά η κρυπτογράφηση δεν είναι ενεργοποιημένη στις ρυθμίσεις σύνδεσής σας. Ενεργοποιήστε \'Απαίτηση κρυπτογράφησης SecureVNCPlugin\' για σύνδεση σε αυτόν τον διακομιστή.</string>
+    <string name="morpheusly_cta_title">Προσεγγίστε τους υπολογιστές σας από οπουδήποτε</string>
+    <string name="morpheusly_cta_dismiss">Όχι τώρα</string>
+    <string name="action_morpheusly">Αποκτήστε Morpheusly</string>
+    <string name="morpheusly_cta_body">Ασφαλής πρόσβαση απομακρυσμένης επιφάνειας εργασίας μέσω Διαδικτύου με μηδενική διαμόρφωση δικτύου.Εγκαταστήστε την εφαρμογή Morpheusly για επιτραπέζιους υπολογιστές σε κάθε υπολογιστή που θέλετε να προσεγγίσετε, συνδεθείτε και δείτε ποιοι είναι online και συνδεθείτε απρόσκοπτα από την εφαρμογή Morpheusly για κινητά.</string>
+    <string name="morpheusly_cta_download">Αποκτήστε Morpheusly</string>
 </resources>

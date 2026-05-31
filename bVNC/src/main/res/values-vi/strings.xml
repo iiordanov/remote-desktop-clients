@@ -804,4 +804,9 @@ Không thể mở cài đặt tối ưu hóa pin. Tắt tối ưu hóa pin theo 
     <string name="svnc_encryption_offered_title">Máy chủ cung cấp mã hóa</string>
     <string name="svnc_encryption_offered_message">Máy chủ hỗ trợ mã hóa SecureVNCPlugin, nhưng bạn chưa bật tính năng này trong cài đặt kết nối.\n\nKết nối không mã hóa nghĩa là dữ liệu phiên của bạn (bao gồm thông tin đăng nhập) sẽ được truyền dưới dạng văn bản thuần.\n\nĐể bật mã hóa, hãy hủy và đánh dấu \'Yêu cầu mã hóa SecureVNCPlugin\' trong cài đặt kết nối.</string>
     <string name="error_securevncplugin_server_requires_encryption">Máy chủ chỉ cung cấp các loại kết nối được mã hóa (SecureVNCPlugin), nhưng mã hóa chưa được bật trong cài đặt kết nối của bạn. Bật \'Yêu cầu mã hóa SecureVNCPlugin\' để kết nối đến máy chủ này.</string>
+    <string name="morpheusly_cta_title">Tiếp cận máy tính của bạn từ mọi nơi</string>
+    <string name="morpheusly_cta_dismiss">Không phải bây giờ</string>
+    <string name="action_morpheusly">Nhận Morpheusly</string>
+    <string name="morpheusly_cta_body">Bảo mật quyền truy cập máy tính từ xa qua Internet với cấu hình mạng bằng không.Cài đặt ứng dụng Morpheusly dành cho máy tính để bàn trên mọi máy tính mà bạn muốn tiếp cận, đăng nhập và xem máy tính nào đang trực tuyến và kết nối liền mạch từ ứng dụng Morpheusly dành cho thiết bị di động.</string>
+    <string name="morpheusly_cta_download">Nhận Morpheusly</string>
 </resources>

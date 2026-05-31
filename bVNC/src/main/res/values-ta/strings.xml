@@ -804,4 +804,9 @@ aSPICE அம்சங்களின் தற்போதைய பட்ட�
     <string name="svnc_encryption_offered_title">சேவையகம் மறையாக்கத்தை வழங்குகிறது</string>
     <string name="svnc_encryption_offered_message">சேவையகம் SecureVNCPlugin மறையாக்கத்தை ஆதரிக்கிறது, ஆனால் உங்கள் இணைப்பு அமைப்புகளில் இது இயக்கப்படவில்லை.\n\nமறையாக்கம் இல்லாமல் இணைவது என்றால் உங்கள் அமர்வு தரவு (நற்சான்றிதழ்கள் உட்பட) வெளிப்படையான உரையில் அனுப்பப்படும்.\n\nமறையாக்கத்தை இயக்க, ரத்துசெய்து உங்கள் இணைப்பு அமைப்புகளில் \'SecureVNCPlugin மறையாக்கம் தேவை\' என்பதைத் தேர்வு செய்யவும்.</string>
     <string name="error_securevncplugin_server_requires_encryption">சேவையகம் மறையாக்கப்பட்ட இணைப்பு வகைகளை (SecureVNCPlugin) மட்டுமே வழங்குகிறது, ஆனால் உங்கள் இணைப்பு அமைப்புகளில் மறையாக்கம் இயக்கப்படவில்லை. இந்த சேவையகத்துடன் இணைக்க \'SecureVNCPlugin மறையாக்கம் தேவை\' என்பதை இயக்கவும்.</string>
+    <string name="morpheusly_cta_title">எங்கிருந்தும் உங்கள் கணினிகளை அணுகவும்</string>
+    <string name="morpheusly_cta_dismiss">இப்போது இல்லை</string>
+    <string name="morpheusly_cta_body">பூஜ்ஜிய நெட்வொர்க் உள்ளமைவுடன் இணையத்தில் பாதுகாப்பான ரிமோட்-டெஸ்க்டாப் அணுகல்.நீங்கள் அணுக விரும்பும் ஒவ்வொரு கணினியிலும் Morpheusly டெஸ்க்டாப் பயன்பாட்டை நிறுவவும், உள்நுழையவும் மற்றும் ஆன்லைனில் உள்ளவைகளைப் பார்க்கவும் மற்றும் Morpheusly மொபைல் பயன்பாட்டிலிருந்து தடையின்றி இணைக்கவும்.</string>
+    <string name="action_morpheusly">Morpheusly பெறுக</string>
+    <string name="morpheusly_cta_download">Morpheusly பெறுக</string>
 </resources>

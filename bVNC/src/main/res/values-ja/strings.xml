@@ -916,4 +916,9 @@ aSPICEで対応済み機能は以下の通り：
     <string name="svnc_encryption_offered_title">サーバーが暗号化を提供しています</string>
     <string name="svnc_encryption_offered_message">サーバーは SecureVNCPlugin 暗号化をサポートしていますが、接続設定で有効になっていません。\n\n暗号化なしで接続すると、セッションデータ（認証情報を含む）が平文で送信されます。\n\n暗号化を有効にするには、キャンセルして接続設定で「SecureVNCPlugin 暗号化を必須にする」にチェックを入れてください。</string>
     <string name="error_securevncplugin_server_requires_encryption">サーバーは暗号化された接続タイプ (SecureVNCPlugin) のみを提供していますが、接続設定で暗号化が有効になっていません。このサーバーに接続するには「SecureVNCPlugin 暗号化を必須にする」を有効にしてください。</string>
+    <string name="morpheusly_cta_title">どこからでもコンピュータにアクセス</string>
+    <string name="morpheusly_cta_dismiss">今じゃない</string>
+    <string name="action_morpheusly">Morpheuslyを取得</string>
+    <string name="morpheusly_cta_body">ネットワーク構成を必要とせずに、インターネット経由で安全なリモート デスクトップ アクセスを実現します。アクセスしたいすべてのコンピュータに Morpheusly デスクトップ アプリをインストールし、サインインして、どのコンピュータがオンラインであるかを確認し、Morpheusly モバイル アプリからシームレスに接続します。</string>
+    <string name="morpheusly_cta_download">Morpheuslyを取得</string>
 </resources>

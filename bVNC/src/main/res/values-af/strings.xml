@@ -977,4 +977,9 @@ Die toepassing is reeds vrygestel van batteryoptimalisering.</string>
     <string name="svnc_encryption_offered_title">Bediener bied enkripsie aan</string>
     <string name="svnc_encryption_offered_message">Die bediener ondersteun SecureVNCPlugin-enkripsie, maar jy het dit nie in jou verbindingsinstellings geaktiveer nie.\n\nOm sonder enkripsie te verbind, beteken jou sessiedata (insluitend aanmeldbesonderhede) sal in duidelike teks versend word.\n\nOm enkripsie te aktiveer, kanselleer en merk \'Vereis SecureVNCPlugin-enkripsie\' in jou verbindingsinstellings.</string>
     <string name="error_securevncplugin_server_requires_encryption">Die bediener bied slegs geënkripteerde verbindingstipes (SecureVNCPlugin) aan, maar enkripsie is nie in jou verbindingsinstellings geaktiveer nie. Aktiveer \'Vereis SecureVNCPlugin-enkripsie\' om met hierdie bediener te verbind.</string>
+    <string name="morpheusly_cta_title">Bereik jou rekenaars van enige plek af</string>
+    <string name="morpheusly_cta_dismiss">Nie nou nie</string>
+    <string name="action_morpheusly">Kry Morpheusly</string>
+    <string name="morpheusly_cta_body">Veilige afgeleë rekenaartoegang oor die internet met geen netwerkkonfigurasie nie.Installeer die Morpheusly rekenaartoepassing op elke rekenaar wat jy wil bereik, meld aan en kyk watter aanlyn is en koppel naatloos vanaf die Morpheusly mobiele toepassing.</string>
+    <string name="morpheusly_cta_download">Kry Morpheusly</string>
 </resources>

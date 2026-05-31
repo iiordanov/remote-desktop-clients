@@ -804,4 +804,9 @@
     <string name="svnc_encryption_offered_title">เซิร์ฟเวอร์เสนอการเข้ารหัส</string>
     <string name="svnc_encryption_offered_message">เซิร์ฟเวอร์รองรับการเข้ารหัส SecureVNCPlugin แต่คุณไม่ได้เปิดใช้งานในการตั้งค่าการเชื่อมต่อ\n\nการเชื่อมต่อโดยไม่มีการเข้ารหัสหมายความว่าข้อมูลเซสชันของคุณ (รวมถึงข้อมูลรับรอง) จะถูกส่งเป็นข้อความธรรมดา\n\nเพื่อเปิดใช้งานการเข้ารหัส ให้ยกเลิกและเลือก \'ต้องการการเข้ารหัส SecureVNCPlugin\' ในการตั้งค่าการเชื่อมต่อ</string>
     <string name="error_securevncplugin_server_requires_encryption">เซิร์ฟเวอร์เสนอเฉพาะประเภทการเชื่อมต่อที่เข้ารหัส (SecureVNCPlugin) แต่การเข้ารหัสไม่ได้เปิดใช้งานในการตั้งค่าการเชื่อมต่อของคุณ เปิดใช้งาน \'ต้องการการเข้ารหัส SecureVNCPlugin\' เพื่อเชื่อมต่อกับเซิร์ฟเวอร์นี้</string>
+    <string name="morpheusly_cta_title">เข้าถึงคอมพิวเตอร์ของคุณได้จากทุกที่</string>
+    <string name="morpheusly_cta_dismiss">ไม่ใช่ตอนนี้</string>
+    <string name="action_morpheusly">รับ Morpheusly</string>
+    <string name="morpheusly_cta_download">รับ Morpheusly</string>
+    <string name="morpheusly_cta_body">การเข้าถึงเดสก์ท็อประยะไกลที่ปลอดภัยผ่านอินเทอร์เน็ตโดยไม่ต้องตั้งค่าเครือข่าย ติดตั้งแอป Morpheusly บนคอมพิวเตอร์ทุกเครื่องที่คุณต้องการเข้าถึง ลงชื่อเข้าใช้ และดูว่าเครื่องไหนออนไลน์อยู่ จากนั้นเชื่อมต่อได้อย่างราบรื่นจากแอป Morpheusly บนมือถือ</string>
 </resources>

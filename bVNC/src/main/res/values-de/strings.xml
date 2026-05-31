@@ -974,4 +974,9 @@ App ist bereits von Batterieoptimierungen ausgenommen.</string>
     <string name="svnc_encryption_offered_title">Server bietet Verschlüsselung an</string>
     <string name="svnc_encryption_offered_message">Der Server unterstützt SecureVNCPlugin-Verschlüsselung, aber Sie haben sie in Ihren Verbindungseinstellungen nicht aktiviert.\n\nEine Verbindung ohne Verschlüsselung bedeutet, dass Ihre Sitzungsdaten (einschließlich Anmeldedaten) im Klartext übertragen werden.\n\nUm die Verschlüsselung zu aktivieren, brechen Sie ab und aktivieren Sie \'SecureVNCPlugin-Verschlüsselung erfordern\' in Ihren Verbindungseinstellungen.</string>
     <string name="error_securevncplugin_server_requires_encryption">Der Server bietet nur verschlüsselte Verbindungstypen (SecureVNCPlugin) an, aber die Verschlüsselung ist in Ihren Verbindungseinstellungen nicht aktiviert. Aktivieren Sie \'SecureVNCPlugin-Verschlüsselung erfordern\', um eine Verbindung zu diesem Server herzustellen.</string>
+    <string name="morpheusly_cta_title">Erreichen Sie Ihre Computer von überall</string>
+    <string name="morpheusly_cta_dismiss">Nicht jetzt</string>
+    <string name="action_morpheusly">Holen Sie sich Morpheusly</string>
+    <string name="morpheusly_cta_body">Sicherer Remote-Desktop-Zugriff über das Internet ohne Netzwerkkonfiguration.Installieren Sie die Morpheusly-Desktop-App auf jedem Computer, den Sie erreichen möchten, melden Sie sich an, sehen Sie, welche online sind, und stellen Sie über die Morpheusly-Mobil-App eine nahtlose Verbindung her.</string>
+    <string name="morpheusly_cta_download">Holen Sie sich Morpheusly</string>
 </resources>

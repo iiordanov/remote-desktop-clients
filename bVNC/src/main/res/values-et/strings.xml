@@ -976,4 +976,9 @@ Rakendus on aku optimeerimisest juba vabastatud.</string>
     <string name="svnc_encryption_offered_title">Server pakub krüpteerimist</string>
     <string name="svnc_encryption_offered_message">Server toetab SecureVNCPlugin krüpteerimist, kuid see pole teie ühenduse seadetes lubatud.\n\nIlma krüpteerimiseta ühendumine tähendab, et teie seansi andmed (sh volitused) edastatakse avatekstina.\n\nKrüpteerimise lubamiseks tühistage ja märkige \'Nõua SecureVNCPlugin krüpteerimist\' ühenduse seadetes.</string>
     <string name="error_securevncplugin_server_requires_encryption">Server pakub ainult krüpteeritud ühenduse tüüpe (SecureVNCPlugin), kuid krüpteerimine pole teie ühenduse seadetes lubatud. Lubage \'Nõua SecureVNCPlugin krüpteerimist\', et selle serveriga ühenduda.</string>
+    <string name="morpheusly_cta_title">Jõua oma arvutiteni kõikjalt</string>
+    <string name="morpheusly_cta_dismiss">Mitte praegu</string>
+    <string name="action_morpheusly">Hankige Morpheusly</string>
+    <string name="morpheusly_cta_body">Turvaline kaugtöölaua juurdepääs Interneti kaudu ilma võrgukonfiguratsioonita.Installige töölauarakendus Morpheusly igasse arvutisse, kuhu soovite jõuda, logige sisse ja vaadake, millised arvutid on võrgus, ja ühendage Morpheusly mobiilirakenduse kaudu sujuvalt.</string>
+    <string name="morpheusly_cta_download">Hankige Morpheusly</string>
 </resources>

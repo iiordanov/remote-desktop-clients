@@ -974,4 +974,9 @@ L\'aplicació ja està exempta d\'optimitzacions de bateria.</string>
     <string name="svnc_encryption_offered_title">El servidor ofereix xifratge</string>
     <string name="svnc_encryption_offered_message">El servidor admet xifratge SecureVNCPlugin, però no l\'heu activat a la configuració de connexió.\n\nConnectar-se sense xifratge vol dir que les dades de la sessió (incloses les credencials) es transmetran en text clar.\n\nPer activar el xifratge, cancel·leu i marqueu \'Requereix xifratge SecureVNCPlugin\' a la configuració de connexió.</string>
     <string name="error_securevncplugin_server_requires_encryption">El servidor només ofereix tipus de connexió xifrats (SecureVNCPlugin), però el xifratge no està activat a la configuració de connexió. Activeu \'Requereix xifratge SecureVNCPlugin\' per connectar-vos a aquest servidor.</string>
+    <string name="morpheusly_cta_title">Arribeu als vostres ordinadors des de qualsevol lloc</string>
+    <string name="morpheusly_cta_dismiss">Ara no</string>
+    <string name="action_morpheusly">Aconsegueix Morpheusly</string>
+    <string name="morpheusly_cta_body">Accés segur a l\'escriptori remot a través d\'Internet sense configuració de xarxa.Instal·leu l\'aplicació d\'escriptori Morpheusly a tots els ordinadors als quals vulgueu accedir, inicieu la sessió i vegeu quins són en línia i connecteu-vos perfectament des de l\'aplicació mòbil Morpheusly.</string>
+    <string name="morpheusly_cta_download">Aconsegueix Morpheusly</string>
 </resources>

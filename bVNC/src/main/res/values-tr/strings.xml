@@ -1240,4 +1240,9 @@ Uygulama zaten pil optimizasyonlarından muaf.</string>
     <string name="svnc_encryption_offered_title">Sunucu şifreleme sunuyor</string>
     <string name="svnc_encryption_offered_message">Sunucu SecureVNCPlugin şifrelemesini destekliyor, ancak bağlantı ayarlarınızda etkinleştirmediniz.\n\nŞifreleme olmadan bağlanmak, oturum verilerinizin (kimlik bilgileri dahil) düz metin olarak iletileceği anlamına gelir.\n\nŞifrelemeyi etkinleştirmek için iptal edin ve bağlantı ayarlarınızda \'SecureVNCPlugin şifrelemesi gerektir\' seçeneğini işaretleyin.</string>
     <string name="error_securevncplugin_server_requires_encryption">Sunucu yalnızca şifreli bağlantı türleri (SecureVNCPlugin) sunuyor, ancak bağlantı ayarlarınızda şifreleme etkin değil. Bu sunucuya bağlanmak için \'SecureVNCPlugin şifrelemesi gerektir\' seçeneğini etkinleştirin.</string>
+    <string name="morpheusly_cta_title">Bilgisayarlarınıza her yerden ulaşın</string>
+    <string name="morpheusly_cta_dismiss">Şimdi değil</string>
+    <string name="action_morpheusly">Morpheusly alın</string>
+    <string name="morpheusly_cta_body">Sıfır ağ yapılandırmasıyla İnternet üzerinden güvenli uzak masaüstü erişimi.Ulaşmak istediğiniz her bilgisayara Morpheusly masaüstü uygulamasını yükleyin, oturum açın ve hangilerinin çevrimiçi olduğunu görün ve Morpheusly mobil uygulamasından sorunsuz bir şekilde bağlanın.</string>
+    <string name="morpheusly_cta_download">Morpheusly alın</string>
 </resources>

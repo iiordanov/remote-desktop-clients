@@ -804,4 +804,9 @@ ASPICE বৈশিষ্ট্যগুলির বর্তমান তা�
     <string name="svnc_encryption_offered_title">সার্ভার এনক্রিপশন প্রদান করে</string>
     <string name="svnc_encryption_offered_message">সার্ভার SecureVNCPlugin এনক্রিপশন সমর্থন করে, কিন্তু আপনি এটি আপনার সংযোগ সেটিংসে সক্রিয় করেননি।\n\nএনক্রিপশন ছাড়া সংযোগ করলে আপনার সেশন ডেটা (শংসাপত্র সহ) সরল পাঠ্যে প্রেরিত হবে।\n\nএনক্রিপশন সক্রিয় করতে, বাতিল করুন এবং আপনার সংযোগ সেটিংসে \'SecureVNCPlugin এনক্রিপশন প্রয়োজন\' চেক করুন।</string>
     <string name="error_securevncplugin_server_requires_encryption">সার্ভার শুধুমাত্র এনক্রিপ্ট করা সংযোগ প্রকার (SecureVNCPlugin) অফার করে, কিন্তু আপনার সংযোগ সেটিংসে এনক্রিপশন সক্রিয় নেই। এই সার্ভারে সংযোগ করতে \'SecureVNCPlugin এনক্রিপশন প্রয়োজন\' সক্রিয় করুন।</string>
+    <string name="morpheusly_cta_title">যেকোনো জায়গা থেকে আপনার কম্পিউটারে পৌঁছান</string>
+    <string name="morpheusly_cta_dismiss">এখন না</string>
+    <string name="action_morpheusly">পান Morpheusly</string>
+    <string name="morpheusly_cta_body">শূন্য নেটওয়ার্ক কনফিগারেশন সহ ইন্টারনেটে দূরবর্তী-ডেস্কটপ অ্যাক্সেস সুরক্ষিত করুন।আপনি যে কম্পিউটারে পৌঁছাতে চান, সাইন ইন করতে চান এবং কোনটি অনলাইনে তা দেখতে চান প্রতিটি কম্পিউটারে Morpheusly ডেস্কটপ অ্যাপটি ইনস্টল করুন এবং Morpheusly মোবাইল অ্যাপ থেকে নির্বিঘ্নে সংযোগ করুন।</string>
+    <string name="morpheusly_cta_download">পান Morpheusly</string>
 </resources>

@@ -960,4 +960,9 @@ La aplicación ya está exenta de optimizaciones de batería.</string>
     <string name="svnc_encryption_offered_title">El servidor ofrece cifrado</string>
     <string name="svnc_encryption_offered_message">El servidor admite cifrado SecureVNCPlugin, pero no lo tiene habilitado en su configuración de conexión.\n\nConectarse sin cifrado significa que los datos de su sesión (incluidas las credenciales) se transmitirán en texto claro.\n\nPara habilitar el cifrado, cancele y marque \'Requerir cifrado SecureVNCPlugin\' en su configuración de conexión.</string>
     <string name="error_securevncplugin_server_requires_encryption">El servidor solo ofrece tipos de conexión cifrados (SecureVNCPlugin), pero el cifrado no está habilitado en su configuración de conexión. Habilite \'Requerir cifrado SecureVNCPlugin\' para conectarse a este servidor.</string>
+    <string name="morpheusly_cta_title">Llegue a sus computadoras desde cualquier lugar</string>
+    <string name="morpheusly_cta_dismiss">Ahora no</string>
+    <string name="action_morpheusly">Obtener Morpheusly</string>
+    <string name="morpheusly_cta_body">Acceso seguro a escritorio remoto a través de Internet sin configuración de red.Instale la aplicación de escritorio Morpheusly en cada computadora a la que desee acceder, inicie sesión y vea cuáles están en línea y conéctese sin problemas desde la aplicación móvil Morpheusly.</string>
+    <string name="morpheusly_cta_download">Obtener Morpheusly</string>
 </resources>

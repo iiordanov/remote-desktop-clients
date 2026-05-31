@@ -899,4 +899,9 @@ Appen er allerede unntatt fra batterioptimalisering.</string>
     <string name="svnc_encryption_offered_title">Serveren tilbyr kryptering</string>
     <string name="svnc_encryption_offered_message">Serveren støtter SecureVNCPlugin-kryptering, men du har ikke aktivert det i tilkoblingsinnstillingene.\n\nÅ koble til uten kryptering betyr at øktdataene dine (inkludert legitimasjon) vil overføres i klartekst.\n\nFor å aktivere kryptering, avbryt og merk av \'Krev SecureVNCPlugin-kryptering\' i tilkoblingsinnstillingene.</string>
     <string name="error_securevncplugin_server_requires_encryption">Serveren tilbyr kun krypterte tilkoblingstyper (SecureVNCPlugin), men kryptering er ikke aktivert i tilkoblingsinnstillingene. Aktiver \'Krev SecureVNCPlugin-kryptering\' for å koble til denne serveren.</string>
+    <string name="morpheusly_cta_title">Nå datamaskinene dine fra hvor som helst</string>
+    <string name="morpheusly_cta_dismiss">Ikke nå</string>
+    <string name="action_morpheusly">Få Morpheusly</string>
+    <string name="morpheusly_cta_body">Sikker ekstern stasjonær tilgang over Internett uten nettverkskonfigurasjon.Installer Morpheusly skrivebordsappen på hver datamaskin du ønsker å nå, logg på og se hvilke som er online og koble til sømløst fra Morpheusly mobilappen.</string>
+    <string name="morpheusly_cta_download">Få Morpheusly</string>
 </resources>

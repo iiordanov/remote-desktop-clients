@@ -976,4 +976,9 @@ Mae ap eisoes wedi\'i eithrio rhag optimeiddio batri.</string>
     <string name="svnc_encryption_offered_title">Mae\'r gweinydd yn cynnig amgryptio</string>
     <string name="svnc_encryption_offered_message">Mae\'r gweinydd yn cefnogi amgryptio SecureVNCPlugin, ond nid ydych wedi\'i alluogi yn eich gosodiadau cysylltiad.\n\nMae cysylltu heb amgryptio yn golygu y bydd data eich sesiwn (gan gynnwys manylion mewngofnodi) yn cael ei drosglwyddo\'n glir.\n\nI alluogi amgryptio, canslwch a thiciwch \'Gofyn am amgryptio SecureVNCPlugin\' yn eich gosodiadau cysylltiad.</string>
     <string name="error_securevncplugin_server_requires_encryption">Dim ond mathau o gysylltiad wedi\'u hamgryptio (SecureVNCPlugin) mae\'r gweinydd yn eu cynnig, ond nid yw amgryptio wedi\'i alluogi yn eich gosodiadau cysylltiad. Galluogwch \'Gofyn am amgryptio SecureVNCPlugin\' i gysylltu â\'r gweinydd hwn.</string>
+    <string name="morpheusly_cta_title">Cyrraedd eich cyfrifiaduron o unrhyw le</string>
+    <string name="morpheusly_cta_dismiss">Ddim nawr</string>
+    <string name="action_morpheusly">Cael Morpheusly</string>
+    <string name="morpheusly_cta_body">Sicrhau mynediad penbwrdd o bell dros y Rhyngrwyd gyda dim cyfluniad rhwydwaith.Gosodwch yr ap bwrdd gwaith Morpheusly ar bob cyfrifiadur rydych am ei gyrraedd, mewngofnodwch, a gweld pa rai sydd ar-lein ac yn cysylltu\'n ddi-dor o\'r ap symudol Morpheusly.</string>
+    <string name="morpheusly_cta_download">Cael Morpheusly</string>
 </resources>

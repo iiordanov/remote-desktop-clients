@@ -804,4 +804,9 @@ aSPICE वैशिष्ट्यांच्या वर्तमान स�
     <string name="svnc_encryption_offered_title">सर्व्हर एन्क्रिप्शन ऑफर करतो</string>
     <string name="svnc_encryption_offered_message">सर्व्हर SecureVNCPlugin एन्क्रिप्शनला समर्थन देतो, परंतु तुम्ही ते तुमच्या कनेक्शन सेटिंग्जमध्ये सक्षम केलेले नाही.\n\nएन्क्रिप्शनशिवाय कनेक्ट केल्यास तुमचा सत्र डेटा (ओळखपत्रांसह) स्पष्ट मजकुरात प्रसारित होईल.\n\nएन्क्रिप्शन सक्षम करण्यासाठी, रद्द करा आणि तुमच्या कनेक्शन सेटिंग्जमध्ये \'SecureVNCPlugin एन्क्रिप्शन आवश्यक\' तपासा.</string>
     <string name="error_securevncplugin_server_requires_encryption">सर्व्हर फक्त एन्क्रिप्टेड कनेक्शन प्रकार (SecureVNCPlugin) देतो, परंतु तुमच्या कनेक्शन सेटिंग्जमध्ये एन्क्रिप्शन सक्षम नाही. या सर्व्हरशी कनेक्ट करण्यासाठी \'SecureVNCPlugin एन्क्रिप्शन आवश्यक\' सक्षम करा.</string>
+    <string name="morpheusly_cta_title">कुठूनही तुमच्या संगणकांपर्यंत पोहोचा</string>
+    <string name="morpheusly_cta_dismiss">आता नाही</string>
+    <string name="action_morpheusly">Morpheusly मिळवा</string>
+    <string name="morpheusly_cta_body">शून्य नेटवर्क कॉन्फिगरेशनसह इंटरनेटवर रिमोट-डेस्कटॉप प्रवेश सुरक्षित करा.तुम्ही पोहोचू इच्छित असलेल्या प्रत्येक संगणकावर Morpheusly डेस्कटॉप ॲप स्थापित करा, साइन इन करा आणि कोणते ऑनलाइन आहेत ते पहा आणि Morpheusly मोबाइल ॲपवरून अखंडपणे कनेक्ट करा.</string>
+    <string name="morpheusly_cta_download">Morpheusly मिळवा</string>
 </resources>

@@ -899,4 +899,9 @@ Uhlelo lokusebenza seluvele lukhululiwe ekulungiselelweni kwebhethri.</string>
     <string name="svnc_encryption_offered_title">Iseva inikeza ukubethela</string>
     <string name="svnc_encryption_offered_message">Iseva isekela ukubethela kwe-SecureVNCPlugin, kodwa awukuvulanga ezilungiselelweni zakho zokuxhumana.\n\nUkuxhuma ngaphandle kokubethela kusho ukuthi idatha yeseshini yakho (kufaka phakathi iziqinisekiso) izodluliswa ngombhalo ocacile.\n\nUkuze uvule ukubethela, khansela bese umaka \'Dinga ukubethela kwe-SecureVNCPlugin\' ezilungiselelweni zakho zokuxhumana.</string>
     <string name="error_securevncplugin_server_requires_encryption">Iseva inikeza izinhlobo zokuxhumana ezibethelwe (SecureVNCPlugin) kuphela, kodwa ukubethela akuvuliwe ezilungiselelweni zakho zokuxhumana. Vula \'Dinga ukubethela kwe-SecureVNCPlugin\' ukuze uxhume kule seva.</string>
+    <string name="morpheusly_cta_title">Finyelela amakhompyutha akho noma yikuphi</string>
+    <string name="morpheusly_cta_dismiss">Hhayi manje</string>
+    <string name="action_morpheusly">Thola Morpheusly</string>
+    <string name="morpheusly_cta_body">Vikela ukufinyelela kwe-remote-desktop nge-inthanethi ngokucushwa kwenethiwekhi okuyiziro.Faka Morpheusly uhlelo lokusebenza lwedeskithophu kuyo yonke ikhompuyutha ofuna ukuyifinyelela, ngena ngemvume, futhi ubone ukuthi yimaphi eku-inthanethi futhi uxhume kalula Morpheusly kuhlelo lokusebenza lweselula.</string>
+    <string name="morpheusly_cta_download">Thola Morpheusly</string>
 </resources>

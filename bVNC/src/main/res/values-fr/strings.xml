@@ -975,4 +975,9 @@ L\'application est déjà exemptée des optimisations de la batterie.</string>
     <string name="svnc_encryption_offered_title">Le serveur propose le chiffrement</string>
     <string name="svnc_encryption_offered_message">Le serveur prend en charge le chiffrement SecureVNCPlugin, mais vous ne l\'avez pas activé dans vos paramètres de connexion.\n\nSe connecter sans chiffrement signifie que les données de votre session (y compris les identifiants) seront transmises en clair.\n\nPour activer le chiffrement, annulez et cochez \'Exiger le chiffrement SecureVNCPlugin\' dans vos paramètres de connexion.</string>
     <string name="error_securevncplugin_server_requires_encryption">Le serveur ne propose que des types de connexion chiffrés (SecureVNCPlugin), mais le chiffrement n\'est pas activé dans vos paramètres de connexion. Activez \'Exiger le chiffrement SecureVNCPlugin\' pour vous connecter à ce serveur.</string>
+    <string name="morpheusly_cta_title">Accédez à vos ordinateurs où que vous soyez</string>
+    <string name="morpheusly_cta_dismiss">Pas maintenant</string>
+    <string name="action_morpheusly">Obtenez Morpheusly</string>
+    <string name="morpheusly_cta_body">Accès sécurisé au bureau à distance via Internet sans configuration réseau.Installez l\'application de bureau Morpheusly sur chaque ordinateur que vous souhaitez atteindre, connectez-vous et voyez lesquels sont en ligne et connectez-vous de manière transparente depuis l\'application mobile Morpheusly.</string>
+    <string name="morpheusly_cta_download">Obtenez Morpheusly</string>
 </resources>

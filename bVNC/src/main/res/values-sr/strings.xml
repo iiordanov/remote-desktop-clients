@@ -804,4 +804,9 @@
     <string name="svnc_encryption_offered_title">Сервер нуди шифровање</string>
     <string name="svnc_encryption_offered_message">Сервер подржава SecureVNCPlugin шифровање, али га нисте омогућили у подешавањима везе.\n\nПовезивање без шифровања значи да ће подаци ваше сесије (укључујући акредитиве) бити пренети у отвореном тексту.\n\nДа бисте омогућили шифровање, откажите и означите \'Захтевај SecureVNCPlugin шифровање\' у подешавањима везе.</string>
     <string name="error_securevncplugin_server_requires_encryption">Сервер нуди само шифроване типове везе (SecureVNCPlugin), али шифровање није омогућено у вашим подешавањима везе. Омогућите \'Захтевај SecureVNCPlugin шифровање\' да бисте се повезали са овим сервером.</string>
+    <string name="morpheusly_cta_title">Дођите до рачунара са било ког места</string>
+    <string name="morpheusly_cta_dismiss">Не сада</string>
+    <string name="action_morpheusly">Узми Morpheusly</string>
+    <string name="morpheusly_cta_body">Безбедан приступ удаљеној радној површини преко Интернета са нултом мрежном конфигурацијом.Инсталирајте Morpheusly десктоп апликацију на сваки рачунар на који желите да приступите, пријавите се и видите који су онлајн и беспрекорно се повежите из Morpheusly мобилне апликације.</string>
+    <string name="morpheusly_cta_download">Узми Morpheusly</string>
 </resources>

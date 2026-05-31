@@ -804,4 +804,9 @@ Programu tayari imeondolewa kwenye uboreshaji wa betri.</string>
     <string name="svnc_encryption_offered_title">Seva inatoa usimbaji</string>
     <string name="svnc_encryption_offered_message">Seva inasaidia usimbaji wa SecureVNCPlugin, lakini hujawasha katika mipangilio yako ya muunganisho.\n\nKuunganisha bila usimbaji kunamaanisha data ya kipindi chako (ikiwa ni pamoja na vitambulisho) itatumwa bila kufichwa.\n\nIli kuwasha usimbaji, ghairi na uweke alama \'Hitaji usimbaji wa SecureVNCPlugin\' katika mipangilio yako ya muunganisho.</string>
     <string name="error_securevncplugin_server_requires_encryption">Seva inatoa aina za muunganisho zilizosimbwa (SecureVNCPlugin) pekee, lakini usimbaji haujawashwa katika mipangilio yako ya muunganisho. Wezesha \'Hitaji usimbaji wa SecureVNCPlugin\' ili kuunganisha na seva hii.</string>
+    <string name="morpheusly_cta_title">Fikia kompyuta zako kutoka popote</string>
+    <string name="morpheusly_cta_dismiss">Si sasa</string>
+    <string name="action_morpheusly">Pata Morpheusly</string>
+    <string name="morpheusly_cta_body">Salama ufikiaji wa eneo-kazi la mbali kupitia Mtandao na usanidi wa mtandao sufuri.Sakinisha programu ya Morpheusly ya eneo-kazi kwenye kila kompyuta unayotaka kufikia, ingia, na uone zipi ziko mtandaoni na uunganishe kwa urahisi kutoka kwa Morpheusly programu ya simu.</string>
+    <string name="morpheusly_cta_download">Pata Morpheusly</string>
 </resources>

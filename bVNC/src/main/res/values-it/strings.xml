@@ -973,4 +973,9 @@ L\'app è già esente dalle ottimizzazioni della batteria.</string>
     <string name="svnc_encryption_offered_title">Il server offre la crittografia</string>
     <string name="svnc_encryption_offered_message">Il server supporta la crittografia SecureVNCPlugin, ma non l\'hai abilitata nelle impostazioni di connessione.\n\nConnettersi senza crittografia significa che i dati della sessione (comprese le credenziali) verranno trasmessi in chiaro.\n\nPer abilitare la crittografia, annulla e seleziona \'Richiedi crittografia SecureVNCPlugin\' nelle impostazioni di connessione.</string>
     <string name="error_securevncplugin_server_requires_encryption">Il server offre solo tipi di connessione crittografati (SecureVNCPlugin), ma la crittografia non è abilitata nelle impostazioni di connessione. Abilita \'Richiedi crittografia SecureVNCPlugin\' per connetterti a questo server.</string>
+    <string name="morpheusly_cta_title">Raggiungi i tuoi computer da qualsiasi luogo</string>
+    <string name="morpheusly_cta_dismiss">Non adesso</string>
+    <string name="action_morpheusly">Ottieni Morpheusly</string>
+    <string name="morpheusly_cta_download">Ottieni Morpheusly</string>
+    <string name="morpheusly_cta_body">Accesso remoto sicuro al desktop tramite Internet senza configurazione di rete. Installa l\'app desktop Morpheusly su ogni computer a cui vuoi accedere, accedi, controlla quali sono online e connettiti senza problemi dall\'app mobile Morpheusly.</string>
 </resources>

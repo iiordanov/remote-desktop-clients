@@ -975,4 +975,9 @@ Could not open battery optimization settings.قم بتعطيل تحسين الب
     <string name="svnc_encryption_offered_title">الخادم يوفر التشفير</string>
     <string name="svnc_encryption_offered_message">يدعم الخادم تشفير SecureVNCPlugin، لكنك لم تقم بتفعيله في إعدادات الاتصال.\n\nالاتصال بدون تشفير يعني أن بيانات جلستك (بما في ذلك بيانات الاعتماد) ستُنقل بشكل غير مشفر.\n\nلتفعيل التشفير، ألغِ الأمر وفعّل \'طلب تشفير SecureVNCPlugin\' في إعدادات الاتصال.</string>
     <string name="error_securevncplugin_server_requires_encryption">يقدم الخادم أنواع اتصال مشفرة فقط (SecureVNCPlugin)، لكن التشفير غير مفعّل في إعدادات الاتصال. فعّل \'طلب تشفير SecureVNCPlugin\' للاتصال بهذا الخادم.</string>
+    <string name="morpheusly_cta_title">الوصول إلى أجهزة الكمبيوتر الخاصة بك من أي مكان</string>
+    <string name="morpheusly_cta_dismiss">ليس الآن</string>
+    <string name="action_morpheusly">احصل على Morpheusly</string>
+    <string name="morpheusly_cta_download">احصل على Morpheusly</string>
+    <string name="morpheusly_cta_body">وصول آمن لسطح المكتب البعيد عبر الإنترنت دون أي إعداد للشبكة. ثبّت تطبيق Morpheusly لسطح المكتب على كل جهاز تريد الوصول إليه، سجّل الدخول، وشاهد الأجهزة المتصلة بالإنترنت واتصل بسلاسة من تطبيق Morpheusly للجوال.</string>
 </resources>

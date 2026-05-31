@@ -901,4 +901,9 @@ Aplikace je již osvobozena od optimalizace baterie.</string>
     <string name="svnc_encryption_offered_title">Server nabízí šifrování</string>
     <string name="svnc_encryption_offered_message">Server podporuje šifrování SecureVNCPlugin, ale nemáte ho povoleno v nastavení připojení.\n\nPřipojení bez šifrování znamená, že data relace (včetně přihlašovacích údajů) budou přenášena v otevřeném textu.\n\nPro povolení šifrování zrušte akci a zaškrtněte \'Vyžadovat šifrování SecureVNCPlugin\' v nastavení připojení.</string>
     <string name="error_securevncplugin_server_requires_encryption">Server nabízí pouze šifrované typy připojení (SecureVNCPlugin), ale šifrování není povoleno v nastavení připojení. Povolte \'Vyžadovat šifrování SecureVNCPlugin\' pro připojení k tomuto serveru.</string>
+    <string name="morpheusly_cta_title">Oslovte své počítače odkudkoli</string>
+    <string name="morpheusly_cta_dismiss">Teď ne</string>
+    <string name="action_morpheusly">Získejte Morpheusly</string>
+    <string name="morpheusly_cta_body">Zabezpečený přístup ke vzdálené ploše přes internet s nulovou konfigurací sítě.Nainstalujte si Morpheusly desktopovou aplikaci na každý počítač, ke kterému chcete mít přístup, přihlaste se a zjistěte, které z nich jsou online, a bezproblémově se připojte z Morpheusly mobilní aplikace.</string>
+    <string name="morpheusly_cta_download">Získejte Morpheusly</string>
 </resources>

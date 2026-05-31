@@ -897,4 +897,9 @@ aSPICE对应的功能如下：
     <string name="svnc_encryption_offered_title">服务器提供加密</string>
     <string name="svnc_encryption_offered_message">服务器支持 SecureVNCPlugin 加密，但您未在连接设置中启用它。\n\n不使用加密连接意味着您的会话数据（包括凭据）将以明文传输。\n\n要启用加密，请取消并在连接设置中勾选 要求 SecureVNCPlugin 加密。</string>
     <string name="error_securevncplugin_server_requires_encryption">服务器仅提供加密连接类型 (SecureVNCPlugin)，但您的连接设置中未启用加密。请启用 要求 SecureVNCPlugin 加密 以连接到此服务器。</string>
+    <string name="morpheusly_cta_title">从任何地方访问您的计算机</string>
+    <string name="morpheusly_cta_dismiss">现在不要</string>
+    <string name="action_morpheusly">获取Morpheusly</string>
+    <string name="morpheusly_cta_body">通过零网络配置通过互联网进行安全的远程桌面访问。在您想要访问的每台计算机上安装 Morpheusly 桌面应用程序、登录并查看哪些计算机在线并通过 Morpheusly 移动应用程序无缝连接。</string>
+    <string name="morpheusly_cta_download">获取Morpheusly</string>
 </resources>

@@ -804,4 +804,9 @@
     <string name="svnc_encryption_offered_title">सर्वर एन्क्रिप्शन प्रदान करता है</string>
     <string name="svnc_encryption_offered_message">सर्वर SecureVNCPlugin एन्क्रिप्शन का समर्थन करता है, लेकिन आपने इसे अपनी कनेक्शन सेटिंग्स में सक्षम नहीं किया है।\n\nएन्क्रिप्शन के बिना कनेक्ट करने का अर्थ है कि आपका सत्र डेटा (क्रेडेंशियल सहित) स्पष्ट पाठ में प्रसारित होगा।\n\nएन्क्रिप्शन सक्षम करने के लिए, रद्द करें और अपनी कनेक्शन सेटिंग्स में \'SecureVNCPlugin एन्क्रिप्शन आवश्यक\' चेक करें।</string>
     <string name="error_securevncplugin_server_requires_encryption">सर्वर केवल एन्क्रिप्टेड कनेक्शन प्रकार (SecureVNCPlugin) प्रदान करता है, लेकिन आपकी कनेक्शन सेटिंग्स में एन्क्रिप्शन सक्षम नहीं है। इस सर्वर से कनेक्ट करने के लिए \'SecureVNCPlugin एन्क्रिप्शन आवश्यक\' सक्षम करें।</string>
+    <string name="morpheusly_cta_title">कहीं से भी अपने कंप्यूटर तक पहुंचें</string>
+    <string name="morpheusly_cta_dismiss">अभी नहीं</string>
+    <string name="action_morpheusly">प्राप्त करें Morpheusly</string>
+    <string name="morpheusly_cta_body">शून्य नेटवर्क कॉन्फ़िगरेशन के साथ इंटरनेट पर सुरक्षित रिमोट-डेस्कटॉप पहुंच।जिस भी कंप्यूटर तक आप पहुंचना चाहते हैं उस पर Morpheusly डेस्कटॉप ऐप इंस्टॉल करें, साइन इन करें और देखें कि कौन सा ऑनलाइन है और Morpheusly मोबाइल ऐप से निर्बाध रूप से कनेक्ट करें।</string>
+    <string name="morpheusly_cta_download">प्राप्त करें Morpheusly</string>
 </resources>

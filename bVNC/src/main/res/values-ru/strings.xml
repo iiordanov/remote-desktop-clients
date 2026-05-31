@@ -958,4 +958,9 @@
     <string name="svnc_encryption_offered_title">Сервер предлагает шифрование</string>
     <string name="svnc_encryption_offered_message">Сервер поддерживает шифрование SecureVNCPlugin, но оно не включено в настройках подключения.\n\nПодключение без шифрования означает, что данные сеанса (включая учётные данные) будут передаваться в открытом виде.\n\nЧтобы включить шифрование, отмените и отметьте \'Требовать шифрование SecureVNCPlugin\' в настройках подключения.</string>
     <string name="error_securevncplugin_server_requires_encryption">Сервер предлагает только зашифрованные типы подключения (SecureVNCPlugin), но шифрование не включено в настройках подключения. Включите \'Требовать шифрование SecureVNCPlugin\' для подключения к этому серверу.</string>
+    <string name="morpheusly_cta_title">Доступ к вашим компьютерам из любой точки мира</string>
+    <string name="morpheusly_cta_dismiss">Не сейчас</string>
+    <string name="action_morpheusly">Получите Morpheusly</string>
+    <string name="morpheusly_cta_body">Безопасный доступ к удаленному рабочему столу через Интернет без необходимости настройки сети.Установите настольное приложение Morpheusly на каждый компьютер, к которому вы хотите подключиться, войдите в систему и посмотрите, какие из них находятся в сети, и легко подключайтесь из мобильного приложения Morpheusly.</string>
+    <string name="morpheusly_cta_download">Получить Morpheusly</string>
 </resources>
