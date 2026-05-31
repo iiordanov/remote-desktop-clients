@@ -474,6 +474,14 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         return connection;
     }
 
+    /** Ephemeral counterpart of {@link #newConnectionFromDefaultTemplate}; see
+     *  {@link AbstractConnectionBean#newForFileRun(Context)}. */
+    public static synchronized ConnectionBean newEphemeralFromDefaultTemplate(Context context) {
+        ConnectionBean connection = newConnectionFromDefaultTemplate(context);
+        connection.ephemeral = true;
+        return connection;
+    }
+
     /**
      * Deletes the hidden default-connection template row. The next access
      * lazily recreates it from the standard new-connection defaults, so this
@@ -485,6 +493,10 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
     public synchronized void save(Context c) {
         Log.d(TAG, "save called");
+        if (ephemeral) {
+            Log.d(TAG, "save skipped: ephemeral connection");
+            return;
+        }
         if (this.connectionConfigFile == null) {
             Database.runWritable(c, db -> save(db));
         }
@@ -588,6 +600,10 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
     public void saveAndWriteRecent(boolean saveEmpty, Context c) {
         Log.d(TAG, "saveAndWriteRecent called");
+        if (ephemeral) {
+            Log.d(TAG, "saveAndWriteRecent skipped: ephemeral connection");
+            return;
+        }
         if ((getConnectionType() == Constants.CONN_TYPE_SSH && "".equals(getSshServer())
                 || "".equals(getAddress())) && !saveEmpty) {
             Log.d(TAG, "saveAndWriteRecent not saving due to missing data");

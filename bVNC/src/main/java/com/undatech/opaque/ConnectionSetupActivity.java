@@ -113,10 +113,12 @@ public class ConnectionSetupActivity extends Activity {
             }
         });
 
-        currentConnection = new ConnectionSettings(currentSelectedConnection);
         if (newConnection) {
-            currentConnection.loadAdvancedSettings(this, RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
+            currentConnection = ConnectionSettings.newConnectionFromDefaultTemplate(
+                    this, currentSelectedConnection);
             saveSelectedPreferences(false);
+        } else {
+            currentConnection = new ConnectionSettings(currentSelectedConnection);
         }
 
         loadSelectedPreferences();

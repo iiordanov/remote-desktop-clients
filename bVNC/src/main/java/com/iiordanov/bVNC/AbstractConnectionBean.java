@@ -450,6 +450,13 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     private int gen_useLastPositionToolbarY;
     private boolean gen_useLastPositionToolbarMoved;
 
+    /**
+     * Marks the connection as a profile not to be persisted to disk. When true, subclasses
+     * must treat persistence calls (save / saveAndWriteRecent / saveToSharedPreferences)
+     * as no-ops so the session never writes.
+     */
+    protected transient boolean ephemeral = false;
+
     public String Gen_tableName() {
         return GEN_TABLE_NAME;
     }
@@ -2019,26 +2026,43 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     }
 
     /**
-     * Single sanctioned factory for creating a user-facing new connection,
-     * seeded from the editable per-connection default settings template.
-     * <p>
-     * Every flow that begins a connection the user can then edit and save —
-     * the "+ new connection" button, URI intents (vnc://, rdp://, spice://),
-     * config-file imports (.rdp, .vv), etc. — must go through here so the
-     * template is applied uniformly. Dispatches on protocol (Opaque vs the
-     * sqlcipher-backed bean) so callers do not duplicate the
-     * {@code Utils.isOpaque} branch.
-     * <p>
-     * Internal/DB-load uses of {@code new ConnectionBean(ctx)} or
-     * {@code new ConnectionSettings(...)} (cursor population, template
-     * self-construction, widget-id search scaffolding, editor copy-ctor,
-     * etc.) must NOT route through this method.
+     * Factory for a new persistent connection seeded from the default-settings
+     * template. Used by the bVNC-family ADD-new flow ({@code MainConfiguration})
+     * and by URI-intent matches in {@link com.iiordanov.util.UriIntentParser}
+     * when no existing connection is found — URIs are symlink-like and create
+     * saveable entries. For single-launch config files use
+     * {@link #newForFileRun(Context)} instead. The Opaque ADD-new flow goes
+     * through {@code ConnectionSetupActivity} directly, so the Opaque branch
+     * here is unreachable in live code and throws.
      */
     public static Connection newForUser(Context context) {
         if (Utils.isOpaque(context)) {
-            return ConnectionSettings.newConnectionFromDefaultTemplate(context);
+            throw new UnsupportedOperationException(
+                    "Opaque persistent connections must be created via "
+                            + "ConnectionSetupActivity. For Opaque file-launch "
+                            + "use newForFileRun.");
         }
         return ConnectionBean.newConnectionFromDefaultTemplate(context);
+    }
+
+    /**
+     * Factory for a connection that runs a single .vv / .rdp / .vnc config file
+     * launch. The returned object is marked ephemeral: save() and
+     * saveAndWriteRecent() are no-ops, so the session never writes to the
+     * connections DB / MostRecentBean (bVNC family) or to the Opaque
+     * connections list. Intended for starting the apps via config files which
+     * may contain transient per-download config-file data, regenerated on each
+     * download. Saving a connection profile for such files could be confusing
+     * and lead to unoperable connection profiles.
+     * <p>
+     * URI intents (vnc://, rdp://, spice://) are NOT file launches and must
+     * keep using {@link #newForUser(Context)}.
+     */
+    public static Connection newForFileRun(Context context) {
+        if (Utils.isOpaque(context)) {
+            return ConnectionSettings.newEphemeralFromDefaultTemplate(context);
+        }
+        return ConnectionBean.newEphemeralFromDefaultTemplate(context);
     }
 
     public static Connection getRemoteConnectionSettings(Intent i, Context context, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
@@ -2079,7 +2103,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
         } else {
-            connection = newForUser(context);
+            connection = newForFileRun(context);
         }
         return connection;
     }
@@ -2092,8 +2116,8 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             Log.i(TAG, "getConnection - supported scheme, trying to handle supported URI");
             connection = handleSupportedUri(data, context, masterPasswordEnabled);
         } else if (!Utils.isNullOrEmpty(i.getType())) {
-            Log.i(TAG, "getConnection - non-empty intent type: " + i.getType() + ", making new connection for config file");
-            connection = newForUser(context);
+            Log.i(TAG, "getConnection - non-empty intent type: " + i.getType() + ", making ephemeral connection for config file");
+            connection = newForFileRun(context);
         } else {
             Log.i(TAG, "getConnection - launching a regular, serialized connection");
             connection = loadSerializedConnection(i, context);

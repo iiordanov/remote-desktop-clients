@@ -93,6 +93,8 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
 
     private boolean useDpadAsArrows = true;
 
+    private static final String EPHEMERAL_FILENAME_SENTINEL = "ephemeral";
+
     public ConnectionSettings(String filename) {
         super();
         this.filename = filename;
@@ -110,14 +112,25 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
     }
 
     /**
-     * Returns a new connection seeded from the default-settings template but with
-     * its own identity. Filename and screenshotFilename are made unique.
+     * Returns a new connection seeded from the default-settings template,
+     * persisted under {@code filename} (the caller's chosen identity), with a
+     * unique screenshot filename. The template's own filename is the shared
+     * default-settings store, so the caller MUST supply its own filename;
+     * otherwise a later save() would overwrite the default template.
      * Mirrors {@code ConnectionBean.newConnectionFromDefaultTemplate}.
      */
-    public static ConnectionSettings newConnectionFromDefaultTemplate(Context context) {
+    public static ConnectionSettings newConnectionFromDefaultTemplate(Context context, String filename) {
         ConnectionSettings connection = getDefaultConnectionTemplate(context);
-        connection.setFilename(UUID.randomUUID().toString());
+        connection.setFilename(filename);
         connection.setScreenshotFilename(UUID.randomUUID().toString() + ".png");
+        return connection;
+    }
+
+    /** Ephemeral counterpart of {@link #newConnectionFromDefaultTemplate}; see
+     *  {@link com.iiordanov.bVNC.AbstractConnectionBean#newForFileRun(Context)}. */
+    public static ConnectionSettings newEphemeralFromDefaultTemplate(Context context) {
+        ConnectionSettings connection = newConnectionFromDefaultTemplate(context, EPHEMERAL_FILENAME_SENTINEL);
+        connection.ephemeral = true;
         return connection;
     }
 
@@ -657,6 +670,10 @@ public class ConnectionSettings extends AbstractConnectionBean implements Serial
     }
 
     public void saveToSharedPreferences(Context context) {
+        if (ephemeral) {
+            Log.d(TAG, "Skipping save: ephemeral connection (" + filename + ")");
+            return;
+        }
         Log.d(TAG, "Saving settings to file: " + filename);
         SharedPreferences sp = context.getSharedPreferences(filename, Context.MODE_PRIVATE);
         Editor editor = sp.edit();
