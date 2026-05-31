@@ -83,13 +83,6 @@
                 <data android:scheme="intent" />
                 <data android:mimeType="application/vnd.spice" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
-            </intent-filter>
-
             <intent-filter
                 android:icon="@mipmap/icon_aspice"
                 android:label="@string/opaque_app_name">
