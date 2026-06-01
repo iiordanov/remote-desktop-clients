@@ -1975,7 +1975,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             } else if (dataString.startsWith("file")) {
                 Log.d(TAG, "Intent is with file scheme.");
                 msgId[0] = R.string.error_failed_to_obtain_file;
-                configFileName = data.getPath();
+                configFileName = acceptFileLaunchPath(data.getPath());
             } else if (dataString.startsWith("content")) {
                 Log.d(TAG, "Intent is with content scheme.");
                 msgId[0] = R.string.error_failed_to_obtain_content;
@@ -1999,6 +1999,24 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             android.util.Log.d(TAG, "Got filename: " + configFileName);
         }
         return configFileName;
+    }
+
+    /**
+     * Returns the path if it resolves to a regular file no larger than
+     * MAX_CONFIG_FILE_SIZE_BYTES. Returns null otherwise.
+     */
+    private static String acceptFileLaunchPath(String path) {
+        if (path == null) return null;
+        File f = new File(path);
+        if (!f.isFile()) {
+            Log.w(TAG, "Rejecting file launch — not a regular file: " + path);
+            return null;
+        }
+        if (f.length() > MAX_CONFIG_FILE_SIZE_BYTES) {
+            Log.w(TAG, "Rejecting file launch — too large - " + f.length() + " bytes: " + path);
+            return null;
+        }
+        return path;
     }
 
     private static String downloadFile(Object waitOn, String tempConfigFile, Uri data, int[] msgId, String dataString) {
