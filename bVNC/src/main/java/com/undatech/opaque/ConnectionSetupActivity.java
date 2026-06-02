@@ -116,7 +116,7 @@ public class ConnectionSetupActivity extends Activity {
         if (newConnection) {
             currentConnection = ConnectionSettings.newConnectionFromDefaultTemplate(
                     this, currentSelectedConnection);
-            saveSelectedPreferences(false);
+            currentConnection.saveToSharedPreferences(appContext);
         } else {
             currentConnection = new ConnectionSettings(currentSelectedConnection);
         }
