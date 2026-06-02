@@ -193,6 +193,7 @@ public class Constants {
     public static final String showOnlyConnectionNicknames = "showOnlyConnectionNicknames";
     public static final String softwareKeyboardType = "softwareKeyboardType";
     public static final String scrollSpeed = "scrollSpeed";
+    public static final String touchpadSensitivity = "touchpadSensitivity";
     public static final String localToRemoteClipboardIntegration = "localToRemoteClipboardIntegration";
     public static final String remoteToLocalClipboardIntegration = "remoteToLocalClipboardIntegration";
     public static final String EXTRA_KEYS_TOUR_SHOWN = "extraKeysTourShown";
@@ -211,6 +212,7 @@ public class Constants {
     public static final int MAX_DESKTOP_SCALE_PERCENTAGE = 300;
     public static volatile int DEFAULT_PROTOCOL_PORT = 5900;
     public static final int DEFAULT_SCROLL_SPEED = 6;
+    public static final int DEFAULT_TOUCHPAD_SENSITIVITY = 4;
 
     public static final String DEFAULT_VPN_URI_SCHEME = "vpn";
 

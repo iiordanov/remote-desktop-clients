@@ -763,4 +763,5 @@
     <string name="reset_default_connection_settings">รีเซ็ตค่าเริ่มต้น</string>
     <string name="reset_default_connection_settings_confirm">รีเซ็ตการตั้งค่าการเชื่อมต่อเริ่มต้นกลับเป็นค่าเริ่มต้นหรือไม่?</string>
     <string name="sort_connections">เรียงลำดับการเชื่อมต่อ</string>
+    <string name="touchpad_sensitivity">ความไวของทัชแพด</string>
 </resources>

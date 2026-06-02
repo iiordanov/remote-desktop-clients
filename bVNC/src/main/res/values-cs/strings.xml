@@ -860,4 +860,5 @@ Aplikace je již osvobozena od optimalizace baterie.</string>
     <string name="reset_default_connection_settings">Obnovit výchozí</string>
     <string name="reset_default_connection_settings_confirm">Obnovit výchozí nastavení připojení na původní hodnoty?</string>
     <string name="sort_connections">Seřadit spojení</string>
+    <string name="touchpad_sensitivity">Citlivost touchpadu</string>
 </resources>

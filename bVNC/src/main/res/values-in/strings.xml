@@ -935,4 +935,5 @@ Aplikasi sudah dikecualikan dari pengoptimalan baterai.</string>
     <string name="reset_default_connection_settings">Setel ulang</string>
     <string name="reset_default_connection_settings_confirm">Setel ulang pengaturan koneksi default ke nilai awalnya?</string>
     <string name="sort_connections">Urutkan koneksi</string>
+    <string name="touchpad_sensitivity">Sensitivitas Panel Sentuh</string>
 </resources>

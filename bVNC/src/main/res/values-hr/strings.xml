@@ -935,4 +935,5 @@ Aplikacija je već izuzeta od optimizacije baterije.</string>
     <string name="reset_default_connection_settings">Vrati zadano</string>
     <string name="reset_default_connection_settings_confirm">Vratiti zadane postavke veze na početne vrijednosti?</string>
     <string name="sort_connections">Razvrstaj veze</string>
+    <string name="touchpad_sensitivity">Osjetljivost dodirne podloge</string>
 </resources>

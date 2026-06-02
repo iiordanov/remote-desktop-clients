@@ -852,4 +852,5 @@ connection ઉમેરો/edit ઉપર, connection configuration page.
     <string name="reset_default_connection_settings">રીસેટ કરો</string>
     <string name="reset_default_connection_settings_confirm">ડિફૉલ્ટ કનેક્શન સેટિંગ્સ તેમના પ્રારંભિક મૂલ્યો પર રીસેટ કરવી?</string>
     <string name="sort_connections">જોડાણો સૉર્ટ કરો</string>
+    <string name="touchpad_sensitivity">ટચપેડ સંવેદનશીલતા</string>
 </resources>

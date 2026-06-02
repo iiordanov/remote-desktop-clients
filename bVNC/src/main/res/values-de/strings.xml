@@ -933,4 +933,5 @@ App ist bereits von Batterieoptimierungen ausgenommen.</string>
     <string name="reset_default_connection_settings">Zurücksetzen</string>
     <string name="reset_default_connection_settings_confirm">Die Standard-Verbindungseinstellungen auf die Anfangswerte zurücksetzen?</string>
     <string name="sort_connections">Verbindungen sortieren</string>
+    <string name="touchpad_sensitivity">Touchpad-Empfindlichkeit</string>
 </resources>

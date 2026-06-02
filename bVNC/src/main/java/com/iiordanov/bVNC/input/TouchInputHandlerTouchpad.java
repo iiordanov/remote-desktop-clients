@@ -33,8 +33,8 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
 
     public TouchInputHandlerTouchpad(TouchInputDelegate touchInputDelegate, Viewable viewable,
                                      InputCarriable remoteInput, boolean debugLogging,
-                                     int swipeSpeed) {
-        super(touchInputDelegate, viewable, remoteInput, debugLogging, swipeSpeed);
+                                     float scrollRate) {
+        super(touchInputDelegate, viewable, remoteInput, debugLogging, scrollRate);
     }
 
     /*

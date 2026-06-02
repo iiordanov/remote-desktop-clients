@@ -930,4 +930,5 @@ App is already exempt from battery optimizations.</string>
     <string name="reset_default_connection_settings">Redefinir padrões</string>
     <string name="reset_default_connection_settings_confirm">Redefinir as configurações de conexão padrão para os valores iniciais?</string>
     <string name="sort_connections">Classificar conexões</string>
+    <string name="touchpad_sensitivity">Sensibilidade do touchpad</string>
 </resources>

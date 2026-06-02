@@ -935,4 +935,5 @@ Mae ap eisoes wedi\'i eithrio rhag optimeiddio batri.</string>
     <string name="reset_default_connection_settings">Ailosod</string>
     <string name="reset_default_connection_settings_confirm">Ailosod gosodiadau\'r cysylltiad rhagosodedig i\'w gwerthoedd cychwynnol?</string>
     <string name="sort_connections">Trefnu cysylltiadau</string>
+    <string name="touchpad_sensitivity">Sensitifrwydd pad cyffwrdd</string>
 </resources>

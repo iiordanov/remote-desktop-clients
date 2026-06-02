@@ -1057,17 +1057,19 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         if (inputModeHandlers == null) {
             inputModeHandlers = new TouchInputHandler[inputModeIds.length];
         }
+        float scrollRate = getScrollRate();
+        remoteConnection.getPointer().setSensitivity(getTouchpadSensitivityMultiplier());
         for (int i = 0; i < inputModeIds.length; ++i) {
             if (inputModeIds[i] == id) {
                 if (inputModeHandlers[i] == null) {
                     if (id == R.id.itemInputTouchPanZoomMouse) {
-                        inputModeHandlers[i] = new TouchInputHandlerDirectSwipePan(this, canvas, remoteConnection, App.debugLog, getScrollSensitivitySetting());
+                        inputModeHandlers[i] = new TouchInputHandlerDirectSwipePan(this, canvas, remoteConnection, App.debugLog, scrollRate);
                     } else if (id == R.id.itemInputDragPanZoomMouse) {
-                        inputModeHandlers[i] = new TouchInputHandlerDirectDragPan(this, canvas, remoteConnection, App.debugLog, getScrollSensitivitySetting());
+                        inputModeHandlers[i] = new TouchInputHandlerDirectDragPan(this, canvas, remoteConnection, App.debugLog, scrollRate);
                     } else if (id == R.id.itemInputTouchpad) {
-                        inputModeHandlers[i] = new TouchInputHandlerTouchpad(this, canvas, remoteConnection, App.debugLog, getScrollSensitivitySetting());
+                        inputModeHandlers[i] = new TouchInputHandlerTouchpad(this, canvas, remoteConnection, App.debugLog, scrollRate);
                     } else if (id == R.id.itemInputSingleHanded) {
-                        inputModeHandlers[i] = new TouchInputHandlerSingleHanded(this, canvas, remoteConnection, App.debugLog, getScrollSensitivitySetting());
+                        inputModeHandlers[i] = new TouchInputHandlerSingleHanded(this, canvas, remoteConnection, App.debugLog, scrollRate);
                     } else {
                         throw new IllegalStateException("Unexpected value: " + id);
                     }
@@ -1101,9 +1103,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         return R.id.itemInputTouchPanZoomMouse;
     }
 
-    int getScrollSensitivitySetting() {
-        // SeekBar starts at 0, so add 1 to not have 0 sensitivity
-        return Utils.querySharedPreferencesInt(this, Constants.scrollSpeed, Constants.DEFAULT_SCROLL_SPEED) + 1;
+    float getScrollRate() {
+        int slider = Utils.querySharedPreferencesInt(this, Constants.scrollSpeed, Constants.DEFAULT_SCROLL_SPEED);
+        return (slider + 1) / 7f;
+    }
+
+    float getTouchpadSensitivityMultiplier() {
+        int slider = Utils.querySharedPreferencesInt(this, Constants.touchpadSensitivity, Constants.DEFAULT_TOUCHPAD_SENSITIVITY);
+        return (slider + 1) * 0.4f;
     }
 
     @Override

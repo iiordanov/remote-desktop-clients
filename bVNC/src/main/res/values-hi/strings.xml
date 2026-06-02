@@ -763,4 +763,5 @@
     <string name="reset_default_connection_settings">रीसेट करें</string>
     <string name="reset_default_connection_settings_confirm">डिफ़ॉल्ट कनेक्शन सेटिंग्स को उनके आरंभिक मानों पर रीसेट करें?</string>
     <string name="sort_connections">कनेक्शन क्रमबद्ध करें</string>
+    <string name="touchpad_sensitivity">टचपैड संवेदनशीलता</string>
 </resources>

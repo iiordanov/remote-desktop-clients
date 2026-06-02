@@ -858,4 +858,5 @@ Uhlelo lokusebenza seluvele lukhululiwe ekulungiselelweni kwebhethri.</string>
     <string name="reset_default_connection_settings">Setha kabusha</string>
     <string name="reset_default_connection_settings_confirm">Setha kabusha izilungiselelo zokuxhumana ezizenzakalelayo zibuyele kumanani azo okuqala?</string>
     <string name="sort_connections">Hlunga ukuxhumana</string>
+    <string name="touchpad_sensitivity">Ukuzwela kwephedi yokuthinta</string>
 </resources>

@@ -763,4 +763,5 @@ ASPICE বৈশিষ্ট্যগুলির বর্তমান তা�
     <string name="reset_default_connection_settings">ডিফল্ট রিসেট</string>
     <string name="reset_default_connection_settings_confirm">ডিফল্ট সংযোগ সেটিংস তাদের প্রাথমিক মানে রিসেট করবেন?</string>
     <string name="sort_connections">সংযোগ বাছাই করুন</string>
+    <string name="touchpad_sensitivity">টাচপ্যাড সংবেদনশীলতা</string>
 </resources>

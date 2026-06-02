@@ -33,8 +33,8 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
 
     public TouchInputHandlerDirectSwipePan(TouchInputDelegate touchInputDelegate, Viewable viewable,
                                            InputCarriable remoteInput, boolean debugLogging,
-                                           int swipeSpeed) {
-        super(touchInputDelegate, viewable, remoteInput, debugLogging, swipeSpeed);
+                                           float scrollRate) {
+        super(touchInputDelegate, viewable, remoteInput, debugLogging, scrollRate);
     }
 
     /*

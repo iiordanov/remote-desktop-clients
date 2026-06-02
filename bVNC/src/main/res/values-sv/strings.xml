@@ -860,4 +860,5 @@ Appen är redan undantagen från batterioptimering.</string>
     <string name="reset_default_connection_settings">Återställ</string>
     <string name="reset_default_connection_settings_confirm">Återställa standardanslutningsinställningarna till deras ursprungliga värden?</string>
     <string name="sort_connections">Sortera anslutningar</string>
+    <string name="touchpad_sensitivity">Pekplattans känslighet</string>
 </resources>

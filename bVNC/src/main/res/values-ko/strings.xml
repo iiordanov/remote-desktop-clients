@@ -856,4 +856,5 @@ aSPICEで의 대응 기능는 이하와 같다 :
     <string name="reset_default_connection_settings">기본값 재설정</string>
     <string name="reset_default_connection_settings_confirm">기본 연결 설정을 초기값으로 재설정하시겠습니까?</string>
     <string name="sort_connections">연결 정렬</string>
+    <string name="touchpad_sensitivity">터치패드 감도</string>
 </resources>

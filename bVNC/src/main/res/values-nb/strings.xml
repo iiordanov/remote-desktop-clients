@@ -858,4 +858,5 @@ Appen er allerede unntatt fra batterioptimalisering.</string>
     <string name="reset_default_connection_settings">Tilbakestill</string>
     <string name="reset_default_connection_settings_confirm">Tilbakestille standard tilkoblingsinnstillinger til opprinnelige verdier?</string>
     <string name="sort_connections">Sorter tilkoblinger</string>
+    <string name="touchpad_sensitivity">Touchpad følsomhet</string>
 </resources>

@@ -935,4 +935,5 @@ App já está isento de otimizações de bateria.</string>
     <string name="reset_default_connection_settings">Repor predefinições</string>
     <string name="reset_default_connection_settings_confirm">Repor as definições de ligação predefinidas para os valores iniciais?</string>
     <string name="sort_connections">Classificar conexões</string>
+    <string name="touchpad_sensitivity">Sensibilidade do touchpad</string>
 </resources>

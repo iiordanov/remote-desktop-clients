@@ -917,4 +917,5 @@
     <string name="reset_default_connection_settings">Сбросить</string>
     <string name="reset_default_connection_settings_confirm">Сбросить настройки подключения по умолчанию до начальных значений?</string>
     <string name="sort_connections">Сортировка соединений</string>
+    <string name="touchpad_sensitivity">Чувствительность тачпада</string>
 </resources>

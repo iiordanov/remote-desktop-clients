@@ -935,4 +935,5 @@ Sovellus on jo vapautettu akun optimoinnista.</string>
     <string name="reset_default_connection_settings">Palauta oletukset</string>
     <string name="reset_default_connection_settings_confirm">Palautetaanko oletusyhteyden asetukset alkuperäisiin arvoihin?</string>
     <string name="sort_connections">Lajittele yhteydet</string>
+    <string name="touchpad_sensitivity">Kosketuslevyn herkkyys</string>
 </resources>

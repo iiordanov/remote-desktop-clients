@@ -1199,4 +1199,5 @@ Uygulama zaten pil optimizasyonlarından muaf.</string>
     <string name="reset_default_connection_settings">Sıfırla</string>
     <string name="reset_default_connection_settings_confirm">Varsayılan bağlantı ayarları başlangıç değerlerine sıfırlansın mı?</string>
     <string name="sort_connections">Bağlantıları sırala</string>
+    <string name="touchpad_sensitivity">Dokunmatik Yüzey Hassasiyeti</string>
 </resources>

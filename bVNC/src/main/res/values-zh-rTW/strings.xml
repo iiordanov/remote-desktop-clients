@@ -856,4 +856,5 @@ aSPICE對應的功能如下：
     <string name="reset_default_connection_settings">重設預設值</string>
     <string name="reset_default_connection_settings_confirm">將預設連線設定重設為初始值？</string>
     <string name="sort_connections">對連線進行排序</string>
+    <string name="touchpad_sensitivity">觸控板靈敏度</string>
 </resources>

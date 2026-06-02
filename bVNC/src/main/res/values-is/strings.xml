@@ -728,4 +728,5 @@ Forritið er nú þegar undanþegið hagræðingu rafhlöðunnar.</string>
     <string name="reset_default_connection_settings">Endurstilla</string>
     <string name="reset_default_connection_settings_confirm">Endurstilla sjálfgefnar tengingarstillingar í upphafleg gildi?</string>
     <string name="sort_connections">Raða tengingum</string>
+    <string name="touchpad_sensitivity">Snertiborðsnæmni</string>
 </resources>

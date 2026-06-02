@@ -49,8 +49,8 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
 
     public TouchInputHandlerSingleHanded(TouchInputDelegate touchInputDelegate, Viewable viewable,
                                          InputCarriable remoteInput, boolean debugLogging,
-                                         int swipeSpeed) {
-        super(touchInputDelegate, viewable, remoteInput, debugLogging, swipeSpeed);
+                                         float scrollRate) {
+        super(touchInputDelegate, viewable, remoteInput, debugLogging, scrollRate);
         initializeButtons();
     }
 

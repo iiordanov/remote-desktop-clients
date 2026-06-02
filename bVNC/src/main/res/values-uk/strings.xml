@@ -756,4 +756,5 @@
     <string name="reset_default_connection_settings">Скинути</string>
     <string name="reset_default_connection_settings_confirm">Скинути типові налаштування з\'єднання до початкових значень?</string>
     <string name="sort_connections">Сортування з\'єднань</string>
+    <string name="touchpad_sensitivity">Чутливість тачпада</string>
 </resources>

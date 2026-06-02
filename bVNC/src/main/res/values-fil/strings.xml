@@ -935,4 +935,5 @@ Exempt na ang app sa mga pag-optimize ng baterya.</string>
     <string name="reset_default_connection_settings">I-reset</string>
     <string name="reset_default_connection_settings_confirm">I-reset ang default na mga setting ng koneksyon sa kanilang paunang halaga?</string>
     <string name="sort_connections">Pagbukud-bukurin ang mga koneksyon</string>
+    <string name="touchpad_sensitivity">Sensitivity ng Touchpad</string>
 </resources>

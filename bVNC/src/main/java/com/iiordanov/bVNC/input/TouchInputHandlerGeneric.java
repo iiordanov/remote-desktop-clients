@@ -108,12 +108,16 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     Queue<Float> distYQueue;
 
     TouchInputHandlerGeneric(TouchInputDelegate touchInputDelegate, Viewable viewable, InputCarriable remoteInput,
-                             boolean debugLogging, int swipeSpeed) {
+                             boolean debugLogging, float scrollRate) {
         this.touchInputDelegate = touchInputDelegate;
         this.viewable = viewable;
         this.remoteInput = remoteInput;
         this.debugLogging = debugLogging;
-        this.maxSwipeSpeed = swipeSpeed;
+        // scrollRate is a unitless scale factor. The historical behaviour
+        // corresponds to scrollRate == 1.0f: maxSwipeSpeed cap of 7 and a
+        // baseSwipeDist of 10dp. Higher rates raise the cap and shrink the
+        // swipe-distance threshold; lower rates do the opposite.
+        this.maxSwipeSpeed = Math.max(1, Math.round(7f * scrollRate));
 
         useDpadAsArrows = touchInputDelegate.getUseDpadAsArrows();
         rotateDpad = touchInputDelegate.getRotateDpad();
@@ -130,7 +134,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         distXQueue = new LinkedList<>();
         distYQueue = new LinkedList<>();
 
-        baseSwipeDist = baseSwipeDist * displayDensity;
+        baseSwipeDist = baseSwipeDist * displayDensity / scrollRate;
         startSwipeDist = startSwipeDist * displayDensity;
         immersiveSwipeDistance = immersiveSwipeDistance * displayDensity;
         GeneralUtils.debugLog(debugLogging, TAG, "displayDensity, baseSwipeDist, immersiveSwipeDistance: "

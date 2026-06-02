@@ -934,4 +934,5 @@ L\'application est déjà exemptée des optimisations de la batterie.</string>
     <string name="reset_default_connection_settings">Réinitialiser</string>
     <string name="reset_default_connection_settings_confirm">Réinitialiser les paramètres de connexion par défaut à leurs valeurs initiales ?</string>
     <string name="sort_connections">Trier les connexions</string>
+    <string name="touchpad_sensitivity">Sensibilité du pavé tactile</string>
 </resources>

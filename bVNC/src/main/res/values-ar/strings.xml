@@ -934,4 +934,5 @@ Could not open battery optimization settings.قم بتعطيل تحسين الب
     <string name="reset_default_connection_settings">إعادة التعيين</string>
     <string name="reset_default_connection_settings_confirm">إعادة تعيين إعدادات الاتصال الافتراضية إلى قيمها الأولية؟</string>
     <string name="sort_connections">فرز الاتصالات</string>
+    <string name="touchpad_sensitivity">حساسية لوحة اللمس</string>
 </resources>

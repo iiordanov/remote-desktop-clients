@@ -933,4 +933,5 @@ Az alkalmazás már mentesül az akkumulátoroptimalizálás alól.</string>
     <string name="reset_default_connection_settings">Visszaállítás</string>
     <string name="reset_default_connection_settings_confirm">Visszaállítja az alapértelmezett kapcsolatbeállításokat a kezdeti értékekre?</string>
     <string name="sort_connections">Kapcsolatok rendezése</string>
+    <string name="touchpad_sensitivity">Érintőpad érzékenysége</string>
 </resources>

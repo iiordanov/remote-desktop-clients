@@ -860,4 +860,5 @@
     <string name="reset_default_connection_settings">Επαναφορά</string>
     <string name="reset_default_connection_settings_confirm">Επαναφορά των προεπιλεγμένων ρυθμίσεων σύνδεσης στις αρχικές τιμές τους;</string>
     <string name="sort_connections">Ταξινόμηση συνδέσεων</string>
+    <string name="touchpad_sensitivity">Ευαισθησία επιφάνειας αφής</string>
 </resources>
