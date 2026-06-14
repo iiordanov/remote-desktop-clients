@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -93,12 +92,12 @@ public abstract class MainConfiguration extends AppCompatActivity {
         sshUser.setText(selected.getSshUser());
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
         checkboxKeepSshPass.setChecked(selected.getKeepSshPassword());
-        if (selected.getKeepSshPassword() || selected.getSshPassword().length() > 0) {
+        if (selected.getKeepSshPassword() || !selected.getSshPassword().isEmpty()) {
             sshPassword.setText(selected.getSshPassword());
         } else {
             sshPassword.setText("");
         }
-        if (selected.getKeepSshPassword() || selected.getSshPassPhrase().length() > 0) {
+        if (selected.getKeepSshPassword() || !selected.getSshPassPhrase().isEmpty()) {
             sshPassphrase.setText(selected.getSshPassPhrase());
         } else {
             sshPassphrase.setText("");
@@ -109,7 +108,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
             ipText.setText(selected.getAddress());
         }
         portText.setText(Integer.toString(selected.getPort()));
-        if (selected.getKeepPassword() || selected.getPassword().length() > 0) {
+        if (selected.getKeepPassword() || !selected.getPassword().isEmpty()) {
             passwordText.setText(selected.getPassword());
         }
         checkboxKeepPassword.setChecked(selected.getKeepPassword());
@@ -398,6 +397,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
                     ConnectionBean.GEN_TABLE_NAME, connections,
                     ConnectionBean.newInstance);
             Collections.sort(connections);
+            //noinspection SequencedCollectionMethodCanBeUsed
             connections.add(0, new ConnectionBean(this));
             for (int i = 1; i < connections.size(); ++i) {
 
@@ -550,12 +550,15 @@ public abstract class MainConfiguration extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult called");
         super.onActivityResult(requestCode, resultCode, data);
+        if (selected == null) {
+            return;
+        }
         if (requestCode == Constants.ACTIVITY_GEN_KEY) {
             if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
                 Bundle b = data.getExtras();
                 String privateKey = (String) b.get("PrivateKey");
                 if (privateKey != null &&
-                        !privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)
+                        !privateKey.equals(selected.getSshPrivKey()) && !privateKey.isEmpty())
                     Snackbar.make(textNickname, getString(R.string.ssh_key_generated), Snackbar.LENGTH_LONG).show();
                 selected.setSshPrivKey(privateKey);
                 selected.setSshPubKey((String) b.get("PublicKey"));
@@ -611,6 +614,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
         Log.d(TAG, Log.getStackTraceString(e));
     }
 
+    @SuppressWarnings("SizeReplaceableByIsEmpty")
     public void save(int resource) {
         Log.d(TAG, "save called");
         if (isEditingDefaultConnectionTemplate()
