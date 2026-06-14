@@ -165,7 +165,7 @@ SQLCIPHER_VER=4.5.4
 if [ ! -f "../common/aars/android-database-sqlcipher-${SQLCIPHER_VER}.aar" ]
 then
   curl -o "../common/aars/android-database-sqlcipher-${SQLCIPHER_VER}.aar" \
-    'https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/${SQLCIPHER_VER}/android-database-sqlcipher-${SQLCIPHER_VER}.aar'
+    "https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/${SQLCIPHER_VER}/android-database-sqlcipher-${SQLCIPHER_VER}.aar"
 else
   echo "SQL Cipher ${SQLCIPHER_VER} aar found locally"
 fi
