@@ -135,7 +135,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         gridView.setOnItemClickListener((parent, v, position, id) -> launchConnection(v));
         gridView.setOnItemLongClickListener((parent, v, position, id) -> {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ConnectionGridActivity.this);
-            String gridItemText = (String) ((TextView) v.findViewById(R.id.grid_item_text)).getText();
+            String gridItemText = ((TextView) v.findViewById(R.id.grid_item_text)).getText().toString();
             alertDialogBuilder.setTitle(getString(R.string.connection_edit_delete_prompt) + " " + gridItemText + " ?");
             CharSequence[] cs = {getString(R.string.connection_edit), getString(R.string.connection_delete)};
             alertDialogBuilder.setItems(cs, (dialog, item) -> {
