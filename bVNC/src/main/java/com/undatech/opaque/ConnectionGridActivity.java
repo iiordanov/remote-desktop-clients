@@ -61,7 +61,6 @@ import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Database;
-import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.DefaultSettingsBottomSheet;
 import com.iiordanov.bVNC.dialogs.DiscoveryBottomSheet;
@@ -261,7 +260,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         if (info.lowMemory)
             System.gc();
 
-        String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
+        String runtimeId = ((TextView) v.findViewById(R.id.grid_item_id)).getText().toString();
         Intent intent = new IntentHelper().getIntent(
                 getConnectionLoader(this),
                 runtimeId,
@@ -279,7 +278,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
 
     private void editConnection(View v) {
         Log.d(TAG, "editConnection - Modifying an existing connection");
-        String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
+        String runtimeId = ((TextView) v.findViewById(R.id.grid_item_id)).getText().toString();
         Intent intent = new Intent(ConnectionGridActivity.this, Utils.getConnectionSetupClass(this));
         intent.putExtra("isNewConnection", false);
         if (Utils.isOpaque(this)) {
@@ -308,8 +307,8 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
 
     private void deleteConnection(View v) {
         Log.d(TAG, "Delete Connection");
-        String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
-        String gridItemText = (String) ((TextView) v.findViewById(R.id.grid_item_text)).getText();
+        String runtimeId = ((TextView) v.findViewById(R.id.grid_item_id)).getText().toString();
+        String gridItemText = ((TextView) v.findViewById(R.id.grid_item_text)).getText().toString();
         Utils.showYesNoPrompt(this, getString(R.string.delete_connection) + "?", getString(R.string.delete_connection) + " " + gridItemText + " ?",
                 (dialog, i) -> {
                     ConnectionLoader connectionLoader = getConnectionLoader(ConnectionGridActivity.this);
