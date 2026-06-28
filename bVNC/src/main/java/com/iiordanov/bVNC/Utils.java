@@ -824,4 +824,12 @@ public class Utils {
                         view.getContext().getString(R.string.ok) + "〉", v -> {
                         });
     }
+
+    public static void startActivityIfActivityFound(Intent intent) {
+        try {
+            App.getContext().startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
 }

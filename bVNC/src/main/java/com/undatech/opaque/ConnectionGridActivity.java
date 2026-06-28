@@ -698,7 +698,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         );
         emailIntent.addFlags(FLAG_ACTIVITY_NEW_TASK);
         emailIntent.setSelector(selectorIntent);
-        App.getContext().startActivity(emailIntent);
+        Utils.startActivityIfActivityFound(emailIntent);
     }
 
     public void reportBug(View item) {
