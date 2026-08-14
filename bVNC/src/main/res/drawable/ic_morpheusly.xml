@@ -3,9 +3,16 @@
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="30"
-    android:viewportHeight="30">
-    <group android:translateX="-94.120346" android:translateY="-93.09501">
+    android:viewportWidth="33"
+    android:viewportHeight="33"
+    android:background="#00000000">
+
+    <!-- White circle background -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7,0m-10,0a0,0 0,0 0,20 0a16.5,16.5 0,1 1,-1 0"/>
+
+    <group android:translateX="-92.2" android:translateY="-92.6">
         <path android:pathData="m 101.71339,103.48437 v -2.70922 l 0.70299,-0.67661 0.84512,-0.551216 0.93988,-0.42306 0.98571,-0.25356 1.0331,-0.0854 0.98573,0.0854 1.0331,0.25356 0.89097,0.38034 0.84512,0.551216 0.70453,0.67661 0.56393,0.76206 0.42177,0.84749 0.23536,0.88884 v 4.90995 h -5.39931 v -3.64078 l -0.0474,-0.54984 -0.23383,-0.46578 -0.32857,-0.46577 -0.42332,-0.339 -0.56239,-0.21084 -0.70453,-0.0854 -0.70453,0.0854 -0.65715,0.21084 -0.60976,0.339 z m 0,0" android:fillType="evenOdd">
             <aapt:attr name="android:fillColor">
                 <gradient android:type="linear" android:startX="112.0066" android:startY="102.5733" android:endX="96.5330" android:endY="102.5237">
