@@ -6,6 +6,10 @@ import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
+/**
+ * Floating toolbar used in remote canvas activities.
+ * Positioning logic (clamping, bounds, overflow menu padding) lives in RemoteCanvasActivity.
+ */
 public class RemoteToolbar extends Toolbar {
     private static final String TAG = "RemoteToolbar";
 
@@ -19,17 +23,5 @@ public class RemoteToolbar extends Toolbar {
 
     public RemoteToolbar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    public void setPositionToMakeVisible(
-            int XCoor, int YCoor, int rootRight, int rootBottom, int standardPositionX, int standardPositionY
-    ) {
-        if (XCoor > rootRight || YCoor > rootBottom) {
-            this.setX(standardPositionX);
-            this.setY(standardPositionY);
-        } else {
-            this.setX(XCoor);
-            this.setY(YCoor);
-        }
     }
 }

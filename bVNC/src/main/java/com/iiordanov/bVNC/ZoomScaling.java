@@ -31,8 +31,8 @@ import com.undatech.remoteClientUi.R;
 class ZoomScaling extends AbstractScaling {
 
     static final String TAG = "ZoomScaling";
-    int canvasXOffset;
-    int canvasYOffset;
+    float canvasXOffset;
+    float canvasYOffset;
     float scaling;
     float minimumScale;
     private Matrix matrix;
@@ -73,6 +73,9 @@ class ZoomScaling extends AbstractScaling {
      * @param canvas
      */
     private void resolveZoom(RemoteCanvas canvas) {
+        canvas.computeShiftFromFullToView(scaling);
+        canvasXOffset = canvas.getWidth() / (2.0f * scaling) - canvas.getImageWidth() / 2.0f;
+        canvasYOffset = canvas.getHeight() / (2.0f * scaling) - canvas.getImageHeight() / 2.0f;
         resetMatrix();
         matrix.postScale(scaling, scaling);
         canvas.setImageMatrix(matrix);
@@ -85,15 +88,11 @@ class ZoomScaling extends AbstractScaling {
      */
     @Override
     void zoomIn(RemoteCanvasActivity activity) {
-        resetMatrix();
         standardizeScaling();
         scaling += 0.25;
         if (scaling > 4.0f) {
             scaling = 4.0f;
         }
-        matrix.postScale(scaling, scaling);
-        //Log.v(TAG,String.format("before set matrix scrollx = %d scrolly = %d", activity.vncCanvas.getScrollX(), activity.vncCanvas.getScrollY()));
-        activity.getCanvas().setImageMatrix(matrix);
         resolveZoom(activity.getCanvas());
     }
 
@@ -110,16 +109,11 @@ class ZoomScaling extends AbstractScaling {
      */
     @Override
     void zoomOut(RemoteCanvasActivity activity) {
-        resetMatrix();
         standardizeScaling();
         scaling -= 0.25;
         if (scaling < minimumScale) {
             scaling = minimumScale;
         }
-        matrix.postScale(scaling, scaling);
-        //Log.v(TAG,String.format("before set matrix scrollx = %d scrolly = %d", activity.vncCanvas.getScrollX(), activity.vncCanvas.getScrollY()));
-        activity.getCanvas().setImageMatrix(matrix);
-        //Log.v(TAG,String.format("after set matrix scrollx = %d scrolly = %d", activity.vncCanvas.getScrollX(), activity.vncCanvas.getScrollY()));
         resolveZoom(activity.getCanvas());
     }
 
@@ -157,10 +151,7 @@ class ZoomScaling extends AbstractScaling {
             newScale = 1.f;
         }
 
-        resetMatrix();
         scaling = newScale;
-        matrix.postScale(scaling, scaling);
-        canvas.setImageMatrix(matrix);
         resolveZoom(canvas);
 
         // Only if we have actually scaled do we pan and potentially set mouse position.
@@ -190,11 +181,19 @@ class ZoomScaling extends AbstractScaling {
         RemoteCanvas canvas = activity.getCanvas();
         if (canvas == null || canvas.myDrawable == null)
             return;
-        canvasXOffset = -canvas.getCenteredXOffset();
-        canvasYOffset = -canvas.getCenteredYOffset();
-        canvas.computeShiftFromFullToView();
         minimumScale = canvas.getMinimumScale();
         scaling = minimumScale;
+        resolveZoom(canvas);
+    }
+
+    @Override
+    public void handleViewSizeChange(RemoteCanvas canvas) {
+        if (canvas == null || canvas.myDrawable == null)
+            return;
+        minimumScale = canvas.getMinimumScale();
+        if (scaling < minimumScale) {
+            scaling = minimumScale;
+        }
         resolveZoom(canvas);
     }
 }

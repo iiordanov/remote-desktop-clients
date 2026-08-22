@@ -138,6 +138,16 @@ public abstract class AbstractScaling {
     public void changeZoom(RemoteCanvasActivity activity, float scaleFactor, float fx, float fy) {
     }
 
+    /**
+     * Called when the canvas view size changes (e.g., window resize in DeX/freeform mode).
+     * Recalculates scaling parameters that depend on view dimensions.
+     * Does NOT change the remote desktop resolution — only fixes local coordinate mapping.
+     * Subclasses should override this to recalculate scaling/offset state.
+     */
+    public void handleViewSizeChange(RemoteCanvas canvas) {
+        // Default: no-op. Subclasses override as needed.
+    }
+
     public ImageView.ScaleType getScaleType() {
         return scaleType;
     }
