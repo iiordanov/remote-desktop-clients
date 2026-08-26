@@ -98,19 +98,22 @@ public abstract class RfbConnectable implements DrawableReallocatedListener {
     public abstract void setCertificateAccepted(boolean certificateAccepted);
 
     protected void remoteClipboardChanged(String data) {
-        if (isRemoteToLocalClipboardIntegrationEnabled) {
-            Log.i(TAG, "remoteClipboardChanged: Remote to local clipboard integration enabled");
-            // Send a message containing the text to our handler.
-            Message m = new Message();
-            m.setTarget(handler);
-            m.what = RemoteClientLibConstants.SERVER_CUT_TEXT;
-            Bundle strings = new Bundle();
-            strings.putString("text", data);
-            m.obj = strings;
-            handler.sendMessage(m);
-        } else {
+        if (!isRemoteToLocalClipboardIntegrationEnabled) {
             Log.i(TAG, "remoteClipboardChanged: Remote to local clipboard integration disabled");
+            return;
         }
+        Handler h = handler;
+        if (h == null) {
+            return;
+        }
+        Log.i(TAG, "remoteClipboardChanged: Remote to local clipboard integration enabled");
+        // Drop any pending SERVER_CUT_TEXT messages since only the last one matters to save the main thread work
+        h.removeMessages(RemoteClientLibConstants.SERVER_CUT_TEXT);
+        Message m = h.obtainMessage(RemoteClientLibConstants.SERVER_CUT_TEXT);
+        Bundle strings = new Bundle();
+        strings.putString("text", data);
+        m.obj = strings;
+        h.sendMessage(m);
     }
 
     @Override
