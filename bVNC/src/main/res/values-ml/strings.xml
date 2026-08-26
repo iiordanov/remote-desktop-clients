@@ -809,4 +809,6 @@ aSPICE സവിശേഷതകളുടെ നിലവിലെ ലിസ്�
     <string name="morpheusly_cta_body">സീറോ നെറ്റ്‌വർക്ക് കോൺഫിഗറേഷൻ ഉപയോഗിച്ച് ഇൻറർനെറ്റിലൂടെ വിദൂര-ഡെസ്ക്ടോപ്പ് ആക്സസ് സുരക്ഷിതമാക്കുക.നിങ്ങൾക്ക് എത്തിച്ചേരാനും സൈൻ ഇൻ ചെയ്യാനും ആഗ്രഹിക്കുന്ന എല്ലാ കമ്പ്യൂട്ടറുകളിലും Morpheusly ഡെസ്ക്ടോപ്പ് ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക, ഏതൊക്കെ ഓൺലൈനിലാണെന്ന് കാണുക, കൂടാതെ Morpheusly മൊബൈൽ ആപ്പിൽ നിന്ന് തടസ്സമില്ലാതെ കണക്റ്റുചെയ്യുക.</string>
     <string name="action_morpheusly">Morpheusly നേടുക</string>
     <string name="morpheusly_cta_download">Morpheusly നേടുക</string>
+    <string name="connection_add_shortcut">ഹോം സ്ക്രീനിലേക്ക് ചേർക്കുക</string>
+    <string name="shortcut_not_supported">ഈ ലോഞ്ചർ കുറുക്കുവഴികൾ പിൻ ചെയ്യുന്നത് പിന്തുണയ്ക്കുന്നില്ല.</string>
 </resources>

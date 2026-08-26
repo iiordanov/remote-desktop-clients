@@ -774,4 +774,6 @@ Forritið er nú þegar undanþegið hagræðingu rafhlöðunnar.</string>
     <string name="action_morpheusly">Fáðu Morpheusly</string>
     <string name="morpheusly_cta_body">Öruggur fjarlægur skrifborðsaðgangur í gegnum internetið án netstillingar.Settu upp Morpheusly skrifborðsforritið á hverri tölvu sem þú vilt ná í, skráðu þig inn og sjáðu hverjar eru á netinu og tengdu óaðfinnanlega úr Morpheusly farsímaappinu.</string>
     <string name="morpheusly_cta_download">Fáðu Morpheusly</string>
+    <string name="connection_add_shortcut">Bæta við á heimaskjá</string>
+    <string name="shortcut_not_supported">Þessi ræsir styður ekki að festa flýtileiðir.</string>
 </resources>

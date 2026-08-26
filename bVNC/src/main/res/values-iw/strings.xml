@@ -774,4 +774,6 @@
     <string name="action_morpheusly">קבל Morpheusly</string>
     <string name="morpheusly_cta_body">גישה מאובטחת לשולחן עבודה מרחוק דרך האינטרנט עם אפס תצורת רשת.התקן את אפליקציית Morpheusly שולחן העבודה בכל מחשב שאליו ברצונך להגיע, היכנס וראה אילו מהם מקוונים והתחבר בצורה חלקה מהאפליקציה Morpheusly לנייד.</string>
     <string name="morpheusly_cta_download">קבל Morpheusly</string>
+    <string name="connection_add_shortcut">הוסף למסך הבית</string>
+    <string name="shortcut_not_supported">משגר זה אינו תומך בהצמדת קיצורי דרך.</string>
 </resources>

@@ -921,4 +921,6 @@ aSPICEで対応済み機能は以下の通り：
     <string name="action_morpheusly">Morpheuslyを取得</string>
     <string name="morpheusly_cta_body">ネットワーク構成を必要とせずに、インターネット経由で安全なリモート デスクトップ アクセスを実現します。アクセスしたいすべてのコンピュータに Morpheusly デスクトップ アプリをインストールし、サインインして、どのコンピュータがオンラインであるかを確認し、Morpheusly モバイル アプリからシームレスに接続します。</string>
     <string name="morpheusly_cta_download">Morpheuslyを取得</string>
+    <string name="connection_add_shortcut">ホーム画面に追加</string>
+    <string name="shortcut_not_supported">このランチャーはショートカットの固定に対応していません。</string>
 </resources>

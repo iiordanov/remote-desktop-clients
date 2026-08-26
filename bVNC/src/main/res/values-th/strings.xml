@@ -809,4 +809,6 @@
     <string name="action_morpheusly">รับ Morpheusly</string>
     <string name="morpheusly_cta_download">รับ Morpheusly</string>
     <string name="morpheusly_cta_body">การเข้าถึงเดสก์ท็อประยะไกลที่ปลอดภัยผ่านอินเทอร์เน็ตโดยไม่ต้องตั้งค่าเครือข่าย ติดตั้งแอป Morpheusly บนคอมพิวเตอร์ทุกเครื่องที่คุณต้องการเข้าถึง ลงชื่อเข้าใช้ และดูว่าเครื่องไหนออนไลน์อยู่ จากนั้นเชื่อมต่อได้อย่างราบรื่นจากแอป Morpheusly บนมือถือ</string>
+    <string name="connection_add_shortcut">เพิ่มไปยังหน้าจอหลัก</string>
+    <string name="shortcut_not_supported">ตัวเรียกใช้นี้ไม่รองรับการปักหมุดทางลัด</string>
 </resources>

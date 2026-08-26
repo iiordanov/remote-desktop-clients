@@ -1141,4 +1141,6 @@ Direct, Swipe Pan: Плъзнете, за да се движите наокол�
     <string name="action_morpheusly">Вземете Morpheusly</string>
     <string name="morpheusly_cta_body">Сигурен достъп до отдалечен работен плот през интернет с нулева мрежова конфигурация.Инсталирайте Morpheusly настолното приложение на всеки компютър, до който искате да достигнете, влезте и вижте кои са онлайн и се свържете безпроблемно от Morpheusly мобилното приложение.</string>
     <string name="morpheusly_cta_download">Вземете Morpheusly</string>
+    <string name="connection_add_shortcut">Добавяне към началния екран</string>
+    <string name="shortcut_not_supported">Този стартер не поддържа закачване на преки пътища.</string>
 </resources>

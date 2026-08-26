@@ -878,4 +878,6 @@ Aplikacja jest już wyłączona z optymalizacji baterii.</string>
     <string name="action_morpheusly">Zdobądź Morpheusly</string>
     <string name="morpheusly_cta_body">Bezpieczny dostęp do pulpitu zdalnego przez Internet przy zerowej konfiguracji sieci.Zainstaluj aplikację komputerową Morpheusly na każdym komputerze, z którym chcesz się połączyć, zaloguj się, sprawdź, które z nich są online i bezproblemowo połącz się z aplikacją mobilną Morpheusly.</string>
     <string name="morpheusly_cta_download">Zdobądź Morpheusly</string>
+    <string name="connection_add_shortcut">Dodaj do ekranu głównego</string>
+    <string name="shortcut_not_supported">Ten launcher nie obsługuje przypinania skrótów.</string>
 </resources>

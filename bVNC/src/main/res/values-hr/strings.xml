@@ -981,4 +981,6 @@ Aplikacija je već izuzeta od optimizacije baterije.</string>
     <string name="action_morpheusly">Dobiti Morpheusly</string>
     <string name="morpheusly_cta_body">Osigurajte pristup udaljenoj radnoj površini putem interneta bez konfiguracije mreže.Instalirajte Morpheusly aplikaciju za stolna računala na svako računalo do kojeg želite doći, prijavite se i pogledajte koja su online te se neprimjetno povežite iz Morpheusly mobilne aplikacije.</string>
     <string name="morpheusly_cta_download">Dobiti Morpheusly</string>
+    <string name="connection_add_shortcut">Dodaj na početni zaslon</string>
+    <string name="shortcut_not_supported">Ovaj pokretač ne podržava prikvačivanje prečaca.</string>
 </resources>

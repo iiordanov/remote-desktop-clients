@@ -978,4 +978,6 @@ L\'app è già esente dalle ottimizzazioni della batteria.</string>
     <string name="action_morpheusly">Ottieni Morpheusly</string>
     <string name="morpheusly_cta_download">Ottieni Morpheusly</string>
     <string name="morpheusly_cta_body">Accesso remoto sicuro al desktop tramite Internet senza configurazione di rete. Installa l\'app desktop Morpheusly su ogni computer a cui vuoi accedere, accedi, controlla quali sono online e connettiti senza problemi dall\'app mobile Morpheusly.</string>
+    <string name="connection_add_shortcut">Aggiungi alla schermata Home</string>
+    <string name="shortcut_not_supported">Questo launcher non supporta l\'aggiunta di scorciatoie.</string>
 </resources>

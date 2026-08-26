@@ -981,4 +981,6 @@ Rakendus on aku optimeerimisest juba vabastatud.</string>
     <string name="action_morpheusly">Hankige Morpheusly</string>
     <string name="morpheusly_cta_body">Turvaline kaugtöölaua juurdepääs Interneti kaudu ilma võrgukonfiguratsioonita.Installige töölauarakendus Morpheusly igasse arvutisse, kuhu soovite jõuda, logige sisse ja vaadake, millised arvutid on võrgus, ja ühendage Morpheusly mobiilirakenduse kaudu sujuvalt.</string>
     <string name="morpheusly_cta_download">Hankige Morpheusly</string>
+    <string name="connection_add_shortcut">Lisa avakuvale</string>
+    <string name="shortcut_not_supported">See käivitaja ei toeta otseteede kinnitamist.</string>
 </resources>

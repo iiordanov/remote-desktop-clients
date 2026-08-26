@@ -979,4 +979,6 @@ L\'aplicació ja està exempta d\'optimitzacions de bateria.</string>
     <string name="action_morpheusly">Aconsegueix Morpheusly</string>
     <string name="morpheusly_cta_body">Accés segur a l\'escriptori remot a través d\'Internet sense configuració de xarxa.Instal·leu l\'aplicació d\'escriptori Morpheusly a tots els ordinadors als quals vulgueu accedir, inicieu la sessió i vegeu quins són en línia i connecteu-vos perfectament des de l\'aplicació mòbil Morpheusly.</string>
     <string name="morpheusly_cta_download">Aconsegueix Morpheusly</string>
+    <string name="connection_add_shortcut">Afegeix a la pantalla d\'inici</string>
+    <string name="shortcut_not_supported">Aquest llançador no admet fixar dreceres.</string>
 </resources>

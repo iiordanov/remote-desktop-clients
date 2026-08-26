@@ -904,4 +904,6 @@ Uhlelo lokusebenza seluvele lukhululiwe ekulungiselelweni kwebhethri.</string>
     <string name="action_morpheusly">Thola Morpheusly</string>
     <string name="morpheusly_cta_body">Vikela ukufinyelela kwe-remote-desktop nge-inthanethi ngokucushwa kwenethiwekhi okuyiziro.Faka Morpheusly uhlelo lokusebenza lwedeskithophu kuyo yonke ikhompuyutha ofuna ukuyifinyelela, ngena ngemvume, futhi ubone ukuthi yimaphi eku-inthanethi futhi uxhume kalula Morpheusly kuhlelo lokusebenza lweselula.</string>
     <string name="morpheusly_cta_download">Thola Morpheusly</string>
+    <string name="connection_add_shortcut">Engeza kusikrini sasekhaya</string>
+    <string name="shortcut_not_supported">Lolu lokuqalisa aluxhasi ukuphina izinqamuleli.</string>
 </resources>

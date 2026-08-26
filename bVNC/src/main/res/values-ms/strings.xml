@@ -809,4 +809,6 @@ Apl sudah pun dikecualikan daripada pengoptimuman bateri.</string>
     <string name="action_morpheusly">Dapatkan Morpheusly</string>
     <string name="morpheusly_cta_body">Lindungi akses desktop jauh melalui Internet dengan konfigurasi rangkaian sifar.Pasang apl desktop Morpheusly pada setiap komputer yang anda ingin capai, log masuk dan lihat yang mana dalam talian dan sambung dengan lancar daripada apl mudah alih.</string>
     <string name="morpheusly_cta_download">Dapatkan Morpheusly</string>
+    <string name="connection_add_shortcut">Tambah ke Skrin Utama</string>
+    <string name="shortcut_not_supported">Pelancar ini tidak menyokong penyematan pintasan.</string>
 </resources>

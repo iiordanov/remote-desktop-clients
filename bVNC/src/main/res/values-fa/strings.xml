@@ -809,4 +809,6 @@
     <string name="action_morpheusly">دریافت Morpheusly</string>
     <string name="morpheusly_cta_body">دسترسی ایمن به دسکتاپ از راه دور از طریق اینترنت با پیکربندی شبکه صفر.برنامه دسکتاپ Morpheusly را روی هر رایانه ای که می خواهید به آن دسترسی داشته باشید، نصب کنید، وارد شوید و ببینید کدام یک آنلاین هستند و به طور یکپارچه از برنامه تلفن همراه متصل شوید.</string>
     <string name="morpheusly_cta_download">دریافت Morpheusly</string>
+    <string name="connection_add_shortcut">افزودن به صفحه اصلی</string>
+    <string name="shortcut_not_supported">این لانچر از سنجاق کردن میان‌برها پشتیبانی نمی‌کند.</string>
 </resources>

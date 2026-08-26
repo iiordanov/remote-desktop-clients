@@ -963,4 +963,6 @@
     <string name="action_morpheusly">Получите Morpheusly</string>
     <string name="morpheusly_cta_body">Безопасный доступ к удаленному рабочему столу через Интернет без необходимости настройки сети.Установите настольное приложение Morpheusly на каждый компьютер, к которому вы хотите подключиться, войдите в систему и посмотрите, какие из них находятся в сети, и легко подключайтесь из мобильного приложения Morpheusly.</string>
     <string name="morpheusly_cta_download">Получить Morpheusly</string>
+    <string name="connection_add_shortcut">Добавить на главный экран</string>
+    <string name="shortcut_not_supported">Этот лаунчер не поддерживает закрепление ярлыков.</string>
 </resources>

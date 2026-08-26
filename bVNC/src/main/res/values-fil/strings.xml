@@ -981,4 +981,6 @@ Exempt na ang app sa mga pag-optimize ng baterya.</string>
     <string name="action_morpheusly">Kunin Morpheusly</string>
     <string name="morpheusly_cta_body">I-secure ang remote-desktop na access sa Internet na may zero na configuration ng network.I-install ang Morpheusly desktop app sa bawat computer na gusto mong maabot, mag-sign in, at makita kung alin ang online at kumonekta nang walang putol mula sa Morpheusly mobile app.</string>
     <string name="morpheusly_cta_download">Kunin Morpheusly</string>
+    <string name="connection_add_shortcut">Idagdag sa Home screen</string>
+    <string name="shortcut_not_supported">Hindi sinusuportahan ng launcher na ito ang pag-pin ng mga shortcut.</string>
 </resources>

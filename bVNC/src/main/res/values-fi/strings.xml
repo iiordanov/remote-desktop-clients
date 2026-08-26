@@ -981,4 +981,6 @@ Sovellus on jo vapautettu akun optimoinnista.</string>
     <string name="action_morpheusly">Hanki Morpheusly</string>
     <string name="morpheusly_cta_body">Suojattu etätyöpöytäyhteys Internetin kautta ilman verkkomäärityksiä.Asenna Morpheusly-työpöytäsovellus jokaiselle tietokoneelle, johon haluat päästä, kirjaudu sisään ja katso, mitkä ovat online-tilassa, ja muodosta yhteys saumattomasti Morpheusly-mobiilisovelluksesta.</string>
     <string name="morpheusly_cta_download">Hanki Morpheusly</string>
+    <string name="connection_add_shortcut">Lisää aloitusnäyttöön</string>
+    <string name="shortcut_not_supported">Tämä käynnistin ei tue pikakuvakkeiden kiinnittämistä.</string>
 </resources>

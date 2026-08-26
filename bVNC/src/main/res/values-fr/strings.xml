@@ -980,4 +980,6 @@ L\'application est déjà exemptée des optimisations de la batterie.</string>
     <string name="action_morpheusly">Obtenez Morpheusly</string>
     <string name="morpheusly_cta_body">Accès sécurisé au bureau à distance via Internet sans configuration réseau.Installez l\'application de bureau Morpheusly sur chaque ordinateur que vous souhaitez atteindre, connectez-vous et voyez lesquels sont en ligne et connectez-vous de manière transparente depuis l\'application mobile Morpheusly.</string>
     <string name="morpheusly_cta_download">Obtenez Morpheusly</string>
+    <string name="connection_add_shortcut">Ajouter à l\'écran d\'accueil</string>
+    <string name="shortcut_not_supported">Ce lanceur ne prend pas en charge l\'épinglage des raccourcis.</string>
 </resources>

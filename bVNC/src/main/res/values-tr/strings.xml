@@ -1245,4 +1245,6 @@ Uygulama zaten pil optimizasyonlarından muaf.</string>
     <string name="action_morpheusly">Morpheusly alın</string>
     <string name="morpheusly_cta_body">Sıfır ağ yapılandırmasıyla İnternet üzerinden güvenli uzak masaüstü erişimi.Ulaşmak istediğiniz her bilgisayara Morpheusly masaüstü uygulamasını yükleyin, oturum açın ve hangilerinin çevrimiçi olduğunu görün ve Morpheusly mobil uygulamasından sorunsuz bir şekilde bağlanın.</string>
     <string name="morpheusly_cta_download">Morpheusly alın</string>
+    <string name="connection_add_shortcut">Ana ekrana ekle</string>
+    <string name="shortcut_not_supported">Bu başlatıcı kısayol sabitlemeyi desteklemiyor.</string>
 </resources>

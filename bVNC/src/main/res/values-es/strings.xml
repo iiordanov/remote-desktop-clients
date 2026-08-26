@@ -965,4 +965,6 @@ La aplicación ya está exenta de optimizaciones de batería.</string>
     <string name="action_morpheusly">Obtener Morpheusly</string>
     <string name="morpheusly_cta_body">Acceso seguro a escritorio remoto a través de Internet sin configuración de red.Instale la aplicación de escritorio Morpheusly en cada computadora a la que desee acceder, inicie sesión y vea cuáles están en línea y conéctese sin problemas desde la aplicación móvil Morpheusly.</string>
     <string name="morpheusly_cta_download">Obtener Morpheusly</string>
+    <string name="connection_add_shortcut">Añadir a la pantalla de inicio</string>
+    <string name="shortcut_not_supported">Este lanzador no admite fijar accesos directos.</string>
 </resources>

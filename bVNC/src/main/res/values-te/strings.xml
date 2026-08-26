@@ -809,4 +809,6 @@ ASPICE లక్షణాల యొక్క ప్రస్తుత జాబ�
     <string name="morpheusly_cta_body">జీరో నెట్‌వర్క్ కాన్ఫిగరేషన్‌తో ఇంటర్నెట్‌లో సురక్షిత రిమోట్-డెస్క్‌టాప్ యాక్సెస్.మీరు చేరుకోవాలనుకునే ప్రతి కంప్యూటర్‌లో Morpheusly డెస్క్‌టాప్ యాప్‌ను ఇన్‌స్టాల్ చేయండి, సైన్ ఇన్ చేయండి మరియు ఆన్‌లైన్‌లో ఉన్న వాటిని చూడండి మరియు Morpheusly మొబైల్ యాప్ నుండి సజావుగా కనెక్ట్ అవ్వండి.</string>
     <string name="action_morpheusly">Morpheusly పొందండి</string>
     <string name="morpheusly_cta_download">Morpheusly పొందండి</string>
+    <string name="connection_add_shortcut">హోమ్ స్క్రీన్‌కు జోడించు</string>
+    <string name="shortcut_not_supported">ఈ లాంచర్ షార్ట్‌కట్‌లను పిన్ చేయడానికి మద్దతు ఇవ్వదు.</string>
 </resources>

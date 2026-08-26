@@ -809,4 +809,6 @@ Aplikácia je už oslobodená od optimalizácie batérie.</string>
     <string name="action_morpheusly">Získajte Morpheusly</string>
     <string name="morpheusly_cta_body">Bezpečný prístup k vzdialenej ploche cez internet s nulovou konfiguráciou siete.Nainštalujte si Morpheusly počítačovú aplikáciu na každý počítač, ku ktorému chcete mať prístup, prihláste sa a zistite, ktoré z nich sú online, a bezproblémovo sa pripojte z Morpheusly mobilnej aplikácie.</string>
     <string name="morpheusly_cta_download">Získajte Morpheusly</string>
+    <string name="connection_add_shortcut">Pridať na plochu</string>
+    <string name="shortcut_not_supported">Tento spúšťač nepodporuje pripínanie skratiek.</string>
 </resources>

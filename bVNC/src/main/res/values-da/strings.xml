@@ -981,4 +981,6 @@ Appen er allerede fritaget for batterioptimering.</string>
     <string name="action_morpheusly">Få Morpheusly</string>
     <string name="morpheusly_cta_body">Sikker fjernadgang til skrivebordet over internettet uden netværkskonfiguration.Installer Morpheusly desktop-appen på hver computer, du ønsker at nå, log ind og se, hvilke der er online, og tilslut problemfrit fra Morpheusly mobilappen.</string>
     <string name="morpheusly_cta_download">Få Morpheusly</string>
+    <string name="connection_add_shortcut">Føj til startskærm</string>
+    <string name="shortcut_not_supported">Denne launcher understøtter ikke fastgørelse af genveje.</string>
 </resources>

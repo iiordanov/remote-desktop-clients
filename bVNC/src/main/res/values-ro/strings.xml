@@ -904,4 +904,6 @@ Aplicația este deja scutită de optimizările bateriei.</string>
     <string name="action_morpheusly">Obțineți Morpheusly</string>
     <string name="morpheusly_cta_body">Acces securizat la computer de la distanță prin Internet, fără configurație de rețea.Instalați aplicația desktop Morpheusly pe fiecare computer la care doriți să ajungeți, conectați-vă și vedeți care sunt online și conectați-vă fără probleme din aplicația mobilă Morpheusly.</string>
     <string name="morpheusly_cta_download">Obțineți Morpheusly</string>
+    <string name="connection_add_shortcut">Adaugă pe ecranul principal</string>
+    <string name="shortcut_not_supported">Acest lansator nu acceptă fixarea comenzilor rapide.</string>
 </resources>

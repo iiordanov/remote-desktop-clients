@@ -762,6 +762,8 @@ When you add or edit a connection, you will see a connection configuration page.
     <string name="shortcut_label_vnc">VNC Connection</string>
     <string name="shortcut_label_rdp">RDP Connection</string>
     <string name="shortcut_label_spice">SPICE Connection</string>
+    <string name="connection_add_shortcut">Add to Home screen</string>
+    <string name="shortcut_not_supported">This launcher does not support pinning shortcuts.</string>
 
     <string name="showkbd_label">Keyboard</string>
 

@@ -809,4 +809,6 @@ ASPICE বৈশিষ্ট্যগুলির বর্তমান তা�
     <string name="action_morpheusly">পান Morpheusly</string>
     <string name="morpheusly_cta_body">শূন্য নেটওয়ার্ক কনফিগারেশন সহ ইন্টারনেটে দূরবর্তী-ডেস্কটপ অ্যাক্সেস সুরক্ষিত করুন।আপনি যে কম্পিউটারে পৌঁছাতে চান, সাইন ইন করতে চান এবং কোনটি অনলাইনে তা দেখতে চান প্রতিটি কম্পিউটারে Morpheusly ডেস্কটপ অ্যাপটি ইনস্টল করুন এবং Morpheusly মোবাইল অ্যাপ থেকে নির্বিঘ্নে সংযোগ করুন।</string>
     <string name="morpheusly_cta_download">পান Morpheusly</string>
+    <string name="connection_add_shortcut">হোম স্ক্রিনে যোগ করুন</string>
+    <string name="shortcut_not_supported">এই লঞ্চারটি শর্টকাট পিন করা সমর্থন করে না।</string>
 </resources>

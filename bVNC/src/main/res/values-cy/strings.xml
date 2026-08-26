@@ -981,4 +981,6 @@ Mae ap eisoes wedi\'i eithrio rhag optimeiddio batri.</string>
     <string name="action_morpheusly">Cael Morpheusly</string>
     <string name="morpheusly_cta_body">Sicrhau mynediad penbwrdd o bell dros y Rhyngrwyd gyda dim cyfluniad rhwydwaith.Gosodwch yr ap bwrdd gwaith Morpheusly ar bob cyfrifiadur rydych am ei gyrraedd, mewngofnodwch, a gweld pa rai sydd ar-lein ac yn cysylltu\'n ddi-dor o\'r ap symudol Morpheusly.</string>
     <string name="morpheusly_cta_download">Cael Morpheusly</string>
+    <string name="connection_add_shortcut">Ychwanegu at y Sgrin Gartref</string>
+    <string name="shortcut_not_supported">Nid yw\'r lansiwr hwn yn cefnogi pinio llwybrau byr.</string>
 </resources>

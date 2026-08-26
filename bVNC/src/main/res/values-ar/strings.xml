@@ -980,4 +980,6 @@ Could not open battery optimization settings.قم بتعطيل تحسين الب
     <string name="action_morpheusly">احصل على Morpheusly</string>
     <string name="morpheusly_cta_download">احصل على Morpheusly</string>
     <string name="morpheusly_cta_body">وصول آمن لسطح المكتب البعيد عبر الإنترنت دون أي إعداد للشبكة. ثبّت تطبيق Morpheusly لسطح المكتب على كل جهاز تريد الوصول إليه، سجّل الدخول، وشاهد الأجهزة المتصلة بالإنترنت واتصل بسلاسة من تطبيق Morpheusly للجوال.</string>
+    <string name="connection_add_shortcut">إضافة إلى الشاشة الرئيسية</string>
+    <string name="shortcut_not_supported">هذا المشغّل لا يدعم تثبيت الاختصارات.</string>
 </resources>

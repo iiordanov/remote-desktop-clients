@@ -906,4 +906,6 @@
     <string name="action_morpheusly">Αποκτήστε Morpheusly</string>
     <string name="morpheusly_cta_body">Ασφαλής πρόσβαση απομακρυσμένης επιφάνειας εργασίας μέσω Διαδικτύου με μηδενική διαμόρφωση δικτύου.Εγκαταστήστε την εφαρμογή Morpheusly για επιτραπέζιους υπολογιστές σε κάθε υπολογιστή που θέλετε να προσεγγίσετε, συνδεθείτε και δείτε ποιοι είναι online και συνδεθείτε απρόσκοπτα από την εφαρμογή Morpheusly για κινητά.</string>
     <string name="morpheusly_cta_download">Αποκτήστε Morpheusly</string>
+    <string name="connection_add_shortcut">Προσθήκη στην αρχική οθόνη</string>
+    <string name="shortcut_not_supported">Αυτό το πρόγραμμα εκκίνησης δεν υποστηρίζει καρφίτσωμα συντομεύσεων.</string>
 </resources>

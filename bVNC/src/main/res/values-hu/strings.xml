@@ -979,4 +979,6 @@ Az alkalmazás már mentesül az akkumulátoroptimalizálás alól.</string>
     <string name="action_morpheusly">Szerezd meg Morpheusly</string>
     <string name="morpheusly_cta_body">Biztonságos távoli asztali hozzáférés az interneten keresztül nulla hálózati konfigurációval.Telepítse a Morpheusly asztali alkalmazást minden olyan számítógépre, amelyet el szeretne érni, jelentkezzen be, és nézze meg, melyik van online, és csatlakozzon zökkenőmentesen a Morpheusly mobilalkalmazásból.</string>
     <string name="morpheusly_cta_download">Szerezd meg Morpheusly</string>
+    <string name="connection_add_shortcut">Hozzáadás a kezdőképernyőhöz</string>
+    <string name="shortcut_not_supported">Ez az indító nem támogatja a parancsikonok rögzítését.</string>
 </resources>

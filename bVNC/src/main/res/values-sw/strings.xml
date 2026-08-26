@@ -809,4 +809,6 @@ Programu tayari imeondolewa kwenye uboreshaji wa betri.</string>
     <string name="action_morpheusly">Pata Morpheusly</string>
     <string name="morpheusly_cta_body">Salama ufikiaji wa eneo-kazi la mbali kupitia Mtandao na usanidi wa mtandao sufuri.Sakinisha programu ya Morpheusly ya eneo-kazi kwenye kila kompyuta unayotaka kufikia, ingia, na uone zipi ziko mtandaoni na uunganishe kwa urahisi kutoka kwa Morpheusly programu ya simu.</string>
     <string name="morpheusly_cta_download">Pata Morpheusly</string>
+    <string name="connection_add_shortcut">Ongeza kwenye Skrini ya Kwanza</string>
+    <string name="shortcut_not_supported">Kizinduzi hiki hakitumii kubandika njia za mkato.</string>
 </resources>

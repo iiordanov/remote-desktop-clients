@@ -976,4 +976,6 @@ App is already exempt from battery optimizations.</string>
     <string name="action_morpheusly">Obtenha Morpheusly</string>
     <string name="morpheusly_cta_body">Acesso seguro à área de trabalho remota pela Internet sem configuração de rede.Instale o aplicativo Morpheusly para desktop em todos os computadores que você deseja acessar, faça login e veja quais estão online e conecte-se perfeitamente a partir do Morpheusly aplicativo móvel.</string>
     <string name="morpheusly_cta_download">Obtenha Morpheusly</string>
+    <string name="connection_add_shortcut">Adicionar à tela inicial</string>
+    <string name="shortcut_not_supported">Este inicializador não é compatível com a fixação de atalhos.</string>
 </resources>

@@ -809,4 +809,6 @@
     <string name="action_morpheusly">Узми Morpheusly</string>
     <string name="morpheusly_cta_body">Безбедан приступ удаљеној радној површини преко Интернета са нултом мрежном конфигурацијом.Инсталирајте Morpheusly десктоп апликацију на сваки рачунар на који желите да приступите, пријавите се и видите који су онлајн и беспрекорно се повежите из Morpheusly мобилне апликације.</string>
     <string name="morpheusly_cta_download">Узми Morpheusly</string>
+    <string name="connection_add_shortcut">Додај на почетни екран</string>
+    <string name="shortcut_not_supported">Овај покретач не подржава качење пречица.</string>
 </resources>

@@ -906,4 +906,6 @@ Appen är redan undantagen från batterioptimering.</string>
     <string name="action_morpheusly">Skaffa Morpheusly</string>
     <string name="morpheusly_cta_body">Säker fjärråtkomst till skrivbord över Internet utan nätverkskonfiguration.Installera Morpheusly skrivbordsappen på varje dator du vill nå, logga in och se vilka som är online och anslut sömlöst från Morpheusly mobilappen.</string>
     <string name="morpheusly_cta_download">Skaffa Morpheusly</string>
+    <string name="connection_add_shortcut">Lägg till på startskärmen</string>
+    <string name="shortcut_not_supported">Det här startprogrammet stöder inte att fästa genvägar.</string>
 </resources>

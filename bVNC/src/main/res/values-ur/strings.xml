@@ -774,4 +774,6 @@ ASPICE خصوصیات کی موجودہ فہرست میں شامل ہیں:
     <string name="action_morpheusly">Morpheusly حاصل کریں۔</string>
     <string name="morpheusly_cta_body">صفر نیٹ ورک کنفیگریشن کے ساتھ انٹرنیٹ پر ریموٹ ڈیسک ٹاپ تک رسائی کو محفوظ کریں۔ہر اس کمپیوٹر پر Morpheusly ڈیسک ٹاپ ایپ انسٹال کریں جس تک آپ پہنچنا چاہتے ہیں، سائن ان کریں، اور دیکھیں کہ کون سا آن لائن ہے اور Morpheusly موبائل ایپ سے بغیر کسی رکاوٹ کے جڑیں۔</string>
     <string name="morpheusly_cta_download">Morpheusly حاصل کریں۔</string>
+    <string name="connection_add_shortcut">ہوم اسکرین میں شامل کریں</string>
+    <string name="shortcut_not_supported">یہ لانچر شارٹ کٹ پن کرنے کی حمایت نہیں کرتا۔</string>
 </resources>

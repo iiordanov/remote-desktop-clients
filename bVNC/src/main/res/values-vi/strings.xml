@@ -809,4 +809,6 @@ Không thể mở cài đặt tối ưu hóa pin. Tắt tối ưu hóa pin theo 
     <string name="action_morpheusly">Nhận Morpheusly</string>
     <string name="morpheusly_cta_body">Bảo mật quyền truy cập máy tính từ xa qua Internet với cấu hình mạng bằng không.Cài đặt ứng dụng Morpheusly dành cho máy tính để bàn trên mọi máy tính mà bạn muốn tiếp cận, đăng nhập và xem máy tính nào đang trực tuyến và kết nối liền mạch từ ứng dụng Morpheusly dành cho thiết bị di động.</string>
     <string name="morpheusly_cta_download">Nhận Morpheusly</string>
+    <string name="connection_add_shortcut">Thêm vào Màn hình chính</string>
+    <string name="shortcut_not_supported">Trình khởi chạy này không hỗ trợ ghim lối tắt.</string>
 </resources>

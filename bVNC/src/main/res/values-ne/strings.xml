@@ -809,4 +809,6 @@ ASPICE सुविधाहरूको हालको सूचीमा स�
     <string name="action_morpheusly">Morpheusly प्राप्त गर्नुहोस्</string>
     <string name="morpheusly_cta_body">शून्य नेटवर्क कन्फिगरेसनको साथ इन्टरनेटमा रिमोट-डेस्कटप पहुँच सुरक्षित गर्नुहोस्।तपाईंले पहुँच गर्न, साइन इन गर्न, र कुन कुन अनलाइन छन् हेर्नुहोस् र Morpheusly मोबाइल एपबाट निर्बाध जडान गर्न चाहनुभएको प्रत्येक कम्प्युटरमा Morpheusly डेस्कटप एप स्थापना गर्नुहोस्।</string>
     <string name="morpheusly_cta_download">Morpheusly प्राप्त गर्नुहोस्</string>
+    <string name="connection_add_shortcut">गृह स्क्रिनमा थप्नुहोस्</string>
+    <string name="shortcut_not_supported">यो लन्चरले सर्टकटहरू पिन गर्न समर्थन गर्दैन।</string>
 </resources>

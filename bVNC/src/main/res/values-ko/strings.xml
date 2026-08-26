@@ -902,4 +902,6 @@ aSPICEで의 대응 기능는 이하와 같다 :
     <string name="action_morpheusly">Morpheusly 얻기</string>
     <string name="morpheusly_cta_body">네트워크 구성 없이 인터넷을 통한 안전한 원격 데스크탑 액세스를 제공합니다.연결하려는 모든 컴퓨터에 Morpheusly 데스크톱 앱을 설치하고 로그인한 후 어떤 컴퓨터가 온라인인지 확인하고 Morpheusly 모바일 앱에서 원활하게 연결하세요.</string>
     <string name="morpheusly_cta_download">Morpheusly 얻기</string>
+    <string name="connection_add_shortcut">홈 화면에 추가</string>
+    <string name="shortcut_not_supported">이 런처는 바로 가기 고정을 지원하지 않습니다.</string>
 </resources>

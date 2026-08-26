@@ -809,4 +809,6 @@ aSPICE அம்சங்களின் தற்போதைய பட்ட�
     <string name="morpheusly_cta_body">பூஜ்ஜிய நெட்வொர்க் உள்ளமைவுடன் இணையத்தில் பாதுகாப்பான ரிமோட்-டெஸ்க்டாப் அணுகல்.நீங்கள் அணுக விரும்பும் ஒவ்வொரு கணினியிலும் Morpheusly டெஸ்க்டாப் பயன்பாட்டை நிறுவவும், உள்நுழையவும் மற்றும் ஆன்லைனில் உள்ளவைகளைப் பார்க்கவும் மற்றும் Morpheusly மொபைல் பயன்பாட்டிலிருந்து தடையின்றி இணைக்கவும்.</string>
     <string name="action_morpheusly">Morpheusly பெறுக</string>
     <string name="morpheusly_cta_download">Morpheusly பெறுக</string>
+    <string name="connection_add_shortcut">முகப்புத் திரையில் சேர்</string>
+    <string name="shortcut_not_supported">இந்த லாஞ்சர் குறுக்குவழிகளைப் பொருத்துவதை ஆதரிக்கவில்லை.</string>
 </resources>

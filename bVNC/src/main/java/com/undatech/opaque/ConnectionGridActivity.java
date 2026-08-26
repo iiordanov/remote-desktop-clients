@@ -62,6 +62,7 @@ import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Database;
+import com.iiordanov.bVNC.ShortcutHelper;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.DefaultSettingsBottomSheet;
 import com.iiordanov.bVNC.dialogs.DiscoveryBottomSheet;
@@ -138,16 +139,24 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ConnectionGridActivity.this);
             String gridItemText = ((TextView) v.findViewById(R.id.grid_item_text)).getText().toString();
             alertDialogBuilder.setTitle(getString(R.string.connection_edit_delete_prompt) + " " + gridItemText + " ?");
-            CharSequence[] cs = {getString(R.string.connection_edit), getString(R.string.connection_delete)};
+            List<CharSequence> options = new ArrayList<>();
+            options.add(getString(R.string.connection_edit));
+            options.add(getString(R.string.connection_delete));
+            if (shortcutCreationSupported()) {
+                options.add(getString(R.string.connection_add_shortcut));
+            }
+            CharSequence[] cs = options.toArray(new CharSequence[0]);
             alertDialogBuilder.setItems(cs, (dialog, item) -> {
-                if (getString(R.string.connection_edit).equals(cs[item].toString())) {
+                String choice = cs[item].toString();
+                if (getString(R.string.connection_edit).equals(choice)) {
                     editConnection(v);
-                } else if (getString(R.string.connection_delete).equals(cs[item].toString())) {
+                } else if (getString(R.string.connection_delete).equals(choice)) {
                     deleteConnection(v);
+                } else if (getString(R.string.connection_add_shortcut).equals(choice)) {
+                    createShortcut(v);
                 }
             });
-            AlertDialog alertDialog = alertDialogBuilder.create();
-            alertDialog.show();
+            alertDialogBuilder.create().show();
             return true;
         });
         new BatteryOptimizationDisabler(this, gridView).requestBatteryOptimizationExemptionAutomaticallyOnce();
@@ -304,6 +313,28 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         if (connection != null) {
             Log.d(TAG, "editConnection - Editing Opaque with file: " + connection.getFilename());
             intent.putExtra(Constants.OPAQUE_CONNECTION_TO_EDIT_INTENT_KEY, connection.getFilename());
+        }
+    }
+
+    /**
+     * A direct-launch shortcut bypasses the connection list, so it is only offered when the
+     * launch URI scheme is supported (non-Opaque) and Master Password is not protecting the
+     * connections.
+     */
+    private boolean shortcutCreationSupported() {
+        return !Utils.isOpaque(this) && !ShortcutHelper.isMasterPasswordEnabled(this);
+    }
+
+    private void createShortcut(View v) {
+        Log.d(TAG, "createShortcut");
+        String runtimeId = ((TextView) v.findViewById(R.id.grid_item_id)).getText().toString();
+        Connection connection = getConnectionLoader(this).getConnectionsById().get(runtimeId);
+        if (connection == null) {
+            Log.e(TAG, "createShortcut: connection not found for id " + runtimeId);
+            return;
+        }
+        if (!ShortcutHelper.requestPinShortcut(this, connection)) {
+            Snackbar.make(gridView, R.string.shortcut_not_supported, Snackbar.LENGTH_LONG).show();
         }
     }
 

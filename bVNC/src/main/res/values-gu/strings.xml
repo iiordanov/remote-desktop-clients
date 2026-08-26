@@ -898,4 +898,6 @@ connection ઉમેરો/edit ઉપર, connection configuration page.
     <string name="action_morpheusly">Morpheusly મેળવો</string>
     <string name="morpheusly_cta_body">શૂન્ય નેટવર્ક ગોઠવણી સાથે ઇન્ટરનેટ પર રિમોટ-ડેસ્કટોપ ઍક્સેસ સુરક્ષિત કરો.તમે જે કમ્પ્યુટર સુધી પહોંચવા માંગો છો, સાઇન ઇન કરવા માંગો છો, અને કઈ ઓનલાઈન છે તે જુઓ અને Morpheusly મોબાઈલ એપથી એકીકૃત રીતે કનેક્ટ થવા માંગતા હો તે દરેક કમ્પ્યુટર પર Morpheusly ડેસ્કટૉપ એપ્લિકેશન ઇન્સ્ટોલ કરો.</string>
     <string name="morpheusly_cta_download">Morpheusly મેળવો</string>
+    <string name="connection_add_shortcut">હોમ સ્ક્રીન પર ઉમેરો</string>
+    <string name="shortcut_not_supported">આ લૉન્ચર શૉર્ટકટ પિન કરવાનું સમર્થન કરતું નથી.</string>
 </resources>

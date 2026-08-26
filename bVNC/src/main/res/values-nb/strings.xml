@@ -904,4 +904,6 @@ Appen er allerede unntatt fra batterioptimalisering.</string>
     <string name="action_morpheusly">Få Morpheusly</string>
     <string name="morpheusly_cta_body">Sikker ekstern stasjonær tilgang over Internett uten nettverkskonfigurasjon.Installer Morpheusly skrivebordsappen på hver datamaskin du ønsker å nå, logg på og se hvilke som er online og koble til sømløst fra Morpheusly mobilappen.</string>
     <string name="morpheusly_cta_download">Få Morpheusly</string>
+    <string name="connection_add_shortcut">Legg til på startskjermen</string>
+    <string name="shortcut_not_supported">Denne oppstarteren støtter ikke festing av snarveier.</string>
 </resources>

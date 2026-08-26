@@ -902,4 +902,6 @@ aSPICE对应的功能如下：
     <string name="action_morpheusly">获取Morpheusly</string>
     <string name="morpheusly_cta_body">通过零网络配置通过互联网进行安全的远程桌面访问。在您想要访问的每台计算机上安装 Morpheusly 桌面应用程序、登录并查看哪些计算机在线并通过 Morpheusly 移动应用程序无缝连接。</string>
     <string name="morpheusly_cta_download">获取Morpheusly</string>
+    <string name="connection_add_shortcut">添加到主屏幕</string>
+    <string name="shortcut_not_supported">此启动器不支持固定快捷方式。</string>
 </resources>

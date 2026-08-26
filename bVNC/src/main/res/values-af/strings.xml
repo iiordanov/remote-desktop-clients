@@ -982,4 +982,6 @@ Die toepassing is reeds vrygestel van batteryoptimalisering.</string>
     <string name="action_morpheusly">Kry Morpheusly</string>
     <string name="morpheusly_cta_body">Veilige afgeleë rekenaartoegang oor die internet met geen netwerkkonfigurasie nie.Installeer die Morpheusly rekenaartoepassing op elke rekenaar wat jy wil bereik, meld aan en kyk watter aanlyn is en koppel naatloos vanaf die Morpheusly mobiele toepassing.</string>
     <string name="morpheusly_cta_download">Kry Morpheusly</string>
+    <string name="connection_add_shortcut">Voeg by tuisskerm</string>
+    <string name="shortcut_not_supported">Hierdie laaier ondersteun nie die vasspeld van kortpaaie nie.</string>
 </resources>

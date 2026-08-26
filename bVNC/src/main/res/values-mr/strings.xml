@@ -809,4 +809,6 @@ aSPICE वैशिष्ट्यांच्या वर्तमान स�
     <string name="action_morpheusly">Morpheusly मिळवा</string>
     <string name="morpheusly_cta_body">शून्य नेटवर्क कॉन्फिगरेशनसह इंटरनेटवर रिमोट-डेस्कटॉप प्रवेश सुरक्षित करा.तुम्ही पोहोचू इच्छित असलेल्या प्रत्येक संगणकावर Morpheusly डेस्कटॉप ॲप स्थापित करा, साइन इन करा आणि कोणते ऑनलाइन आहेत ते पहा आणि Morpheusly मोबाइल ॲपवरून अखंडपणे कनेक्ट करा.</string>
     <string name="morpheusly_cta_download">Morpheusly मिळवा</string>
+    <string name="connection_add_shortcut">होम स्क्रीनवर जोडा</string>
+    <string name="shortcut_not_supported">हे लाँचर शॉर्टकट पिन करण्यास समर्थन देत नाही.</string>
 </resources>

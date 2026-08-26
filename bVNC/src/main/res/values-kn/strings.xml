@@ -809,4 +809,6 @@ aSPICE ವೈಶಿಷ್ಟ್ಯಗಳ ಪ್ರಸ್ತುತ ಪಟ್ಟ�
     <string name="morpheusly_cta_body">ಶೂನ್ಯ ನೆಟ್‌ವರ್ಕ್ ಕಾನ್ಫಿಗರೇಶನ್‌ನೊಂದಿಗೆ ಇಂಟರ್ನೆಟ್‌ನಲ್ಲಿ ಸುರಕ್ಷಿತ ರಿಮೋಟ್-ಡೆಸ್ಕ್‌ಟಾಪ್ ಪ್ರವೇಶ.ನೀವು ತಲುಪಲು ಬಯಸುವ ಪ್ರತಿಯೊಂದು ಕಂಪ್ಯೂಟರ್‌ನಲ್ಲಿ Morpheusly ಡೆಸ್ಕ್‌ಟಾಪ್ ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಸ್ಥಾಪಿಸಿ, ಸೈನ್ ಇನ್ ಮಾಡಿ ಮತ್ತು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿರುವುದನ್ನು ನೋಡಿ ಮತ್ತು Morpheusly ಮೊಬೈಲ್ ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ ಮನಬಂದಂತೆ ಸಂಪರ್ಕಪಡಿಸಿ.</string>
     <string name="action_morpheusly">Morpheusly ಪಡೆಯಿರಿ</string>
     <string name="morpheusly_cta_download">Morpheusly ಪಡೆಯಿರಿ</string>
+    <string name="connection_add_shortcut">ಮುಖಪುಟ ಪರದೆಗೆ ಸೇರಿಸಿ</string>
+    <string name="shortcut_not_supported">ಈ ಲಾಂಚರ್ ಶಾರ್ಟ್‌ಕಟ್‌ಗಳನ್ನು ಪಿನ್ ಮಾಡುವುದನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ.</string>
 </resources>

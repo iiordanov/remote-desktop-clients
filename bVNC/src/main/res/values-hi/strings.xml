@@ -809,4 +809,6 @@
     <string name="action_morpheusly">प्राप्त करें Morpheusly</string>
     <string name="morpheusly_cta_body">शून्य नेटवर्क कॉन्फ़िगरेशन के साथ इंटरनेट पर सुरक्षित रिमोट-डेस्कटॉप पहुंच।जिस भी कंप्यूटर तक आप पहुंचना चाहते हैं उस पर Morpheusly डेस्कटॉप ऐप इंस्टॉल करें, साइन इन करें और देखें कि कौन सा ऑनलाइन है और Morpheusly मोबाइल ऐप से निर्बाध रूप से कनेक्ट करें।</string>
     <string name="morpheusly_cta_download">प्राप्त करें Morpheusly</string>
+    <string name="connection_add_shortcut">होम स्क्रीन पर जोड़ें</string>
+    <string name="shortcut_not_supported">यह लॉन्चर शॉर्टकट पिन करने का समर्थन नहीं करता।</string>
 </resources>

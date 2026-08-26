@@ -979,4 +979,6 @@ App ist bereits von Batterieoptimierungen ausgenommen.</string>
     <string name="action_morpheusly">Holen Sie sich Morpheusly</string>
     <string name="morpheusly_cta_body">Sicherer Remote-Desktop-Zugriff über das Internet ohne Netzwerkkonfiguration.Installieren Sie die Morpheusly-Desktop-App auf jedem Computer, den Sie erreichen möchten, melden Sie sich an, sehen Sie, welche online sind, und stellen Sie über die Morpheusly-Mobil-App eine nahtlose Verbindung her.</string>
     <string name="morpheusly_cta_download">Holen Sie sich Morpheusly</string>
+    <string name="connection_add_shortcut">Zum Startbildschirm hinzufügen</string>
+    <string name="shortcut_not_supported">Dieser Launcher unterstützt das Anheften von Verknüpfungen nicht.</string>
 </resources>

@@ -907,4 +907,6 @@ App is al vrijgesteld van batterij-optimalisaties.</string>
     <string name="action_morpheusly">Verkrijg Morpheusly</string>
     <string name="morpheusly_cta_body">Veilige externe desktoptoegang via internet zonder netwerkconfiguratie.Installeer de Morpheusly desktop-app op elke computer die u wilt bereiken, meld u aan en kijk welke online zijn en maak naadloos verbinding via de Morpheusly mobiele app.</string>
     <string name="morpheusly_cta_download">Verkrijg Morpheusly</string>
+    <string name="connection_add_shortcut">Toevoegen aan startscherm</string>
+    <string name="shortcut_not_supported">Deze launcher ondersteunt het vastzetten van snelkoppelingen niet.</string>
 </resources>

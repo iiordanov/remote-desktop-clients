@@ -802,4 +802,6 @@
     <string name="action_morpheusly">Отримати Morpheusly</string>
     <string name="morpheusly_cta_body">Безпечний доступ до віддаленого робочого столу через Інтернет без конфігурації мережі.Установіть програму Morpheusly для настільних комп’ютерів на кожному комп’ютері, до якого ви хочете отримати доступ, увійдіть і подивіться, які з них підключені до Інтернету, а також легко підключіться з Morpheusly мобільної програми.</string>
     <string name="morpheusly_cta_download">Отримати Morpheusly</string>
+    <string name="connection_add_shortcut">Додати на головний екран</string>
+    <string name="shortcut_not_supported">Ця програма запуску не підтримує закріплення ярликів.</string>
 </resources>
