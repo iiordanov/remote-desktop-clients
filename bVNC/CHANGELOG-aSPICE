@@ -1,3 +1,7 @@
+v6.4.8
+- Android API 36 Upgrade
+- Pin connection as shortcut by long-tapping
+- Fix for repeated server clipboard copy overloading main thread
 v6.4.7
 - Bugfixes
 v6.4.4
