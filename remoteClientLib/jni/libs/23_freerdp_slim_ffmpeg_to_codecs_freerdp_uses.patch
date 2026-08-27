@@ -1,0 +1,18 @@
+diff --git a/scripts/android-build-ffmpeg.sh b/scripts/android-build-ffmpeg.sh
+--- a/scripts/android-build-ffmpeg.sh
++++ b/scripts/android-build-ffmpeg.sh
+@@ -125,8 +125,12 @@
+         --enable-pic \
+         --enable-jni --enable-mediacodec \
+         --enable-shared \
+-        --disable-stripping \
+-        --disable-programs --disable-doc --disable-avdevice --disable-avfilter --disable-avformat
++        --enable-stripping \
++        --disable-programs --disable-doc --disable-avdevice --disable-avfilter --disable-avformat \
++        --disable-everything \
++        --enable-decoder=aac,h264,gsm_ms,g723_1,adpcm_ms,adpcm_ima_oki,pcm_u8,pcm_u16le,pcm_s16le,pcm_alaw,pcm_mulaw \
++        --enable-encoder=aac,g723_1,adpcm_ms,pcm_u8,pcm_u16le,pcm_s16le,pcm_alaw,pcm_mulaw \
++        --enable-parser=aac,h264
+
+     common_run make clean
+     common_run make -j
