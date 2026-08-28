@@ -45,6 +45,8 @@ import android.os.Message;
 import android.text.ClipboardManager;
 import android.text.Html;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.Window;
@@ -326,25 +328,69 @@ public class Utils {
         }
     }
 
+    /**
+     * Applies the per-id visibility values under {@code configData[configDataKey].visibility}.
+     * The terminal action (view vs menu item) is supplied by the caller.
+     */
+    public interface ConfigVisibilityApplier {
+        void apply(int resId, int visibility);
+    }
+
+    private static void applyVisibilityFromConfig(
+            Context context,
+            Map<String, Map<String, Map<String, ?>>> configData,
+            String configDataKey,
+            ConfigVisibilityApplier applier
+    ) {
+        if (configData == null) {
+            return;
+        }
+        Map<String, Map<String, ?>> element = configData.get(configDataKey);
+        if (element == null) {
+            return;
+        }
+        Map<String, ?> visibility = element.get("visibility");
+        if (visibility == null) {
+            return;
+        }
+        String packageName = Utils.pName(context);
+        for (String s : visibility.keySet()) {
+            Object value = visibility.get(s);
+            if (!(value instanceof Integer)) {
+                Log.w(TAG, "Ignoring non-integer visibility value for '" + s + "' in config");
+                continue;
+            }
+            @SuppressLint("DiscouragedApi") int resID = context.getResources().getIdentifier(s, "id", packageName);
+            applier.apply(resID, (Integer) value);
+        }
+    }
+
     public static void setVisibilityForViewElementsViaConfig(
             Context context,
             Map<String, Map<String, Map<String, ?>>> configData,
             String configDataKey,
             View view
-    ) throws NullPointerException {
-        String packageName = Utils.pName(context);
-        Map<String, Map<String, ?>> element = configData.get(configDataKey);
-        if (element != null) {
-            Map<String, ?> visibility = element.get("visibility");
-
-            if (visibility != null) {
-                for (String s : visibility.keySet()) {
-                    @SuppressLint("DiscouragedApi") int resID = context.getResources().getIdentifier(s, "id", packageName);
-                    View viewElement = view.findViewById(resID);
-                    viewElement.setVisibility((int) visibility.get(s));
-                }
+    ) {
+        applyVisibilityFromConfig(context, configData, configDataKey, (resId, vis) -> {
+            View viewElement = view.findViewById(resId);
+            if (viewElement != null) {
+                viewElement.setVisibility(vis);
             }
-        }
+        });
+    }
+
+    public static void setMenuItemVisibilityViaConfig(
+            Context context,
+            Map<String, Map<String, Map<String, ?>>> configData,
+            String configDataKey,
+            Menu menu
+    ) {
+        applyVisibilityFromConfig(context, configData, configDataKey, (resId, vis) -> {
+            MenuItem item = menu.findItem(resId);
+            if (item != null) {
+                item.setVisible(vis == View.VISIBLE);
+            }
+        });
     }
 
     @SuppressWarnings("rawtypes")

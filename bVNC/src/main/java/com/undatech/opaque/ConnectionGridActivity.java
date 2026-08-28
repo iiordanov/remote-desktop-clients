@@ -73,6 +73,7 @@ import com.iiordanov.bVNC.dialogs.MorpheuslyBottomSheet;
 import com.iiordanov.bVNC.dialogs.NetworkDiscovery;
 import com.iiordanov.bVNC.dialogs.RateOrShareFragment;
 import com.iiordanov.permissions.BatteryOptimizationDisabler;
+import com.iiordanov.util.CustomClientConfigFileReader;
 import com.iiordanov.util.MasterPasswordDelegate;
 import com.undatech.opaque.util.ConnectionLoader;
 import com.undatech.opaque.util.FileUtils;
@@ -556,6 +557,11 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         MenuItem morpheusly = menu.findItem(R.id.actionMorpheusly);
         if (morpheusly != null) {
             MenuItemCompat.setIconTintList(morpheusly, null);
+        }
+        CustomClientConfigFileReader configReader = App.getConfigFileReader();
+        if (configReader != null) {
+            Utils.setMenuItemVisibilityViaConfig(
+                    this, configReader.getConfigData(), "connectionGridActivity", menu);
         }
         return super.onCreateOptionsMenu(menu);
     }
