@@ -73,6 +73,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
@@ -468,8 +469,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             Log.d(TAG, "onGlobalLayout: Found r.top to be non-zero");
         }
 
-        // Enable/show the toolbar if the keyboard is gone, and disable/hide otherwise.
-        // We detect the keyboard if more than 19% of the window is covered.
         int rootViewHeight = rootView.getHeight();
 
         if (keyboardIconForAndroidTvX == Float.MAX_VALUE) {
@@ -488,8 +487,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
                 " diffLayoutKeysPosition: " + diffLayoutKeysPosition + " diffToolbarPosition: " + diffToolbarPosition);
 
-        if (visibleArea.bottom > rootViewHeight * 0.81) {
-            Log.d(TAG, "onGlobalLayout: Less than 19% of screen is covered");
+        if (!isSoftKeyboardVisible(rootView)) {
+            Log.d(TAG, "onGlobalLayout: soft keyboard is hidden");
             String direction = "down";
             // Soft Kbd gone, shift the extra keys toolbar down.
             if (extraKeysToolbar != null) {
@@ -502,7 +501,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             }
             softKeyboardUp = false;
         } else {
-            Log.d(TAG, "onGlobalLayout: More than 19% of screen is covered");
+            Log.d(TAG, "onGlobalLayout: soft keyboard is visible");
             softKeyboardUp = true;
             String direction = "up";
             //  Soft Kbd up, shift the extra keys toolbar up.
@@ -591,6 +590,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         visibleArea.left = Math.max(0, visibleArea.left);
         visibleArea.top = Math.max(0, visibleArea.top);
         return visibleArea;
+    }
+
+    private static boolean isSoftKeyboardVisible(View view) {
+        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(view);
+        // Some Android versions also report another window's keyboard as visible.
+        return view.hasWindowFocus() && insets != null && insets.isVisible(WindowInsetsCompat.Type.ime());
     }
 
     private void shiftToolbar(Rect visibleArea, int diffLayoutKeysPosition, int diffToolbarPosition, int standardToolbarPositionX, int standardToolbarPositionY, String direction) {
@@ -1385,7 +1390,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     }
 
     public void toggleKeyboard(MenuItem menuItem) {
-        if (softKeyboardUp) {
+        if (isSoftKeyboardVisible(canvas)) {
             hideKeyboard();
         } else {
             showKeyboard();
@@ -1396,7 +1401,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         Log.i(TAG, "Showing keyboard and hiding action bar");
         canvas.requestFocus();
         Utils.showKeyboard(this, canvas);
-        softKeyboardUp = true;
         Objects.requireNonNull(getSupportActionBar()).hide();
     }
 
@@ -1404,7 +1408,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         Log.i(TAG, "Hiding keyboard and hiding action bar");
         canvas.requestFocus();
         Utils.hideKeyboard(this, getCurrentFocus());
-        softKeyboardUp = false;
         Objects.requireNonNull(getSupportActionBar()).hide();
     }
 
