@@ -962,17 +962,18 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
     /**
      * Used to wait until getWidth and getHeight return sane values.
+     * @throws InterruptedException if the waiting thread is interrupted
      */
-    public void waitUntilInflated() {
+    public void waitUntilInflated() throws InterruptedException {
         synchronized (this) {
-            while (getWidth() == 0 || getHeight() == 0) {
-                try {
-                    this.wait();
-                } catch (InterruptedException e) {
-                    Log.e(TAG, Log.getStackTraceString(e));
-                }
+            while (!isInflated()) {
+                this.wait();
             }
         }
+    }
+
+    boolean isInflated() {
+        return getWidth() > 0 && getHeight() > 0;
     }
 
     /**

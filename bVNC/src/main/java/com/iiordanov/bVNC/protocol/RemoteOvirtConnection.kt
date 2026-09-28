@@ -89,6 +89,7 @@ class RemoteOvirtConnection(
                         }
                     }
                     spiceComm?.handler = handler
+                    canvas.waitUntilInflated()
                     spiceComm?.connectOvirt(
                         connection.hostname,
                         connection.vmname,

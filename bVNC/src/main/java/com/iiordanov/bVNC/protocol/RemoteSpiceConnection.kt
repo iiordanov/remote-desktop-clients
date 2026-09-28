@@ -21,7 +21,7 @@ class RemoteSpiceConnection(
     canvas: Viewable,
     hideKeyboardAndExtraKeys: Runnable,
 ) : RemoteOpaqueConnection(context, connection, canvas, hideKeyboardAndExtraKeys) {
-    private val tag: String = "RemoteVncConnection"
+    private val tag: String = "RemoteSpiceConnection"
 
     /**
      * Initializes a SPICE connection.
@@ -48,6 +48,7 @@ class RemoteSpiceConnection(
     @Throws(Exception::class)
     private fun startSpiceConnection() {
         Log.d(tag, "startSpiceConnection")
+        canvas.waitUntilInflated()
         startConnectionDirectlyOrFromFile()
     }
 

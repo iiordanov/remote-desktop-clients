@@ -134,6 +134,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     }
 
     final long hideToolbarDelay = 2500;
+    final long rotationCorrectionDelay = 300;
     TouchInputHandler touchInputHandler;
     Panner panner;
     Handler handler;
@@ -227,9 +228,17 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         }
     };
 
+    private void postRotationCorrection() {
+        handler.removeCallbacks(rotationCorrector);
+        handler.postDelayed(rotationCorrector, rotationCorrectionDelay);
+    }
+
     private void correctAfterRotation() throws Exception {
         Log.d(TAG, "correctAfterRotation");
-        canvas.waitUntilInflated();
+        if (!canvas.isInflated()) {
+            postRotationCorrection();
+            return;
+        }
         // Its quite common to see NullPointerExceptions here when this function is called
         // at the point of disconnection. Hence, we catch and ignore the error.
         float oldScale = canvas.canvasZoomer.getZoomFactor();
@@ -890,7 +899,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         controlImmersive();
         try {
             setExtraKeysVisibility(View.GONE, false);
-            handler.postDelayed(rotationCorrector, 300);
+            postRotationCorrection();
         } catch (NullPointerException e) {
             Log.d(TAG, "Ignoring NullPointerException during onConfigurationChanged");
         }

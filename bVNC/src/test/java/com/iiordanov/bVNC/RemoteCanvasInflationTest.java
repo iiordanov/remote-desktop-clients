@@ -11,6 +11,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Tests waiting on a background thread for RemoteCanvas to be laid out with a size.
  */
@@ -19,6 +21,7 @@ public class RemoteCanvasInflationTest {
     private static final long STILL_WAITING_CHECK_MS = 300;
     private static final long WAIT_TIMEOUT_MS = 2000;
 
+    private final AtomicBoolean waitInterrupted = new AtomicBoolean();
     private RemoteCanvas canvas;
 
     @Before
@@ -45,8 +48,23 @@ public class RemoteCanvasInflationTest {
         assertFalse("waitUntilInflated did not return after layout", waiter.isAlive());
     }
 
+    @Test
+    public void waitUntilInflated_interruptedBeforeLayout_throwsInterruptedException() throws InterruptedException {
+        Thread waiter = startWaiter();
+        waiter.interrupt();
+        waiter.join(WAIT_TIMEOUT_MS);
+        assertFalse("waitUntilInflated kept waiting after an interrupt", waiter.isAlive());
+        assertTrue("waitUntilInflated returned without throwing InterruptedException", waitInterrupted.get());
+    }
+
     private Thread startWaiter() {
-        Thread waiter = new Thread(canvas::waitUntilInflated);
+        Thread waiter = new Thread(() -> {
+            try {
+                canvas.waitUntilInflated();
+            } catch (InterruptedException e) {
+                waitInterrupted.set(true);
+            }
+        });
         waiter.setDaemon(true);
         waiter.start();
         return waiter;
