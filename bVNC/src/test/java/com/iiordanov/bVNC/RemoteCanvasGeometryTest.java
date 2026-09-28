@@ -66,36 +66,63 @@ public class RemoteCanvasGeometryTest {
     }
 
     @Test
-    public void oneToOne_framebufferSmallerThanView_isAnchoredRightAndBottomMarginAboveBottom() {
+    public void oneToOne_framebufferSmallerThanView_isCentered() {
         createLaidOutCanvas(2000, 1600, 800, 600);
         new OneToOneScaling().setScaleTypeForActivity(activity);
         canvas.relativePan(0, 0);
-        assertFramebufferOriginAt(2000 - 800, 1600 - 600 - Constants.BOTTOM_MARGIN);
+        assertCentered();
     }
 
     @Test
-    public void zoom_framebufferSmallerThanViewAtMinimumScale_isAnchoredRight() {
+    public void zoom_framebufferSmallerThanViewAtMinimumScale_isCentered() {
         createLaidOutCanvas(2000, 1200, 800, 600);
         new ZoomScaling().setScaleTypeForActivity(activity);
         assertEquals(2.0f, canvas.getZoomFactor(), 0.0001f);
-        assertFramebufferOriginAt(2000 - 800 * 2, 0);
+        assertCentered();
     }
 
     @Test
-    public void relativePan_framebufferSmallerThanAreaAboveSoftKeyboard_isAnchoredRightAndBottomMarginAboveKeyboard() {
+    public void relativePan_framebufferSmallerThanView_staysCentered() {
+        createLaidOutCanvas(2000, 1600, 800, 600);
+        new OneToOneScaling().setScaleTypeForActivity(activity);
+        canvas.relativePan(300, 200);
+        assertCentered();
+    }
+
+    @Test
+    public void relativePan_framebufferNarrowerButTallerThanView_centersHorizontallyAndPansVertically() {
+        createLaidOutCanvas(2000, 800, 800, 1080);
+        new OneToOneScaling().setScaleTypeForActivity(activity);
+        canvas.relativePan(0, 10000);
+        assertFramebufferOriginAt((2000 - 800) / 2f, -(1080 - 800 + Constants.BOTTOM_MARGIN));
+        assertTouchLandsOnRenderedPixel("centered horizontally and panned vertically");
+    }
+
+    @Test
+    public void relativePan_framebufferOnePixelShorterThanView_keepsPanMargins() {
+        createLaidOutCanvas(800, 601, 800, 600);
+        new OneToOneScaling().setScaleTypeForActivity(activity);
+        canvas.relativePan(0, 10000);
+        assertEquals(600 - 601 + Constants.BOTTOM_MARGIN, canvas.getAbsY());
+    }
+
+    @Test
+    public void relativePan_framebufferSmallerThanAreaAboveSoftKeyboard_isCenteredInThatArea() {
         createLaidOutCanvas(2000, 1600, 800, 600);
         new OneToOneScaling().setScaleTypeForActivity(activity);
         canvas.setVisibleDesktopHeight(1000);
         canvas.relativePan(0, 0);
-        assertFramebufferOriginAt(2000 - 800, 1000 - 600 - Constants.BOTTOM_MARGIN);
+        assertFramebufferOriginAt((2000 - 800) / 2f, (1000 - 600) / 2f);
+        assertTouchLandsOnRenderedPixel("centered above the soft keyboard");
     }
 
     @Test
-    public void absolutePan_framebufferSmallerThanView_showsTopLeftCorner() {
+    public void absolutePan_framebufferSmallerThanView_isCentered() {
         createLaidOutCanvas(2000, 1600, 800, 600);
         new OneToOneScaling().setScaleTypeForActivity(activity);
         canvas.absolutePan(100, 100);
-        assertFramebufferOriginAt(0, 0);
+        assertCentered();
+        assertTouchLandsOnRenderedPixel("centered by an absolute pan");
     }
 
     @Test

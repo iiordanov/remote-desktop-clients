@@ -252,7 +252,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 canvas.canvasZoomer.getScaleType() != ImageView.ScaleType.FIT_CENTER) {
             canvas.absoluteXPosition = x;
             canvas.absoluteYPosition = y;
-            canvas.resetScroll();
+            canvas.relativePan(0, 0);
         }
         remoteConnection.correctAfterRotation();
     }
@@ -454,7 +454,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
         if (r.top == 0 || re.top > 0) {
             if (canvas.getDrawable() != null) {
-                int extraKeysHeight = (extraKeysToolbar != null) ? extraKeysToolbar.getHeight() : 0;
+                int extraKeysHeight = (extraKeysToolbar != null && extraKeysToolbar.getVisibility() == View.VISIBLE)
+                        ? extraKeysToolbar.getHeight() : 0;
                 int usableHeight = visibleArea.height() - extraKeysHeight;
                 Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + usableHeight +
                         ", extraKeysHeight: " + extraKeysHeight);
