@@ -296,6 +296,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         canvasLayout = findViewById(R.id.canvasLayout);
         canvas = findViewById(R.id.canvas);
         keyboardIconForAndroidTv = findViewById(R.id.keyboardIconForAndroidTv);
+        // Before the first layout, so that the canvas doesn't change size after it's first laid out.
+        immersiveDisabler.run();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             canvas.setDefaultFocusHighlightEnabled(false);
