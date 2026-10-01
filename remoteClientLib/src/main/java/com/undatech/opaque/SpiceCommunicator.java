@@ -503,6 +503,10 @@ public class SpiceCommunicator extends RfbConnectable {
             Log.d(TAG, "Requesting remote resolution is disabled");
             return;
         }
+        if (width <= 0 || height <= 0) {
+            Log.d(TAG, "Not requesting resolution " + width + "x" + height);
+            return;
+        }
         if (isInNormalProtocol) {
             int currentWidth = this.width;
             int currentHeight = this.height;
@@ -510,7 +514,6 @@ public class SpiceCommunicator extends RfbConnectable {
             int maxResolutionRequests = 5;
             if ((resolutionRequests == -1 || currentWidth != width || currentHeight != height) &&
                     resolutionRequests < maxResolutionRequests) {
-                canvas.waitUntilInflated();
                 Log.d(TAG, "Requesting new resolution: " + width + "x" + height);
                 SpiceRequestResolution(width, height);
                 writePointerEvent(0, 0, 0, 0, true);

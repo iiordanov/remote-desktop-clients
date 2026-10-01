@@ -73,6 +73,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
@@ -134,6 +135,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     }
 
     final long hideToolbarDelay = 2500;
+    final long rotationCorrectionDelay = 300;
     TouchInputHandler touchInputHandler;
     Panner panner;
     Handler handler;
@@ -227,9 +229,17 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         }
     };
 
+    private void postRotationCorrection() {
+        handler.removeCallbacks(rotationCorrector);
+        handler.postDelayed(rotationCorrector, rotationCorrectionDelay);
+    }
+
     private void correctAfterRotation() throws Exception {
         Log.d(TAG, "correctAfterRotation");
-        canvas.waitUntilInflated();
+        if (!canvas.isInflated()) {
+            postRotationCorrection();
+            return;
+        }
         // Its quite common to see NullPointerExceptions here when this function is called
         // at the point of disconnection. Hence, we catch and ignore the error.
         float oldScale = canvas.canvasZoomer.getZoomFactor();
@@ -243,7 +253,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 canvas.canvasZoomer.getScaleType() != ImageView.ScaleType.FIT_CENTER) {
             canvas.absoluteXPosition = x;
             canvas.absoluteYPosition = y;
-            canvas.resetScroll();
+            canvas.relativePan(0, 0);
         }
         remoteConnection.correctAfterRotation();
     }
@@ -287,6 +297,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         canvasLayout = findViewById(R.id.canvasLayout);
         canvas = findViewById(R.id.canvas);
         keyboardIconForAndroidTv = findViewById(R.id.keyboardIconForAndroidTv);
+        // Before the first layout, so that the canvas doesn't change size after it's first laid out.
+        immersiveDisabler.run();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             canvas.setDefaultFocusHighlightEnabled(false);
@@ -429,6 +441,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         rootView.getWindowVisibleDisplayFrame(r);
         Log.d(TAG, "onGlobalLayout: getWindowVisibleDisplayFrame: " + r);
 
+        int[] rootViewScreenPos = new int[2];
+        rootView.getLocationOnScreen(rootViewScreenPos);
+        Rect visibleArea = getVisibleAreaInRootView(r, rootViewScreenPos);
+
         // To avoid setting the visible height to a wrong value after an screen unlock event
         // (when r.bottom holds the width of the screen rather than the height due to a rotation)
         // we make sure r.top is zero (i.e. there is no notification bar and we are in full-screen mode)
@@ -439,8 +455,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
         if (r.top == 0 || re.top > 0) {
             if (canvas.getDrawable() != null) {
-                int extraKeysHeight = (extraKeysToolbar != null) ? extraKeysToolbar.getHeight() : 0;
-                int usableHeight = r.bottom - re.top - extraKeysHeight;
+                int extraKeysHeight = (extraKeysToolbar != null && extraKeysToolbar.getVisibility() == View.VISIBLE)
+                        ? extraKeysToolbar.getHeight() : 0;
+                int usableHeight = visibleArea.height() - extraKeysHeight;
                 Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + usableHeight +
                         ", extraKeysHeight: " + extraKeysHeight);
                 canvas.setVisibleDesktopHeight(usableHeight);
@@ -452,37 +469,30 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             Log.d(TAG, "onGlobalLayout: Found r.top to be non-zero");
         }
 
-        // Enable/show the toolbar if the keyboard is gone, and disable/hide otherwise.
-        // We detect the keyboard if more than 19% of the screen is covered.
-        // Use the visible display frame of the decor view to compute notch dimensions.
         int rootViewHeight = rootView.getHeight();
 
         if (keyboardIconForAndroidTvX == Float.MAX_VALUE) {
             keyboardIconForAndroidTvX = keyboardIconForAndroidTv.getX();
         }
 
-        int[] rootViewScreenPos = new int[2];
-        rootView.getLocationOnScreen(rootViewScreenPos);
-        int rootViewTopInScreen = rootViewScreenPos[1];
-
         int layoutKeysBottom = extraKeysToolbar.getBottom();
         int toolbarBottom = toolbar.getBottom();
         int rootViewBottom = extraKeysToolbar.getRootView().getBottom();
-        int diffLayoutKeysPosition = r.bottom - rootViewTopInScreen - layoutKeysBottom;
-        int diffToolbarPosition = r.bottom - re.top - toolbarBottom - r.bottom / 2;
-        int standardToolbarPositionX = r.right - toolbar.getWidth();
-        int standardToolbarPositionY = r.bottom - re.top - toolbar.getHeight() - r.bottom / 2;
+        int diffLayoutKeysPosition = visibleArea.bottom - layoutKeysBottom;
+        int diffToolbarPosition = visibleArea.centerY() - toolbarBottom;
+        int standardToolbarPositionX = visibleArea.right - toolbar.getWidth();
+        int standardToolbarPositionY = visibleArea.centerY() - toolbar.getHeight();
         Log.d(TAG, "onGlobalLayout: before: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
                 " diffLayoutKeysPosition: " + diffLayoutKeysPosition + " diffToolbarPosition: " + diffToolbarPosition);
 
-        if (r.bottom > rootViewHeight * 0.81) {
-            Log.d(TAG, "onGlobalLayout: Less than 19% of screen is covered");
+        if (!isSoftKeyboardVisible(rootView)) {
+            Log.d(TAG, "onGlobalLayout: soft keyboard is hidden");
             String direction = "down";
             // Soft Kbd gone, shift the extra keys toolbar down.
             if (extraKeysToolbar != null) {
-                shiftToolbar(r, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
+                shiftToolbar(visibleArea, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
                 if (softKeyboardUp) {
                     Log.d(TAG, "onGlobalLayout: softKeyboardUp was true, but keyboard is now hidden. Hiding on-screen buttons");
                     setExtraKeysVisibility(View.GONE, false);
@@ -491,12 +501,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             }
             softKeyboardUp = false;
         } else {
-            Log.d(TAG, "onGlobalLayout: More than 19% of screen is covered");
+            Log.d(TAG, "onGlobalLayout: soft keyboard is visible");
             softKeyboardUp = true;
             String direction = "up";
             //  Soft Kbd up, shift the extra keys toolbar up.
             if (extraKeysToolbar != null) {
-                shiftToolbar(r, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
+                shiftToolbar(visibleArea, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
                 if (extraKeysHidden) {
                     Log.d(TAG, "onGlobalLayout: on-screen buttons should be hidden");
                     setExtraKeysVisibility(View.GONE, false);
@@ -569,7 +579,26 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         return h == dH;
     }
 
-    private void shiftToolbar(Rect r, int diffLayoutKeysPosition, int diffToolbarPosition, int standardToolbarPositionX, int standardToolbarPositionY, String direction) {
+    /**
+     * Converts the window's visible display frame from screen coordinates to root view coordinates,
+     * which differ in split-screen and freeform windows, and leaves out any part above or left of the
+     * root view, such as a caption bar.
+     */
+    static Rect getVisibleAreaInRootView(Rect visibleDisplayFrame, int[] rootViewLocationOnScreen) {
+        Rect visibleArea = new Rect(visibleDisplayFrame);
+        visibleArea.offset(-rootViewLocationOnScreen[0], -rootViewLocationOnScreen[1]);
+        visibleArea.left = Math.max(0, visibleArea.left);
+        visibleArea.top = Math.max(0, visibleArea.top);
+        return visibleArea;
+    }
+
+    private static boolean isSoftKeyboardVisible(View view) {
+        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(view);
+        // Some Android versions also report another window's keyboard as visible.
+        return view.hasWindowFocus() && insets != null && insets.isVisible(WindowInsetsCompat.Type.ime());
+    }
+
+    private void shiftToolbar(Rect visibleArea, int diffLayoutKeysPosition, int diffToolbarPosition, int standardToolbarPositionX, int standardToolbarPositionY, String direction) {
         Log.d(TAG, String.format("onGlobalLayout: shifting on-screen buttons %s by: %d", direction, diffLayoutKeysPosition));
         // Use setTranslationY instead of offsetTopAndBottom: unlike offsetTopAndBottom, setTranslationY
         // is a render-layer transform that is not reset by layout passes, and does not change getBottom(),
@@ -577,10 +606,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         extraKeysToolbar.setTranslationY(diffLayoutKeysPosition);
         if (extraKeysPageIndicator != null)
             extraKeysPageIndicator.setTranslationY(diffLayoutKeysPosition);
-        offsetOrRestoreSavedToolbarPosition(r, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY);
+        offsetOrRestoreSavedToolbarPosition(visibleArea, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY);
     }
 
-    private void offsetOrRestoreSavedToolbarPosition(Rect r, int diffToolbarPosition, int standardPositionX, int standardPositionY) {
+    private void offsetOrRestoreSavedToolbarPosition(Rect visibleArea, int diffToolbarPosition, int standardPositionX, int standardPositionY) {
         boolean useLastPosition = connection.getUseLastPositionToolbar();
         boolean toolbarMoved = connection.getUseLastPositionToolbarMoved();
         if (!useLastPosition || !toolbarMoved) {
@@ -589,8 +618,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             toolbar.setPositionToMakeVisible(
                     connection.getUseLastPositionToolbarX(),
                     connection.getUseLastPositionToolbarY(),
-                    r.right,
-                    r.bottom,
+                    visibleArea.right,
+                    visibleArea.bottom,
                     standardPositionX,
                     standardPositionY);
         }
@@ -890,7 +919,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         controlImmersive();
         try {
             setExtraKeysVisibility(View.GONE, false);
-            handler.postDelayed(rotationCorrector, 300);
+            postRotationCorrection();
         } catch (NullPointerException e) {
             Log.d(TAG, "Ignoring NullPointerException during onConfigurationChanged");
         }
@@ -1361,7 +1390,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     }
 
     public void toggleKeyboard(MenuItem menuItem) {
-        if (softKeyboardUp) {
+        if (isSoftKeyboardVisible(canvas)) {
             hideKeyboard();
         } else {
             showKeyboard();
@@ -1372,7 +1401,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         Log.i(TAG, "Showing keyboard and hiding action bar");
         canvas.requestFocus();
         Utils.showKeyboard(this, canvas);
-        softKeyboardUp = true;
         Objects.requireNonNull(getSupportActionBar()).hide();
     }
 
@@ -1380,7 +1408,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         Log.i(TAG, "Hiding keyboard and hiding action bar");
         canvas.requestFocus();
         Utils.hideKeyboard(this, getCurrentFocus());
-        softKeyboardUp = false;
         Objects.requireNonNull(getSupportActionBar()).hide();
     }
 

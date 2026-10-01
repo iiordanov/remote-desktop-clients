@@ -69,16 +69,17 @@ open class RemoteOpaqueConnection(
     }
 
     open fun startFromVvFile(configFileName: String?) {
-        val cThread: Thread = object : Thread() {
+        connectionThread = object : Thread() {
             override fun run() {
                 try {
+                    canvas.waitUntilInflated()
                     spiceComm?.startSessionFromVvFile(configFileName, connection.isAudioPlaybackEnabled)
                 } catch (e: Throwable) {
                     handleUncaughtException(e, R.string.error_spice_unable_to_connect)
                 }
             }
         }
-        cThread.start()
+        connectionThread.start()
     }
 
     override fun getSshTunnelTargetAddress(): String = ""

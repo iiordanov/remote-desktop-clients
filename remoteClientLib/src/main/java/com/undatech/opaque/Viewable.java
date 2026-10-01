@@ -9,8 +9,10 @@ public interface Viewable {
     /**
      * Waits until the view has been inflated with non-zero dimensions.
      * Blocks the calling thread until getWidth() and getHeight() return non-zero values.
+     * Must not be called on the UI thread, which is where the view gets its size.
+     * @throws InterruptedException if the waiting thread is interrupted
      */
-    void waitUntilInflated();
+    void waitUntilInflated() throws InterruptedException;
 
     /**
      * Gets the desired width for the remote desktop connection.

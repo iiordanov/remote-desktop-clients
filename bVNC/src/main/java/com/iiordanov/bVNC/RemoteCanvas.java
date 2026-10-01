@@ -624,10 +624,23 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         if (absoluteYPosition + getVisibleDesktopHeight() + sY > getImageHeight() + buttonAndCurveOffset)
             sY = getImageHeight() - getVisibleDesktopHeight() - absoluteYPosition + buttonAndCurveOffset;
 
+        int centeredX = getCenteredOffset(getImageWidth(), getVisibleDesktopWidth());
+        if (centeredX < 0) {
+            sX = centeredX - absoluteXPosition;
+        }
+        int centeredY = getCenteredOffset(getImageHeight(), getVisibleDesktopHeight());
+        if (centeredY < 0) {
+            sY = centeredY - absoluteYPosition;
+        }
+
         absoluteXPosition += (int) sX;
         absoluteYPosition += (int) sY;
         resetScroll();
         return true;
+    }
+
+    private static int getCenteredOffset(int size, int availableSize) {
+        return (size - availableSize) / 2;
     }
 
     /**
@@ -645,6 +658,14 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
             if (y + vH > h) y = h - vH;
             if (x < 0) x = 0;
             if (y < 0) y = 0;
+            int centeredX = getCenteredOffset(w, vW);
+            if (centeredX < 0) {
+                x = centeredX;
+            }
+            int centeredY = getCenteredOffset(h, vH);
+            if (centeredY < 0) {
+                y = centeredY;
+            }
             absoluteXPosition = x;
             absoluteYPosition = y;
             resetScroll();
@@ -888,7 +909,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     public int getCenteredXOffset() {
         synchronized (this) {
             if (myDrawable != null) {
-                return (myDrawable.fbWidth() - getWidth()) / 2;
+                return getCenteredOffset(myDrawable.fbWidth(), getWidth());
             }
             return 0;
         }
@@ -897,7 +918,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     public int getCenteredYOffset() {
         synchronized (this) {
             if (myDrawable != null) {
-                return (myDrawable.fbHeight() - getHeight()) / 2;
+                return getCenteredOffset(myDrawable.fbHeight(), getHeight());
             }
             return 0;
         }
@@ -962,17 +983,18 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
 
     /**
      * Used to wait until getWidth and getHeight return sane values.
+     * @throws InterruptedException if the waiting thread is interrupted
      */
-    public void waitUntilInflated() {
+    public void waitUntilInflated() throws InterruptedException {
         synchronized (this) {
-            while (getWidth() == 0 || getHeight() == 0) {
-                try {
-                    this.wait();
-                } catch (InterruptedException e) {
-                    Log.e(TAG, Log.getStackTraceString(e));
-                }
+            while (!isInflated()) {
+                this.wait();
             }
         }
+    }
+
+    boolean isInflated() {
+        return getWidth() > 0 && getHeight() > 0;
     }
 
     /**
