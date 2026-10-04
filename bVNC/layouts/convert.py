@@ -40,6 +40,8 @@ layouts = {"en-us" : "English (US)", "en-gb" : "English (UK)", "de" : "German (G
            "sl": "Slovenian" }
 # Extra names written with the same layout, because connections may already be saved with them.
 layoutAliases = {"French (France)": ["French"]}
+# Layouts found in the qemu keymaps directory that are not shipped.
+unshippedLayouts = ["French (Canada)"]
 commonKeyCodeFile = "common_keycodes.in"
 nameToUnicodeFile = "name_to_unicode.in"
 ignoreListFile = "ignore.in"
@@ -224,7 +226,14 @@ if __name__ == "__main__":
     # Update with manually crafted names.
     auto_layouts.update(layouts)
 
+    for v, aliases in layoutAliases.items():
+        for alias in aliases:
+            if alias in auto_layouts.values():
+                sys.exit(f"Alias {alias} of {v} has the same name as a layout from {layoutLocation}")
+
     for k, v in auto_layouts.items():
+        if v in unshippedLayouts:
+            continue
         keyMap = {}
         ignoreList = loadIgnoreList(ignoreListFile)
         keyMap = loadCommonKeyCodes (commonKeyCodeFile, keyMap)

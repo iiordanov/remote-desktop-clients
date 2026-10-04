@@ -42,7 +42,8 @@ java/org/freedesktop/gstreamer/androidmedia/
 bVNC/libs/sqlcipher-javadoc.jar
 bVNC/libs/sqlcipher.jar
 bVNC/release/
-bVNC/src/main/assets/
+bVNC/src/main/assets/*
+!bVNC/src/main/assets/layouts/
 bVNC/src2/main/assets/fontconfig/
 bVNC/src2/main/assets/ssl/
 CustomVnc-app/src/main/AndroidManifest.xml.bakautocustom
