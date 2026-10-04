@@ -38,6 +38,8 @@ layouts = {"en-us" : "English (US)", "en-gb" : "English (UK)", "de" : "German (G
            "it" : "Italian (Italy)", "hu" : "Hungarian (Hungary)", "da" : "Danish", "pt" : "Portuguese (Portugal)",
            "pt-br" : "Portuguese (Brazil)", "de-ch" : "German (Switzerland)", "fr-ch" : "French (Switzerland)",
            "sl": "Slovenian" }
+# Extra names written with the same layout, because connections may already be saved with them.
+layoutAliases = {"French (France)": ["French"]}
 commonKeyCodeFile = "common_keycodes.in"
 nameToUnicodeFile = "name_to_unicode.in"
 ignoreListFile = "ignore.in"
@@ -229,9 +231,10 @@ if __name__ == "__main__":
         keyMap = loadKeyMap(nameToUnicode, layoutLocation + "common", keyMap, ignoreList)
         keyMap = loadKeyMap(nameToUnicode, layoutLocation + str(k), keyMap, ignoreList)
 
-        f = open(targetLocation + str(v), "w")
-        for u, s in sorted(keyMap.items()):
-            name = str(keyMap[u]["name"])
-            f.write(str(u) + " " + " ".join(map(str, s["scanCodes"])) + "\n")
-            #f.write(name + " " + str(u) + " " + " ".join(map(str, s["scanCodes"])) + "\n")
-        f.close()
+        for layoutName in [v] + layoutAliases.get(v, []):
+            f = open(targetLocation + str(layoutName), "w")
+            for u, s in sorted(keyMap.items()):
+                name = str(keyMap[u]["name"])
+                f.write(str(u) + " " + " ".join(map(str, s["scanCodes"])) + "\n")
+                #f.write(name + " " + str(u) + " " + " ".join(map(str, s["scanCodes"])) + "\n")
+            f.close()
