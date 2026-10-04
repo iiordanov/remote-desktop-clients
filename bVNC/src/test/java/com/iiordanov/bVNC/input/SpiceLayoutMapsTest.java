@@ -2,12 +2,12 @@ package com.iiordanov.bVNC.input;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.description;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,8 +30,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Characterizes the scan codes aSPICE sends for keys that every SPICE layout map shares.
@@ -53,10 +55,35 @@ public class SpiceLayoutMapsTest {
             {KeyEvent.KEYCODE_MOVE_HOME, 0x147},
             {KeyEvent.KEYCODE_MOVE_END, 0x14f},
             {KeyEvent.KEYCODE_INSERT, 0x152},
+            {KeyEvent.KEYCODE_FORWARD, 0x169},
+            {KeyEvent.KEYCODE_BOOKMARK, 0x166},
+            {KeyEvent.KEYCODE_SEARCH, 0x165},
+            {KeyEvent.KEYCODE_ENVELOPE, 0x16c},
+            {KeyEvent.KEYCODE_CALCULATOR, 0x121},
+            {KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0x122},
+            {KeyEvent.KEYCODE_MEDIA_STOP, 0x124},
+    };
+    // Keys that have no PC keyboard scan code.
+    private static final int[] KEY_CODES_WITHOUT_SCAN_CODES = {
+            KeyEvent.KEYCODE_BUTTON_A, KeyEvent.KEYCODE_BUTTON_L2, KeyEvent.KEYCODE_CHANNEL_UP,
     };
 
     @Test
-    public void everyLayout_sendsNavigationKeyScanCodes() throws IOException {
+    public void everyLayout_sendsNothingForKeysWithoutScanCodes() throws IOException {
+        Context context = RuntimeEnvironment.getApplication();
+        for (String layout : context.getAssets().list(LAYOUTS)) {
+            RfbConnectable spice = connectedSpice();
+            RemoteSpiceKeyboard keyboard = new RemoteSpiceKeyboard(context.getResources(), spice, viewable(context),
+                    remoteInput(), null, layout, false);
+            for (int keyCode : KEY_CODES_WITHOUT_SCAN_CODES) {
+                keyboard.processLocalKeyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode), 0);
+            }
+            verify(spice, never().description(layout)).writeKeyEvent(anyInt(), anyInt(), anyBoolean());
+        }
+    }
+
+    @Test
+    public void everyLayout_sendsExtendedKeyScanCodes() throws IOException {
         Context context = RuntimeEnvironment.getApplication();
         String[] layouts = context.getAssets().list(LAYOUTS);
         assertNotEquals(0, layouts.length);
@@ -76,16 +103,28 @@ public class SpiceLayoutMapsTest {
     }
 
     @Test
-    public void everyLayout_hasCommonKeyCodes() throws IOException {
+    public void everyLayout_hasTheSameScanCodesForExactlyTheCommonKeyCodes() throws IOException {
         Context context = RuntimeEnvironment.getApplication();
-        List<String> commonKeyCodes = Files.readAllLines(Paths.get(COMMON_KEY_CODES), StandardCharsets.UTF_8);
+        Set<String> commonKeyCodes = new HashSet<>();
+        for (String line : Files.readAllLines(Paths.get(COMMON_KEY_CODES), StandardCharsets.UTF_8)) {
+            commonKeyCodes.add(line.split(" ")[1]);
+        }
         assertNotEquals(0, commonKeyCodes.size());
+        Map<String, String> firstLayoutScanCodes = null;
         for (String layout : context.getAssets().list(LAYOUTS)) {
-            List<String> entries = Arrays.asList(readLayout(layout).split("\n"));
-            for (String commonKeyCode : commonKeyCodes) {
-                String[] nameKeyCodeAndScanCode = commonKeyCode.split(" ");
-                String entry = nameKeyCodeAndScanCode[1] + " " + nameKeyCodeAndScanCode[2];
-                assertTrue(layout + " doesn't have " + commonKeyCode, entries.contains(entry));
+            Map<String, String> scanCodes = new HashMap<>();
+            for (String line : readLayout(layout).split("\n")) {
+                String[] keyAndScanCodes = line.split(" ", 2);
+                boolean isKeyCode = Integer.parseInt(keyAndScanCodes[0]) < RemoteSpiceKeyboard.UNICODE_MASK;
+                if (isKeyCode || commonKeyCodes.contains(keyAndScanCodes[0])) {
+                    scanCodes.put(keyAndScanCodes[0], keyAndScanCodes[1]);
+                }
+            }
+            assertEquals(layout, commonKeyCodes, scanCodes.keySet());
+            if (firstLayoutScanCodes == null) {
+                firstLayoutScanCodes = scanCodes;
+            } else {
+                assertEquals(layout, firstLayoutScanCodes, scanCodes);
             }
         }
     }

@@ -21,6 +21,9 @@ import os
 import logging
 import collections
 import re
+import csv
+import io
+import urllib.request
 
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
@@ -43,6 +46,9 @@ layoutAliases = {"French (France)": ["French"]}
 # Layouts found in the qemu keymaps directory that are not shipped.
 unshippedLayouts = ["French (Canada)"]
 commonKeyCodeFile = "common_keycodes.in"
+# Linux key names to scan codes, pinned to the keycodemapdb commit spice-gtk builds with.
+linuxKeyMapUrl = ("https://gitlab.com/keycodemap/keycodemapdb/-/raw/"
+                  "14cdba29ecd7448310fe4ff890e67830b1a40f64/data/keymaps.csv")
 nameToUnicodeFile = "name_to_unicode.in"
 ignoreListFile = "ignore.in"
 
@@ -68,16 +74,34 @@ def loadNameToUnicode (nameToUnicodeFile):
 
     return nameToUnicode
 
-def loadCommonKeyCodes(commonFile, keyMap):
+def loadLinuxKeyScanCodes(linuxKeyMapUrl):
+    linuxKeyScanCodes = {}
+    with urllib.request.urlopen(linuxKeyMapUrl) as response:
+        for row in csv.DictReader(io.TextIOWrapper(response, encoding="utf-8")):
+            if row["AT set1 keycode"]:
+                linuxKeyScanCodes.setdefault(row["Linux Name"], int(row["AT set1 keycode"], 0))
+    return linuxKeyScanCodes
+
+def toSpiceScanCode(linuxName, set1ScanCode):
+    # SPICE sends extended (0xe0-prefixed) scan codes as 0x100 + code.
+    if set1ScanCode < 0x80:
+        return set1ScanCode
+    if set1ScanCode >> 8 == 0xe0 and set1ScanCode & 0xff < 0x80:
+        return 0x100 | (set1ScanCode & 0xff)
+    sys.exit(f"{linuxName} has scan code {set1ScanCode:#x}, which SPICE can't send")
+
+def loadCommonKeyCodes(commonFile, keyMap, linuxKeyScanCodes):
     f = open(commonFile)
     for l in f.readlines():
         l = l.split()
         if l != None:
             key = int(l[1])
             name = l[0]
-            rawScanCode = int(l[2])
-            scanCodes = [int(l[2])]
-            addKeyToKeyMap(commonFile, keyMap, key, name, rawScanCode, scanCodes)
+            linuxName = l[2]
+            if linuxName not in linuxKeyScanCodes:
+                sys.exit(f"{linuxName} for {name} has no scan code in {linuxKeyMapUrl}")
+            rawScanCode = toSpiceScanCode(linuxName, linuxKeyScanCodes[linuxName])
+            addKeyToKeyMap(commonFile, keyMap, key, name, rawScanCode, [rawScanCode])
 
     return keyMap
 
@@ -221,6 +245,7 @@ def generateLayoutMap():
 
 if __name__ == "__main__":
     nameToUnicode = loadNameToUnicode(nameToUnicodeFile)
+    linuxKeyScanCodes = loadLinuxKeyScanCodes(linuxKeyMapUrl)
     # Generate keymaps automatically from qemu keymaps directory
     auto_layouts = generateLayoutMap()
     # Update with manually crafted names.
@@ -236,7 +261,7 @@ if __name__ == "__main__":
             continue
         keyMap = {}
         ignoreList = loadIgnoreList(ignoreListFile)
-        keyMap = loadCommonKeyCodes (commonKeyCodeFile, keyMap)
+        keyMap = loadCommonKeyCodes (commonKeyCodeFile, keyMap, linuxKeyScanCodes)
         keyMap = loadKeyMap(nameToUnicode, layoutLocation + "common", keyMap, ignoreList)
         keyMap = loadKeyMap(nameToUnicode, layoutLocation + str(k), keyMap, ignoreList)
 
