@@ -29,7 +29,14 @@ android {
     }
 
     testOptions {
-        unitTests.returnDefaultValues = true
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+            all {
+                // Robolectric's FileDescriptor interceptor uses jdk.internal.access on current JDKs.
+                jvmArgs '--add-exports=java.base/jdk.internal.access=ALL-UNNAMED'
+            }
+        }
     }
     namespace 'com.undatech.remoteClientUi'
 }
@@ -59,6 +66,8 @@ dependencies {
     implementation 'jcifs:jcifs:1.3.17'
 
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.17'
+    testImplementation 'org.mockito:mockito-core:5.24.0'
 }
 repositories {
     google()
