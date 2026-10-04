@@ -2,6 +2,10 @@ package com.iiordanov.bVNC.input;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.description;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -24,6 +28,10 @@ import org.robolectric.RuntimeEnvironment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Characterizes the scan codes aSPICE sends for keys that every SPICE layout map shares.
@@ -31,6 +39,8 @@ import java.nio.charset.StandardCharsets;
 @RunWith(RobolectricTestRunner.class)
 public class SpiceLayoutMapsTest {
     private static final String LAYOUTS = "layouts";
+    // Generator input the layouts are made from, relative to the module directory tests run in.
+    private static final String COMMON_KEY_CODES = "layouts/common_keycodes.in";
     // Android key codes and the scan codes sent for them. Extended (E0) scan codes are 0x100 + code.
     private static final int[][] KEY_CODES_AND_SCAN_CODES = {
             {KeyEvent.KEYCODE_DPAD_UP, 0x148},
@@ -56,9 +66,26 @@ public class SpiceLayoutMapsTest {
                     remoteInput(), null, layout, false);
             for (int[] keyCodeAndScanCode : KEY_CODES_AND_SCAN_CODES) {
                 int keyCode = keyCodeAndScanCode[0];
+                String keyDescription = layout + ", key code " + keyCode;
+                clearInvocations(spice);
                 keyboard.processLocalKeyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode), 0);
-                verify(spice, description(layout + ", key code " + keyCode))
-                        .writeKeyEvent(keyCodeAndScanCode[1], 0, true);
+                verify(spice, description(keyDescription)).writeKeyEvent(keyCodeAndScanCode[1], 0, true);
+                verify(spice, description(keyDescription)).writeKeyEvent(anyInt(), anyInt(), anyBoolean());
+            }
+        }
+    }
+
+    @Test
+    public void everyLayout_hasCommonKeyCodes() throws IOException {
+        Context context = RuntimeEnvironment.getApplication();
+        List<String> commonKeyCodes = Files.readAllLines(Paths.get(COMMON_KEY_CODES), StandardCharsets.UTF_8);
+        assertNotEquals(0, commonKeyCodes.size());
+        for (String layout : context.getAssets().list(LAYOUTS)) {
+            List<String> entries = Arrays.asList(readLayout(layout).split("\n"));
+            for (String commonKeyCode : commonKeyCodes) {
+                String[] nameKeyCodeAndScanCode = commonKeyCode.split(" ");
+                String entry = nameKeyCodeAndScanCode[1] + " " + nameKeyCodeAndScanCode[2];
+                assertTrue(layout + " doesn't have " + commonKeyCode, entries.contains(entry));
             }
         }
     }

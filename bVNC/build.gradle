@@ -73,3 +73,8 @@ repositories {
     google()
     mavenCentral()
 }
+
+tasks.withType(Test).configureEach {
+    // Tests read this SPICE layout generator input directly, so changes to it must rerun them.
+    inputs.file('layouts/common_keycodes.in')
+}
