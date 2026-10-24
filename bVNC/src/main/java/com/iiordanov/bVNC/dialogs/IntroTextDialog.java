@@ -69,6 +69,7 @@ public class IntroTextDialog extends Dialog {
     }
 
     public static void showIntroTextIfNecessary(Activity context, Database database, boolean show, boolean proFeature) {
+        if (true) return;
         PackageInfo pi;
         try {
             String packageName = Utils.pName(context);
