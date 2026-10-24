@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
           cache: gradle
 
       - name: Accept Android licenses
@@ -36,7 +36,7 @@ jobs:
           ./gradlew tasks --all | grep -i "assemble" || true
 
       - name: Build
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew :aRDP-app:assembleDebug --stacktrace
 
       - uses: actions/upload-artifact@v4
         if: always()
