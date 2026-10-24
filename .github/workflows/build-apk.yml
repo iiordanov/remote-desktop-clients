@@ -1,0 +1,42 @@
+name: build-apk
+
+on:
+  push:
+    branches: [no-donate-banner]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Prebuilt dependencies
+        run: |
+          chmod +x ./download-prebuilt-dependencies.sh ./bVNC/prepare_project.sh
+          ./download-prebuilt-dependencies.sh
+          ./bVNC/prepare_project.sh --skip-build libs nopath
+
+      - name: Discover gradle projects and tasks
+        run: |
+          chmod +x ./gradlew
+          ./gradlew projects || true
+          ./gradlew tasks --all | grep -i "assemble" || true
+
+      - name: Build
+        run: ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apk
+          path: "**/build/outputs/apk/**/*.apk"
