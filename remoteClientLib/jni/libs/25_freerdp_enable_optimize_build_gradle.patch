@@ -1,0 +1,13 @@
+diff --git a/client/Android/Studio/freeRDPCore/build.gradle b/client/Android/Studio/freeRDPCore/build.gradle
+index 62a573f3b..35aaa55d4 100644
+--- a/client/Android/Studio/freeRDPCore/build.gradle
++++ b/client/Android/Studio/freeRDPCore/build.gradle
+@@ -13,7 +13,7 @@ android {
+     buildTypes {
+         release {
+             minifyEnabled false
+-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
++            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
+         }
+         debug {
+             jniDebuggable true
