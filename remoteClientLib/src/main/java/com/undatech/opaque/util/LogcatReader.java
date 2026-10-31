@@ -11,7 +11,6 @@ import java.util.List;
  */
 
 public class LogcatReader {
-    private static final int LOGCAT_MAX_LINES = 1000;
     public static String TAG = "LogcatReader";
     private List<String> logcatCommand = new ArrayList<String>();
 
@@ -30,8 +29,9 @@ public class LogcatReader {
     }
 
     public String getMyLogcat(int lines) {
-        ArrayList<String> logCatLines = new ArrayList<>(LOGCAT_MAX_LINES);
-        StringBuilder logCatOutput = new StringBuilder(LOGCAT_MAX_LINES);
+        int maxLines = Math.max(0, lines);
+        ArrayList<String> logCatLines = new ArrayList<>(maxLines);
+        StringBuilder logCatOutput = new StringBuilder(maxLines);
         String line;
 
         try {
@@ -45,7 +45,7 @@ public class LogcatReader {
             e.printStackTrace();
         }
 
-        for (int i = Math.max(logCatLines.size() - LOGCAT_MAX_LINES, 0); i < logCatLines.size(); i++) {
+        for (int i = Math.max(logCatLines.size() - maxLines, 0); i < logCatLines.size(); i++) {
             logCatOutput.append(logCatLines.get(i));
         }
 

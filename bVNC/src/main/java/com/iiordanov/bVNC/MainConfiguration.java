@@ -34,6 +34,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.util.LogcatReader;
 import com.undatech.remoteClientUi.R;
 
@@ -224,7 +225,7 @@ public abstract class MainConfiguration extends AppCompatActivity {
         (findViewById(R.id.copyLogcat)).setOnClickListener(v -> {
             LogcatReader logcatReader = new LogcatReader();
             ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            cm.setText(logcatReader.getMyLogcat(Constants.LOGCAT_MAX_LINES));
+            cm.setText(logcatReader.getMyLogcat(RemoteClientLibConstants.LOGCAT_MAX_LINES));
             Snackbar.make(textNickname, getResources().getString(R.string.log_copied),
                     Snackbar.LENGTH_LONG).show();
         });

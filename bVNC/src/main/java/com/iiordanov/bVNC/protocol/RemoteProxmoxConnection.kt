@@ -51,7 +51,12 @@ class RemoteProxmoxConnection(
                     }
                     val spiceData = api.spiceVm(node, virt, vmId.toInt())
                     if (spiceData != null) {
-                        spiceData.outputToFile(tempVvFile, api.host)
+                        try {
+                            spiceData.outputToFile(tempVvFile, api.host)
+                        } catch (e: IOException) {
+                            FileUtils.deleteFile(tempVvFile)
+                            throw e
+                        }
                     } else {
                         Log.e(tag, "PVE returned null data for display.")
                         handler.sendEmptyMessage(RemoteClientLibConstants.PVE_NULL_DATA)
@@ -82,9 +87,10 @@ class RemoteProxmoxConnection(
                             "error", e.message
                         )
                     )
+                } finally {
+                    // At this stage we have either retrieved display data or failed, so permit the UI thread to continue.
+                    synchronized(tempVvFile) { castAsObject(tempVvFile).notify() }
                 }
-                // At this stage we have either retrieved display data or failed, so permit the UI thread to continue.
-                synchronized(tempVvFile) { castAsObject(tempVvFile).notify() }
             }
         }
         cThread.start()

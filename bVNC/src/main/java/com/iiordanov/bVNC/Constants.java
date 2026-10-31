@@ -43,7 +43,6 @@ public class Constants {
     public static final int SOCKET_CONN_TIMEOUT = 20 * 1000;
 
     public static final int DEFAULT_SSH_PORT = 22;
-    public static final int LOGCAT_MAX_LINES = 500;
     // H_THRESH needs to be < than TOP_MARGIN to avoid pan following pointer unnecessarily.
     public static final int H_THRESH = 50;
     public static final int W_THRESH = 50;

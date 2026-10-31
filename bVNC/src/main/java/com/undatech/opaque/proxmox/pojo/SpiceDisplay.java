@@ -2,30 +2,33 @@ package com.undatech.opaque.proxmox.pojo;
 
 import android.util.Log;
 
+import com.iiordanov.bVNC.HostResolution;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class SpiceDisplay {
     public static final String TAG = "SpiceDisplay";
 
     private String password;
-    private int tlsPort;
+    private final int tlsPort;
     private String host;
     private String title;
     private String ca;
-    private String hostSubject;
-    private String proxy;
-    private int deleteThisFile;
-    private String secureAttention;
+    private final String hostSubject;
+    private final String proxy;
+    private final int deleteThisFile;
+    private final String secureAttention;
     private String type;
-    private String toggleFullscreen;
-    private String releaseCursor;
-    private String additionalCertificateAuthorities;
-    private String casCombined;
+    private final String toggleFullscreen;
+    private final String releaseCursor;
+    private final String additionalCertificateAuthorities;
+    private final String casCombined;
 
     public SpiceDisplay(JSONObject data, String additionalCertificateAuthorities) throws JSONException {
         password = data.getString("password");
@@ -53,14 +56,6 @@ public class SpiceDisplay {
         this.password = password;
     }
 
-    public int getTlsPort() {
-        return tlsPort;
-    }
-
-    public void setTlsPort(int tlsPort) {
-        this.tlsPort = tlsPort;
-    }
-
     public String getHost() {
         return host;
     }
@@ -85,38 +80,6 @@ public class SpiceDisplay {
         this.ca = ca;
     }
 
-    public String getProxy() {
-        return proxy;
-    }
-
-    public void setProxy(String proxy) {
-        this.proxy = proxy;
-    }
-
-    public String getHostSubject() {
-        return hostSubject;
-    }
-
-    public void setHostSubject(String hostSubject) {
-        this.hostSubject = hostSubject;
-    }
-
-    public int getDeleteThisFile() {
-        return deleteThisFile;
-    }
-
-    public void setDeleteThisFile(int deleteThisFile) {
-        this.deleteThisFile = deleteThisFile;
-    }
-
-    public String getSecureAttention() {
-        return secureAttention;
-    }
-
-    public void setSecureAttention(String secureAttention) {
-        this.secureAttention = secureAttention;
-    }
-
     public String getType() {
         return type;
     }
@@ -125,43 +88,35 @@ public class SpiceDisplay {
         this.type = type;
     }
 
-    public String getToggleFullscreen() {
-        return toggleFullscreen;
-    }
-
-    public void setToggleFullscreen(String toggleFullscreen) {
-        this.toggleFullscreen = toggleFullscreen;
-    }
-
-    public String getReleaseCursor() {
-        return releaseCursor;
-    }
-
-    public void setReleaseCursor(String releaseCursor) {
-        this.releaseCursor = releaseCursor;
-    }
-
-    public void outputToFile(String tempVvFile, String proxyReplacement) throws IOException {
+    /**
+     * Writes the virt-viewer connection file for this display.
+     *
+     * @param tempVvFile destination path for the generated file
+     * @param apiHost    PVE API host used to work out the effective proxy
+     * @throws IOException if the file cannot be written
+     */
+    public void outputToFile(String tempVvFile, String apiHost) throws IOException {
+        String proxyValue = HostResolution.resolveProxy(proxy, apiHost);
         File file = new File(tempVvFile);
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.write("[virt-viewer]\n".getBytes());
-        fos.write(("tls-port=" + tlsPort + "\n").getBytes());
-        fos.write(("ca=" + casCombined + "\n").getBytes());
-        fos.write(("host=" + host + "\n").getBytes());
-        fos.write(("host-subject=" + hostSubject + "\n").getBytes());
-        fos.write(("password=" + password + "\n").getBytes());
-        if (proxyReplacement != null) {
-            fos.write(("proxy=" + proxy.replaceAll("//.*:", "//" + proxyReplacement + ":") + "\n").getBytes());
-        } else {
-            fos.write(("proxy=" + proxy + "\n").getBytes());
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            fos.write("[virt-viewer]\n".getBytes(StandardCharsets.UTF_8));
+            writeLine(fos, "tls-port", tlsPort);
+            writeLine(fos, "ca", casCombined);
+            writeLine(fos, "host", host);
+            writeLine(fos, "host-subject", hostSubject);
+            writeLine(fos, "password", password);
+            writeLine(fos, "proxy", proxyValue);
+            writeLine(fos, "title", title);
+            writeLine(fos, "delete-this-file", deleteThisFile);
+            writeLine(fos, "release-cursor", releaseCursor);
+            writeLine(fos, "secure-attention", secureAttention);
+            writeLine(fos, "toggle-fullscreen", toggleFullscreen);
+            writeLine(fos, "type", type);
         }
-        fos.write(("title=" + title + "\n").getBytes());
-        fos.write(("delete-this-file=" + deleteThisFile + "\n").getBytes());
-        fos.write(("release-cursor=" + releaseCursor + "\n").getBytes());
-        fos.write(("secure-attention=" + secureAttention + "\n").getBytes());
-        fos.write(("toggle-fullscreen=" + toggleFullscreen + "\n").getBytes());
-        fos.write(("type=" + type + "\n").getBytes());
-        fos.close();
+    }
+
+    private static void writeLine(FileOutputStream fos, String key, Object value) throws IOException {
+        fos.write((key + "=" + value + "\n").getBytes(StandardCharsets.UTF_8));
     }
 
     private void logCasLengths() {

@@ -90,5 +90,5 @@ public class RemoteClientLibConstants {
     public static final int MAX_CONFIG_FILE_SIZE_BYTES = 30000;
     public static final int GET_FILE_TIMEOUT = 17000;
     public static final String PVE_DEFAULT_REALM = "pam";
-    public static final int LOGCAT_MAX_LINES = 500;
+    public static final int LOGCAT_MAX_LINES = 1000;
 }

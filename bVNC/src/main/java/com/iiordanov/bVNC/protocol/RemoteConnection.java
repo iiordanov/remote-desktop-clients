@@ -182,6 +182,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
      */
     public void initializeConnection() {
         Log.i(TAG, "Initializing remote connection");
+        Log.i(TAG, "==================== NEW CONNECTION: " + connection.getLabel() + " ====================");
         this.maintainConnection = true;
         handler.post(this.hideKeyboardAndExtraKeys);
     }
