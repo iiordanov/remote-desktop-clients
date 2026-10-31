@@ -811,4 +811,5 @@ Không thể mở cài đặt tối ưu hóa pin. Tắt tối ưu hóa pin theo 
     <string name="morpheusly_cta_download">Nhận Morpheusly</string>
     <string name="connection_add_shortcut">Thêm vào Màn hình chính</string>
     <string name="shortcut_not_supported">Trình khởi chạy này không hỗ trợ ghim lối tắt.</string>
+    <string name="no_browser_available">Không có trình duyệt web khả dụng. Cần trình duyệt để mở liên kết này.</string>
 </resources>

@@ -967,4 +967,5 @@ La aplicación ya está exenta de optimizaciones de batería.</string>
     <string name="morpheusly_cta_download">Obtener Morpheusly</string>
     <string name="connection_add_shortcut">Añadir a la pantalla de inicio</string>
     <string name="shortcut_not_supported">Este lanzador no admite fijar accesos directos.</string>
+    <string name="no_browser_available">No hay navegador web disponible. Se necesita un navegador para abrir este enlace.</string>
 </resources>

@@ -811,4 +811,5 @@ aSPICE அம்சங்களின் தற்போதைய பட்ட�
     <string name="morpheusly_cta_download">Morpheusly பெறுக</string>
     <string name="connection_add_shortcut">முகப்புத் திரையில் சேர்</string>
     <string name="shortcut_not_supported">இந்த லாஞ்சர் குறுக்குவழிகளைப் பொருத்துவதை ஆதரிக்கவில்லை.</string>
+    <string name="no_browser_available">எந்த வெப் ப்ரவசரும் இல்லை. இந்த இணைப்பை திறக்க ப்ரவசர் தேவை.</string>
 </resources>

@@ -811,4 +811,5 @@ Apl sudah pun dikecualikan daripada pengoptimuman bateri.</string>
     <string name="morpheusly_cta_download">Dapatkan Morpheusly</string>
     <string name="connection_add_shortcut">Tambah ke Skrin Utama</string>
     <string name="shortcut_not_supported">Pelancar ini tidak menyokong penyematan pintasan.</string>
+    <string name="no_browser_available">Tiada pelayar web yang tersedia. Pelayar diperlukan untuk membuka pautan ini.</string>
 </resources>

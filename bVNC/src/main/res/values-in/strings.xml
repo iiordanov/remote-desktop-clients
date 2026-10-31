@@ -983,4 +983,5 @@ Aplikasi sudah dikecualikan dari pengoptimalan baterai.</string>
     <string name="morpheusly_cta_body">Akses desktop jarak jauh yang aman melalui Internet tanpa konfigurasi jaringan. Pasang aplikasi desktop Morpheusly di setiap komputer yang ingin Anda jangkau, masuk, dan lihat mana yang online lalu sambungkan dengan mulus dari aplikasi seluler Morpheusly.</string>
     <string name="connection_add_shortcut">Tambahkan ke Layar Utama</string>
     <string name="shortcut_not_supported">Peluncur ini tidak mendukung penyematan pintasan.</string>
+    <string name="no_browser_available">Tidak ada peramban web yang tersedia. Peramban diperlukan untuk membuka tautan ini.</string>
 </resources>

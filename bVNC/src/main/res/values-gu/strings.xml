@@ -900,4 +900,5 @@ connection ઉમેરો/edit ઉપર, connection configuration page.
     <string name="morpheusly_cta_download">Morpheusly મેળવો</string>
     <string name="connection_add_shortcut">હોમ સ્ક્રીન પર ઉમેરો</string>
     <string name="shortcut_not_supported">આ લૉન્ચર શૉર્ટકટ પિન કરવાનું સમર્થન કરતું નથી.</string>
+    <string name="no_browser_available">કોઈ વેબ બ્રાઉઝર ઉપલબ્ધ નથી. આ લિંક ખોલવા માટે બ્રાઉઝર જરૂરી છે.</string>
 </resources>

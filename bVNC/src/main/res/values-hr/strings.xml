@@ -983,4 +983,5 @@ Aplikacija je već izuzeta od optimizacije baterije.</string>
     <string name="morpheusly_cta_download">Dobiti Morpheusly</string>
     <string name="connection_add_shortcut">Dodaj na početni zaslon</string>
     <string name="shortcut_not_supported">Ovaj pokretač ne podržava prikvačivanje prečaca.</string>
+    <string name="no_browser_available">Nema dostupnog web preglednika. Za otvaranje ove poveznice potreban je preglednik.</string>
 </resources>

@@ -906,4 +906,5 @@ Appen er allerede unntatt fra batterioptimalisering.</string>
     <string name="morpheusly_cta_download">Få Morpheusly</string>
     <string name="connection_add_shortcut">Legg til på startskjermen</string>
     <string name="shortcut_not_supported">Denne oppstarteren støtter ikke festing av snarveier.</string>
+    <string name="no_browser_available">Ingen nettleser er tilgjengelig. En nettleser er påkrevd for å åpne denne lenken.</string>
 </resources>

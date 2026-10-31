@@ -811,4 +811,5 @@ aSPICE ವೈಶಿಷ್ಟ್ಯಗಳ ಪ್ರಸ್ತುತ ಪಟ್ಟ�
     <string name="morpheusly_cta_download">Morpheusly ಪಡೆಯಿರಿ</string>
     <string name="connection_add_shortcut">ಮುಖಪುಟ ಪರದೆಗೆ ಸೇರಿಸಿ</string>
     <string name="shortcut_not_supported">ಈ ಲಾಂಚರ್ ಶಾರ್ಟ್‌ಕಟ್‌ಗಳನ್ನು ಪಿನ್ ಮಾಡುವುದನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ.</string>
+    <string name="no_browser_available">ಯಾವುದೇ ವೆಬ್ ಬ್ರೌಸರ್ ಲಭ್ಯವಿಲ್ಲ. ಈ ಲಿಂಕ್‌ನನ್ನು ತೆರೆಯಲು ಬ್ರೌಸರ್ ಅಗತ್ಯವಿದೆ.</string>
 </resources>

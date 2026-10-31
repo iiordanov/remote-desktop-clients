@@ -776,4 +776,5 @@ ASPICE خصوصیات کی موجودہ فہرست میں شامل ہیں:
     <string name="morpheusly_cta_download">Morpheusly حاصل کریں۔</string>
     <string name="connection_add_shortcut">ہوم اسکرین میں شامل کریں</string>
     <string name="shortcut_not_supported">یہ لانچر شارٹ کٹ پن کرنے کی حمایت نہیں کرتا۔</string>
+    <string name="no_browser_available">کوئی ویب براؤزر دستیاب نہیں۔ اس لنک کو کھولنے کے لیے براؤزر درکار ہے۔</string>
 </resources>

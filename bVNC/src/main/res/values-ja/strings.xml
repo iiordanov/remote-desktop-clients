@@ -923,4 +923,5 @@ aSPICEで対応済み機能は以下の通り：
     <string name="morpheusly_cta_download">Morpheuslyを取得</string>
     <string name="connection_add_shortcut">ホーム画面に追加</string>
     <string name="shortcut_not_supported">このランチャーはショートカットの固定に対応していません。</string>
+    <string name="no_browser_available">利用可能なウェブブラウザがありません。このリンクを開くにはブラウザが必要です。</string>
 </resources>

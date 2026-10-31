@@ -782,8 +782,11 @@ public class Utils {
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse(url));
             context.startActivity(i);
-        } catch (ActivityNotFoundException e) {
-            Log.e(TAG, "startUriIntent: ActivityNotFoundException caught.");
+        } catch (ActivityNotFoundException | SecurityException e) {
+            Log.e(TAG, "startUriIntent: failed to launch " + url + ": " + e);
+            if (context instanceof Activity) {
+                showErrorMessage(context, context.getString(R.string.no_browser_available));
+            }
         }
     }
 
@@ -874,7 +877,7 @@ public class Utils {
     public static void startActivityIfActivityFound(Intent intent) {
         try {
             App.getContext().startActivity(intent);
-        } catch (ActivityNotFoundException e) {
+        } catch (ActivityNotFoundException | SecurityException e) {
             Log.e(TAG, Log.getStackTraceString(e));
         }
     }

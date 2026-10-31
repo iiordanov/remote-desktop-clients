@@ -22,8 +22,6 @@ package com.iiordanov.bVNC.dialogs;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -34,6 +32,7 @@ import android.widget.LinearLayout.LayoutParams;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.aSPICE;
+import com.iiordanov.bVNC.Utils;
 import com.morpheusly.common.Utilities;
 import com.undatech.remoteClientUi.R;
 
@@ -43,7 +42,7 @@ import com.undatech.remoteClientUi.R;
  */
 public class ImportTlsCaDialog extends AlertDialog {
     public static final int IMPORT_CA_REQUEST = 0;
-    private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://spice-space.org/page/SSLConnection"));
+    private static final String DOC_URL = "http://spice-space.org/page/SSLConnection";
     private aSPICE mainConfigPage;
     private ConnectionBean selected;
     private EditText certSubject;
@@ -64,7 +63,7 @@ public class ImportTlsCaDialog extends AlertDialog {
     }
 
     public static void showDocumentation(Context c) {
-        c.startActivity(docIntent);
+        Utils.startUriIntent(c, DOC_URL);
     }
 
     /*

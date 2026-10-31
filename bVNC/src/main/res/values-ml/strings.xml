@@ -811,4 +811,5 @@ aSPICE സവിശേഷതകളുടെ നിലവിലെ ലിസ്�
     <string name="morpheusly_cta_download">Morpheusly നേടുക</string>
     <string name="connection_add_shortcut">ഹോം സ്ക്രീനിലേക്ക് ചേർക്കുക</string>
     <string name="shortcut_not_supported">ഈ ലോഞ്ചർ കുറുക്കുവഴികൾ പിൻ ചെയ്യുന്നത് പിന്തുണയ്ക്കുന്നില്ല.</string>
+    <string name="no_browser_available">ഒരു വെബ് ബ്രൗസറും ലഭ്യമല്ല. ഈ ലിങ്കിനെ തുറക്കാൻ ബ്രൗസർ ആവശ്യമാണ്.</string>
 </resources>

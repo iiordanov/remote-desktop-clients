@@ -981,4 +981,5 @@ L\'aplicació ja està exempta d\'optimitzacions de bateria.</string>
     <string name="morpheusly_cta_download">Aconsegueix Morpheusly</string>
     <string name="connection_add_shortcut">Afegeix a la pantalla d\'inici</string>
     <string name="shortcut_not_supported">Aquest llançador no admet fixar dreceres.</string>
+    <string name="no_browser_available">No hi ha cap navegador web disponible. Es necessita un navegador per obrir aquest enllaç.</string>
 </resources>

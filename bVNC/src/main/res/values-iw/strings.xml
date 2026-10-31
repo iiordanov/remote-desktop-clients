@@ -776,4 +776,5 @@
     <string name="morpheusly_cta_download">קבל Morpheusly</string>
     <string name="connection_add_shortcut">הוסף למסך הבית</string>
     <string name="shortcut_not_supported">משגר זה אינו תומך בהצמדת קיצורי דרך.</string>
+    <string name="no_browser_available">אין דפדפן אינטרנט זמין. נדרש דפדפן כדי לפתוח את הקישור הזה.</string>
 </resources>

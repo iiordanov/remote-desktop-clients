@@ -965,4 +965,5 @@
     <string name="morpheusly_cta_download">Получить Morpheusly</string>
     <string name="connection_add_shortcut">Добавить на главный экран</string>
     <string name="shortcut_not_supported">Этот лаунчер не поддерживает закрепление ярлыков.</string>
+    <string name="no_browser_available">Веб-браузер недоступен. Для открытия этой ссылки требуется браузер.</string>
 </resources>

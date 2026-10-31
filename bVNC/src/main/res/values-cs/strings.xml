@@ -908,4 +908,5 @@ Aplikace je již osvobozena od optimalizace baterie.</string>
     <string name="morpheusly_cta_download">Získejte Morpheusly</string>
     <string name="connection_add_shortcut">Přidat na plochu</string>
     <string name="shortcut_not_supported">Tento spouštěč nepodporuje připínání zástupců.</string>
+    <string name="no_browser_available">Není k dispozici žádný webový prohlížeč. K otevření tohoto odkazu je potřeba prohlížeč.</string>
 </resources>

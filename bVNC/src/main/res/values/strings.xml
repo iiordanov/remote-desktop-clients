@@ -1007,4 +1007,5 @@ Below that is where you configure your connection.
     <string name="disable_battery_optimizations">🔋Disable Battery Optimizations</string>
     <string name="disable_battery_optimizations_failed">Could not open battery optimization settings. Disable battery optimization manually in system settings.</string>
     <string name="disable_battery_optimizations_already_done">App is already exempt from battery optimizations.</string>
+    <string name="no_browser_available">No web browser is available. A browser is required to open this link.</string>
 </resources>

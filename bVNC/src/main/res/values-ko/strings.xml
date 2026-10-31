@@ -904,4 +904,5 @@ aSPICEで의 대응 기능는 이하와 같다 :
     <string name="morpheusly_cta_download">Morpheusly 얻기</string>
     <string name="connection_add_shortcut">홈 화면에 추가</string>
     <string name="shortcut_not_supported">이 런처는 바로 가기 고정을 지원하지 않습니다.</string>
+    <string name="no_browser_available">사용 가능한 웹 브라우저가 없습니다. 이 링크를 열려면 브라우저가 필요합니다.</string>
 </resources>

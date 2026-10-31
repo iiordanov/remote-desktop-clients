@@ -904,4 +904,5 @@ aSPICE對應的功能如下：
     <string name="morpheusly_cta_download">獲取Morpheusly</string>
     <string name="connection_add_shortcut">新增至主畫面</string>
     <string name="shortcut_not_supported">此啟動器不支援釘選捷徑。</string>
+    <string name="no_browser_available">沒有可用的網頁瀏覽器。開啟此連結需要瀏覽器。</string>
 </resources>

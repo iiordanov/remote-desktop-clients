@@ -776,4 +776,5 @@ Forritið er nú þegar undanþegið hagræðingu rafhlöðunnar.</string>
     <string name="morpheusly_cta_download">Fáðu Morpheusly</string>
     <string name="connection_add_shortcut">Bæta við á heimaskjá</string>
     <string name="shortcut_not_supported">Þessi ræsir styður ekki að festa flýtileiðir.</string>
+    <string name="no_browser_available">Enginn vefblaðsjár er tiltækur. Blaðari er nauðsynlegur til að opna þessa tengil.</string>
 </resources>

@@ -811,4 +811,5 @@ ASPICE सुविधाहरूको हालको सूचीमा स�
     <string name="morpheusly_cta_download">Morpheusly प्राप्त गर्नुहोस्</string>
     <string name="connection_add_shortcut">गृह स्क्रिनमा थप्नुहोस्</string>
     <string name="shortcut_not_supported">यो लन्चरले सर्टकटहरू पिन गर्न समर्थन गर्दैन।</string>
+    <string name="no_browser_available">कुनै वेब ब्रौजर उपलब्ध छैन। यो लिंक खोल्नका लागि ब्रौजर आवश्यक छ।</string>
 </resources>

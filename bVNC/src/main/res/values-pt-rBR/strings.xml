@@ -978,4 +978,5 @@ App is already exempt from battery optimizations.</string>
     <string name="morpheusly_cta_download">Obtenha Morpheusly</string>
     <string name="connection_add_shortcut">Adicionar à tela inicial</string>
     <string name="shortcut_not_supported">Este inicializador não é compatível com a fixação de atalhos.</string>
+    <string name="no_browser_available">Nenhum navegador da web está disponível. É necessário um navegador para abrir este link.</string>
 </resources>

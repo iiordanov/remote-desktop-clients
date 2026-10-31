@@ -1247,4 +1247,5 @@ Uygulama zaten pil optimizasyonlarından muaf.</string>
     <string name="morpheusly_cta_download">Morpheusly alın</string>
     <string name="connection_add_shortcut">Ana ekrana ekle</string>
     <string name="shortcut_not_supported">Bu başlatıcı kısayol sabitlemeyi desteklemiyor.</string>
+    <string name="no_browser_available">Kullanılabilir bir web tarayıcısı yok. Bu bağlantıyı açmak için tarayıcı gerekli.</string>
 </resources>

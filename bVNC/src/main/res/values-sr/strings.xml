@@ -811,4 +811,5 @@
     <string name="morpheusly_cta_download">Узми Morpheusly</string>
     <string name="connection_add_shortcut">Додај на почетни екран</string>
     <string name="shortcut_not_supported">Овај покретач не подржава качење пречица.</string>
+    <string name="no_browser_available">Нема доступног веб прегледача. Прегледач је потребан за отварање овог линка.</string>
 </resources>

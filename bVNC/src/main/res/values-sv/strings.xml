@@ -908,4 +908,5 @@ Appen är redan undantagen från batterioptimering.</string>
     <string name="morpheusly_cta_download">Skaffa Morpheusly</string>
     <string name="connection_add_shortcut">Lägg till på startskärmen</string>
     <string name="shortcut_not_supported">Det här startprogrammet stöder inte att fästa genvägar.</string>
+    <string name="no_browser_available">Ingen webbläsare är tillgänglig. En webbläsare krävs för att öppna den här länken.</string>
 </resources>

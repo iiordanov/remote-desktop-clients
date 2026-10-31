@@ -983,4 +983,5 @@ Exempt na ang app sa mga pag-optimize ng baterya.</string>
     <string name="morpheusly_cta_download">Kunin Morpheusly</string>
     <string name="connection_add_shortcut">Idagdag sa Home screen</string>
     <string name="shortcut_not_supported">Hindi sinusuportahan ng launcher na ito ang pag-pin ng mga shortcut.</string>
+    <string name="no_browser_available">Walang available na web browser. Kailangan ng browser para buksan ang link na ito.</string>
 </resources>

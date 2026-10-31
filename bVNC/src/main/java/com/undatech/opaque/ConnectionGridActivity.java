@@ -281,7 +281,7 @@ public class ConnectionGridActivity extends AppCompatActivity implements GetText
         );
         try {
             startActivityForResult(intent, LAUNCH_CONNECTION_REQUEST_CODE);
-        } catch (ActivityNotFoundException e) {
+        } catch (ActivityNotFoundException | SecurityException e) {
             Log.e(TAG, "Error launching connection: " + e);
             Snackbar.make(gridView, R.string.no_application_to_handle_vpn, Snackbar.LENGTH_LONG).show();
             startUriIntent(this, "market://search?q=pub:\"Morpheusly\"");

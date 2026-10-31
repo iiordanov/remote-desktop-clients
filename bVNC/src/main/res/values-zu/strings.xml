@@ -906,4 +906,5 @@ Uhlelo lokusebenza seluvele lukhululiwe ekulungiselelweni kwebhethri.</string>
     <string name="morpheusly_cta_download">Thola Morpheusly</string>
     <string name="connection_add_shortcut">Engeza kusikrini sasekhaya</string>
     <string name="shortcut_not_supported">Lolu lokuqalisa aluxhasi ukuphina izinqamuleli.</string>
+    <string name="no_browser_available">Akukho i-browser ye-web etholakalayo. Kudingeka i-browser ukuvula le link.</string>
 </resources>

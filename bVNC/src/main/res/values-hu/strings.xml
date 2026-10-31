@@ -981,4 +981,5 @@ Az alkalmazás már mentesül az akkumulátoroptimalizálás alól.</string>
     <string name="morpheusly_cta_download">Szerezd meg Morpheusly</string>
     <string name="connection_add_shortcut">Hozzáadás a kezdőképernyőhöz</string>
     <string name="shortcut_not_supported">Ez az indító nem támogatja a parancsikonok rögzítését.</string>
+    <string name="no_browser_available">Nincs elérhető webböngésző. A link megnyitásához böngésző szükséges.</string>
 </resources>

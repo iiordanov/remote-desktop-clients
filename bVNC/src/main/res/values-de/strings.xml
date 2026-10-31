@@ -981,4 +981,5 @@ App ist bereits von Batterieoptimierungen ausgenommen.</string>
     <string name="morpheusly_cta_download">Holen Sie sich Morpheusly</string>
     <string name="connection_add_shortcut">Zum Startbildschirm hinzufügen</string>
     <string name="shortcut_not_supported">Dieser Launcher unterstützt das Anheften von Verknüpfungen nicht.</string>
+    <string name="no_browser_available">Kein Webbrowser ist verfügbar. Zum Öffnen dieses Links wird ein Browser benötigt.</string>
 </resources>

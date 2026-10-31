@@ -909,4 +909,5 @@ App is al vrijgesteld van batterij-optimalisaties.</string>
     <string name="morpheusly_cta_download">Verkrijg Morpheusly</string>
     <string name="connection_add_shortcut">Toevoegen aan startscherm</string>
     <string name="shortcut_not_supported">Deze launcher ondersteunt het vastzetten van snelkoppelingen niet.</string>
+    <string name="no_browser_available">Er is geen webbrowser beschikbaar. Een browser is vereist om deze link te openen.</string>
 </resources>

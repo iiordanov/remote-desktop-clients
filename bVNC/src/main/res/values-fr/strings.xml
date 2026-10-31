@@ -982,4 +982,5 @@ L\'application est déjà exemptée des optimisations de la batterie.</string>
     <string name="morpheusly_cta_download">Obtenez Morpheusly</string>
     <string name="connection_add_shortcut">Ajouter à l\'écran d\'accueil</string>
     <string name="shortcut_not_supported">Ce lanceur ne prend pas en charge l\'épinglage des raccourcis.</string>
+    <string name="no_browser_available">Aucun navigateur web n\'est disponible. Un navigateur est requis pour ouvrir ce lien.</string>
 </resources>

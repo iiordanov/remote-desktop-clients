@@ -19,8 +19,6 @@
 
 package com.iiordanov.bVNC.dialogs;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +30,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.iiordanov.bVNC.Utils;
 import com.undatech.remoteClientUi.R;
 
 /**
@@ -61,7 +60,7 @@ public class MorpheuslyBottomSheet extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         expandSheetFully();
         view.findViewById(R.id.morpheuslyDownload).setOnClickListener(v -> {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(DOWNLOAD_URL)));
+            Utils.startUriIntent(getActivity(), DOWNLOAD_URL);
             dismiss();
         });
         view.findViewById(R.id.morpheuslyDismiss).setOnClickListener(v -> dismiss());

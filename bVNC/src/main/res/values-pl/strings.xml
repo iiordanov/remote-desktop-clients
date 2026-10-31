@@ -880,4 +880,5 @@ Aplikacja jest już wyłączona z optymalizacji baterii.</string>
     <string name="morpheusly_cta_download">Zdobądź Morpheusly</string>
     <string name="connection_add_shortcut">Dodaj do ekranu głównego</string>
     <string name="shortcut_not_supported">Ten launcher nie obsługuje przypinania skrótów.</string>
+    <string name="no_browser_available">Brak dostępnego przeglądarki internetowej. Do otwarcia tego linku wymagana jest przeglądarka.</string>
 </resources>

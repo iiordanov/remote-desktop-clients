@@ -984,4 +984,5 @@ Die toepassing is reeds vrygestel van batteryoptimalisering.</string>
     <string name="morpheusly_cta_download">Kry Morpheusly</string>
     <string name="connection_add_shortcut">Voeg by tuisskerm</string>
     <string name="shortcut_not_supported">Hierdie laaier ondersteun nie die vasspeld van kortpaaie nie.</string>
+    <string name="no_browser_available">Geen webblaaier is beskikbaar nie. \'n Blaier is vereis om hierdie skakel oop te maak.</string>
 </resources>

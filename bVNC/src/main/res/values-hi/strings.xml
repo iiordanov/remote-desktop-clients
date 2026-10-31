@@ -811,4 +811,5 @@
     <string name="morpheusly_cta_download">प्राप्त करें Morpheusly</string>
     <string name="connection_add_shortcut">होम स्क्रीन पर जोड़ें</string>
     <string name="shortcut_not_supported">यह लॉन्चर शॉर्टकट पिन करने का समर्थन नहीं करता।</string>
+    <string name="no_browser_available">कोई वेब ब्राउज़र उपलब्ध नहीं है। इस लिंक को खोलने के लिए ब्राउज़र आवश्यक है।</string>
 </resources>

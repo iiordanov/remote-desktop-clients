@@ -811,4 +811,5 @@ ASPICE లక్షణాల యొక్క ప్రస్తుత జాబ�
     <string name="morpheusly_cta_download">Morpheusly పొందండి</string>
     <string name="connection_add_shortcut">హోమ్ స్క్రీన్‌కు జోడించు</string>
     <string name="shortcut_not_supported">ఈ లాంచర్ షార్ట్‌కట్‌లను పిన్ చేయడానికి మద్దతు ఇవ్వదు.</string>
+    <string name="no_browser_available">ఏ వెబ్ బ్రౌజర్ కూడా అందుబాటులో లేదు. ఈ లింక్‌ను తెరవడానికి బ్రౌజర్ అవసరం.</string>
 </resources>

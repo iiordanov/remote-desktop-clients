@@ -983,4 +983,5 @@ Rakendus on aku optimeerimisest juba vabastatud.</string>
     <string name="morpheusly_cta_download">Hankige Morpheusly</string>
     <string name="connection_add_shortcut">Lisa avakuvale</string>
     <string name="shortcut_not_supported">See käivitaja ei toeta otseteede kinnitamist.</string>
+    <string name="no_browser_available">Veebibrauser ei ole saadaval. Selle lingi avamiseks on vaja brauserit.</string>
 </resources>

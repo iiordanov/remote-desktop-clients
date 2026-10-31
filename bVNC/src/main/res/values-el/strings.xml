@@ -908,4 +908,5 @@
     <string name="morpheusly_cta_download">Αποκτήστε Morpheusly</string>
     <string name="connection_add_shortcut">Προσθήκη στην αρχική οθόνη</string>
     <string name="shortcut_not_supported">Αυτό το πρόγραμμα εκκίνησης δεν υποστηρίζει καρφίτσωμα συντομεύσεων.</string>
+    <string name="no_browser_available">Δεν υπάρχει διαθέσιμος web περιηγητής. Απαιτείται περιηγητής για να ανοίξετε αυτόν τον σύνδεσμο.</string>
 </resources>

@@ -811,4 +811,5 @@ ASPICE বৈশিষ্ট্যগুলির বর্তমান তা�
     <string name="morpheusly_cta_download">পান Morpheusly</string>
     <string name="connection_add_shortcut">হোম স্ক্রিনে যোগ করুন</string>
     <string name="shortcut_not_supported">এই লঞ্চারটি শর্টকাট পিন করা সমর্থন করে না।</string>
+    <string name="no_browser_available">কোনও ওয়েব ব্রাউজার নেই। এই লিংক খুলতে ব্রাউজার প্রয়োজন।</string>
 </resources>

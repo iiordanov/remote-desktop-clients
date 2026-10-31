@@ -23,9 +23,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Point;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -41,6 +39,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.bVNC;
+import com.iiordanov.bVNC.Utils;
 import com.iiordanov.util.RandomString;
 import com.undatech.remoteClientUi.R;
 
@@ -52,7 +51,7 @@ import java.util.Objects;
  */
 public class AutoXCustomizeDialog extends AlertDialog {
     private final static String TAG = "AutoXCustomizeDialog";
-    private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://iiordanov.blogspot.ca/2012/10/looking-for-nx-client-for-android-or.html"));
+    private static final String DOC_URL = "http://iiordanov.blogspot.ca/2012/10/looking-for-nx-client-for-android-or.html";
     private final bVNC mainConfigDialog;
     private int commandIndex;
     private int origCommandIndex;
@@ -92,7 +91,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
     }
 
     public static void showDocumentation(Context c) {
-        c.startActivity(docIntent);
+        Utils.startUriIntent(c, DOC_URL);
     }
 
     /* Don't do anything if back is pressed.

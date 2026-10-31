@@ -983,4 +983,5 @@ Appen er allerede fritaget for batterioptimering.</string>
     <string name="morpheusly_cta_download">Få Morpheusly</string>
     <string name="connection_add_shortcut">Føj til startskærm</string>
     <string name="shortcut_not_supported">Denne launcher understøtter ikke fastgørelse af genveje.</string>
+    <string name="no_browser_available">Der er ingen webbrowser tilgængelig. En browser er påkrævet for at åbne dette link.</string>
 </resources>

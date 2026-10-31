@@ -804,4 +804,5 @@
     <string name="morpheusly_cta_download">Отримати Morpheusly</string>
     <string name="connection_add_shortcut">Додати на головний екран</string>
     <string name="shortcut_not_supported">Ця програма запуску не підтримує закріплення ярликів.</string>
+    <string name="no_browser_available">Немає доступного веб-браузера. Для відкриття цього посилання потрібен браузер.</string>
 </resources>

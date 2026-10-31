@@ -1143,4 +1143,5 @@ Direct, Swipe Pan: Плъзнете, за да се движите наокол�
     <string name="morpheusly_cta_download">Вземете Morpheusly</string>
     <string name="connection_add_shortcut">Добавяне към началния екран</string>
     <string name="shortcut_not_supported">Този стартер не поддържа закачване на преки пътища.</string>
+    <string name="no_browser_available">Няма наличен уеб браузър. За отваряне на този линк е необходим браузър.</string>
 </resources>

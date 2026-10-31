@@ -983,4 +983,5 @@ Mae ap eisoes wedi\'i eithrio rhag optimeiddio batri.</string>
     <string name="morpheusly_cta_download">Cael Morpheusly</string>
     <string name="connection_add_shortcut">Ychwanegu at y Sgrin Gartref</string>
     <string name="shortcut_not_supported">Nid yw\'r lansiwr hwn yn cefnogi pinio llwybrau byr.</string>
+    <string name="no_browser_available">Dim porwr gwe ar gael. Mae porwr yn angenrheidiol i agor y ddolen hon.</string>
 </resources>

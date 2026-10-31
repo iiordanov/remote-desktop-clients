@@ -811,4 +811,5 @@ Programu tayari imeondolewa kwenye uboreshaji wa betri.</string>
     <string name="morpheusly_cta_download">Pata Morpheusly</string>
     <string name="connection_add_shortcut">Ongeza kwenye Skrini ya Kwanza</string>
     <string name="shortcut_not_supported">Kizinduzi hiki hakitumii kubandika njia za mkato.</string>
+    <string name="no_browser_available">Hakuna kivinjari cha wavuti cha pato. Kivinjari kinahitajika kufungua kiungo hiki.</string>
 </resources>

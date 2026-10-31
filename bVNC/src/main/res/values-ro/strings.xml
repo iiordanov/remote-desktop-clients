@@ -906,4 +906,5 @@ Aplicația este deja scutită de optimizările bateriei.</string>
     <string name="morpheusly_cta_download">Obțineți Morpheusly</string>
     <string name="connection_add_shortcut">Adaugă pe ecranul principal</string>
     <string name="shortcut_not_supported">Acest lansator nu acceptă fixarea comenzilor rapide.</string>
+    <string name="no_browser_available">Nu există un browser web disponibil. Este necesar un browser pentru a deschide acest link.</string>
 </resources>

@@ -983,4 +983,5 @@ Sovellus on jo vapautettu akun optimoinnista.</string>
     <string name="morpheusly_cta_download">Hanki Morpheusly</string>
     <string name="connection_add_shortcut">Lisää aloitusnäyttöön</string>
     <string name="shortcut_not_supported">Tämä käynnistin ei tue pikakuvakkeiden kiinnittämistä.</string>
+    <string name="no_browser_available">Ei verkkainselainta käytettävissä. Linkin avaamiseen tarvitaan selain.</string>
 </resources>
