@@ -69,13 +69,22 @@ Building the projects with pre-built dependencies.
 ### I-b From Scratch with Docker
 
 Make sure you're running the commands below from the root of the project.
+
 Ensure ANDROID_SDK is set to the path to your SDK.
+
+First install docker-compose-v2 package. On Ubuntu/Debian:
+
+```bash
+apt install docker-compose-v2
+```
+
+Then, run:
 
 ```bash
 echo "USER_UID=$(id -u)" > docker/.env
 echo "USER_GID=$(id -g)" >> docker/.env
 echo "CURRENT_WORKING_DIR=$(pwd)" >> docker/.env
-docker-compose -f docker/docker-compose.yml up
+docker compose -f docker/docker-compose.yml up
 ```
 
 ### I-c From Scratch
