@@ -1,3 +1,8 @@
+v6.5.0
+- Improved SPICE proxy support for multi-node clusters
+- Upgrade Android Gradle Plugin (AGP) from 8.13.2 to 9.4.1.
+- Enabled R8 optimization due to new AGP requirements
+- Detect and handle browser not installed on device on opening links
 v6.4.9
 - Android API 36 Upgrade
 - Pin connection as shortcut by long-tapping
