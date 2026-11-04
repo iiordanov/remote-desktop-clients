@@ -42,7 +42,6 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
@@ -50,6 +49,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.iiordanov.android.bc.BCFactory;
+import com.iiordanov.bVNC.input.RemoteInputConnection;
 import com.iiordanov.bVNC.input.TouchInputHandlerTouchpad;
 import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.Connection;
@@ -822,7 +822,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         Log.d(TAG, "onCreateInputConnection called");
-        BaseInputConnection bic = new BaseInputConnection(this, false);
+        InputConnection bic = new RemoteInputConnection(this);
         outAttrs.actionLabel = null;
         outAttrs.inputType = getKeyboardVariation();
         String currentIme = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);

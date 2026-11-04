@@ -8,6 +8,7 @@ android {
         targetSdkVersion targetApi
         minSdkVersion project.getProperties().get("SDK_VERSION")
         vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -31,6 +32,8 @@ android {
 }
 
 dependencies {
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
     implementation project(':pubkeyGenerator')
     implementation project(':remoteClientLib')
     implementation project(':remoteClientLib:jni:libs:deps:FreeRDP:client:Android:Studio:freeRDPCore')
