@@ -46,6 +46,65 @@ import androidx.fragment.app.FragmentTransaction;
 import com.undatech.remoteClientUi.R;
 
 public class GetTextFragment extends DialogFragment {
+
+    // Shows why the previous login was rejected (red text above the title).
+    private void showAuthError(View v) {
+        Bundle a = getArguments();
+        String kind = a == null ? null : a.getString("authError");
+        TextView authError = v.findViewById(R.id.authError);
+        if (kind == null || authError == null) {
+            return;
+        }
+        int res;
+        switch (kind) {
+            case "locked":
+                res = R.string.rdp_auth_error_locked;
+                break;
+            case "disabled":
+                res = R.string.rdp_auth_error_disabled;
+                break;
+            case "expired":
+                res = R.string.rdp_auth_error_password_expired;
+                break;
+            case "denied":
+                res = R.string.rdp_auth_error_no_rights;
+                break;
+            case "auth":
+                res = R.string.rdp_auth_error_auth;
+                break;
+            case "server":
+                res = R.string.rdp_auth_error_server;
+                break;
+            case "unknown":
+                res = R.string.rdp_auth_error_unknown;
+                break;
+            default:
+                res = R.string.rdp_auth_error_wrong;
+                break;
+        }
+        authError.setText(res);
+        authError.setVisibility(View.VISIBLE);
+        showAuthServer(v, a);
+    }
+
+    // Shows which server was being contacted when the login failed.
+    private void showAuthServer(View v, Bundle a) {
+        TextView authServer = v.findViewById(R.id.authServer);
+        String server = a.getString("authServer");
+        if (authServer == null || server == null) {
+            return;
+        }
+        StringBuilder sb = new StringBuilder(getString(R.string.rdp_auth_server, server));
+        String target = a.getString("authTarget");
+        if (target != null) {
+            sb.append('\n').append(getString(R.string.rdp_auth_target_server, target));
+        } else if (a.getBoolean("authTargetUnknown", false)) {
+            sb.append('\n').append(getString(R.string.rdp_auth_target_unknown));
+        }
+        authServer.setText(sb.toString());
+        authServer.setVisibility(View.VISIBLE);
+    }
+
     public static final int Plaintext = 1;
     public static final int Password = 2;
     public static final int MatchingPasswordTwice = 3;
@@ -201,6 +260,7 @@ public class GetTextFragment extends DialogFragment {
                 textBox3 = (EditText) v.findViewById(R.id.textBox3);
                 hideText(textBox3);
                 textBox3.requestFocus();
+                showAuthError(v);
                 checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
                 buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
                 buttonCancel = (Button) v.findViewById(R.id.buttonCancel);

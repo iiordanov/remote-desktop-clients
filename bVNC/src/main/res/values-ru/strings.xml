@@ -966,4 +966,15 @@
     <string name="connection_add_shortcut">Добавить на главный экран</string>
     <string name="shortcut_not_supported">Этот лаунчер не поддерживает закрепление ярлыков.</string>
     <string name="no_browser_available">Веб-браузер недоступен. Для открытия этой ссылки требуется браузер.</string>
+    <string name="rdp_auth_error_wrong">Неверный логин или пароль</string>
+    <string name="rdp_auth_error_locked">Учётная запись заблокирована</string>
+    <string name="rdp_auth_error_disabled">Учётная запись отключена</string>
+    <string name="rdp_auth_error_password_expired">Срок действия пароля истёк</string>
+    <string name="rdp_auth_error_no_rights">Нет прав для удалённого входа на сервер</string>
+    <string name="rdp_auth_error_auth">Ошибка проверки подлинности. Проверьте логин и пароль; если они верны, возможна проблема на сервере</string>
+    <string name="rdp_auth_error_server">Не удалось подключиться к серверу. Повторите попытку позже</string>
+    <string name="rdp_auth_error_unknown">Не удалось войти. Возможна проблема сервера или сети</string>
+    <string name="rdp_auth_server">Сервер: %1$s</string>
+    <string name="rdp_auth_target_server">Целевой сервер: %1$s</string>
+    <string name="rdp_auth_target_unknown">Целевой сервер не определён (сбой до проверки его сертификата)</string>
 </resources>

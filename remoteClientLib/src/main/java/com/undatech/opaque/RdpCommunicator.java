@@ -42,6 +42,103 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     private final RdpCommunicator myself;
     private final Viewable viewable;
     private SessionState session;
+
+    // Why the last connection attempt failed: wrong (credentials rejected), locked, disabled, expired,
+    // denied, auth (generic authentication failure, may be a server problem), server (the server or the
+    // transport failed) or null (unknown).
+    private String authErrorKind = null;
+    // Server certificates shown so far: the first one belongs to the entry server (the broker), the
+    // second one to the server the broker redirected to. Used to tell which server was reached.
+    private int certificatesSeen = 0;
+    private String firstCertName = null;
+    private String lastCertName = null;
+
+    private boolean credentialsWereProvided() {
+        return this.username != null && !this.username.isEmpty()
+                && this.password != null && !this.password.isEmpty();
+    }
+
+    // Matches the texts FreeRDP 2.x returns from freerdp_get_last_error_string().
+    // Only explicit credential errors are reported as "wrong"; everything that points at the
+    // server or the connection is reported separately, so a broken server is not blamed on the user.
+    static String classifyAuthError(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String s = raw.toLowerCase(java.util.Locale.ROOT);
+        if (s.contains("locked out")) {
+            return "locked";
+        }
+        if (s.contains("account is disabled") || s.contains("account expired")) {
+            return "disabled";
+        }
+        if (s.contains("password") && (s.contains("expired") || s.contains("must be changed"))) {
+            return "expired";
+        }
+        if (s.contains("wrong password") || s.contains("credentials invalid") || s.contains("logon failure")
+                || s.contains("logon failed")) {
+            return "wrong";
+        }
+        if (s.contains("logon type not granted") || s.contains("insufficient") || s.contains("access denied")
+                || s.contains("account restriction")) {
+            return "denied";
+        }
+        if (s.contains("authentication failure")) {
+            return "auth";
+        }
+        if (s.contains("transport layer") || s.contains("connection failed") || s.contains("undefined connection error")
+                || s.contains("peer connection was lost") || s.contains("kdc is unreachable")
+                || s.contains("security negotiation") || s.contains("connection broker")) {
+            return "server";
+        }
+        return null;
+    }
+
+    private void sendCredentialsRequest(String kind) {
+        Log.v(TAG, "Sending message: GET_RDP_CREDENTIALS, auth error: " + kind);
+        Message m = handler.obtainMessage(RemoteClientLibConstants.GET_RDP_CREDENTIALS);
+        if (kind != null) {
+            Bundle b = new Bundle();
+            b.putString("authError", kind);
+            // Which server was being contacted: the entry server, the redirect target when it is known.
+            b.putString("authServer", connection.getAddress() + ":" + connection.getPort());
+            if (certificatesSeen >= 2 && lastCertName != null && !lastCertName.equals(firstCertName)) {
+                b.putString("authTarget", lastCertName);
+            } else if (certificatesSeen == 1 && ("server".equals(kind) || "auth".equals(kind) || "unknown".equals(kind))) {
+                b.putBoolean("authTargetUnknown", true);
+            }
+            m.setData(b);
+        }
+        handler.sendMessage(m);
+    }
+
+    // Reads the last FreeRDP error text, which tells a rejected login from a server problem.
+    private String getLastErrorText(long instance) {
+        try {
+            java.lang.reflect.Method m = LibFreeRDP.class.getDeclaredMethod("freerdp_get_last_error_string", long.class);
+            m.setAccessible(true);
+            Object r = m.invoke(null, instance);
+            return r == null ? "" : r.toString().trim();
+        } catch (Throwable t) {
+            Log.w(TAG, "Unable to get the last FreeRDP error string", t);
+            return "";
+        }
+    }
+
+    // Distinguishes a normal end of session (logoff on the server) from a real failure.
+    private void reportSessionEnded(long instance) {
+        String err = getLastErrorText(instance);
+        Log.v(TAG, "Session ended, last FreeRDP error: '" + err + "'");
+        String lower = err.toLowerCase(java.util.Locale.ROOT);
+        if (lower.contains("logoff") || lower.contains("logging off") || lower.contains("logged off")
+                || lower.contains("was initiated") || lower.contains("rpc_initiated")) {
+            Log.v(TAG, "Sending message: DISCONNECT_NO_MESSAGE (normal end of session)");
+            handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE);
+        } else {
+            Log.v(TAG, "Sending message: RDP_CONNECT_FAILURE");
+            handler.sendEmptyMessage(RemoteClientLibConstants.RDP_CONNECT_FAILURE);
+        }
+    }
     private final BookmarkBase bookmark;
     // Keeps track of libFreeRDP instance
     private final GlobalApp freeRdpApp;
@@ -429,15 +526,29 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
                 ", authenticationAttempted: " + authenticationAttempted +
                 ", disconnectRequested: " + disconnectRequested +
                 ", isInNormalProtocol: " + myself.isInNormalProtocol());
+        if (!myself.isInNormalProtocol() && !disconnectRequested) {
+            String rawError = getLastErrorText(instance);
+            String kind = classifyAuthError(rawError);
+            Log.v(TAG, "Auth failed, last FreeRDP error: '" + rawError + "', recognized as: " + kind);
+            if (kind != null && authErrorKind == null) {
+                authErrorKind = kind;
+            }
+        }
         if (reattemptWithoutCredentials && !myself.isInNormalProtocol()) {
             reattemptWithoutCredentials = false;
             // It could be bad credentials that caused the disconnection, so trying to connect
             // once again with no credentials before reporting the type of failure.
+            if (authErrorKind != null && credentialsWereProvided()) {
+                // The server has already told why the login was rejected: no point in an anonymous retry.
+                sendCredentialsRequest(authErrorKind);
+                return;
+            }
             initSession(null, "", "", "");
             connect();
         } else if (authenticationAttempted && !myself.isInNormalProtocol()) {
             Log.v(TAG, "Sending message: GET_RDP_CREDENTIALS");
-            handler.sendEmptyMessage(RemoteClientLibConstants.GET_RDP_CREDENTIALS);
+            sendCredentialsRequest(credentialsWereProvided()
+                    ? (authErrorKind != null ? authErrorKind : "unknown") : null);
         } else if (gatewayAuthenticationAttempted && !myself.isInNormalProtocol()) {
             Log.v(TAG, "Sending message: GET_RDP_GATEWAY_CREDENTIALS");
             handler.sendEmptyMessage(RemoteClientLibConstants.GET_RDP_GATEWAY_CREDENTIALS);
@@ -446,8 +557,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT);
         } else if (!disconnectRequested) {
             myself.setIsInNormalProtocol(false);
-            Log.v(TAG, "Sending message: RDP_CONNECT_FAILURE");
-            handler.sendEmptyMessage(RemoteClientLibConstants.RDP_CONNECT_FAILURE);
+            reportSessionEnded(instance);
         }
     }
 
@@ -524,6 +634,13 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     public int OnVerifiyCertificate(String commonName, String subject,
                                     String issuer, String fingerprint, boolean mismatch) {
         Log.d(TAG, "OnVerifiyCertificate called.");
+        certificatesSeen++;
+        String certName = commonName != null && !commonName.isEmpty() ? commonName : subject;
+        if (certificatesSeen == 1) {
+            firstCertName = certName;
+        }
+        lastCertName = certName;
+        Log.v(TAG, "Certificate #" + certificatesSeen + " seen for: " + certName);
 
         // Send a message containing the certificate to our handler.
         Message m = new Message();
